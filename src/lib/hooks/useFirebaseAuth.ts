@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import Firebase from "../firebase";
+import { auth } from "../firebase";
 import { User } from "@firebase/auth-types";
+import useErrorCheck from "./useErrorCheck";
 
 type AuthUser = {
   uid: string | null;
@@ -34,16 +35,22 @@ export default function useFirebaseAuth() {
     setLoading(true);
   };
 
-  const signInWithEmailAndPassword = (email: string, password: string) =>
-    Firebase.auth().signInWithEmailAndPassword(email, password);
+  const signInWithEmailAndPassword = async (email: string, password: string) =>
+    await auth.signInWithEmailAndPassword(email, password).catch(useErrorCheck);
 
-  const createUserWithEmailAndPassword = (email: string, password: string) =>
-    Firebase.auth().createUserWithEmailAndPassword(email, password);
+  const createUserWithEmailAndPassword = async (
+    email: string,
+    password: string
+  ) =>
+    await auth
+      .createUserWithEmailAndPassword(email, password)
+      .catch(useErrorCheck);
 
-  const signOut = () => Firebase.auth().signOut().then(clear);
+  const signOut = async () =>
+    await auth.signOut().then(clear).catch(useErrorCheck);
 
   useEffect(() => {
-    const unsubscribe = Firebase.auth().onAuthStateChanged(authStateChanged);
+    const unsubscribe = auth.onAuthStateChanged(authStateChanged);
     return () => unsubscribe();
   }, []);
 

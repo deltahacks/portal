@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import "../lib/firebase";
 import Head from "next/head";
 
 type TechnologyCardProps = {

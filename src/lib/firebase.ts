@@ -15,4 +15,10 @@ if (!firebase.apps.length) {
   firebase.initializeApp(clientCredentials);
 }
 
-export default firebase;
+// Auth exports
+export const auth = firebase.auth();
+
+// Firestore exports
+export const firestore = firebase.firestore();
+
+// TODO: Helper functions below
