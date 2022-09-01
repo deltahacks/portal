@@ -2,8 +2,6 @@
 
 Contains hooks, initialization and any utility classes
 
-
-
 References:
 https://blog.logrocket.com/implementing-authentication-in-next-js-with-firebase/
 https://github.com/deltahacks/judge/blob/master/src/firebaseinit.ts

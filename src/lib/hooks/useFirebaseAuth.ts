@@ -49,6 +49,9 @@ export default function useFirebaseAuth() {
   const signOut = async () =>
     await auth.signOut().then(clear).catch(useErrorCheck);
 
+  const resetPassword = async (email: string) =>
+    await auth.sendPasswordResetEmail(email);
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(authStateChanged);
     return () => unsubscribe();
@@ -60,5 +63,6 @@ export default function useFirebaseAuth() {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
+    resetPassword,
   };
 }
