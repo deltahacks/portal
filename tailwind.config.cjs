@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
@@ -7,7 +8,6 @@ module.exports = {
         montserrat: ["Montserrat"],
         inter: ["Inter"],
       },
-      darkMode: "class",
     },
   },
   plugins: [],
