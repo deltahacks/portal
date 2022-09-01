@@ -1,12 +1,12 @@
 import type { NextPage } from "next";
-import Link from "next/link"
+import Link from "next/link";
 import Head from "next/head";
 import { useState } from "react";
 
 const ForgotPassword: NextPage = () => {
-    const [dark, setDark] = useState<boolean>(true);
+  const [dark, setDark] = useState<boolean>(true);
 
-    return (
+  return (
     <>
       <Head>
         <title>DH9 Forgot Password</title>
@@ -39,8 +39,14 @@ const ForgotPassword: NextPage = () => {
         </div>
         <div className="relative bg-white dark:bg-[#1F1F1F] flex-1">
           <div className="relative flex justify-between w-full p-4 pl-8">
-            <button type="button" onClick={() => dark ? setDark(false) : setDark(true)}>
-              <img src={dark ? "images/bxs_moon.svg" : "images/bxs_sun.svg"} alt="" />
+            <button
+              type="button"
+              onClick={() => (dark ? setDark(false) : setDark(true))}
+            >
+              <img
+                src={dark ? "images/bxs_moon.svg" : "images/bxs_sun.svg"}
+                alt=""
+              />
             </button>
             <nav className="flex items-center justify-end gap-8">
               <a
@@ -51,10 +57,9 @@ const ForgotPassword: NextPage = () => {
               </a>
               <Link href={"/Login"}>
                 <button className="normal-case btn btn-primary bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm py-3 px-4">
-                    Log In
+                  Log In
                 </button>
               </Link>
-              
             </nav>
           </div>
           <div className="absolute w-full px-8 -translate-x-1/2 -translate-y-1/2 lg:w-72 lg:p-0 md:px-20 left-1/2 top-1/2 ">
@@ -63,7 +68,9 @@ const ForgotPassword: NextPage = () => {
             </h2>
             <form className="w-full form-control">
               <label className="label">
-                <span className="label-text text-sm text-black dark:text-white">Email</span>
+                <span className="label-text text-sm text-black dark:text-white">
+                  Email
+                </span>
               </label>
               <input
                 type="email"
@@ -78,7 +85,7 @@ const ForgotPassword: NextPage = () => {
         </div>
       </div>
     </>
-    )
-        }
+  );
+};
 
-export default ForgotPassword
+export default ForgotPassword;

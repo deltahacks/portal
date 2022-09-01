@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
-import React from "react"
-import Link  from "next/link";
-
+import React from "react";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   return (
@@ -10,8 +9,6 @@ const Home: NextPage = () => {
       <Link href={"/SignUp"}>Sign Up</Link>
       <Link href={"/ForgotPassword"}>Forgot Password</Link>
     </div>
-
-    
   );
 };
 

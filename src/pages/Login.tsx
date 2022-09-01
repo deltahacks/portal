@@ -1,13 +1,12 @@
 import type { NextPage } from "next";
-import Link from "next/link"
+import Link from "next/link";
 import Head from "next/head";
 import { useState } from "react";
 
-
 const Login: NextPage = () => {
-    const [dark, setDark] = useState<boolean>(true);
+  const [dark, setDark] = useState<boolean>(true);
 
-    return (
+  return (
     <>
       <Head>
         <title>DH9 Login Page</title>
@@ -40,8 +39,14 @@ const Login: NextPage = () => {
         </div>
         <div className="relative bg-white dark:bg-[#1F1F1F] flex-1">
           <div className="relative flex justify-between w-full p-4 pl-8">
-            <button type="button" onClick={() => dark ? setDark(false) : setDark(true)}>
-              <img src={dark ? "images/bxs_moon.svg" : "images/bxs_sun.svg"} alt="" />
+            <button
+              type="button"
+              onClick={() => (dark ? setDark(false) : setDark(true))}
+            >
+              <img
+                src={dark ? "images/bxs_moon.svg" : "images/bxs_sun.svg"}
+                alt=""
+              />
             </button>
             <nav className="flex items-center justify-end gap-8">
               <a
@@ -52,10 +57,9 @@ const Login: NextPage = () => {
               </a>
               <Link href={"/SignUp"}>
                 <button className="normal-case btn btn-primary bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm py-3 px-4">
-                    Sign Up
+                  Sign Up
                 </button>
               </Link>
-              
             </nav>
           </div>
           <div className="absolute w-full px-8 -translate-x-1/2 -translate-y-1/2 lg:w-72 lg:p-0 md:px-20 left-1/2 top-1/2 ">
@@ -64,7 +68,9 @@ const Login: NextPage = () => {
             </h2>
             <form className="w-full form-control">
               <label className="label">
-                <span className="label-text text-sm text-black dark:text-white">Email</span>
+                <span className="label-text text-sm text-black dark:text-white">
+                  Email
+                </span>
               </label>
               <input
                 type="email"
@@ -72,7 +78,9 @@ const Login: NextPage = () => {
                 className="w-full input input-bordered dark:bg-zinc-800 p-4 my-2 rounded-lg text-black dark:text-white text-xs"
               />
               <label className="label">
-                <span className="label-text-alt text-sm text-black dark:text-white">Password</span>
+                <span className="label-text-alt text-sm text-black dark:text-white">
+                  Password
+                </span>
               </label>
               <input
                 type="password"
@@ -82,8 +90,18 @@ const Login: NextPage = () => {
               <button className="w-full mt-6 py-4 normal-case btn btn-primary bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm">
                 Log In
               </button>
-              <div className="font-inter text-sm font-normal mt-2 text-black dark:text-white">New? <Link href={"/SignUp"}><a href=""><strong>Sign Up</strong></a></Link> here</div>
-              <div className="font-inter text-xs font-normal mt-2 text-black dark:text-white"><Link href={"/ForgotPassword"}>Forgot Password?</Link></div>
+              <div className="font-inter text-sm font-normal mt-2 text-black dark:text-white">
+                New?{" "}
+                <Link href={"/SignUp"}>
+                  <a href="">
+                    <strong>Sign Up</strong>
+                  </a>
+                </Link>{" "}
+                here
+              </div>
+              <div className="font-inter text-xs font-normal mt-2 text-black dark:text-white">
+                <Link href={"/ForgotPassword"}>Forgot Password?</Link>
+              </div>
             </form>
           </div>
         </div>
@@ -145,7 +163,7 @@ const Login: NextPage = () => {
     //     </div>
     //    </div>
     //    </>
-    )
-}
+  );
+};
 
 export default Login;
