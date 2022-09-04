@@ -2,9 +2,23 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import Head from "next/head";
 import { useState } from "react";
+import * as React from "react";
 
 const Login: NextPage = () => {
-  const [dark, setDark] = useState<boolean>(true);
+  
+  const [dark, setDark] = useState<boolean>();
+
+  React.useEffect(() => {
+    let currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDark(currentTheme);
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', event => {
+        const colorScheme = event.matches ? true : false;
+        setDark(colorScheme);
+      });
+    
+  }, []);
+
 
   return (
     <>
@@ -94,10 +108,10 @@ const Login: NextPage = () => {
                 New?{" "}
                 <Link href={"/SignUp"}>
                   <a href="">
-                    <strong>Sign Up</strong>
+                    <strong className="text-indigo-600 underline">Sign Up</strong>
                   </a>
                 </Link>{" "}
-                here
+                here 
               </div>
               <div className="font-inter text-xs font-normal mt-2 text-black dark:text-white">
                 <Link href={"/ForgotPassword"}>Forgot Password?</Link>
