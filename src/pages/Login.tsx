@@ -1,23 +1,24 @@
 import type { NextPage } from "next";
 import Link from "next/link";
 import Head from "next/head";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 const Login: NextPage = () => {
-  
   const [dark, setDark] = useState<boolean>();
 
   useEffect(() => {
-    let currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let currentTheme = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     setDark(currentTheme);
-    window.matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', event => {
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (event) => {
         const colorScheme = event.matches ? true : false;
         setDark(colorScheme);
       });
-    
   }, []);
-
 
   return (
     <>
@@ -42,13 +43,15 @@ const Login: NextPage = () => {
               backgroundSize: "200% 200%",
             }}
           ></div>
-
-          <img
-            draggable="false"
-            src="images/leftp.png"
-            alt="deltahacks 9 logo"
-            className="absolute -translate-x-1/2 -translate-y-1/2 lg:p-24 md:p-16 top-1/2 left-1/2"
-          />
+          <div className="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+            <Image
+              draggable="false"
+              src="/images/leftp.png"
+              alt="deltahacks 9 logo"
+              width={700}
+              height={200}
+            />
+          </div>
         </div>
         <div className="relative bg-white dark:bg-[#1F1F1F] flex-1">
           <div className="relative flex justify-between w-full p-4 pl-8">
@@ -56,9 +59,11 @@ const Login: NextPage = () => {
               type="button"
               onClick={() => (dark ? setDark(false) : setDark(true))}
             >
-              <img
-                src={dark ? "images/bxs_moon.svg" : "images/bxs_sun.svg"}
+              <Image
+                src={dark ? "/images/bxs_moon.svg" : "/images/bxs_sun.svg"}
                 alt=""
+                width={24}
+                height={24}
               />
             </button>
             <nav className="flex items-center justify-end gap-8">
@@ -107,10 +112,12 @@ const Login: NextPage = () => {
                 New?{" "}
                 <Link href={"/SignUp"}>
                   <a href="">
-                    <strong className="text-indigo-600 underline">Sign Up</strong>
+                    <strong className="text-indigo-600 underline">
+                      Sign Up
+                    </strong>
                   </a>
                 </Link>{" "}
-                here 
+                here
               </div>
               <div className="font-inter text-xs font-normal mt-2 text-black dark:text-white">
                 <Link href={"/ForgotPassword"}>Forgot Password?</Link>
