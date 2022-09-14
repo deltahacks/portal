@@ -1,14 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    darkMode: "class",
-    content: ["./src/**/*.{js,ts,jsx,tsx}"],
-    theme: {
-        extend: {
-            fontFamily: {
-                montserrat: ["Montserrat"],
-                inter: ["Inter"],
-            },
-        },
+  darkMode: "class",
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      fontFamily: {
+        montserrat: ["Montserrat"],
+        inter: ["Inter"],
+      },
     },
-    plugins: [require("daisyui")],
+  },
+  plugins: [require("daisyui")],
 };
