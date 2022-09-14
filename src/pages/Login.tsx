@@ -8,7 +8,7 @@ const Login: NextPage = () => {
   const [dark, setDark] = useState<boolean>();
 
   useEffect(() => {
-    let currentTheme = window.matchMedia(
+    const currentTheme = window.matchMedia(
       "(prefers-color-scheme: dark)"
     ).matches;
     setDark(currentTheme);
