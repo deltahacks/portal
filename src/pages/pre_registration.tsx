@@ -36,10 +36,14 @@ const PreRegistration: NextPage = () => {
             </p>
             <div className="flex flex-col items-left w-40 mt-8 mb-8 gap-4 md:flex-row md:items-start md:gap-7">
               <Link href="#">
-                <button className="btn btn-primary btn-s md:btn-wide">Apply</button>
+                <button className="btn btn-primary btn-s md:btn-wide">
+                  Apply
+                </button>
               </Link>
               <Link href="#">
-                <button className="btn btn-outline btn-s md:btn-wide">FAQ</button>
+                <button className="btn btn-outline btn-s md:btn-wide">
+                  FAQ
+                </button>
               </Link>
             </div>
           </div>
