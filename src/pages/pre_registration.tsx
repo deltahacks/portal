@@ -17,34 +17,34 @@ const PreRegistration: NextPage = () => {
       <div className="font-montserrat">
         <main className="flex flex-col md:justify-between mt-14 ml-8 md:ml-20 mr-6">
           <div className="w-11/12 md:w-9/12">
-            <h1 className="text-center md:text-left text-5xl font-semibold text-white leading-tight">
+            <h1 className="text-left text-3xl md:text-5xl font-semibold text-white leading-tight">
               A Weekend Worth Hacking,
               <br />@ DeltaHacks 9
             </h1>
-            <p className="text-center md:text-left font-normal text-3xl leading-10 text-neutal-500 mt-8">
+            <p className="text-left font-normal text-xl text-neutal-500 mt-8 md:text-3xl md:leading-10">
               At DeltaHacks, we believe change comes from dreaming big. Each
               year we enable over 800 students from across North America,
               working hard over 36 hours, to bring their big ideas to life.
               Unleash your creativity and make something great, we{"'"}ll handle
               the rest! Make big ideas a reality at DeltaHacks 9!
             </p>
-            <p className="text-center md:text-left font-normal text-3xl leading-10 text-neutal-500 mt-8">
+            <p className="text-left font-normal text-xl text-neutal-500 mt-8 md:text-3xl md:leading-10">
               If you have any questions, you can reach us at{" "}
               <a href="mailto: hello@deltahacks.com" className="text-sky-400">
                 hello@deltahacks.com
               </a>
             </p>
-            <div className="flex flex-col items-center md:flex-row md:items-start mt-8 mb-8 gap-7">
+            <div className="flex flex-col items-left w-40 mt-8 mb-8 gap-4 md:flex-row md:items-start md:gap-7">
               <Link href="#">
-                <button className="btn btn-primary btn-wide">Apply</button>
+                <button className="btn btn-primary btn-s md:btn-wide">Apply</button>
               </Link>
               <Link href="#">
-                <button className="btn btn-outline btn-wide">FAQ</button>
+                <button className="btn btn-outline btn-s md:btn-wide">FAQ</button>
               </Link>
             </div>
           </div>
           <div className="relative">
-            <div className="absolute md:-bottom-20 right-0 m-1">
+            <div className="absolute -bottom-20 right-0 m-1">
               <SocialButtons />
             </div>
           </div>
