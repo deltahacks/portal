@@ -12,7 +12,7 @@ const useStore = create<TestingStore>()(
       words: ["hi", "hello"],
       addWord: (word: string) => set((state) => ({ words: [...state.words, word] }))
     })
-    , { serialize: true })
+  )
 )
 
 export default useStore
