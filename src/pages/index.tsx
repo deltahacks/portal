@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Component1 from "../components/Component1"
-import Component2 from "../components/Component2"
+import Component1 from "../components/Component1";
+import Component2 from "../components/Component2";
 
 type TechnologyCardProps = {
   name: string;
