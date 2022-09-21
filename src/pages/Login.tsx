@@ -1,9 +1,11 @@
-import type { NextPage } from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import logo from "../../public/images/logo.png";
+import { signIn } from "next-auth/react";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 export const DHBranding = () => {
   return (
@@ -87,9 +89,12 @@ const Login: NextPage = () => {
             <div className="text-center py-2 rounded-md border-zinc-700 border-2">
               Outlook
             </div>
-            <div className="text-center py-2 rounded-md border-zinc-700 border-2">
+            <button
+              className="text-center py-2 rounded-md border-zinc-700 border-2"
+              onClick={() => signIn("discord")}
+            >
               Discord
-            </div>
+            </button>
           </div>
           {/* <form className="w-full form-control md:pt-2 gap-3">
             <label className="label">
@@ -217,6 +222,15 @@ const Login: NextPage = () => {
       </div> */}
     </>
   );
+};
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const session = await getServerAuthSession(ctx);
+  console.log(session);
+  if (session?.user) {
+    return { redirect: { destination: "/", permanent: false } };
+  }
+  return { props: {} };
 };
 
 export default Login;
