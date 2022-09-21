@@ -15,11 +15,46 @@ const SignUp: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div
-        className={`flex min-h-screen ${dark && "dark"}`}
-        data-theme={dark ? "dark" : "light"}
-      >
-        <div className="bg-[#171717] flex-1 relative overflow-hidden">
+      <div className={`h-full ${dark && "dark"} `}>
+        <div className="relative bg-[#171717] w-full md:w-1/2 h-full overflow-hidden">
+          <div
+            className="absolute inset-0 -rotate-12 w-[200%] h-[200%] -top-[50%] -left-[50%] animate-slow-bg"
+            style={{
+              maskImage: "url(images/bg.png)",
+              WebkitMaskImage: "url(images/bg.png)",
+              background:
+                "linear-gradient(#1C1C1C 0%, #1C1C1C 40%, #2e2e2e 50%, #1C1C1C 60%, #1C1C1C 100%)",
+              backgroundSize: "200% 200%",
+            }}
+          ></div>
+        </div>
+        <div className="absolute top-1/2 left-1/2 min-w-[85%] md:min-w-[40vw] -translate-x-1/2 -translate-y-1/2 md:left-3/4 ">
+          <h2 className="mb-4 text-2xl font-bold text-black dark:text-white">
+            Sign Up
+          </h2>
+          <form className="w-full form-control">
+            <label className="label">
+              <span className="label-text">Email</span>
+            </label>
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full input input-bordered dark:bg-zinc-800"
+            />
+            <label className="label">
+              <span className="label-text-alt">Password</span>
+            </label>
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full input input-bordered dark:bg-zinc-800"
+            />
+            <button className="w-full mt-6 normal-case btn btn-primary">
+              Sign Up
+            </button>
+          </form>
+        </div>
+        {/* <div className="bg-[#171717] flex-1 relative overflow-hidden">
           <div
             className="absolute inset-0 -rotate-12 w-[200%] h-[200%] -top-[50%] -left-[50%] animate-slow-bg"
             style={{
@@ -126,7 +161,7 @@ const SignUp: NextPage = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );
