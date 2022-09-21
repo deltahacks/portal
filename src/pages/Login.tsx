@@ -43,7 +43,7 @@ const Login: NextPage = () => {
       </Head>
       {/* dark / light mode*/}
       <div
-        className={`bg-[#272727] flex ${dark && "dark"} w-full h-full`}
+        className={`bg-[#1f1f1f] flex ${dark && "dark"} w-full h-full`}
         data-theme={dark ? "dark" : "light"}
       >
         <div className="bg-[#171717] relative overflow-hidden w-full md:w-1/2 h-full">
@@ -74,7 +74,24 @@ const Login: NextPage = () => {
           <h2 className="mb-4 text-2xl font-bold text-black dark:text-white">
             Login
           </h2>
-          <form className="w-full form-control md:pt-2 gap-3">
+          <div className="bg-zinc-800 p-2 border border-zinc-600 rounded-md flex flex-col text-white gap-1">
+            <div className="text-center py-6 bg-violet-700 rounded-md">
+              Google
+            </div>
+            <div className="text-xs text-center text-stone-500">
+              Or Continue With
+            </div>
+            <div className="text-center py-2 rounded-md border-zinc-700 border-2">
+              GitHub
+            </div>
+            <div className="text-center py-2 rounded-md border-zinc-700 border-2">
+              Outlook
+            </div>
+            <div className="text-center py-2 rounded-md border-zinc-700 border-2">
+              Discord
+            </div>
+          </div>
+          {/* <form className="w-full form-control md:pt-2 gap-3">
             <label className="label">
               <span className="label-text">Email</span>
             </label>
@@ -94,7 +111,7 @@ const Login: NextPage = () => {
             <button className="w-full mt-6 normal-case btn btn-primary">
               Login
             </button>
-          </form>
+          </form> */}
         </div>
       </div>
       {/* the background */}
