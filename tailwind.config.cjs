@@ -7,7 +7,6 @@ module.exports = {
       'main': ['Montserrat', 'ui-sans-serif', 'system-ui'],
       'sub': ['Inter', 'ui-serif', 'Georgia'],
     },
-
   },
-  plugins: [],
+  plugins: [require("daisyui")],
 };
