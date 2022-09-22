@@ -6,11 +6,12 @@ import { useState, useEffect } from "react";
 import logo from "../../public/images/logo.png";
 import { signIn } from "next-auth/react";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import Google from "next-auth/providers/google";
 
 export const DHBranding = () => {
   return (
     <div className="text-white">
-      <h1 className="font-montserrat font-bold text-4xl md:text-6xl">
+      <h1 className="font-montserrat text-4xl font-bold md:text-6xl">
         Delta<span className="font-normal">Hacks</span> IX
       </h1>
       <h2 className="font-montserrat text-sm md:text-xl">
@@ -45,12 +46,12 @@ const Login: NextPage = () => {
       </Head>
       {/* dark / light mode*/}
       <div
-        className={`bg-[#1f1f1f] flex ${dark && "dark"} w-full h-full`}
+        className={`flex bg-[#1f1f1f] ${dark && "dark"} h-full w-full`}
         data-theme={dark ? "dark" : "light"}
       >
-        <div className="bg-[#171717] relative overflow-hidden w-full md:w-1/2 h-full">
+        <div className="relative h-full w-full overflow-hidden bg-[#171717] md:w-1/2">
           <div
-            className="absolute inset-0 -rotate-12 w-[200%] h-[200%] -top-[50%] -left-[50%] animate-slow-bg"
+            className="absolute inset-0 -top-[50%] -left-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"
             style={{
               maskImage: "url(images/bg.png)",
               WebkitMaskImage: "url(images/bg.png)",
@@ -59,9 +60,9 @@ const Login: NextPage = () => {
               backgroundSize: "200% 200%",
             }}
           ></div>
-          <div className="absolute z-10 p-3 bottom-0 md:relative md:-translate-x-1/2 md:-translate-y-1/2 md:top-1/2 md:left-1/2 md:w-fit">
-            <div className="flex gap-4 items-center">
-              <div className="aspect-square w-20 md:w-40 hidden md:block">
+          <div className="absolute bottom-0 z-10 p-3 md:relative md:top-1/2 md:left-1/2 md:w-fit md:-translate-x-1/2 md:-translate-y-1/2">
+            <div className="flex items-center gap-4">
+              <div className="hidden aspect-square w-20 md:block md:w-40">
                 <Image
                   src={logo}
                   alt="DeltaHacks logo"
@@ -72,25 +73,31 @@ const Login: NextPage = () => {
             </div>
           </div>
         </div>
-        <div className="md:px-32 absolute top-1/2 left-1/2 min-w-[85%] md:min-w-[40vw] -translate-x-1/2 -translate-y-1/2 md:left-3/4 ">
+        <div className="absolute top-1/2 left-1/2 min-w-[85%] -translate-x-1/2 -translate-y-1/2 md:left-3/4 md:min-w-[40vw] md:px-32 ">
           <h2 className="mb-4 text-2xl font-bold text-black dark:text-white">
             Login
           </h2>
-          <div className="bg-zinc-800 p-2 border border-zinc-600 rounded-md flex flex-col text-white gap-1">
-            <div className="text-center py-6 bg-violet-700 rounded-md">
+          <div className="flex flex-col gap-1 rounded-md border border-zinc-600 bg-zinc-800 p-2 text-white">
+            <button
+              className="rounded-md bg-violet-700 py-6 text-center "
+              onClick={() => signIn("google")}
+            >
               Google
-            </div>
-            <div className="text-xs text-center text-stone-500">
+            </button>
+            <div className="text-center text-xs text-stone-500">
               Or Continue With
             </div>
-            <div className="text-center py-2 rounded-md border-zinc-700 border-2">
+            <button
+              className="rounded-md border-2 border-zinc-700 py-2 text-center"
+              onClick={() => signIn("github")}
+            >
               GitHub
-            </div>
-            <div className="text-center py-2 rounded-md border-zinc-700 border-2">
+            </button>
+            <div className="rounded-md border-2 border-zinc-700 py-2 text-center">
               Outlook
             </div>
             <button
-              className="text-center py-2 rounded-md border-zinc-700 border-2"
+              className="rounded-md border-2 border-zinc-700 py-2 text-center"
               onClick={() => signIn("discord")}
             >
               Discord
