@@ -62,7 +62,7 @@ const LoginCard = () => {
           <span className="h-0.5 w-full bg-zinc-600" />
         </div>
         {Object.entries(buttons).map(([key, value]) => (
-          <LoginButton title={key} image={value.image} />
+          <LoginButton key={key} title={key} image={value.image} />
         ))}
       </div>
     </div>
