@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 const DHBranding = () => {
   return (
@@ -10,7 +10,7 @@ const DHBranding = () => {
         January 13-15 | McMaster University
       </h2>
     </div>
-  )
-}
+  );
+};
 
-export default DHBranding
+export default DHBranding;

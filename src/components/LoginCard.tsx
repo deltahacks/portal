@@ -5,8 +5,8 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 
 interface LoginProps {
-  image: any,
-  title: string
+  image: any;
+  title: string;
 }
 
 const buttons = {
@@ -15,28 +15,24 @@ const buttons = {
   },
   Discord: {
     image: discord_logo,
-  }
-}
+  },
+};
 
 const LoginButton = (prop: LoginProps) => {
-  const { title, image } = prop
-  const normalizedTitle = title.toLowerCase()
+  const { title, image } = prop;
+  const normalizedTitle = title.toLowerCase();
   return (
     <button
       className="text-l flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700"
       onClick={() => signIn(normalizedTitle)}
     >
       <div className="mr-2 aspect-square  w-4">
-        <Image
-          src={image}
-          alt={`${title} Logo`}
-          layout="responsive"
-        ></Image>
+        <Image src={image} alt={`${title} Logo`} layout="responsive"></Image>
       </div>
       {title}
     </button>
-  )
-}
+  );
+};
 
 const LoginCard = () => {
   return (
@@ -65,12 +61,12 @@ const LoginCard = () => {
           <div className="mx-2 whitespace-nowrap">Or Continue With</div>
           <span className="h-0.5 w-full bg-zinc-600" />
         </div>
-        {
-          Object.entries(buttons).map(([key, value]) => <LoginButton title={key} image={value.image} />)
-        }
+        {Object.entries(buttons).map(([key, value]) => (
+          <LoginButton title={key} image={value.image} />
+        ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginCard
+export default LoginCard;
