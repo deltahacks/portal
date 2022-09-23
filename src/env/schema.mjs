@@ -18,6 +18,8 @@ export const serverSchema = z.object({
     GITHUB_CLIENT_SECRET: z.string(),
     // LINKEDIN_CLIENT_ID: z.string(),
     // LINKEDIN_CLIENT_SECRET: z.string(),
+    OSU_CLIENT_ID: z.string(),
+    OSU_CLIENT_SECRET: z.string(),
 });
 
 /**

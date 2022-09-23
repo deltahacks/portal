@@ -3,6 +3,7 @@ import DiscordProvider from "next-auth/providers/discord";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 // import LinkedInProvider from "next-auth/providers/linkedin";
+import OSUProvider from "next-auth/providers/osu";
 
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -37,7 +38,11 @@ export const authOptions: NextAuthOptions = {
     // LinkedInProvider({
     //   clientId: env.LINKEDIN_CLIENT_ID,
     //   clientSecret: env.LINKEDIN_CLIENT_SECRET,
-    // })
+    // }),
+    OSUProvider({
+      clientId: env.OSU_CLIENT_ID,
+      clientSecret: env.OSU_CLIENT_SECRET,
+    }),
     // ...add more providers here
   ],
 };
