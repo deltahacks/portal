@@ -45,6 +45,11 @@ const Login: NextPage = () => {
             <Head>
                 <title>DH9 Login Page</title>
                 <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+                />
+                <meta name="theme-color" content="#181818" />
+                <meta
                     name="apple-mobile-web-app-status-bar-style"
                     content="#181818" // add light/dark mode
                 />
