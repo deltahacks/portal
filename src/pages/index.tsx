@@ -8,7 +8,7 @@ const Home: NextPage = () => {
   const session = useSession();
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-6">
+    <div className="flex h-screen flex-col items-center justify-center space-y-6">
       Hello to dashboard?
       {session.data?.user?.email}
       <button className="btn btn-error" onClick={() => signOut()}>
