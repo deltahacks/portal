@@ -14,8 +14,8 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 export const DHBranding = () => {
   return (
     <div className="text-white">
-      <h1 className="font-montserrat font-bold text-4xl md:text-6xl whitespace-nowrap">
-        Delta<span className="font-normal mr-2">Hacks</span>IX
+      <h1 className="whitespace-nowrap font-montserrat text-4xl font-bold md:text-6xl">
+        Delta<span className="mr-2 font-normal">Hacks</span>IX
       </h1>
       <h2 className="font-montserrat text-sm md:text-xl">
         January 13-15 | McMaster University
@@ -48,12 +48,12 @@ const Login: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div
-        className={`bg-[#1f1f1f] flex ${dark && "dark"} w-full h-full`}
+        className={`flex bg-[#1f1f1f] ${dark && "dark"} h-full w-full`}
         data-theme={dark ? "dark" : "light"}
       >
-        <div className="bg-[#171717] relative overflow-hidden w-full md:w-1/2 h-full">
+        <div className="relative h-full w-full overflow-hidden bg-[#171717] md:w-1/2">
           <div
-            className="absolute inset-0 -rotate-12 w-[200%] h-[200%] -top-[50%] -left-[50%] animate-slow-bg"
+            className="absolute inset-0 -top-[50%] -left-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"
             style={{
               maskImage: "url(images/bg.png)",
               WebkitMaskImage: "url(images/bg.png)",
@@ -62,9 +62,9 @@ const Login: NextPage = () => {
               backgroundSize: "200% 200%",
             }}
           ></div>
-          <div className="absolute z-10 p-3 bottom-0 md:relative md:-translate-x-1/2 md:-translate-y-1/2 md:top-1/2 md:left-1/2 md:w-fit">
-            <div className="flex gap-4 items-center">
-              <div className="aspect-square w-20 md:w-40 hidden md:block">
+          <div className="absolute bottom-0 z-10 p-3 md:relative md:top-1/2 md:left-1/2 md:w-fit md:-translate-x-1/2 md:-translate-y-1/2">
+            <div className="flex items-center gap-4">
+              <div className="hidden aspect-square w-20 md:block md:w-40">
                 <Image
                   src={logo}
                   alt="DeltaHacks logo"
@@ -75,13 +75,13 @@ const Login: NextPage = () => {
             </div>
           </div>
         </div>
-        <div className="md:px-12 absolute top-1/2 left-1/2 min-w-[85%] md:min-w-[40vw] -translate-x-1/2 -translate-y-1/2 md:left-3/4 ">
+        <div className=" absolute top-1/2 left-1/2 min-w-[85%] -translate-x-1/2 -translate-y-1/2 md:left-3/4 md:min-w-[40vw] ">
           <h2 className="mb-4 text-2xl font-bold text-black dark:text-white">
             Log In
           </h2>
-          <div className="bg-zinc-800 p-4 border border-zinc-600 rounded-xl flex flex-col text-white gap-1">
-            <div className="flex h-32 items-center justify-center align-items-center bg-[#4F14EE] text-center font-medium text-xl py-6 rounded-lg">
-              <div className="aspect-square mr-4 w-8">
+          <div className="flex flex-col gap-1 rounded-xl border border-zinc-600 bg-zinc-800 p-4 text-white">
+            <div className="align-items-center flex h-32 items-center justify-center rounded-lg bg-[#4F14EE] py-6 text-center text-xl font-medium">
+              <div className="mr-4 aspect-square w-8">
                 <Image
                   src={google_icon}
                   alt="Google Login Icon"
@@ -92,15 +92,13 @@ const Login: NextPage = () => {
                 Sign in with Google
               </div>
             </div>
-            <div className="flex justify-center items-center text-sm my-2 text-center text-zinc-600">
-              <span className="w-full h-0.5 bg-zinc-600" />
-              <div className="mx-2 whitespace-nowrap">
-                Or Continue With
-              </div>
-              <span className="w-full h-0.5 bg-zinc-600" />
+            <div className="my-2 flex items-center justify-center text-center text-sm text-zinc-600">
+              <span className="h-0.5 w-full bg-zinc-600" />
+              <div className="mx-2 whitespace-nowrap">Or Continue With</div>
+              <span className="h-0.5 w-full bg-zinc-600" />
             </div>
-            <div className="flex justify-center items-center text-center py-2 rounded-md border-zinc-700 hover:bg-zinc-700 border font-medium text-l">
-              <div className="aspect-square mr-2  w-4">
+            <div className="text-l flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700">
+              <div className="mr-2 aspect-square  w-4">
                 <Image
                   src={github_logo}
                   alt="Github Icon"
@@ -109,8 +107,8 @@ const Login: NextPage = () => {
               </div>
               GitHub
             </div>
-            <div className="flex justify-center items-center text-center py-2 my-1 rounded-md border-zinc-700 hover:bg-zinc-700 border font-medium text-l">
-              <div className="aspect-square mr-2  w-4">
+            <div className="text-l my-1 flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700">
+              <div className="mr-2 aspect-square  w-4">
                 <Image
                   src={window_logo}
                   alt="Window Icon"
@@ -120,10 +118,10 @@ const Login: NextPage = () => {
               Outlook
             </div>
             <button
-              className="flex justify-center items-center text-center py-2 rounded-md border-zinc-700 hover:bg-zinc-700 border font-medium text-l"
+              className="text-l flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700"
               onClick={() => signIn("discord")}
             >
-              <div className="aspect-square mr-2  w-4">
+              <div className="mr-2 aspect-square  w-4">
                 <Image
                   src={discord_logo}
                   alt="Discord Icon"
