@@ -80,7 +80,10 @@ const Login: NextPage = () => {
             Log In
           </h2>
           <div className="flex flex-col gap-1 rounded-xl border border-zinc-600 bg-zinc-800 p-4 text-white">
-            <div className="align-items-center flex h-32 items-center justify-center rounded-lg bg-[#4F14EE] py-6 text-center text-xl font-medium">
+            <button
+              className="align-items-center flex h-32 items-center justify-center rounded-lg bg-[#4F14EE] py-6 text-center text-xl font-medium"
+              onClick={() => signIn("google")}
+            >
               <div className="mr-4 aspect-square w-8">
                 <Image
                   src={google_icon}
@@ -91,13 +94,16 @@ const Login: NextPage = () => {
               <div className="whitespace-nowrap md:text-lg">
                 Sign in with Google
               </div>
-            </div>
+            </button>
             <div className="my-2 flex items-center justify-center text-center text-sm text-zinc-600">
               <span className="h-0.5 w-full bg-zinc-600" />
               <div className="mx-2 whitespace-nowrap">Or Continue With</div>
               <span className="h-0.5 w-full bg-zinc-600" />
             </div>
-            <div className="text-l flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700">
+            <button
+              className="text-l flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700"
+              onClick={() => signIn("github")}
+            >
               <div className="mr-2 aspect-square  w-4">
                 <Image
                   src={github_logo}
@@ -106,8 +112,9 @@ const Login: NextPage = () => {
                 ></Image>
               </div>
               GitHub
-            </div>
-            <div className="text-l my-1 flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700">
+            </button>
+            {/* <button className="text-l my-1 flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700" 
+            onClick={() => {}}>
               <div className="mr-2 aspect-square  w-4">
                 <Image
                   src={window_logo}
@@ -116,7 +123,7 @@ const Login: NextPage = () => {
                 ></Image>
               </div>
               Outlook
-            </div>
+            </button> */}
             <button
               className="text-l flex items-center justify-center rounded-md border border-zinc-700 py-2 text-center font-medium hover:bg-zinc-700"
               onClick={() => signIn("discord")}
