@@ -9,9 +9,10 @@ const QrScanner: React.FC = () => {
     console.error(err);
   };
 
-  const handleScan = (result: string) => {
+  const handleScan = (result: any) => {
+    console.log("Result", result);
     if (result) {
-      setResult(result);
+      setResult(result.text);
     }
   };
 
@@ -22,12 +23,7 @@ const QrScanner: React.FC = () => {
 
   return (
     <div className="">
-      <QrReader
-        delay={500}
-        style={previewStyle}
-        onError={handleError}
-        onScan={handleScan}
-      />
+      <QrReader onResult={handleScan} constraints={{}} />
       <div className="">{result}</div>
     </div>
   );
