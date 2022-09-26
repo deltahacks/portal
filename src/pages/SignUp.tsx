@@ -19,9 +19,9 @@ const SignUp: NextPage = () => {
         className={`flex min-h-screen ${dark && "dark"}`}
         data-theme={dark ? "dark" : "light"}
       >
-        <div className="bg-[#171717] flex-1 relative overflow-hidden">
+        <div className="relative flex-1 overflow-hidden bg-[#171717]">
           <div
-            className="absolute inset-0 -rotate-12 w-[200%] h-[200%] -top-[50%] -left-[50%] animate-slow-bg"
+            className="absolute inset-0 -top-[50%] -left-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"
             style={{
               maskImage: "url(images/bg.png)",
               WebkitMaskImage: "url(images/bg.png)",
@@ -30,7 +30,7 @@ const SignUp: NextPage = () => {
               backgroundSize: "200% 200%",
             }}
           ></div>
-          <div className="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <Image
               draggable="false"
               src="/images/leftp.png"
@@ -40,8 +40,8 @@ const SignUp: NextPage = () => {
             />
           </div>
         </div>
-        <div className="relative bg-white dark:bg-[#1F1F1F] flex-1">
-          <div className="relative flex justify-between w-full p-4 pl-8">
+        <div className="relative flex-1 bg-white dark:bg-[#1F1F1F]">
+          <div className="relative flex w-full justify-between p-4 pl-8">
             <button
               type="button"
               onClick={() => (dark ? setDark(false) : setDark(true))}
@@ -61,17 +61,17 @@ const SignUp: NextPage = () => {
                 Home{" "}
               </a>
               <Link href={"/Login"}>
-                <button className="normal-case btn btn-primary bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm py-3 px-4">
+                <button className="btn btn-primary rounded-lg bg-indigo-600 py-3 px-4 text-sm normal-case text-white hover:bg-indigo-700">
                   Log In
                 </button>
               </Link>
             </nav>
           </div>
-          <div className="absolute w-full px-8 -translate-x-1/2 -translate-y-1/2 lg:w-72 lg:p-0 md:px-20 left-1/2 top-1/2 mt-6">
-            <h2 className="mb-4 text-2xl font-inter font-bold text-black dark:text-white">
+          <div className="absolute left-1/2 top-1/2 mt-6 w-full -translate-x-1/2 -translate-y-1/2 px-8 md:px-20 lg:w-72 lg:p-0">
+            <h2 className="mb-4 font-inter text-2xl font-bold text-black dark:text-white">
               Sign Up
             </h2>
-            <form className="w-full form-control">
+            <form className="form-control w-full">
               <label className="label">
                 <span className="label-text text-sm text-black dark:text-white">
                   First Name
@@ -80,7 +80,7 @@ const SignUp: NextPage = () => {
               <input
                 type="email"
                 placeholder="First Name"
-                className="w-full input input-bordered dark:bg-zinc-800 p-4 my-2 rounded-lg text-black dark:text-white text-xs"
+                className="input input-bordered my-2 w-full rounded-lg p-4 text-xs text-black dark:bg-zinc-800 dark:text-white"
               />
               <label className="label">
                 <span className="label-text text-sm text-black dark:text-white">
@@ -90,7 +90,7 @@ const SignUp: NextPage = () => {
               <input
                 type="email"
                 placeholder="Last Name"
-                className="w-full input input-bordered dark:bg-zinc-800 p-4 my-2 rounded-lg text-black dark:text-white text-xs"
+                className="input input-bordered my-2 w-full rounded-lg p-4 text-xs text-black dark:bg-zinc-800 dark:text-white"
               />
               <label className="label">
                 <span className="label-text text-sm text-black dark:text-white">
@@ -100,7 +100,7 @@ const SignUp: NextPage = () => {
               <input
                 type="email"
                 placeholder="Email"
-                className="w-full input input-bordered dark:bg-zinc-800 p-4 my-2 rounded-lg text-black dark:text-white text-xs"
+                className="input input-bordered my-2 w-full rounded-lg p-4 text-xs text-black dark:bg-zinc-800 dark:text-white"
               />
               <label className="label">
                 <span className="label-text-alt text-sm text-black dark:text-white">
@@ -110,12 +110,12 @@ const SignUp: NextPage = () => {
               <input
                 type="password"
                 placeholder="Password"
-                className="w-full input input-bordered dark:bg-zinc-800 p-4 mt-2 rounded-lg text-black dark:text-white text-xs"
+                className="input input-bordered mt-2 w-full rounded-lg p-4 text-xs text-black dark:bg-zinc-800 dark:text-white"
               />
-              <button className="w-full mt-6 py-4 normal-case btn btn-primary bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm">
+              <button className="btn btn-primary mt-6 w-full rounded-lg bg-indigo-600 py-4 text-sm normal-case text-white hover:bg-indigo-700">
                 Sign Up
               </button>
-              <div className="font-inter text-sm font-normal mt-2 text-black dark:text-white">
+              <div className="mt-2 font-inter text-sm font-normal text-black dark:text-white">
                 Already have an account?{" "}
                 <Link href={"/Login"}>
                   <a href="">

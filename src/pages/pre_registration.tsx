@@ -24,28 +24,28 @@ const PreRegistration: NextPage = () => {
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content flex flex-col">
           {/* <!-- Navbar --> */}
-          <div className="flex flex-row justify-between mt-5 mx-9 md:mt-8 md:mx-10 items-center">
-            <div className="flex flex-row justify-between items-center">
+          <div className="mx-9 mt-5 flex flex-row items-center justify-between md:mx-10 md:mt-8">
+            <div className="flex flex-row items-center justify-between">
               <a className="mr-5" href="#">
                 <img
-                  className="inline-block w-12 h-10 md:w-20 md:h-16"
+                  className="inline-block h-10 w-12 md:h-16 md:w-20"
                   src="logo.svg"
                 />
               </a>
 
-              <div className="hidden md:inline-block font-main">
+              <div className="font-main hidden md:inline-block">
                 <h1 className="text-2xl">
                   <strong>Delta</strong>Hacks <strong>IX</strong>
                 </h1>
                 <p className="text-xs">January 13-15 | McMaster University</p>
               </div>
 
-              <div className="hidden md:flex font-sub ml-5">
-                <a className="text-base font-bold mx-2" href="#">
+              <div className="font-sub ml-5 hidden md:flex">
+                <a className="mx-2 text-base font-bold" href="#">
                   Dashboard
                 </a>
 
-                <a className="text-base font-bold mx-2" href="#">
+                <a className="mx-2 text-base font-bold" href="#">
                   Calendar
                 </a>
               </div>
@@ -54,27 +54,27 @@ const PreRegistration: NextPage = () => {
             <div className="flex items-center">
               <button className="mx-2">
                 <img
-                  className="hidden md:inline-block w-5 h-5"
+                  className="hidden h-5 w-5 md:inline-block"
                   src="dark-toggle.svg"
                 />
               </button>
 
-              <a className="hidden lg:inline-block font-sub text-sm mx-2">
+              <a className="font-sub mx-2 hidden text-sm lg:inline-block">
                 Logged in as <strong className="font-bold"> Username</strong>
               </a>
 
-              <button className="hidden md:inline-block bg-[#4F14EE] py-2.5 px-5 md:px-7 rounded font-sub text-sm font-bold mx-2">
+              <button className="font-sub mx-2 hidden rounded bg-[#4F14EE] py-2.5 px-5 text-sm font-bold md:inline-block md:px-7">
                 Sign out
               </button>
             </div>
 
             <div className="flex-none md:hidden">
-              <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
+              <label htmlFor="my-drawer-3" className="btn btn-ghost btn-square">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  className="inline-block w-6 h-6 stroke-current"
+                  className="inline-block h-6 w-6 stroke-current"
                 >
                   <path
                     strokeLinecap="round"
@@ -89,20 +89,20 @@ const PreRegistration: NextPage = () => {
 
           <Background />
           <div className="font-main">
-            <main className="flex flex-col md:justify-between mt-14 ml-8 md:ml-20 md:mt-16 mr-6">
+            <main className="mt-14 ml-8 mr-6 flex flex-col md:ml-20 md:mt-16 md:justify-between">
               <div className="w-11/12 md:w-9/12">
-                <h1 className="text-left text-3xl md:text-5xl font-semibold text-white leading-tight">
+                <h1 className="text-left text-3xl font-semibold leading-tight text-white md:text-5xl">
                   A Weekend Worth Hacking,
                   <br />@ DeltaHacks 9
                 </h1>
-                <p className="text-left font-normal text-xl text-neutal-500 mt-8 md:text-3xl md:leading-10">
+                <p className="text-neutal-500 mt-8 text-left text-xl font-normal md:text-3xl md:leading-10">
                   At DeltaHacks, we believe change comes from dreaming big. Each
                   year we enable over 800 students from across North America,
                   working hard over 36 hours, to bring their big ideas to life.
                   Unleash your creativity and make something great, we{"'"}ll
                   handle the rest! Make big ideas a reality at DeltaHacks 9!
                 </p>
-                <p className="text-left font-normal text-xl text-neutal-500 mt-8 md:text-3xl md:leading-10">
+                <p className="text-neutal-500 mt-8 text-left text-xl font-normal md:text-3xl md:leading-10">
                   If you have any questions, you can reach us at{" "}
                   <a
                     href="mailto: hello@deltahacks.com"
@@ -111,14 +111,14 @@ const PreRegistration: NextPage = () => {
                     hello@deltahacks.com
                   </a>
                 </p>
-                <div className="flex flex-col items-left w-40 mt-8 mb-8 gap-4 md:flex-row md:items-start md:gap-7">
+                <div className="items-left mt-8 mb-8 flex w-40 flex-col gap-4 md:flex-row md:items-start md:gap-7">
                   <Link href="#">
-                    <button className="btn btn-primary btn-s md:btn-wide">
+                    <button className="btn-s btn btn-primary md:btn-wide">
                       Apply
                     </button>
                   </Link>
                   <Link href="#">
-                    <button className="btn btn-outline btn-s md:btn-wide">
+                    <button className="btn-s btn btn-outline md:btn-wide">
                       FAQ
                     </button>
                   </Link>
@@ -134,30 +134,30 @@ const PreRegistration: NextPage = () => {
         </div>
         <div className="drawer-side">
           <label htmlFor="my-drawer-3" className="drawer-overlay"></label>
-          <ul className="menu p-4 overflow-y-auto w-80 bg-[#1F1F1F]">
+          <ul className="menu w-80 overflow-y-auto bg-[#1F1F1F] p-4">
             {/* <!-- Sidebar content here --> */}
             <li>
-              <a className="text-base font-bold mx-2" href="#">
+              <a className="mx-2 text-base font-bold" href="#">
                 Dashboard
               </a>
             </li>
             <li>
-              <a className="text-base font-bold mx-2" href="#">
+              <a className="mx-2 text-base font-bold" href="#">
                 Calendar
               </a>
             </li>
             <div className="flex h-full items-end">
-              <div className="flex justify-between items-center w-full">
+              <div className="flex w-full items-center justify-between">
                 <div>
                   <button className="mx-2">
-                    <img className="w-5 h-5" src="dark-toggle.svg" />
+                    <img className="h-5 w-5" src="dark-toggle.svg" />
                   </button>
                 </div>
                 <div>
-                  <a className="font-sub text-sm mx-2.5">
+                  <a className="font-sub mx-2.5 text-sm">
                     Hi, <strong className="font-bold"> Username</strong>
                   </a>
-                  <button className=" bg-[#4F14EE] py-2.5 px-2 rounded font-sub text-sm font-bold">
+                  <button className=" font-sub rounded bg-[#4F14EE] py-2.5 px-2 text-sm font-bold">
                     Sign out
                   </button>
                 </div>
