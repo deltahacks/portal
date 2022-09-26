@@ -23,7 +23,12 @@ const QrScanner: React.FC = () => {
 
   return (
     <div className="">
-      <QrReader onResult={handleScan} constraints={{}} />
+      <QrReader
+        onResult={handleScan}
+        constraints={{
+          facingMode: "environtment",
+        }}
+      />
       <div className="">{result}</div>
     </div>
   );
