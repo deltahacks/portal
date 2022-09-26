@@ -134,36 +134,36 @@ const PreRegistration: NextPage = () => {
         </div>
         <div className="drawer-side">
           <label htmlFor="my-drawer-3" className="drawer-overlay"></label>
-          <ul className="menu w-80 overflow-y-auto bg-[#1F1F1F] p-4">
-            {/* <!-- Sidebar content here --> */}
-            <li>
-              <a className="mx-2 text-base font-bold" href="#">
-                Dashboard
-              </a>
-            </li>
-            <li>
-              <a className="mx-2 text-base font-bold" href="#">
-                Calendar
-              </a>
-            </li>
-            <div className="flex h-full items-end">
-              <div className="flex w-full items-center justify-between">
-                <div>
-                  <button className="mx-2">
-                    <img className="h-5 w-5" src="dark-toggle.svg" />
-                  </button>
-                </div>
-                <div>
-                  <a className="font-sub mx-2.5 text-sm">
-                    Hi, <strong className="font-bold"> Username</strong>
-                  </a>
-                  <button className=" font-sub rounded bg-[#4F14EE] py-2.5 px-2 text-sm font-bold">
-                    Sign out
-                  </button>
-                </div>
+          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-[#1F1F1F] p-4">
+            <ul className="w-full">
+              {/* <!-- Sidebar content here --> */}
+              <li>
+                <a className="mx-2 my-2 text-base font-bold" href="#">
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <a className="mx-2 my-2 text-base font-bold" href="#">
+                  Calendar
+                </a>
+              </li>
+            </ul>
+            <div className="mx-1 mb-2 flex w-full items-center justify-between">
+              <div>
+                <button className="mx-2 mt-2">
+                  <img className="h-5 w-5" src="dark-toggle.svg" />
+                </button>
+              </div>
+              <div>
+                <a className="font-sub mx-2.5 text-sm">
+                  Hi, <strong className="font-bold"> Username</strong>
+                </a>
+                <button className=" font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold">
+                  Sign out
+                </button>
               </div>
             </div>
-          </ul>
+          </div>
         </div>
       </div>
     </>
