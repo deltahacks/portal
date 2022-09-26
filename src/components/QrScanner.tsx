@@ -14,11 +14,17 @@ const QrScanner: React.FC = () => {
   const [scanValue, setScanValue] = useState(undefined);
 
   const eff = useEffect(() => {
+    if (scanValue === undefined) {
+      return;
+    }
+
     console.log("Value changed to", scanValue);
     sound.play();
+    setScanned((scanned) => scanned + 1);
   }, [scanValue]);
 
   const handleScan = (newResult: any) => {
+    console.log("Scanning");
     if (newResult === undefined) {
       return;
     }
@@ -36,6 +42,7 @@ const QrScanner: React.FC = () => {
       <h1 className="text-4xl">{scanned} Scanned </h1>
       <QrReader
         onResult={handleScan}
+        scanDelay={100}
         constraints={{
           facingMode: { ideal: "environment" },
         }}
