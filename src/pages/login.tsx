@@ -1,9 +1,7 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import Link from "next/link";
 import Head from "next/head";
-import Image from "next/image";
 import { useState, useEffect } from "react";
-import logo from "../../public/images/logo.png";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 import DHBranding from "../components/DHBranding";
@@ -46,16 +44,7 @@ const Login: NextPage = () => {
             }}
           ></div>
           <div className="absolute bottom-0 z-10 p-3 md:relative md:top-1/2 md:left-1/2 md:w-fit md:-translate-x-1/2 md:-translate-y-1/2">
-            <div className="flex items-center gap-4">
-              <div className="hidden aspect-square w-20 md:block md:w-40">
-                <Image
-                  src={logo}
-                  alt="DeltaHacks logo"
-                  layout="responsive"
-                ></Image>
-              </div>
-              <DHBranding />
-            </div>
+            <DHBranding />
           </div>
         </div>
         <LoginCard />
