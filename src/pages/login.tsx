@@ -26,17 +26,7 @@ const Login: NextPage = () => {
   return (
     <>
       <Head>
-        <title>DH9 Login Page</title>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-        />
-        <meta name="theme-color" content="#181818" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="#181818" // add light/dark mode
-        />
-        <link rel="icon" href="/favicon.ico" />
+        <title>Login - DeltaHacks 9</title>
       </Head>
       <div
         className={`flex bg-[#1f1f1f] ${dark && "dark"} h-full w-full`}
