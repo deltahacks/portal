@@ -35,7 +35,7 @@ const LoginButton = (prop: LoginProps) => {
       <div className={iconStyling}>
         <Image src={image} alt={`${title} Logo`} layout="responsive"></Image>
       </div>
-      {title}
+      {main ? `Sign in with ${title}` : title}
     </button>
   );
 };
@@ -49,7 +49,7 @@ const LoginCard = () => {
       <div className="flex flex-col gap-1 rounded-xl border border-zinc-600 bg-zinc-800 p-4 text-white">
         <LoginButton
           key={"google"}
-          title={"Sign in with Google"}
+          title={"Google"}
           image={google_logo}
           main={true}
         />
