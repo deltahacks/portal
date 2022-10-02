@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        montserrat: ["Montserrat"],
+        montserrat: ["Montserrat", "sans-serif"],
         inter: ["Inter"],
       },
       animation: {
@@ -21,3 +21,19 @@ module.exports = {
     plugins: [require("daisyui")],
   }
 };
+
+
+//
+//module.exports = {
+//  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+//  theme: {
+//    extend: {},
+//    extend: {
+//      fontFamily: {
+//        montserrat: ["Montserrat", "sans-serif"],
+//      },
+//    },
+//  },
+//  plugins: [],
+//  plugins: [require("daisyui")],
+//};

@@ -5,7 +5,7 @@ import NavBar from "../components/NavBar";
 import Background from "../components/background";
 import SocialButtons from "../components/SocialButtons";
 
-const PreRegistration: NextPage = () => {
+const Welcome: NextPage = () => {
   return (
     <>
       <Head>
@@ -60,4 +60,4 @@ const PreRegistration: NextPage = () => {
   );
 };
 
-export default PreRegistration;
+export default Welcome;
