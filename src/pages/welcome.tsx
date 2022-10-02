@@ -21,7 +21,7 @@ const PreRegistration: NextPage = () => {
         <NavBar />
         <Background />
         <main className="px-7 py-14 sm:px-14 md:absolute md:w-10/12 md:pb-3 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-          <div className="text-2xl font-semibold leading-tight text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+          <div className="text-2xl leading-tight text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
             A weekend worth hacking,
             <br />@ DeltaHacks 9
           </div>
