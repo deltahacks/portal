@@ -11,7 +11,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col items-center justify-center h-screen space-y-6">
+      <div className="flex h-screen flex-col items-center justify-center space-y-6">
         <Link href={"/welcome"}>Pre-Registration Page</Link>
       </div>
     </>
