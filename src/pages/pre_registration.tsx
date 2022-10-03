@@ -133,7 +133,10 @@ const PreRegistration: NextPage = () => {
           </div>
         </div>
         <div className="drawer-side md:hidden">
-          <label htmlFor="my-drawer-3" className="drawer-overlay md:hidden"></label>
+          <label
+            htmlFor="my-drawer-3"
+            className="drawer-overlay md:hidden"
+          ></label>
           <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-[#1F1F1F] p-4 md:hidden">
             <ul className="w-full">
               {/* <!-- Sidebar content here --> */}
