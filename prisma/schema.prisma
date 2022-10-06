@@ -57,6 +57,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   answers       Json?
+  submitted     Boolean?  @default(false)
 }
 
 model VerificationToken {

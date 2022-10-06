@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextApiRequest, NextApiResponse } from "next";
-import { env } from "../../../env/server.mjs";
 import { PrismaClient, Prisma } from '@prisma/client'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -7,31 +7,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     //Check if user is already signed in to link form submission with registered user
     //access index of the answers array and get email ~ must be a better way if form changes
-    console.log(req.body.form_response);
-    const formSubmitter = req.body.form_response.answers[0].text
-    console.log(formSubmitter);
+    //const formSubmitter = req.body.form_response.answers[0].text
+    let formSubmitter = null
+    const questions = req.body.form_response.definition.fields
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].title.includes("email")) {
+        formSubmitter = req.body.form_response.answers[i].text
+      }
+    }
+    console.log("hi", formSubmitter)
     const registeredUser = await prisma.user.findUnique({
       where: {
         email: formSubmitter,
       },
     })
-    if (registeredUser) {
+    console.log(registeredUser)
+    if (registeredUser && registeredUser.submitted == false) {
       const jsonAnswers = req.body as Prisma.JsonArray
       console.log(jsonAnswers);
-      const addResponses = await prisma.user.update({
+      const addResponses = await prisma.user.updateMany({
         where: { id: registeredUser.id },
         data: {
           answers: {
             update: jsonAnswers
-          }
+          },
+          submitted: true
         }
       });
+      console.log("Received")
+    } else if (registeredUser && registeredUser.submitted) {
+      console.log("Submission already received")
+    } else if (registeredUser == null) {
+      console.log("User is not registered")
     }
-    res.status(200).send({ message: "Received" })
+    res.status(200).send({ message: "done" })
   } else if (req.method === 'GET') {
-    const users = await prisma.user.findMany()
-    console.log(users)
-    res.status(200).send(users)
+    res.status(200).send(JSON.stringify({ message: "This is a post endpoint" }))
   }
 }
-
