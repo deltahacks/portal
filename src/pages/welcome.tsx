@@ -48,7 +48,7 @@ const Welcome: NextPage = () => {
             </Link>
           </div>
         </main>
-        <footer className="sticky top-full mb-3 grid place-items-end px-2 py-2 md:absolute md:top-0 md:bottom-0 md:right-5 md:w-2/12 2xl:w-4/12">
+        <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
           <SocialButtons />
         </footer>
       </div>
