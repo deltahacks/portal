@@ -7,6 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     //Check if user is already signed in to link form submission with registered user
     //access index of the answers array and get email ~ must be a better way if form changes
+    console.log(req.body.form_response);
     const formSubmitter = req.body.form_response.answers[0].text
     console.log(formSubmitter);
     const registeredUser = await prisma.user.findUnique({
@@ -15,12 +16,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     })
     if (registeredUser) {
-      var jsonAnswers = req.body.form_response.answers as Prisma.JsonArray
-      const addResponses = await prisma.user.create({
+      const jsonAnswers = req.body as Prisma.JsonArray
+      console.log(jsonAnswers);
+      const addResponses = await prisma.user.update({
+        where: { id: registeredUser.id },
         data: {
-          answers: { name: "jeff" }
-        },
-      })
+          answers: {
+            update: jsonAnswers
+          }
+        }
+      });
     }
     res.status(200).send({ message: "Received" })
   } else if (req.method === 'GET') {
