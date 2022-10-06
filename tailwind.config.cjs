@@ -16,24 +16,7 @@ module.exports = {
           "100%": { backgroundPosition: "0 100%" },
         },
       },
-
     },
-    plugins: [require("daisyui")],
-  }
+  },
+  plugins: [require("daisyui")],
 };
-
-
-//
-//module.exports = {
-//  content: ["./src/**/*.{js,ts,jsx,tsx}"],
-//  theme: {
-//    extend: {},
-//    extend: {
-//      fontFamily: {
-//        montserrat: ["Montserrat", "sans-serif"],
-//      },
-//    },
-//  },
-//  plugins: [],
-//  plugins: [require("daisyui")],
-//};
