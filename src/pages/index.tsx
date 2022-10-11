@@ -14,9 +14,6 @@ const Home: NextPage = () => {
       <button className="btn btn-error" onClick={() => signOut()}>
         Sign Out
       </button>
-      {/* <Link href={"/Login"}>Login</Link>
-      <Link href={"/SignUp"}>Sign Up</Link>
-      <Link href={"/ForgotPassword"}>Forgot Password</Link> */}
     </div>
   );
 };
