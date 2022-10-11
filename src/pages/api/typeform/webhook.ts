@@ -18,16 +18,13 @@ export default async function handler(
         formSubmitter = req.body.form_response.answers[i].text;
       }
     }
-    console.log("hi", formSubmitter);
     const registeredUser = await prisma.user.findUnique({
       where: {
         email: formSubmitter,
       },
     });
-    console.log(registeredUser);
     if (registeredUser && registeredUser.submitted == false) {
       const jsonAnswers = req.body as Prisma.JsonArray;
-      console.log(jsonAnswers);
       const addResponses = await prisma.user.updateMany({
         where: { id: registeredUser.id },
         data: {

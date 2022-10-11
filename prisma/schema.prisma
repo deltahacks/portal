@@ -57,8 +57,16 @@ model User {
   accounts      Account[]
   sessions      Session[]
   answers       Json?
-  submitted     Boolean?  @default(false)
+  submitted     Boolean?
+  //submission    Submission?
 }
+
+//model Submission {
+//  id             String @id @default(cuid())
+//  email          String @unique
+//  submissionData Json
+//  user           User?  @relation(fields: [email], references: [id], onDelete: Cascade)
+//}
 
 model VerificationToken {
   identifier String
