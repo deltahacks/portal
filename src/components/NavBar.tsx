@@ -1,8 +1,9 @@
 import React from "react";
+import ThemeToggle from "./ThemeToggle";
 
 const NavBar = () => {
   return (
-    <div className="mx-9 mt-5 flex flex-row items-center justify-between text-white md:mx-10 md:mt-8">
+    <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
         <a className="mr-5" href="#">
           <img
@@ -26,22 +27,18 @@ const NavBar = () => {
         </div>
       </div>
       <div className="hidden items-center md:flex">
-        <button className="mx-2">
-          <img
-            className="hidden h-5 w-5 md:inline-block"
-            src="dark-toggle.svg"
-          />
-        </button>
+        <ThemeToggle />
         <a className="mx-2 mr-8 font-inter text-sm md:hidden" href="#">
           <strong className="font-bold"> Home</strong>
         </a>
         <a className="mx-2 hidden font-inter text-sm lg:inline-block">
           Logged in as <strong className="font-bold"> Username</strong>
         </a>
-        <button className="mx-2 rounded bg-[#4F14EE] py-2.5 px-5 font-inter text-sm font-bold md:px-7">
+        <button className="mx-2 rounded bg-primary py-2.5 px-5 font-inter text-sm font-bold text-white md:px-7">
           Sign out
         </button>
       </div>
+      {/* Hamburger Button */}
       <div className="md:hidden">
         <label htmlFor="my-drawer-3" className="btn btn-ghost btn-square">
           <svg
