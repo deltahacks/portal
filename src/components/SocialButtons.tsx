@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-export default function SocialButtons() {
+const SocialButtons = () => {
   return (
-    <div className="flex gap-x-2.5 md:grid md:auto-cols-max md:gap-y-2.5">
+    <div className=" flex gap-x-2.5 md:flex-col">
       <a
         href="https://www.instagram.com/deltahacks/"
         className="filter hover:brightness-150"
@@ -29,7 +29,7 @@ export default function SocialButtons() {
       </a>
     </div>
   );
-}
+};
 
 type SocialIconProps = {
   src: string;
@@ -39,3 +39,5 @@ type SocialIconProps = {
 function SocialIcon({ src, alt }: SocialIconProps) {
   return <Image src={src} alt={alt} width="41px" height="41px" />;
 }
+
+export default SocialButtons;
