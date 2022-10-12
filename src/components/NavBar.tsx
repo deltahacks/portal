@@ -25,7 +25,7 @@ const NavBar = () => {
           </a>
         </div>
       </div>
-      <div className="flex items-center">
+      <div className="hidden items-center md:flex">
         <button className="mx-2">
           <img
             className="hidden h-5 w-5 md:inline-block"
@@ -41,6 +41,23 @@ const NavBar = () => {
         <button className="mx-2 rounded bg-[#4F14EE] py-2.5 px-5 font-inter text-sm font-bold md:px-7">
           Sign out
         </button>
+      </div>
+      <div className="md:hidden">
+        <label htmlFor="my-drawer-3" className="btn btn-ghost btn-square">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="inline-block h-6 w-6 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </label>
       </div>
     </div>
   );
