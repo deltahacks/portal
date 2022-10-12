@@ -1,9 +1,6 @@
 import google_logo from "../../public/images/google_logo.svg";
-import github_logo from "../../public/images/github_logo.svg";
-import discord_logo from "../../public/images/discord_logo.svg";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { ReactNode } from "react";
 
 interface LoginProps {
   image?: any;
