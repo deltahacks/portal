@@ -28,6 +28,23 @@ const MyApp: AppType<{ session: Session | null }> = ({
           name="apple-mobile-web-app-status-bar-style"
           content="#181818" // TODO: add light/dark mode
         />
+        {/* <!-- Google Tag Manager --> */}
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=GTM-MCJQ6JK`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'GTM-MCJQ6JK', {
+              page_path: window.location.pathname,
+            });
+          `,
+          }}
+        />
       </Head>
       <Component {...pageProps} />
     </SessionProvider>
