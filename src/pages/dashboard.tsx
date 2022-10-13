@@ -15,6 +15,7 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { appRouter } from "../server/router";
 import { createContext } from "../server/router/context";
 import { trpc } from "../utils/trpc";
+import { prisma } from "../server/db/client";
 
 const Dashboard: NextPage = () => {
   const { data: applicationRecieved, isLoading } = trpc.useQuery([
@@ -112,11 +113,15 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const trpcCtx = await createContext({ req: context.req, res: context.res });
-  const caller = appRouter.createCaller(trpcCtx);
-  const result = await caller.query("application.received");
+  const userEntry = await prisma.user.findFirst({
+    where: { id: session.user.id },
+  });
 
-  if (!result) {
+  if (
+    userEntry &&
+    (userEntry.typeform_response_id === null ||
+      userEntry.typeform_response_id === undefined)
+  ) {
     return { redirect: { destination: "/welcome", permanent: false } };
   }
 

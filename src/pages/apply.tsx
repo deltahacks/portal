@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { Widget } from "@typeform/embed-react";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-
+import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { appRouter } from "../server/router";
 import { createContext } from "../server/router/context";
@@ -32,15 +32,19 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const trpcCtx = await createContext({ req: context.req, res: context.res });
-  const caller = appRouter.createCaller(trpcCtx);
-  const result = await caller.query("application.received");
+  const userEntry = await prisma.user.findFirst({
+    where: { id: session.user.id },
+  });
 
-  if (result) {
-    return { redirect: { destination: "/dashboard", permanent: false } };
+  // If submitted then go dashboard
+  if (
+    userEntry &&
+    (userEntry.typeform_response_id === null ||
+      userEntry.typeform_response_id === undefined)
+  ) {
+    return { props: {} };
   }
-
-  return { props: {} };
+  return { redirect: { destination: "/dashboard", permanent: false } };
 };
 
 export default Apply;
