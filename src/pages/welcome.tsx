@@ -2,7 +2,7 @@ import type { GetServerSidePropsContext, NextPage } from "next";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import Background from "../components/background";
+import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
