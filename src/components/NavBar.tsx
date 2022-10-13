@@ -1,7 +1,9 @@
-import React from "react";
 import ThemeToggle from "./ThemeToggle";
+import { signOut, useSession } from "next-auth/react";
 
 const NavBar = () => {
+  const { data: session } = useSession();
+
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
@@ -17,24 +19,17 @@ const NavBar = () => {
           </h1>
           <p className="text-xs">January 13-15 | McMaster University</p>
         </div>
-        <div className="ml-24 ml-5 hidden font-inter md:flex">
-          <a className="mx-2 text-base font-bold" href="#">
-            Dashboard
-          </a>
-          <a className="mx-2 text-base font-bold" href="#">
-            Calendar
-          </a>
-        </div>
       </div>
       <div className="hidden items-center md:flex">
         <ThemeToggle />
-        <a className="mx-2 mr-8 font-inter text-sm md:hidden" href="#">
-          <strong className="font-bold"> Home</strong>
-        </a>
-        <a className="mx-2 hidden font-inter text-sm lg:inline-block">
-          Logged in as <strong className="font-bold"> Username</strong>
-        </a>
-        <button className="mx-2 rounded bg-primary py-2.5 px-5 font-inter text-sm font-bold text-white md:px-7">
+        <p className="mx-2 hidden font-inter text-sm lg:inline-block">
+          Logged in as{" "}
+          <strong className="font-bold">{session?.user?.name}</strong>
+        </p>
+        <button
+          onClick={() => signOut()}
+          className="mx-2 rounded bg-primary py-2.5 px-5 font-inter text-sm font-bold text-white md:px-7"
+        >
           Sign out
         </button>
       </div>

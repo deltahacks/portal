@@ -9,7 +9,6 @@ import ThemeToggle from "../components/ThemeToggle";
 import { useTheme } from "next-themes";
 
 const Login: NextPage = () => {
-  const { theme, setTheme } = useTheme();
   return (
     <>
       <Head>
