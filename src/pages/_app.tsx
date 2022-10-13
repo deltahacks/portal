@@ -9,6 +9,7 @@ import type { AppRouter } from "../server/router";
 import type { Session } from "next-auth";
 import "../styles/globals.css";
 import Head from "next/head";
+import { ThemeProvider } from "next-themes";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -16,20 +17,22 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Head>
-        <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
-        <link rel="icon" type="image/png" href="/images/favicon.png" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-        />
-        <meta name="theme-color" content="#181818" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="#181818" // TODO: add light/dark mode
-        />
-      </Head>
-      <Component {...pageProps} />
+      <ThemeProvider>
+        <Head>
+          <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+          <link rel="icon" type="image/png" href="/images/favicon.png" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+          />
+          <meta name="theme-color" content="#181818" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#181818" // TODO: add light/dark mode
+          />
+        </Head>
+        <Component {...pageProps} />
+      </ThemeProvider>
     </SessionProvider>
   );
 };

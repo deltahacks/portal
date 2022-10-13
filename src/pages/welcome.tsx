@@ -4,20 +4,12 @@ import Link from "next/link";
 import NavBar from "../components/NavBar";
 import Background from "../components/background";
 import SocialButtons from "../components/SocialButtons";
+import ThemeToggle from "../components/ThemeToggle";
 
 const BG = () => {
   return (
-    <div className="absolute inset-0 -z-10 h-full w-full overflow-hidden bg-[#171717]">
-      <div
-        className="absolute inset-0 -top-[50%] -left-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"
-        style={{
-          maskImage: "url(images/bg.png)",
-          WebkitMaskImage: "url(images/bg.png)",
-          background:
-            "linear-gradient(#1C1C1C 0%, #1C1C1C 40%, #2e2e2e 50%, #1C1C1C 60%, #1C1C1C 100%)",
-          backgroundSize: "200% 200%",
-        }}
-      ></div>
+    <div className="absolute inset-0 -z-10 h-full w-full overflow-hidden bg-[#eeeeee] dark:bg-[#171717]">
+      <div className="light-gradient dark:dark-gradient absolute inset-0 -top-[50%] -left-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"></div>
     </div>
   );
 };
@@ -25,18 +17,18 @@ const BG = () => {
 const Content = () => {
   return (
     <main className="px-7 py-8 sm:px-14 md:absolute md:w-10/12 md:pb-3 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-      <div className="text-2xl font-semibold leading-tight text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+      <div className="text-2xl font-semibold leading-tight text-black dark:text-white sm:mt-14 sm:text-3xl lg:text-5xl 2xl:text-6xl">
         A weekend worth hacking,
         <br />@ DeltaHacks 9
       </div>
-      <div className="pt-6 text-xl font-normal text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         At DeltaHacks, we believe change comes from dreaming big. Each year we
         enable over 800 students from across North America, working hard over 36
         hours, to bring their big ideas to life. Unleash your creativity and
         make something great, we{"'"}ll handle the rest! Make big ideas a
         reality at DeltaHacks 9!
       </div>
-      <div className="pt-6 text-xl font-normal text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
         <a href="mailto: hello@deltahacks.com" className="text-sky-400">
@@ -83,7 +75,7 @@ const Welcome: NextPage = () => {
             htmlFor="my-drawer-3"
             className="drawer-overlay md:hidden"
           ></label>
-          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-[#1F1F1F] p-4 md:hidden">
+          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
             <ul className="w-full">
               {/* <!-- Sidebar content here --> */}
               <li>
@@ -98,16 +90,12 @@ const Welcome: NextPage = () => {
               </li>
             </ul>
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
-              <div>
-                <button className="mx-2 mt-2">
-                  <img className="h-5 w-5" src="dark-toggle.svg" />
-                </button>
-              </div>
+              <ThemeToggle />
               <div>
                 <a className="font-sub mx-2.5 text-sm">
                   Hi, <strong className="font-bold"> Username</strong>
                 </a>
-                <button className=" font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold">
+                <button className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white">
                   Sign out
                 </button>
               </div>
