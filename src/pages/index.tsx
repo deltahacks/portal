@@ -12,11 +12,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const res = await prisma?.user.findFirst({ where: { id: session.user.id } });
-  if (res?.typeform_response_id !== null) {
-    return { redirect: { destination: "/dashboard", permanent: false } };
-  }
-  return { redirect: { destination: "/welcome", permanent: false } };
+  return { redirect: { destination: "/dashboard", permanent: false } };
 };
 
 export default Home;

@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -6,6 +6,7 @@ import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const Dashboard: NextPage = () => {
   const { data: session } = useSession();
@@ -78,6 +79,15 @@ const Dashboard: NextPage = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const session = await getServerAuthSession(ctx);
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
+
+  return { props: {} };
 };
 
 export default Dashboard;
