@@ -1,15 +1,28 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  NextPage,
+} from "next";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
+import { useEffect } from "react";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { appRouter } from "../server/router";
+import { createContext } from "../server/router/context";
+import { trpc } from "../utils/trpc";
 
 const Dashboard: NextPage = () => {
+  const { data: applicationRecieved, isLoading } = trpc.useQuery([
+    "application.received",
+  ]);
+
   const { data: session } = useSession();
+
   return (
     <>
       <Head>
@@ -30,7 +43,15 @@ const Dashboard: NextPage = () => {
               your email. While you wait for DeltaHacks, lookout for other prep
               events by DeltaHacks on our social accounts.
             </h2>
+            <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+              If you have any questions, you can <br />
+              reach us at{" "}
+              <a href="mailto: hello@deltahacks.com" className="text-sky-400">
+                hello@deltahacks.com
+              </a>
+            </div>
           </main>
+
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
@@ -81,10 +102,22 @@ const Dashboard: NextPage = () => {
   );
 };
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(ctx);
+export const getServerSideProps = async (
+  context: any,
+  ctx: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
+
   if (!session || !session.user) {
     return { redirect: { destination: "/login", permanent: false } };
+  }
+
+  const trpcCtx = await createContext({ req: context.req, res: context.res });
+  const caller = appRouter.createCaller(trpcCtx);
+  const result = await caller.query("application.received");
+
+  if (!result) {
+    return { redirect: { destination: "/welcome", permanent: false } };
   }
 
   return { props: {} };
