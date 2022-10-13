@@ -2,18 +2,11 @@ import type { GetServerSidePropsContext, NextPage } from "next";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
+import Background from "../components/background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-
-const BG = () => {
-  return (
-    <div className="absolute inset-0 -z-10 h-full w-full overflow-hidden bg-[#eeeeee] dark:bg-[#171717]">
-      <div className="light-gradient dark:dark-gradient absolute inset-0 -top-[50%] -left-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"></div>
-    </div>
-  );
-};
 
 const Content = () => {
   return (
@@ -65,7 +58,7 @@ const Welcome: NextPage = () => {
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
         <div className="drawer-content">
-          <BG />
+          <Background />
           <NavBar />
           <Content />
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
@@ -79,8 +72,9 @@ const Welcome: NextPage = () => {
           ></label>
           <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
             <ul className="w-full">
+              <li>Your application has not been received.</li>
               {/* <!-- Sidebar content here --> */}
-              <li>
+              {/* <li>
                 <a className="mx-2 my-2 text-base font-bold" href="#">
                   Dashboard
                 </a>
@@ -89,7 +83,7 @@ const Welcome: NextPage = () => {
                 <a className="mx-2 my-2 text-base font-bold" href="#">
                   Calendar
                 </a>
-              </li>
+              </li> */}
             </ul>
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
