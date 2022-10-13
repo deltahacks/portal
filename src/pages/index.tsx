@@ -12,7 +12,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  return { redirect: { destination: "/dashboard", permanent: false } };
+  return { redirect: { destination: "/welcome", permanent: false } };
 };
 
 export default Home;

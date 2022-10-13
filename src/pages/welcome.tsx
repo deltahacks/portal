@@ -8,6 +8,9 @@ import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
+import { appRouter } from "../server/router";
+import { createContext } from "../server/router/context";
+
 const Content = () => {
   return (
     <main className="px-7 py-8 sm:px-14 md:absolute md:w-10/12 md:pb-3 lg:pl-20 2xl:w-8/12 2xl:pt-20">
@@ -106,11 +109,22 @@ const Welcome: NextPage = () => {
     </>
   );
 };
+export const getServerSideProps = async (
+  context: any,
+  ctx: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(ctx);
   if (!session || !session.user) {
     return { redirect: { destination: "/login", permanent: false } };
+  }
+
+  const trpcCtx = await createContext({ req: context.req, res: context.res });
+  const caller = appRouter.createCaller(trpcCtx);
+  const result = await caller.query("application.received");
+
+  if (result) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
   return { props: {} };
