@@ -1,8 +1,7 @@
 import type { NextPage } from "next";
-
 import dynamic from "next/dynamic";
 
-const Widget = dynamic(() => import('@typeform/embed-react').then(e => e.Widget), { ssr: false });
+const Widget = dynamic(() => import('../components/TypeformWidget'), { ssr: false });
 
 const Apply: NextPage = () => {
   return (
