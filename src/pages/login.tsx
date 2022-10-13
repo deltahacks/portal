@@ -1,15 +1,12 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
-import Link from "next/link";
 import Head from "next/head";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 import DHBranding from "../components/DHBranding";
 import LoginCard from "../components/LoginCard";
 import ThemeToggle from "../components/ThemeToggle";
-import { useTheme } from "next-themes";
 
 const Login: NextPage = () => {
-  const { theme, setTheme } = useTheme();
   return (
     <>
       <Head>
