@@ -18,6 +18,7 @@ const Home: NextPage = () => {
       <Link href={"/SignUp"}>Sign Up</Link>
       <Link href={"/ForgotPassword"}>Forgot Password</Link> */}
       <Link href={"/pre_registration"}>Pre-Registration Page</Link>
+      <Link href={"/post_registration"}>Post-Registration Page</Link>
     </div>
   );
 };
