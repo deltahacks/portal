@@ -35,8 +35,8 @@ const Dashboard: NextPage = () => {
           <Background />
           <NavBar />
 
-          <main className="px-7 py-16 sm:px-14 md:absolute md:w-10/12 md:pb-3 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:mt-14 sm:text-3xl lg:text-5xl 2xl:text-6xl">
+          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Thanks for applying{session ? `, ${session.user?.name}` : ""}!
             </h1>
             <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
