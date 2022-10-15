@@ -1,12 +1,30 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-
+import { useRouter } from "next/router";
 import DHBranding from "../components/DHBranding";
 import LoginCard from "../components/LoginCard";
 import ThemeToggle from "../components/ThemeToggle";
 
+const errorMsgs = [
+  {
+    name: "OAuthAccountNotLinked",
+    msg: "To confirm your identity, sign in with the same account you used originally.",
+  },
+];
+
 const Login: NextPage = () => {
+  const router = useRouter();
+
+  let isError = false;
+  let errorMsg = undefined;
+  if (router.query.error != undefined) {
+    isError = true;
+    errorMsg =
+      errorMsgs.find((e) => e.name === router.query.error)?.msg ||
+      "Error logging in. If this error persists, please contact us at hello@deltahacks.com for help.";
+  }
+
   return (
     <>
       <Head>
@@ -22,7 +40,7 @@ const Login: NextPage = () => {
         <div className="absolute top-4 right-4">
           <ThemeToggle />
         </div>
-        <LoginCard />
+        <LoginCard errorMsg={isError ? errorMsg : undefined} />
       </div>
     </>
   );
@@ -30,7 +48,6 @@ const Login: NextPage = () => {
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(ctx);
-  console.log(session);
   if (session?.user) {
     return { redirect: { destination: "/welcome", permanent: false } };
   }
