@@ -81,12 +81,19 @@ const LoginButton = (prop: LoginProps) => {
   );
 };
 
-const LoginCard = () => {
+interface LoginCardProps {
+  errorMsg?: string;
+}
+
+const LoginCard: React.FC<LoginCardProps> = (props) => {
   return (
     <div className="absolute top-1/2 left-1/2 min-w-[85%] -translate-x-1/2 -translate-y-1/2 md:left-3/4 md:min-w-[40vw] ">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white">
         Log In
       </h2>
+      {props.errorMsg ? (
+        <p className="pb-4 font-semibold text-red-500"> {props.errorMsg}</p>
+      ) : null}
       <div className="flex flex-col gap-1 rounded-xl border border-zinc-600 bg-white p-4 text-white dark:bg-zinc-800">
         <LoginButton
           key={"google"}
