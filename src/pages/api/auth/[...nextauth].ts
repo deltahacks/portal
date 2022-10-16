@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
     LinkedInProvider({
       clientId: env.LINKEDIN_CLIENT_ID,
       clientSecret: env.LINKEDIN_CLIENT_SECRET,
-    })
+    }),
     // ...add more providers here
   ],
 };
