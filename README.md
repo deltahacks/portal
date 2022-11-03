@@ -4,7 +4,7 @@
 
 ![](/Cover.png)
 
-DeltaHacks is an annual, 48-hour hackathon hosted at McMaster University. This is the official portal for DeltaHacks 2022. It is the successor to the [DeltaHacks 'My' Portal](https://github.com/deltahacks/my.Deltahacks) which was in use for the previous three years.
+DeltaHacks is an annual, 36-hour hackathon hosted at McMaster University. This is the official portal for DeltaHacks 2022. It is the successor to the [DeltaHacks 'My' Portal](https://github.com/deltahacks/my.Deltahacks) which was in use for the previous three years.
 
 ## Philosophy
 
