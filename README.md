@@ -14,11 +14,11 @@ In the past, the DeltaHacks team has used a variety of different tools to manage
 
 - [x] OAuth2 Authentication
 - [x] Hacker Applications
-- [] Attendee Acceptence Dashboard
-- [] Administration Dashboard
-- [] Judging Portal
-- [] Sponsor Portal
-- [] QR Code encoded meal tickets
+- [ ] Attendee Acceptence Dashboard
+- [ ] Administration Dashboard
+- [ ] Judging Portal
+- [ ] Sponsor Portal
+- [ ] QR Code encoded meal tickets
 
 ## The Stack
 
