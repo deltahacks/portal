@@ -35,13 +35,19 @@ Additionally, we use PaaS service providers such as Netlify and CockroachDB for 
 
 ## Getting Started
 
-To get started developing, clone the repository and run the following commands:
+To get started developing, clone the repository, setup an `.env` file based on the `.env-example` file and use the following commands:
 
 ```bash
-npm install # Install dependencies
+# Install dependencies
+npm install
+
+# Setup database
+npx prisma db generate
+npx prisma db push
+
+# To Build / Run the project
 
 npm run dev # Start the development server
-
 npm run build # Build the project
 ```
 
@@ -51,7 +57,7 @@ We recommend using [VSCode](https://code.visualstudio.com/) with the [Tailwind C
 
 <!-- Auto generated contributors image -->
 
-![](https://contrib.rocks/image?repo=deltahacks/portal)
+![https://github.com/deltahacks/portal/graphs/contributors](https://contrib.rocks/image?repo=deltahacks/portal)
 
 ## Get In Touch
 
