@@ -17,12 +17,14 @@ export const getServerSideProps = async (
 ) => {
   const session = await getServerAuthSession(context);
 
+  // If the user is not an ADMIN, kick them back to the dashboard
   if (!session || !session.user || !session.user.role.includes("ADMIN")) {
     return {
       redirect: { destination: "/dashboard", permanent: false },
     };
   }
 
+  // Otherwise, continue.
   return { props: {}};
 };
 
