@@ -106,12 +106,10 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
         console.log(input);
 
         const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true${
-            input ? input.cursor ? `&after=${input.cursor}` : "" : ""
+            input ? input.cursor ? `&before=${input.cursor}` : "" : ""
         }`;
 
         const res = await fetch(url, options);
-
-        console.log(res);
 
         const data: TypeFormResponse = await res.json();
 
