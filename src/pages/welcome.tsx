@@ -12,11 +12,15 @@ import { appRouter } from "../server/router";
 import { createContext } from "../server/router/context";
 
 import { prisma } from "../server/db/client";
+import { trpc } from "../utils/trpc";
 
 const Content = () => {
   return (
     <main className="px-7 py-8 sm:px-14 md:w-10/12 md:py-16 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-      <div className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl">
+      <div
+        id="test"
+        className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl"
+      >
         A weekend worth hacking,
         <br />@ DeltaHacks 9
       </div>
@@ -40,6 +44,7 @@ const Content = () => {
             Apply
           </button>
         </Link>
+
         {/* Hidden until we have a FAQ Page */}
         {/* <Link href="#">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
@@ -54,6 +59,15 @@ const Content = () => {
 const Welcome: NextPage = () => {
   const { data: session } = useSession();
 
+  const { data, isLoading, fetchNextPage } = trpc.useInfiniteQuery(
+    ["reviewer.getApplications", {}],
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  console.log(data, isLoading);
+
   return (
     <>
       <Head>
@@ -65,6 +79,25 @@ const Welcome: NextPage = () => {
         <div className="drawer-content">
           <Background />
           <NavBar />
+          {data?.pages.map((page) => {
+            return page.data.map((application) => {
+              return (
+                <div>
+                  {application?.firstName}{" "}
+                  {application.emergencyContactInfo.phoneNumber}
+                </div>
+              );
+            });
+          })}
+          {isLoading ? null : (
+            <button
+              className="btn btn-primary"
+              // tRPC fetch the next page
+              onClick={() => fetchNextPage()}
+            >
+              Fetch More
+            </button>
+          )}
           <Content />
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
@@ -90,6 +123,7 @@ const Welcome: NextPage = () => {
                 </a>
               </li> */}
             </ul>
+
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
               <div>
