@@ -27,6 +27,7 @@ const GradingPortal: NextPage = () => {
                   <th className="border border-slate-600 p-3">First Name</th>
                   <th className="border border-slate-600 p-3">Last Name</th>
                   <th className="border border-slate-600 p-3">Score</th>
+                  <th className="border border-slate-600 p-3">Submit Score</th>
                   <th className="border border-slate-600 p-3">
                     View Applicant
                   </th>
