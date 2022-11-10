@@ -22,7 +22,7 @@ const GradingNavBar = () => {
                 </div>
             </div>
             <div className="hidden items-center md:flex">
-                {/* <ThemeToggle /> */}
+                <ThemeToggle />
                 <p className="mx-2 hidden font-inter text-sm lg:inline-block">
                     <Link
                         href="/dashboard"
