@@ -25,7 +25,7 @@ export const getServerSideProps = async (
   }
 
   // Otherwise, continue.
-  return { props: {}};
+  return { props: {} };
 };
 
 export default Admin;
