@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Applicant = (props) => {
+const Applicant = ({ applicant }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const openInNewTab = (url) => {
@@ -10,8 +10,8 @@ const Applicant = (props) => {
   return (
     <>
       <tr className="bg-black text-left">
-        <td className="border border-slate-800 p-3">{props.firstName}</td>
-        <td className="border border-slate-800 p-3">{props.lastName}</td>
+        <td className="border border-slate-800 p-3">{applicant.firstName}</td>
+        <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">-----</td>
         <td className="border border-slate-800 p-3">
           <form className="flex flex-row gap-2">
@@ -37,102 +37,134 @@ const Applicant = (props) => {
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan={"100%"} className="bg-[#1F1F1F] py-10 px-20">
+          <td colSpan={"100%"} className="bg-[#1F1F1F] py-5 px-10">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
-
-            <div className="mt-8 flex flex-row justify-between">
-              <div className="flex flex-col">
-                <div className="my-1.5">
-                  <img
-                    className="mr-2.5 inline-block h-5 w-5"
-                    src="./images/person.svg"
-                  ></img>
-                  <span className="text-base text-white">
-                    <strong>John Doe</strong> (second year student)
-                  </span>
+            <div className="flex flex-row gap-3 py-3">
+              <div className="flex w-7/12 flex-col gap-3">
+                <div className="rounded border border-slate-300 p-6">
+                  <div className="text-lg">Basic Information</div>
+                  <hr className="mt-2 border-t border-slate-100"></hr>
+                  <div className="mt-2">
+                    <strong>Name: </strong> {applicant.firstName}{" "}
+                    {applicant.lastName}
+                  </div>
+                  <div>
+                    <strong>Birthday: </strong> {applicant.birthday}
+                  </div>
+                  <div>
+                    <strong>Major: </strong> {applicant.major}
+                  </div>
+                  <div>
+                    <strong>Enrolled: </strong> {applicant.willBeEnrolled}
+                  </div>
+                  <div>
+                    <strong>Graduation Year: </strong>{" "}
+                    {applicant.graduationYear}
+                  </div>
+                  <div>
+                    <strong>Degree: </strong> {applicant.degree}
+                  </div>
+                  <div>
+                    <strong>Current Level: </strong> {applicant.currentLevel}
+                  </div>
+                  <div>
+                    <strong>Hackathon Count: </strong>{" "}
+                    {applicant.hackathonCount}
+                  </div>
+                  <div>
+                    <strong>Social Links: </strong> {applicant.socialLinks}
+                  </div>
                 </div>
 
-                <div className="my-1.5">
-                  <img
-                    className="mr-2.5 inline-block h-5 w-5"
-                    src="./images/calendar.svg"
-                  ></img>
-                  <span className="text-base text-white">
-                    Instantiated 2000-01-01
-                  </span>
+                <div className="h-64 overflow-y-scroll rounded border border-slate-300 p-6">
+                  <div className="text-lg">Long Answer Questions</div>
+                  <hr className="mt-2 border-t border-slate-100"></hr>
+                  <div>
+                    <div className="mt-5 font-bold">Question 1 Answer</div>
+                    <div>{applicant.longAnswer1}</div>
+                  </div>
+                  <div>
+                    <div className="mt-5 font-bold">Question 2 Answer</div>
+                    <div>{applicant.longAnswer2}</div>
+                  </div>
+                  <div>
+                    <div className="mt-5 font-bold">Question 3 Answer</div>
+                    <div>{applicant.longAnswer3}</div>
+                  </div>
+                  <div>
+                    <div className="mt-5 font-bold">Extra</div>
+                    <div>{applicant.extra}</div>
+                  </div>
                 </div>
 
-                <div className="my-1.5">
-                  <img
-                    className="mr-2.5 inline-block h-5 w-5"
-                    src="./images/school.svg"
-                  ></img>
-                  <span className="text-base text-white">
-                    Studied at McMaster University
-                  </span>
-                </div>
-
-                <div className="my-1.5">
-                  <img
-                    className="mr-2.5 inline-block h-5 w-5"
-                    src="./images/laptop.svg"
-                  ></img>
-                  <span className="text-base text-white">
-                    Expert at Software Engineering (2021 - 2024)
-                  </span>
+                <div className="h-40 overflow-y-scroll rounded border border-slate-300 p-6">
+                  <div className="text-lg">Additional Information</div>
+                  <hr className="mt-2 border-t border-slate-100"></hr>
+                  <div className="mt-5">
+                    <strong>T-Shirt Size: </strong> {applicant.tshirtSize}
+                  </div>
+                  <div>
+                    <strong>Hacker Type: </strong> {applicant.hackerType}
+                  </div>
+                  <div>
+                    <strong>Has Team: </strong> {applicant.hasTeam}
+                  </div>
+                  <div>
+                    <strong>Workshop: </strong> {applicant.workShop}
+                  </div>
+                  <div>
+                    <strong>Gender: </strong> {applicant.gender}
+                  </div>
+                  <div>
+                    <strong>Consider Sponser Chat: </strong>{" "}
+                    {applicant.considerSponserChat}
+                  </div>
+                  <div>
+                    <strong>How Did They hear: </strong>{" "}
+                    {applicant.howDidYouHear}
+                  </div>
+                  <div>
+                    <strong>Background: </strong> {applicant.background}
+                  </div>
+                  <div>
+                    <strong>Emergency Contact Info: </strong>
+                    <p>
+                      &emsp;<b>Name:</b>{" "}
+                      {applicant.emergencyContactInfo.firstName}{" "}
+                      {applicant.emergencyContactInfo.lastName}
+                    </p>
+                    <p>
+                      &emsp;<b>Phone Number:</b>{" "}
+                      {applicant.emergencyContactInfo.phoneNumber}
+                    </p>
+                    <p>
+                      &emsp;<b>Email:</b> {applicant.emergencyContactInfo.email}
+                    </p>
+                  </div>
+                  <div>
+                    <strong>MLH Agreement: </strong> {applicant.mlhAgreement}
+                  </div>
+                  <div>
+                    <strong>MLH Consent: </strong> {applicant.mlhCoc}
+                  </div>
                 </div>
               </div>
-
-              <div className="flex flex-col ">
+              <div className="flex w-5/12 flex-col items-center gap-3">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={applicant.resume}
+                ></iframe>
                 <button
-                  className="my-2.5 w-auto rounded-lg bg-[#4F14EE] px-7 py-2.5 text-base text-white"
-                  onClick={() => openInNewTab("https://youtu.be/dQw4w9WgXcQ")}
+                  className="w-8/12 rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900"
+                  onClick={() => openInNewTab(applicant.resume)}
                 >
-                  Open Portfolio
-                </button>
-
-                <button
-                  className="my-2.5 w-auto rounded-lg border-2 border-[#0077B5] px-7 py-2.5 text-base text-white"
-                  onClick={() => openInNewTab("https://youtu.be/dQw4w9WgXcQ")}
-                >
-                  Linkedin
+                  Open Resume
                 </button>
               </div>
             </div>
-
-            <div className="my-8 text-center text-base font-bold text-white">
-              ~ Attended <span className="text-3xl">5</span> Hackathons ~
-            </div>
-
-            <div className="mb-10 h-64 overflow-y-scroll rounded border-2 border-[#ffffff]/40 p-6">
-              <div>
-                <div className="mb-6 text-base font-bold text-white">
-                  Long Question 1
-                </div>
-
-                <div className="text-base text-white">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ea
-                  ut libero eaque culpa soluta alias.
-                </div>
-              </div>
-            </div>
-
-            <div className="my-10 h-10 h-80 w-auto border-2 border-dashed border-[#ffffff]/40">
-              <iframe
-                width="100%"
-                height="100%"
-                src="https://arxiv.org/pdf/1706.03762v5.pdf"
-              ></iframe>
-            </div>
-
-            <button
-              className="my-2.5 w-auto rounded-lg rounded bg-[#4F14EE] px-7 py-2.5 text-base text-white"
-              onClick={() => openInNewTab("https://youtu.be/dQw4w9WgXcQ")}
-            >
-              Open Resume
-            </button>
           </td>
         </tr>
       )}

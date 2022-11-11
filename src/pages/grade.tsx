@@ -7,6 +7,85 @@ import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 
 const GradingPortal: NextPage = () => {
+  const data = [
+    {
+      firstName: "John",
+      lastName: "Doe",
+      birthday: "2001-03-02",
+      major: "Computer Science",
+      willBeEnrolled: "true",
+      graduationYear: "2024",
+      degree: "Bachelor",
+      currentLevel: "4",
+      hackathonCount: "3",
+      longAnswer1:
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id. Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id.",
+      longAnswer2:
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id.",
+      longAnswer3:
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in!",
+      socialLinks: "https://github.com/, https://www.linkedin.com/",
+      resume:
+        "https://www.gov.mb.ca/agriculture/industry-leadership/4h/pubs/foodpizzamem.pdf",
+      extra:
+        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aspernatur architecto praesentium sequi recusandae suscipit quaerat tempora ipsum inventore necessitatibus expedita! Necessitatibus laboriosam quaerat error quod esse totam, facilis quae dolorum?",
+      tshirtSize: "Medium",
+      hackerType: "Beginner",
+      hasTeam: "true",
+      workShop: "Lorem ipsum dolor sit amet consectetur",
+      gender: "Male",
+      considerSponserChat: "true",
+      howDidYouHear: "Friend",
+      background: "Asian",
+      emergencyContactInfo: {
+        firstName: "Jane",
+        lastName: "Doe",
+        phoneNumber: "(123)-456-7382",
+        email: "hello.bye@gmail.com",
+      },
+      mlhAgreement: "true",
+      mlhCoc: "true",
+    },
+    {
+      firstName: "Jane",
+      lastName: "Smith",
+      birthday: "2001-03-02",
+      major: "Computer Science",
+      willBeEnrolled: "true",
+      graduationYear: "2024",
+      degree: "Bachelor",
+      currentLevel: "4",
+      hackathonCount: "3",
+      longAnswer1:
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id. Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id.",
+      longAnswer2:
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id.",
+      longAnswer3:
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in! Adipisci tenetur dignissimos voluptatum voluptas id.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem earum cum nostrum distinctio repellat. Qui dolores natus sit, ipsum ipsa optio deleniti repellendus in!",
+      socialLinks: "https://github.com/, https://www.linkedin.com/",
+      resume:
+        "https://www.gov.mb.ca/agriculture/industry-leadership/4h/pubs/foodpizzamem.pdf",
+      extra:
+        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aspernatur architecto praesentium sequi recusandae suscipit quaerat tempora ipsum inventore necessitatibus expedita! Necessitatibus laboriosam quaerat error quod esse totam, facilis quae dolorum?",
+      tshirtSize: "Medium",
+      hackerType: "Beginner",
+      hasTeam: "true",
+      workShop:
+        "Lorem ipsum dolor sit amet consectetur Lorem ipsum dolor sit amet consectetur",
+      gender: "Male",
+      considerSponserChat: "true",
+      howDidYouHear: "Friend",
+      background: "Asian",
+      emergencyContactInfo: {
+        firstName: "Jane",
+        lastName: "Doe",
+        phoneNumber: "(123)-456-7382",
+        email: "hello.bye@gmail.com",
+      },
+      mlhAgreement: "true",
+      mlhCoc: "true",
+    },
+  ];
   return (
     <>
       <Head>
@@ -34,18 +113,13 @@ const GradingPortal: NextPage = () => {
                 </tr>
               </thead>
               <tbody>
-                <Applicant firstName={"John"} lastName={"Doe"} />
-                <Applicant firstName={"Tom"} lastName={"Smith"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
-                <Applicant firstName={"John"} lastName={"Doe"} />
-                <Applicant firstName={"Tom"} lastName={"Smith"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
-                <Applicant firstName={"Hello"} lastName={"World"} />
+                {data.length === 0 ? (
+                  <p className="p-3">Fetching Applicants...</p>
+                ) : (
+                  data.map((applicant, index) => (
+                    <Applicant applicant={applicant} key={index} />
+                  ))
+                )}
               </tbody>
             </table>
           </main>
