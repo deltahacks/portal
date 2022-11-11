@@ -96,7 +96,7 @@ const GradingPortal: NextPage = () => {
         <div className="drawer-content">
           <GradingNavBar />
           <Background />
-          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-11/12 2xl:pt-20 mx-auto">
             <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Applications
             </h1>
@@ -105,6 +105,7 @@ const GradingPortal: NextPage = () => {
                 <tr>
                   <th className="border border-slate-600 p-3">First Name</th>
                   <th className="border border-slate-600 p-3">Last Name</th>
+                  <th className="border border-slate-600 p-3">Judged By</th>
                   <th className="border border-slate-600 p-3">Score</th>
                   <th className="border border-slate-600 p-3">Submit Score</th>
                   <th className="border border-slate-600 p-3">

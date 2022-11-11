@@ -12,6 +12,7 @@ const Applicant = ({ applicant }) => {
       <tr className="bg-black text-left">
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
+        <td className="border border-slate-800 p-3">/3</td>
         <td className="border border-slate-800 p-3">-----</td>
         <td className="border border-slate-800 p-3">
           <form className="flex flex-row gap-2">
