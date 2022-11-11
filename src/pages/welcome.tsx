@@ -52,54 +52,50 @@ import { prisma } from "../server/db/client";
 // };
 
 const Content = () => {
-    return (
-        <main>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className=" rounded-xl bg-[#e0e0e0] p-5 dark:bg-[#2e2e2e] md:p-32">
-                    <h1 className="text-center text-xl">
-                        Applications are currently paused due to a technical
-                        difficulty.<br></br> Please be paitient while we fix the
-                        issue as soon as possible.
-                    </h1>
-                </div>
-            </div>
-        </main>
-    );
+  return (
+    <main>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className=" rounded-xl bg-[#e0e0e0] p-5 dark:bg-[#2e2e2e] md:p-32">
+          <h1 className="text-center text-xl">
+            Applications are currently paused due to a technical difficulty.
+            <br></br> Please be paitient while we fix the issue as soon as
+            possible.
+          </h1>
+        </div>
+      </div>
+    </main>
+  );
 };
 
 const Welcome: NextPage = () => {
-    const { data: session } = useSession();
+  const { data: session } = useSession();
 
-    return (
-        <>
-            <Head>
-                <title>Welcome - DeltaHacks 9</title>
-            </Head>
-            <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
-                <input
-                    id="my-drawer-3"
-                    type="checkbox"
-                    className="drawer-toggle"
-                />
+  return (
+    <>
+      <Head>
+        <title>Welcome - DeltaHacks 9</title>
+      </Head>
+      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
+        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
-                <div className="drawer-content">
-                    <Background />
-                    <NavBar />
-                    <Content />
-                    <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
-                        <SocialButtons />
-                    </footer>
-                </div>
-                <div className="drawer-side md:hidden">
-                    <label
-                        htmlFor="my-drawer-3"
-                        className="drawer-overlay md:hidden"
-                    ></label>
-                    <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
-                        <ul className="w-full">
-                            <li>Your application has not been received.</li>
-                            {/* <!-- Sidebar content here --> */}
-                            {/* <li>
+        <div className="drawer-content">
+          <Background />
+          <NavBar />
+          <Content />
+          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+            <SocialButtons />
+          </footer>
+        </div>
+        <div className="drawer-side md:hidden">
+          <label
+            htmlFor="my-drawer-3"
+            className="drawer-overlay md:hidden"
+          ></label>
+          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
+            <ul className="w-full">
+              <li>Your application has not been received.</li>
+              {/* <!-- Sidebar content here --> */}
+              {/* <li>
                 <a className="mx-2 my-2 text-base font-bold" href="#">
                   Dashboard
                 </a>
@@ -109,29 +105,27 @@ const Welcome: NextPage = () => {
                   Calendar
                 </a>
               </li> */}
-                        </ul>
-                        <div className="mx-1 mb-2 flex w-full items-center justify-between">
-                            <ThemeToggle />
-                            <div>
-                                <a className="font-sub mx-2.5 text-sm">
-                                    Hi,{" "}
-                                    <strong className="font-bold">
-                                        {session?.user?.name}
-                                    </strong>
-                                </a>
-                                <button
-                                    onClick={() => signOut()}
-                                    className="font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold"
-                                >
-                                    Sign Out
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            </ul>
+            <div className="mx-1 mb-2 flex w-full items-center justify-between">
+              <ThemeToggle />
+              <div>
+                <a className="font-sub mx-2.5 text-sm">
+                  Hi,{" "}
+                  <strong className="font-bold">{session?.user?.name}</strong>
+                </a>
+                <button
+                  onClick={() => signOut()}
+                  className="font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold"
+                >
+                  Sign Out
+                </button>
+              </div>
             </div>
-        </>
-    );
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 // export const getServerSideProps = async (
 //     context: any,
