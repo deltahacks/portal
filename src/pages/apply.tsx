@@ -26,25 +26,27 @@ export const getServerSideProps = async (
   context: any,
   ctx: GetServerSidePropsContext
 ) => {
-  const session = await getServerAuthSession(context);
-
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
-  }
-
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-  });
-
-  // If submitted then go dashboard
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { props: {} };
-  }
   return { redirect: { destination: "/dashboard", permanent: false } };
+
+  // const session = await getServerAuthSession(context);
+
+  // if (!session || !session.user) {
+  //     return { redirect: { destination: "/login", permanent: false } };
+  // }
+
+  // const userEntry = await prisma.user.findFirst({
+  //     where: { id: session.user.id },
+  // });
+
+  // // If submitted then go dashboard
+  // if (
+  //     userEntry &&
+  //     (userEntry.typeform_response_id === null ||
+  //         userEntry.typeform_response_id === undefined)
+  // ) {
+  //     return { props: {} };
+  // }
+  // return { redirect: { destination: "/dashboard", permanent: false } };
 };
 
 export default Apply;
