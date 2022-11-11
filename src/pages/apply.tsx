@@ -5,8 +5,10 @@ import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { appRouter } from "../server/router";
 import { createContext } from "../server/router/context";
+import { useRouter } from "next/router";
 
 const Apply: NextPage = () => {
+  const router = useRouter();
   const submitResponseId = trpc.useMutation("application.submit");
 
   return (
@@ -14,9 +16,9 @@ const Apply: NextPage = () => {
       id="MVo09hRB"
       style={{ borderRadius: "none", width: "100%", height: "100%" }}
       className="rounded-none"
-      onSubmit={(event) => {
-        submitResponseId.mutate({ id: event.responseId });
-        window.location.href = "/dashboard";
+      onSubmit={async (event) => {
+        await submitResponseId.mutateAsync({ id: event.responseId });
+        await router.push("/dashboard");
       }}
     />
   );
