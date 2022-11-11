@@ -12,10 +12,7 @@ import { prisma } from "../server/db/client";
 const Content = () => {
   return (
     <main className="px-7 py-8 sm:px-14 md:w-10/12 md:py-16 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-      <div
-        id="test"
-        className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl"
-      >
+      <div className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl">
         A weekend worth hacking,
         <br />@ DeltaHacks 9
       </div>

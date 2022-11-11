@@ -106,8 +106,9 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
   async resolve({ ctx, input }) {
     console.log(input);
 
-    const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true${input ? (input.cursor ? `&before=${input.cursor}` : "") : ""
-      }`;
+    const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true${
+      input ? (input.cursor ? `&before=${input.cursor}` : "") : ""
+    }`;
 
     const res = await fetch(url, options);
 
@@ -116,7 +117,7 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
     // Convert from TypeFormResponse to TypeFormSubmission
 
     const converted: TypeFormSubmission[] = data.items.map((item) => {
-      const responsePreprocessing: any = new Map()
+      const responsePreprocessing: any = new Map();
       for (const answer of item.answers) {
         responsePreprocessing.set(answer.field.id, answer);
       }
@@ -125,9 +126,7 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
         response_id: item.response_id,
         firstName: responsePreprocessing.get("nfGel41KT3dP").text!,
         lastName: responsePreprocessing.get("mwP5oTr2JHgD").text!,
-        birthday: new Date(
-          responsePreprocessing.get("m7lNzS2BDhp1").date!
-        ),
+        birthday: new Date(responsePreprocessing.get("m7lNzS2BDhp1").date!),
         major: responsePreprocessing.get("PzclVTL14dsF").text!,
         school: responsePreprocessing.get("63Wa2JCZ1N3R").text!,
         willBeEnrolled: responsePreprocessing.get("rG4lrpFoXXpL").boolean!,
@@ -159,7 +158,7 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
         },
         mlhAgreement: responsePreprocessing.get("F3vbQhObxXFa").boolean!,
         mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs").boolean!,
-      }
+      };
     });
 
     const nextCursor = data.items[data.items.length - 1]?.token;
