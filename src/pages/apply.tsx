@@ -8,45 +8,45 @@ import { createContext } from "../server/router/context";
 import { useRouter } from "next/router";
 
 const Apply: NextPage = () => {
-    const router = useRouter();
-    const submitResponseId = trpc.useMutation("application.submit");
+  const router = useRouter();
+  const submitResponseId = trpc.useMutation("application.submit");
 
-    return (
-        <Widget
-            id="MVo09hRB"
-            style={{ borderRadius: "none", width: "100%", height: "100%" }}
-            className="rounded-none"
-            onSubmit={async (event) => {
-                await submitResponseId.mutateAsync({ id: event.responseId });
-                await router.push("/dashboard");
-            }}
-        />
-    );
+  return (
+    <Widget
+      id="MVo09hRB"
+      style={{ borderRadius: "none", width: "100%", height: "100%" }}
+      className="rounded-none"
+      onSubmit={async (event) => {
+        await submitResponseId.mutateAsync({ id: event.responseId });
+        await router.push("/dashboard");
+      }}
+    />
+  );
 };
 
 export const getServerSideProps = async (
-    context: any,
-    ctx: GetServerSidePropsContext
+  context: any,
+  ctx: GetServerSidePropsContext
 ) => {
-    const session = await getServerAuthSession(context);
+  const session = await getServerAuthSession(context);
 
-    if (!session || !session.user) {
-        return { redirect: { destination: "/login", permanent: false } };
-    }
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
 
-    const userEntry = await prisma.user.findFirst({
-        where: { id: session.user.id },
-    });
+  const userEntry = await prisma.user.findFirst({
+    where: { id: session.user.id },
+  });
 
-    // If submitted then go dashboard
-    if (
-        userEntry &&
-        (userEntry.typeform_response_id === null ||
-            userEntry.typeform_response_id === undefined)
-    ) {
-        return { props: {} };
-    }
-    return { redirect: { destination: "/dashboard", permanent: false } };
+  // If submitted then go dashboard
+  if (
+    userEntry &&
+    (userEntry.typeform_response_id === null ||
+      userEntry.typeform_response_id === undefined)
+  ) {
+    return { props: {} };
+  }
+  return { redirect: { destination: "/dashboard", permanent: false } };
 };
 
 export default Apply;
