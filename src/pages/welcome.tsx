@@ -48,6 +48,22 @@ const Content = () => {
   );
 };
 
+// const Content = () => {
+//   return (
+//     <main>
+//       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+//         <div className=" rounded-xl bg-[#e0e0e0] p-5 dark:bg-[#2e2e2e] md:p-32">
+//           <h1 className="text-center text-xl">
+//             Applications are currently paused due to a technical difficulty.
+//             <br></br> Please be paitient while we fix the issue as soon as
+//             possible.
+//           </h1>
+//         </div>
+//       </div>
+//     </main>
+//   );
+// };
+
 const Welcome: NextPage = () => {
   const { data: session } = useSession();
   return (
