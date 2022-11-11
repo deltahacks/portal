@@ -127,28 +127,28 @@ const Welcome: NextPage = () => {
     </>
   );
 };
-// export const getServerSideProps = async (
-//     context: any,
-//     ctx: GetServerSidePropsContext
-// ) => {
-//     const session = await getServerAuthSession(context);
+export const getServerSideProps = async (
+  context: any,
+  ctx: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
 
-//     if (!session || !session.user) {
-//         return { redirect: { destination: "/login", permanent: false } };
-//     }
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
 
-//     const userEntry = await prisma.user.findFirst({
-//         where: { id: session.user.id },
-//     });
+  const userEntry = await prisma.user.findFirst({
+    where: { id: session.user.id },
+  });
 
-//     if (
-//         userEntry &&
-//         (userEntry.typeform_response_id === null ||
-//             userEntry.typeform_response_id === undefined)
-//     ) {
-//         return { props: {} };
-//     }
-//     return { redirect: { destination: "/dashboard", permanent: false } };
-// };
+  if (
+    userEntry &&
+    (userEntry.typeform_response_id === null ||
+      userEntry.typeform_response_id === undefined)
+  ) {
+    return { props: {} };
+  }
+  return { redirect: { destination: "/dashboard", permanent: false } };
+};
 
 export default Welcome;
