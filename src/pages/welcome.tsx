@@ -7,12 +7,7 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-
-import { appRouter } from "../server/router";
-import { createContext } from "../server/router/context";
-
 import { prisma } from "../server/db/client";
-import { trpc } from "../utils/trpc";
 
 const Content = () => {
   return (
@@ -58,16 +53,6 @@ const Content = () => {
 
 const Welcome: NextPage = () => {
   const { data: session } = useSession();
-
-  const { data, isLoading, fetchNextPage } = trpc.useInfiniteQuery(
-    ["reviewer.getApplications", {}],
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
-  );
-
-  console.log(data, isLoading);
-
   return (
     <>
       <Head>
@@ -79,26 +64,6 @@ const Welcome: NextPage = () => {
         <div className="drawer-content">
           <Background />
           <NavBar />
-          {data?.pages.map((page) => {
-            return page.data.map((application) => {
-              return (
-                <div key={application.response_id}>
-                  {application?.firstName}{" "}
-                  {application?.lastName}{" "}
-                  {/*{application.emergencyContactInfo.phoneNumber}*/}
-                </div>
-              );
-            });
-          })}
-          {isLoading ? null : (
-            <button
-              className="btn btn-primary"
-              // tRPC fetch the next page
-              onClick={() => fetchNextPage()}
-            >
-              Fetch More
-            </button>
-          )}
           <Content />
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
