@@ -50,6 +50,7 @@ type TypeFormResponse = z.infer<typeof TypeFormResponse>;
 
 // TODO: Double check this type
 const TypeFormSubmission = z.object({
+  response_id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   birthday: z.date(),
@@ -105,9 +106,8 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
   async resolve({ ctx, input }) {
     console.log(input);
 
-    const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true${
-      input ? (input.cursor ? `&before=${input.cursor}` : "") : ""
-    }`;
+    const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true${input ? (input.cursor ? `&before=${input.cursor}` : "") : ""
+      }`;
 
     const res = await fetch(url, options);
 
@@ -115,92 +115,52 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
 
     // Convert from TypeFormResponse to TypeFormSubmission
 
-    const converted: TypeFormSubmission[] = data.items.map((item) => ({
-      firstName: item.answers.find(
-        (answer) => answer.field.id === "nfGel41KT3dP"
-      )!.text!,
-      lastName: item.answers.find(
-        (answer) => answer.field.id === "mwP5oTr2JHgD"
-      )!.text!,
-      birthday: new Date(
-        item.answers.find((answer) => answer.field.id === "m7lNzS2BDhp1")!.date!
-      ),
-      major: item.answers.find((answer) => answer.field.id === "PzclVTL14dsF")!
-        .text!,
-      school: item.answers.find((answer) => answer.field.id === "63Wa2JCZ1N3R")!
-        .text!,
-      willBeEnrolled: item.answers.find(
-        (answer) => answer.field.id === "rG4lrpFoXXpL"
-      )!.boolean!,
-      graduationYear: new Date(
-        item.answers.find((answer) => answer.field.id === "Ez47B6N0QzKY")!.date!
-      ),
-      degree: item.answers.find((answer) => answer.field.id === "035Ul4T9mldq")!
-        .text!,
-      currentLevel: item.answers.find(
-        (answer) => answer.field.id === "3SPBWlps2PBj"
-      )!.text!,
-      hackathonCount: item.answers.find(
-        (answer) => answer.field.id === "MyObNZSNMZOZ"
-      )!.text!,
-      longAnswer1: item.answers.find(
-        (answer) => answer.field.id === "rCIqmnIUzvAV"
-      )!.text!,
-      longAnswer2: item.answers.find(
-        (answer) => answer.field.id === "h084NVJ0kEsO"
-      )!.text!,
-      longAnswer3: item.answers.find(
-        (answer) => answer.field.id === "wq7KawPVuW4I"
-      )!.text!,
-      socialLinks: item.answers.find(
-        (answer) => answer.field.id === "CE5WnCcBNEtj"
-      )?.text,
-      resume: item.answers.find((answer) => answer.field.id === "z8wTMK3lMO00")
-        ?.file_url,
-      extra: item.answers.find((answer) => answer.field.id === "GUpky3mnQ3q5")
-        ?.text,
-      tshirtSize: item.answers.find(
-        (answer) => answer.field.id === "Q9xv6pezGeSc"
-      )!.text!,
-      hackerType: item.answers.find(
-        (answer) => answer.field.id === "k9BrMbznssVX"
-      )!.text!,
-      hasTeam: item.answers.find(
-        (answer) => answer.field.id === "3h36sGge5G4X"
-      )!.boolean!,
-      workShop: item.answers.find(
-        (answer) => answer.field.id === "Q3MisVaz3Ukw"
-      )?.text,
-      gender: item.answers.find((answer) => answer.field.id === "b3sr6g16jGjj")!
-        .text!,
-      considerSponserChat: item.answers.find(
-        (answer) => answer.field.id === "LzF2H4Fjfwvq"
-      )?.boolean,
-      howDidYouHear: item.answers.find(
-        (answer) => answer.field.id === "OoutsXd4RFcR"
-      )!.text!,
-      background: item.answers.find(
-        (answer) => answer.field.id === "kGs2PWAnqBI3"
-      )!.text!,
-      emergencyContactInfo: {
-        firstName: item.answers.find(
-          (answer) => answer.field.id === "o5rMp5fj0BMa"
-        )!.text!,
-        lastName: item.answers.find(
-          (answer) => answer.field.id === "irlsiZFKVJKD"
-        )!.text!,
-        phoneNumber: item.answers.find(
-          (answer) => answer.field.id === "ceNTt9oUhO6Q"
-        )!.phone_number!,
-        email: item.answers.find((answer) => answer.field.id === "onIT7bTImlRj")
-          ?.email,
-      },
-      mlhAgreement: item.answers.find(
-        (answer) => answer.field.id === "F3vbQhObxXFa"
-      )!.boolean!,
-      mlhCoc: item.answers.find((answer) => answer.field.id === "f3ELfiV5gVSs")!
-        .boolean!,
-    }));
+    const converted: TypeFormSubmission[] = data.items.map((item) => {
+      const responsePreprocessing: any = new Map()
+      for (const answer of item.answers) {
+        responsePreprocessing.set(answer.field.id, answer);
+      }
+
+      return {
+        response_id: item.response_id,
+        firstName: responsePreprocessing.get("nfGel41KT3dP").text!,
+        lastName: responsePreprocessing.get("mwP5oTr2JHgD").text!,
+        birthday: new Date(
+          responsePreprocessing.get("m7lNzS2BDhp1").date!
+        ),
+        major: responsePreprocessing.get("PzclVTL14dsF").text!,
+        school: responsePreprocessing.get("63Wa2JCZ1N3R").text!,
+        willBeEnrolled: responsePreprocessing.get("rG4lrpFoXXpL").boolean!,
+        graduationYear: new Date(
+          responsePreprocessing.get("Ez47B6N0QzKY").date!
+        ),
+        degree: responsePreprocessing.get("035Ul4T9mldq").text!,
+        currentLevel: responsePreprocessing.get("3SPBWlps2PBj").text!,
+        hackathonCount: responsePreprocessing.get("MyObNZSNMZOZ").text!,
+        longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV").text!,
+        longAnswer2: responsePreprocessing.get("h084NVJ0kEsO").text!,
+        longAnswer3: responsePreprocessing.get("wq7KawPVuW4I").text!,
+        socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text,
+        resume: responsePreprocessing.get("z8wTMK3lMO00")?.file_url,
+        extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text,
+        tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc").text!,
+        hackerType: responsePreprocessing.get("k9BrMbznssVX").text!,
+        hasTeam: responsePreprocessing.get("3h36sGge5G4X").boolean!,
+        workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text,
+        gender: responsePreprocessing.get("b3sr6g16jGjj").text!,
+        considerSponserChat: responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean,
+        howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR").text!,
+        background: responsePreprocessing.get("kGs2PWAnqBI3").text!,
+        emergencyContactInfo: {
+          firstName: responsePreprocessing.get("o5rMp5fj0BMa").text!,
+          lastName: responsePreprocessing.get("irlsiZFKVJKD").text!,
+          phoneNumber: responsePreprocessing.get("ceNTt9oUhO6Q").phone_number!,
+          email: responsePreprocessing.get("onIT7bTImlRj")?.email,
+        },
+        mlhAgreement: responsePreprocessing.get("F3vbQhObxXFa").boolean!,
+        mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs").boolean!,
+      }
+    });
 
     const nextCursor = data.items[data.items.length - 1]?.token;
 

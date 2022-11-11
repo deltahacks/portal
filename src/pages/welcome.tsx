@@ -82,9 +82,10 @@ const Welcome: NextPage = () => {
           {data?.pages.map((page) => {
             return page.data.map((application) => {
               return (
-                <div>
+                <div key={application.response_id}>
                   {application?.firstName}{" "}
-                  {application.emergencyContactInfo.phoneNumber}
+                  {application?.lastName}{" "}
+                  {/*{application.emergencyContactInfo.phoneNumber}*/}
                 </div>
               );
             });
