@@ -57,6 +57,13 @@ model User {
     accounts             Account[]
     sessions             Session[]
     typeform_response_id String?   @db.Text
+    role                 Role[]    @default([HACKER])
+}
+
+enum Role {
+    HACKER
+    ADMIN
+    REVIEWER
 }
 
 model VerificationToken {
