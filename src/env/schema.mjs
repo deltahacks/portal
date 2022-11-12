@@ -16,8 +16,9 @@ export const serverSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string(),
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
-  // LINKEDIN_CLIENT_ID: z.string(),
-  // LINKEDIN_CLIENT_SECRET: z.string(),
+  LINKEDIN_CLIENT_ID: z.string(),
+  LINKEDIN_CLIENT_SECRET: z.string(),
+  TYPEFORM_API_KEY: z.string(),
 });
 
 /**
