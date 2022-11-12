@@ -1,6 +1,3 @@
--- CreateEnum
-CREATE TYPE "Role" AS ENUM ('HACKER', 'ADMIN', 'REVIEWER');
-
 -- CreateTable
 CREATE TABLE "Example" (
     "id" TEXT NOT NULL,
@@ -47,7 +44,6 @@ CREATE TABLE "User" (
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
     "typeform_response_id" TEXT,
-    "role" "Role"[] DEFAULT ARRAY['HACKER']::"Role"[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
