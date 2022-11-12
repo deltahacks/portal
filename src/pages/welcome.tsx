@@ -78,7 +78,7 @@ const Welcome: NextPage = () => {
           <Background />
           <NavBar />
           <Content />
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
             <SocialButtons />
           </footer>
         </div>
