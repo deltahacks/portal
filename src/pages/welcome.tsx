@@ -7,10 +7,6 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-
-import { appRouter } from "../server/router";
-import { createContext } from "../server/router/context";
-
 import { prisma } from "../server/db/client";
 
 const Content = () => {
@@ -40,6 +36,7 @@ const Content = () => {
             Apply
           </button>
         </Link>
+
         {/* Hidden until we have a FAQ Page */}
         {/* <Link href="#">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
@@ -69,7 +66,6 @@ const Content = () => {
 
 const Welcome: NextPage = () => {
   const { data: session } = useSession();
-
   return (
     <>
       <Head>
@@ -106,6 +102,7 @@ const Welcome: NextPage = () => {
                 </a>
               </li> */}
             </ul>
+
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
               <div>

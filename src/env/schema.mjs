@@ -18,6 +18,7 @@ export const serverSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string(),
   LINKEDIN_CLIENT_ID: z.string(),
   LINKEDIN_CLIENT_SECRET: z.string(),
+  TYPEFORM_API_KEY: z.string(),
 });
 
 /**
