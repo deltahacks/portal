@@ -41,9 +41,12 @@ To get started developing, clone the repository, setup an `.env` file based on t
 # Install dependencies
 npm install
 
-# Setup database
+# Initialize database
 npx prisma db generate
 npx prisma db push
+
+# To migrate DB, run
+npx prisma migrate deploy
 
 # To Build / Run the project
 
