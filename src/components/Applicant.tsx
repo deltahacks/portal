@@ -7,6 +7,11 @@ const Applicant = ({ applicant }) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const submitScore = (e) => {
+    e.preventDefault();
+    // console.log('submit score')
+  };
+
   return (
     <>
       <tr className="bg-black text-left">
@@ -22,7 +27,7 @@ const Applicant = ({ applicant }) => {
               max="5"
               className="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
             />
-            <button className="rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900">
+            <button className="rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900" onClick={submitScore}>
               Submit
             </button>
           </form>
@@ -32,7 +37,7 @@ const Applicant = ({ applicant }) => {
             className="rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900"
             onClick={() => setIsOpen(!isOpen)}
           >
-            View
+            {!isOpen ? "View" : "Hide"}
           </button>
         </td>
       </tr>
@@ -42,7 +47,8 @@ const Applicant = ({ applicant }) => {
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
-            <div className="flex flex-row gap-3 py-3">
+
+            <div className="h-auto flex flex-row gap-3 py-3">
               <div className="flex w-7/12 flex-col gap-3">
                 <div className="rounded border border-slate-300 p-6">
                   <div className="text-lg">Basic Information</div>
@@ -52,17 +58,17 @@ const Applicant = ({ applicant }) => {
                     {applicant.lastName}
                   </div>
                   <div>
-                    <strong>Birthday: </strong> {applicant.birthday}
+                    <strong>Birthday: </strong> {new Date(applicant.birthday).toLocaleString().split(",")[0]}
                   </div>
                   <div>
                     <strong>Major: </strong> {applicant.major}
                   </div>
                   <div>
-                    <strong>Enrolled: </strong> {applicant.willBeEnrolled}
+                    <strong>Enrolled: </strong> {applicant.willBeEnrolled ? "Yes" : "No"}
                   </div>
                   <div>
                     <strong>Graduation Year: </strong>{" "}
-                    {applicant.graduationYear}
+                    {new Date(applicant.graduationYear).toLocaleString().split(",")[0]}
                   </div>
                   <div>
                     <strong>Degree: </strong> {applicant.degree}
@@ -83,19 +89,19 @@ const Applicant = ({ applicant }) => {
                   <div className="text-lg">Long Answer Questions</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div>
-                    <div className="mt-5 font-bold">Question 1 Answer</div>
+                    <div className="mt-5 mb-3 font-bold">If you had the ability to change anything in the world, what would it be and why?</div>
                     <div>{applicant.longAnswer1}</div>
                   </div>
                   <div>
-                    <div className="mt-5 font-bold">Question 2 Answer</div>
+                    <div className="mt-5 mb-3 font-bold">What is a project you hope to undertake in the future? And why not now?This question is required.</div>
                     <div>{applicant.longAnswer2}</div>
                   </div>
                   <div>
-                    <div className="mt-5 font-bold">Question 3 Answer</div>
+                    <div className="mt-5 mb-3 font-bold">If you could only speak in sentences from the script of one movie, which movie would it be and why?This question is required.</div>
                     <div>{applicant.longAnswer3}</div>
                   </div>
                   <div>
-                    <div className="mt-5 font-bold">Extra</div>
+                    <div className="mt-5 mb-3 font-bold">Extras</div>
                     <div>{applicant.extra}</div>
                   </div>
                 </div>
@@ -145,10 +151,10 @@ const Applicant = ({ applicant }) => {
                     </p>
                   </div>
                   <div>
-                    <strong>MLH Agreement: </strong> {applicant.mlhAgreement}
+                    <strong>MLH Agreement: </strong> {applicant.mlhAgreement ? "Yes" : "No"}
                   </div>
                   <div>
-                    <strong>MLH Consent: </strong> {applicant.mlhCoc}
+                    <strong>MLH Consent: </strong> {applicant.mlhCoc ? "Yes" : "No"}
                   </div>
                 </div>
               </div>
@@ -166,6 +172,7 @@ const Applicant = ({ applicant }) => {
                 </button>
               </div>
             </div>
+
           </td>
         </tr>
       )}
