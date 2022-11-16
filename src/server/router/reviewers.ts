@@ -99,14 +99,14 @@ export const reviewerRouter = createProtectedRouter()
   //get reviewed applications
   .query("getReviewed", {
     async resolve({ ctx }) {
-      let fullyReviewedApplicants = await ctx.prisma
+      const fullyReviewedApplicants = await ctx.prisma
         .$queryRaw`SELECT "typeform_response_id" FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "typeform_response_id"  FROM "Review" JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id") AS ids WHERE reviewCount >= 3`;
     },
   })
   //get applications without enough reviews
   .query("getApplications", {
     async resolve({ ctx, input }) {
-      let reviewNeededApplications: User[] = await ctx.prisma
+      const reviewNeededApplications: User[] = await ctx.prisma
         .$queryRaw`SELECT "typeform_response_id", "name"  FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "name", "typeform_response_id"  FROM "Review" RIGHT JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id", "name") AS ids WHERE reviewCount < 3 `;
 
       //get the typeform field
