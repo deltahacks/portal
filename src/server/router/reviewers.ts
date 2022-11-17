@@ -104,7 +104,7 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
     nextCursor: z.string().nullish(),
   }),
   async resolve({ ctx, input }) {
-    console.log(input);
+    // console.log(input);
 
     const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true${
       input ? (input.cursor ? `&before=${input.cursor}` : "") : ""
@@ -121,7 +121,7 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
       for (const answer of item.answers) {
         responsePreprocessing.set(answer.field.id, answer);
       }
-
+      // console.log(responsePreprocessing.get("z8wTMK3lMO00")?.file_url);
       return {
         response_id: item.response_id,
         firstName: responsePreprocessing.get("nfGel41KT3dP").text!,
@@ -140,7 +140,9 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
         longAnswer2: responsePreprocessing.get("h084NVJ0kEsO").text!,
         longAnswer3: responsePreprocessing.get("wq7KawPVuW4I").text!,
         socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text,
-        resume: responsePreprocessing.get("z8wTMK3lMO00")?.file_url,
+        resume: responsePreprocessing
+          .get("z8wTMK3lMO00")
+          ?.file_url?.replace("https://api.typeform.com/forms", "/api/resumes"),
         extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text,
         tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc").text!,
         hackerType: responsePreprocessing.get("k9BrMbznssVX").text!,
