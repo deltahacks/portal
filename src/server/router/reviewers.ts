@@ -97,7 +97,7 @@ const options = {
 export const reviewerRouter = createProtectedRouter().query("getApplications", {
   input: z.object({
     cursor: z.string().nullish(),
-    limit: z.number().min(1).max(100).default(2),
+    limit: z.number().min(1).max(100).default(25),
   }),
   output: z.object({
     data: z.array(TypeFormSubmission),
@@ -164,15 +164,7 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
     });
 
     const nextCursor = data.items[data.items.length - 1]?.token;
-    // const resume = await fetch("http://localhost:3000/api/resumes/resume", {
-    //   method: "post",
-    //   body: JSON.stringify({
-    //     url: "https://api.typeform.com/forms/MVo09hRB/responses/it1zadqu4mtkpa1v5vit1zayedzme3am/fields/z8wTMK3lMO00/files/afc98664b6c1-Resume_.pdf",
-    //   }),
-    //   headers: {
-    //     "Content-type": "application/json",
-    //   },
-    // });
+
     return { data: converted, nextCursor: nextCursor };
   },
 });
