@@ -7,7 +7,7 @@ import { Readable } from "stream";
 const resume = async (req: NextApiRequest, res: NextApiResponse) => {
   // const { url } = req.body;
   const { path } = req.query;
-  const jpath = path?.join("/") || "";
+  const jpath = (path as string[])?.join("/") || "";
 
   const session = await getServerSession(req, res, nextAuthOptions);
 
@@ -37,7 +37,7 @@ const resume = async (req: NextApiRequest, res: NextApiResponse) => {
     if (resp.body === null || resp.body === undefined) {
       res.status(500).end();
     } else {
-      Readable.fromWeb(resp.body)?.pipe(res);
+      Readable.fromWeb(resp.body as any)?.pipe(res);
     }
   } else {
     console.log("Not authorized");
