@@ -24,12 +24,8 @@ const resume = async (req: NextApiRequest, res: NextApiResponse) => {
       options
     );
 
-    // res.setHeader(
-    //   "content-disposition",
-    //   resp.headers.get("content-disposition") || " "
-    // );
     res.setHeader("Content-type", resp.headers.get("content-type") || " ");
-    // res.setHeader("Content-Type", "application/pdf");
+
     if (resp.body === null || resp.body === undefined) {
       res.status(500).end();
     } else {
