@@ -36,13 +36,11 @@ const Content = () => {
             Apply
           </button>
         </Link>
-
-        {/* Hidden until we have a FAQ Page */}
-        {/* <Link href="#">
+        <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
-        </Link> */}
+        </Link>
       </div>
     </main>
   );
