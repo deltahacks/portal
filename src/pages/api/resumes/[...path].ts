@@ -5,16 +5,13 @@ import { env } from "../../../env/server.mjs";
 import { Readable } from "stream";
 
 const resume = async (req: NextApiRequest, res: NextApiResponse) => {
-  // const { url } = req.body;
   const { path } = req.query;
   const jpath = (path as string[])?.join("/") || "";
-
   const session = await getServerSession(req, res, nextAuthOptions);
 
   if (
     session?.user?.role.includes("ADMIN") ||
-    session?.user?.role.includes("REVIEWER") ||
-    true
+    session?.user?.role.includes("REVIEWER")
   ) {
     const options = {
       method: "GET",
@@ -22,7 +19,6 @@ const resume = async (req: NextApiRequest, res: NextApiResponse) => {
         Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
       },
     };
-    console.log("hi123");
     const resp = await fetch(
       `https://api.typeform.com/forms/${jpath}`,
       options
