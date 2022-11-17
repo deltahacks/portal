@@ -97,14 +97,14 @@ const options = {
 export const reviewerRouter = createProtectedRouter().query("getApplications", {
   input: z.object({
     cursor: z.string().nullish(),
-    limit: z.number().min(1).max(100).default(25),
+    limit: z.number().min(1).max(100).default(2),
   }),
   output: z.object({
     data: z.array(TypeFormSubmission),
     nextCursor: z.string().nullish(),
   }),
   async resolve({ ctx, input }) {
-    console.log(input);
+    // console.log(input);
 
     const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true${
       input ? (input.cursor ? `&before=${input.cursor}` : "") : ""
@@ -121,7 +121,7 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
       for (const answer of item.answers) {
         responsePreprocessing.set(answer.field.id, answer);
       }
-
+      // console.log(responsePreprocessing.get("z8wTMK3lMO00")?.file_url);
       return {
         response_id: item.response_id,
         firstName: responsePreprocessing.get("nfGel41KT3dP").text!,
@@ -140,7 +140,9 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
         longAnswer2: responsePreprocessing.get("h084NVJ0kEsO").text!,
         longAnswer3: responsePreprocessing.get("wq7KawPVuW4I").text!,
         socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text,
-        resume: responsePreprocessing.get("z8wTMK3lMO00")?.file_url,
+        resume: responsePreprocessing
+          .get("z8wTMK3lMO00")
+          ?.file_url?.replace("https://api.typeform.com/forms", "/api/resumes"),
         extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text,
         tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc").text!,
         hackerType: responsePreprocessing.get("k9BrMbznssVX").text!,
@@ -162,7 +164,15 @@ export const reviewerRouter = createProtectedRouter().query("getApplications", {
     });
 
     const nextCursor = data.items[data.items.length - 1]?.token;
-
+    // const resume = await fetch("http://localhost:3000/api/resumes/resume", {
+    //   method: "post",
+    //   body: JSON.stringify({
+    //     url: "https://api.typeform.com/forms/MVo09hRB/responses/it1zadqu4mtkpa1v5vit1zayedzme3am/fields/z8wTMK3lMO00/files/afc98664b6c1-Resume_.pdf",
+    //   }),
+    //   headers: {
+    //     "Content-type": "application/json",
+    //   },
+    // });
     return { data: converted, nextCursor: nextCursor };
   },
 });
