@@ -13,6 +13,13 @@ const Testing: NextPage = () => {
         return (
           <div key={index}>
             {blob.firstName} {blob.lastName}
+            <iframe
+              src={blob.resume || " "}
+              itemType="application/pdf"
+              width={400}
+              height={400}
+              loading="lazy"
+            ></iframe>
           </div>
         );
       })}
