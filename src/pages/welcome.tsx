@@ -36,13 +36,11 @@ const Content = () => {
             Apply
           </button>
         </Link>
-
-        {/* Hidden until we have a FAQ Page */}
-        {/* <Link href="#">
+        <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
-        </Link> */}
+        </Link>
       </div>
     </main>
   );
@@ -78,7 +76,7 @@ const Welcome: NextPage = () => {
           <Background />
           <NavBar />
           <Content />
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
             <SocialButtons />
           </footer>
         </div>
