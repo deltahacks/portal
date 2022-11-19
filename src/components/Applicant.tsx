@@ -1,6 +1,44 @@
 import { useState } from "react";
 
-const Applicant = ({ applicant }) => {
+interface ApplicantProps {
+  response_id: string,
+  firstName: string,
+  lastName: string,
+  birthday: Date,
+  major: string,
+  school: string,
+  willBeEnrolled: boolean,
+  graduationYear: Date,
+  degree: string,
+  currentLevel: string,
+  hackathonCount: string,
+  longAnswer1: string,
+  longAnswer2: string,
+  longAnswer3: string,
+  socialLinks: string,
+  resume: string,
+  extra: string,
+  tshirtSize: string,
+  hackerType: string,
+  hasTeam: boolean,
+  workShop: string,
+  gender: string,
+  considerSponserChat: boolean,
+  howDidYouHear: string,
+  background: string,
+  emergencyContactInfo: Record<string, emergencyContactInfo>,
+  mlhAgreement: boolean,
+  mlhCoc: boolean,
+};
+
+interface emergencyContactInfo {
+  firstName: string,
+  lastName: string,
+  phoneNumber: string,
+  email: string,
+};
+
+const Applicant: React.FC<ApplicantProps>  = ({ applicant }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const openInNewTab = (url) => {
