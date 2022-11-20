@@ -7,10 +7,9 @@ import Applicant from "../components/Applicant";
 
 import { trpc } from "../utils/trpc";
 import type { NextPage } from "next";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 const GradingPortal: NextPage = () => {
-
   const { data, isLoading } = trpc.useQuery(["reviewer.getApplications"]);
   trpc.useQuery(["reviewer.getReviewed"]);
   console.log(data, isLoading);
@@ -25,7 +24,7 @@ const GradingPortal: NextPage = () => {
         <div className="drawer-content">
           <GradingNavBar />
           <Background />
-          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-11/12 2xl:pt-20 mx-auto">
+          <main className="mx-auto px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-11/12 2xl:pt-20">
             <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Applications
             </h1>
@@ -43,13 +42,14 @@ const GradingPortal: NextPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {
-                  data?.data.map((application: any) => {
-                      return (
-                        <Applicant key={application.response_id} applicant={application}/>
-                      );
-                  })
-                }
+                {data?.data.map((application: any) => {
+                  return (
+                    <Applicant
+                      key={application.response_id}
+                      applicant={application}
+                    />
+                  );
+                })}
               </tbody>
             </table>
 

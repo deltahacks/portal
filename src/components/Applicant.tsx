@@ -1,5 +1,5 @@
 import { useState } from "react";
-import React from 'react';
+import React from "react";
 
 interface ApplicantProps {
   response_id: string;
@@ -35,12 +35,12 @@ interface ApplicantProps {
   };
   mlhAgreement: boolean;
   mlhCoc: boolean;
-};
+}
 
-const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
+const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const openInNewTab = (url:string) => {
+  const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -64,7 +64,10 @@ const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
               max="5"
               className="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
             />
-            <button className="rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900" onClick={submitScore}>
+            <button
+              className="rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900"
+              onClick={submitScore}
+            >
               Submit
             </button>
           </form>
@@ -85,9 +88,9 @@ const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
               Application Overview
             </div>
 
-            <div className="h-auto flex flex-row gap-3 py-3">
+            <div className="flex h-auto flex-row gap-3 py-3">
               <div className="flex w-7/12 flex-col gap-3">
-                <div className="rounded border border-slate-300 p-6 break-words">
+                <div className="break-words rounded border border-slate-300 p-6">
                   <div className="text-lg">Basic Information</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div className="mt-2">
@@ -95,17 +98,27 @@ const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
                     {applicant.lastName}
                   </div>
                   <div>
-                    <strong>Birthday: </strong> {new Date(applicant.birthday).toLocaleString().split(",")[0]}
+                    <strong>Birthday: </strong>{" "}
+                    {
+                      new Date(applicant.birthday)
+                        .toLocaleString()
+                        .split(",")[0]
+                    }
                   </div>
                   <div>
                     <strong>Major: </strong> {applicant.major}
                   </div>
                   <div>
-                    <strong>Enrolled: </strong> {applicant.willBeEnrolled ? "Yes" : "No"}
+                    <strong>Enrolled: </strong>{" "}
+                    {applicant.willBeEnrolled ? "Yes" : "No"}
                   </div>
                   <div>
                     <strong>Graduation Year: </strong>{" "}
-                    {new Date(applicant.graduationYear).toLocaleString().split(",")[0]}
+                    {
+                      new Date(applicant.graduationYear)
+                        .toLocaleString()
+                        .split(",")[0]
+                    }
                   </div>
                   <div>
                     <strong>Degree: </strong> {applicant.degree}
@@ -122,19 +135,29 @@ const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
                   </div>
                 </div>
 
-                <div className="h-64 overflow-y-scroll rounded border border-slate-300 p-6 break-words">
+                <div className="h-64 overflow-y-scroll break-words rounded border border-slate-300 p-6">
                   <div className="text-lg">Long Answer Questions</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div>
-                    <div className="mt-5 mb-3 font-bold">If you had the ability to change anything in the world, what would it be and why?</div>
+                    <div className="mt-5 mb-3 font-bold">
+                      If you had the ability to change anything in the world,
+                      what would it be and why?
+                    </div>
                     <div>{applicant.longAnswer1}</div>
                   </div>
                   <div>
-                    <div className="mt-5 mb-3 font-bold">What is a project you hope to undertake in the future? And why not now?This question is required.</div>
+                    <div className="mt-5 mb-3 font-bold">
+                      What is a project you hope to undertake in the future? And
+                      why not now?This question is required.
+                    </div>
                     <div>{applicant.longAnswer2}</div>
                   </div>
                   <div>
-                    <div className="mt-5 mb-3 font-bold">If you could only speak in sentences from the script of one movie, which movie would it be and why?This question is required.</div>
+                    <div className="mt-5 mb-3 font-bold">
+                      If you could only speak in sentences from the script of
+                      one movie, which movie would it be and why?This question
+                      is required.
+                    </div>
                     <div>{applicant.longAnswer3}</div>
                   </div>
                   <div>
@@ -143,7 +166,7 @@ const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
                   </div>
                 </div>
 
-                <div className="h-40 overflow-y-scroll rounded border border-slate-300 p-6 break-words">
+                <div className="h-40 overflow-y-scroll break-words rounded border border-slate-300 p-6">
                   <div className="text-lg">Additional Information</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div className="mt-5">
@@ -184,14 +207,17 @@ const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
                       {applicant.emergencyContactInfo.phoneNumber || "N/A"}
                     </p>
                     <p>
-                      &emsp;<b>Email:</b> {applicant.emergencyContactInfo.email || "N/A"}
+                      &emsp;<b>Email:</b>{" "}
+                      {applicant.emergencyContactInfo.email || "N/A"}
                     </p>
                   </div>
                   <div>
-                    <strong>MLH Agreement: </strong> {applicant.mlhAgreement ? "Yes" : "No"}
+                    <strong>MLH Agreement: </strong>{" "}
+                    {applicant.mlhAgreement ? "Yes" : "No"}
                   </div>
                   <div>
-                    <strong>MLH Consent: </strong> {applicant.mlhCoc ? "Yes" : "No"}
+                    <strong>MLH Consent: </strong>{" "}
+                    {applicant.mlhCoc ? "Yes" : "No"}
                   </div>
                 </div>
               </div>
@@ -210,7 +236,6 @@ const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
                 </button>
               </div>
             </div>
-
           </td>
         </tr>
       )}
