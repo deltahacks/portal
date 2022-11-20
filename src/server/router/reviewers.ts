@@ -193,33 +193,34 @@ export const reviewerRouter = createProtectedRouter()
       const output = converted.filter((item) =>
         reviewNeededTypeforms.includes(item.response_id)
       );
-      console.log(converted)
+      // console.log(converted)
       return { data: converted };
     },
   })
   .mutation("submit", {
     input: z.object({ mark: z.number(), hackerId: z.string() }),
     async resolve({ ctx, input }) {
-      const res = await ctx.prisma.review.findFirst({
-        where: {
-          hackerId: input.hackerId,
-          reviewerId: ctx.session.user.id,
-        },
-      });
-
-      if (res) {
-        throw new Error("Duplicate Review");
-      }
-
-      await ctx.prisma.review.create({
-        data: {
-          hackerId: input.hackerId,
-          reviewerId: ctx.session.user.id,
-          mark: input.mark,
-        },
-      });
+      // TODO: fix this
+      // const res = await ctx.prisma.review.findFirst({
+      //   where: {
+      //     hackerId: input.hackerId,
+      //     reviewerId: ctx.session.user.id,
+      //   },
+      // });
+      // if (res) {
+      //   throw new Error("Duplicate Review");
+      // }
+      // await ctx.prisma.review.create({
+      //   data: {
+      //     hackerId: input.hackerId,
+      //     reviewerId: ctx.session.user.id,
+      //     mark: input.mark,
+      //   },
+      // });
     },
   });
+
+// ver 1:
 // .query("getApplications", {
 //     input: z.object({
 //         cursor: z.string().nullish(),

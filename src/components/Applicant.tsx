@@ -1,52 +1,51 @@
 import { useState } from "react";
+import React from 'react';
 
 interface ApplicantProps {
-  response_id: string,
-  firstName: string,
-  lastName: string,
-  birthday: Date,
-  major: string,
-  school: string,
-  willBeEnrolled: boolean,
-  graduationYear: Date,
-  degree: string,
-  currentLevel: string,
-  hackathonCount: string,
-  longAnswer1: string,
-  longAnswer2: string,
-  longAnswer3: string,
-  socialLinks: string,
-  resume: string,
-  extra: string,
-  tshirtSize: string,
-  hackerType: string,
-  hasTeam: boolean,
-  workShop: string,
-  gender: string,
-  considerSponserChat: boolean,
-  howDidYouHear: string,
-  background: string,
-  emergencyContactInfo: Record<string, emergencyContactInfo>,
-  mlhAgreement: boolean,
-  mlhCoc: boolean,
+  response_id: string;
+  firstName: string;
+  lastName: string;
+  birthday: Date;
+  major: string;
+  school: string;
+  willBeEnrolled: boolean;
+  graduationYear: Date;
+  degree: string;
+  currentLevel: string;
+  hackathonCount: string;
+  longAnswer1: string;
+  longAnswer2: string;
+  longAnswer3: string;
+  socialLinks: string;
+  resume: string;
+  extra: string;
+  tshirtSize: string;
+  hackerType: string;
+  hasTeam: boolean;
+  workShop: string;
+  gender: string;
+  considerSponserChat: boolean;
+  howDidYouHear: string;
+  background: string;
+  emergencyContactInfo: {
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    email: string;
+  };
+  mlhAgreement: boolean;
+  mlhCoc: boolean;
 };
 
-interface emergencyContactInfo {
-  firstName: string,
-  lastName: string,
-  phoneNumber: string,
-  email: string,
-};
-
-const Applicant: React.FC<ApplicantProps>  = ({ applicant }) => {
+const Applicant = ({applicant}: { applicant: ApplicantProps}) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const openInNewTab = (url) => {
+  const openInNewTab = (url:string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const submitScore = (e) => {
-    e.preventDefault();
+  const submitScore = (event: React.SyntheticEvent) => {
+    event.preventDefault();
     // console.log('submit score')
   };
 
@@ -81,14 +80,14 @@ const Applicant: React.FC<ApplicantProps>  = ({ applicant }) => {
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan={"100%"} className="bg-[#1F1F1F] py-5 px-10">
+          <td colSpan="100%" className="bg-[#1F1F1F] py-5 px-10">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
 
             <div className="h-auto flex flex-row gap-3 py-3">
               <div className="flex w-7/12 flex-col gap-3">
-                <div className="rounded border border-slate-300 p-6">
+                <div className="rounded border border-slate-300 p-6 break-words">
                   <div className="text-lg">Basic Information</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div className="mt-2">
@@ -123,7 +122,7 @@ const Applicant: React.FC<ApplicantProps>  = ({ applicant }) => {
                   </div>
                 </div>
 
-                <div className="h-64 overflow-y-scroll rounded border border-slate-300 p-6">
+                <div className="h-64 overflow-y-scroll rounded border border-slate-300 p-6 break-words">
                   <div className="text-lg">Long Answer Questions</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div>
@@ -144,7 +143,7 @@ const Applicant: React.FC<ApplicantProps>  = ({ applicant }) => {
                   </div>
                 </div>
 
-                <div className="h-40 overflow-y-scroll rounded border border-slate-300 p-6">
+                <div className="h-40 overflow-y-scroll rounded border border-slate-300 p-6 break-words">
                   <div className="text-lg">Additional Information</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div className="mt-5">
@@ -177,15 +176,15 @@ const Applicant: React.FC<ApplicantProps>  = ({ applicant }) => {
                     <strong>Emergency Contact Info: </strong>
                     <p>
                       &emsp;<b>Name:</b>{" "}
-                      {applicant.emergencyContactInfo.firstName}{" "}
-                      {applicant.emergencyContactInfo.lastName}
+                      {applicant.emergencyContactInfo.firstName || "N/A"}
+                      {applicant.emergencyContactInfo.lastName || "N/A"}
                     </p>
                     <p>
                       &emsp;<b>Phone Number:</b>{" "}
-                      {applicant.emergencyContactInfo.phoneNumber}
+                      {applicant.emergencyContactInfo.phoneNumber || "N/A"}
                     </p>
                     <p>
-                      &emsp;<b>Email:</b> {applicant.emergencyContactInfo.email}
+                      &emsp;<b>Email:</b> {applicant.emergencyContactInfo.email || "N/A"}
                     </p>
                   </div>
                   <div>
@@ -200,7 +199,8 @@ const Applicant: React.FC<ApplicantProps>  = ({ applicant }) => {
                 <iframe
                   width="100%"
                   height="100%"
-                  src={applicant.resume}
+                  loading="lazy"
+                  src={applicant.resume || " "}
                 ></iframe>
                 <button
                   className="w-8/12 rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900"

@@ -1,4 +1,3 @@
-import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Background from "../components/Background";
@@ -10,12 +9,11 @@ import { trpc } from "../utils/trpc";
 import type { NextPage } from "next";
 import { useEffect } from 'react';
 
-
 const GradingPortal: NextPage = () => {
 
   const { data, isLoading } = trpc.useQuery(["reviewer.getApplications"]);
   trpc.useQuery(["reviewer.getReviewed"]);
-  // console.log(data, isLoading);
+  console.log(data, isLoading);
 
   return (
     <>
@@ -46,7 +44,7 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody>
                 {
-                  data?.data.map((application) => {
+                  data?.data.map((application: any) => {
                       return (
                         <Applicant key={application.response_id} applicant={application}/>
                       );
