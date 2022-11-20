@@ -83,7 +83,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan="100%" className="bg-[#1F1F1F] py-5 px-10">
+          <td colSpan={Number("100")} className="bg-[#1F1F1F] py-5 px-10">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
