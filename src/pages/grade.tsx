@@ -12,7 +12,6 @@ import { useEffect } from "react";
 const GradingPortal: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["reviewer.getApplications"]);
   trpc.useQuery(["reviewer.getReviewed"]);
-  console.log(data, isLoading);
 
   return (
     <>
