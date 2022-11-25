@@ -1,16 +1,23 @@
+import type { GetServerSidePropsContext, NextPage } from "next";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
 import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
-
 import { trpc } from "../utils/trpc";
-import type { NextPage } from "next";
-import { useEffect } from "react";
+
+interface IResponse {
+  data: any;
+  isLoading: boolean;
+}
 
 const GradingPortal: NextPage = () => {
-  const { data, isLoading } = trpc.useQuery(["reviewer.getApplications"]);
+  const { data, isLoading }: IResponse = trpc.useQuery([
+    "reviewer.getApplications",
+  ]);
+  console.log(data, isLoading);
   trpc.useQuery(["reviewer.getReviewed"]);
 
   return (
@@ -27,34 +34,29 @@ const GradingPortal: NextPage = () => {
             <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Applications
             </h1>
-            <table className="my-6 w-full text-left">
+            <table className="my-8 w-full text-left">
               <thead className="bg-black">
                 <tr>
-                  <th className="border border-slate-600 p-3">First Name</th>
-                  <th className="border border-slate-600 p-3">Last Name</th>
-                  <th className="border border-slate-600 p-3">Judged By</th>
-                  <th className="border border-slate-600 p-3">Score</th>
-                  <th className="border border-slate-600 p-3">Submit Score</th>
-                  <th className="border border-slate-600 p-3">
-                    View Applicant
+                  <th className="border-2 border-slate-800 p-3">First Name</th>
+                  <th className="border-2 border-slate-800 p-3">Last Name</th>
+                  <th className="border-2 border-slate-800 p-3">Judged By</th>
+                  <th className="border-2 border-slate-800 p-3">Score</th>
+                  <th className="border-2 border-slate-800 p-3">
+                    Submit Score
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {data?.data.map((application: any) => {
-                  return (
-                    <Applicant
-                      key={application.response_id}
-                      applicant={application}
-                    />
-                  );
-                })}
+                {!isLoading
+                  ? data?.data.map((application: any) => (
+                      <Applicant
+                        key={application.response_id}
+                        applicant={application}
+                      />
+                    ))
+                  : null}
               </tbody>
             </table>
-
-            {/* <button className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white" onClick={() => fetchNextPage()}>
-                Fetch More
-            </button> */}
           </main>
         </div>
         <div className="drawer-side md:hidden">
@@ -89,5 +91,24 @@ const GradingPortal: NextPage = () => {
     </>
   );
 };
+
+//export const getServerSideProps = async (
+//  context: any,
+//  cdx: GetServerSidePropsContext
+//) => {
+//  const session = await getServerAuthSession(context);
+//  // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
+//  console.log(session?.user?.role);
+//  if (
+//    !session?.user?.role?.includes("ADMIN") ||
+//    !session?.user?.role?.includes("REVIEWER")
+//  ) {
+//    return {
+//      redirect: { destination: "/dashboard", permanent: false },
+//    };
+//  }
+//  // Otherwise, continue.
+//  return { props: {} };
+//};
 
 export default GradingPortal;

@@ -46,17 +46,19 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
 
   const submitScore = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    // console.log('submit score')
   };
 
   return (
     <>
-      <tr className="bg-black text-left">
+      <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">/3</td>
-        <td className="border border-slate-800 p-3">-----</td>
-        <td className="border border-slate-800 p-3">
+        <td className="border border-slate-800 p-3"></td>
+        <td
+          className="border border-slate-800 p-3"
+          onClick={(e) => e.stopPropagation()}
+        >
           <form className="flex flex-row gap-2">
             <input
               type="number"
@@ -65,20 +67,12 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
               className="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
             />
             <button
-              className="rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900"
+              className="rounded bg-primary py-2 px-4 text-white"
               onClick={submitScore}
             >
               Submit
             </button>
           </form>
-        </td>
-        <td className="border border-slate-800 p-3">
-          <button
-            className="rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {!isOpen ? "View" : "Hide"}
-          </button>
         </td>
       </tr>
       {isOpen && (
@@ -176,7 +170,8 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                     <strong>Hacker Type: </strong> {applicant.hackerType}
                   </div>
                   <div>
-                    <strong>Has Team: </strong> {applicant.hasTeam}
+                    <strong>Has Team: </strong>{" "}
+                    {applicant.hasTeam ? "Yes" : "No"}
                   </div>
                   <div>
                     <strong>Workshop: </strong> {applicant.workShop}
@@ -222,14 +217,18 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                 </div>
               </div>
               <div className="flex w-5/12 flex-col items-center gap-3">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  loading="lazy"
-                  src={applicant.resume || " "}
-                ></iframe>
+                {applicant.resume ? (
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    loading="lazy"
+                    src={applicant.resume || " "}
+                  ></iframe>
+                ) : (
+                  "The applicant did not submit a resume"
+                )}
                 <button
-                  className="w-8/12 rounded bg-sky-700 py-2 px-4 text-white hover:bg-sky-900"
+                  className="w-8/12 rounded bg-primary py-2 px-4 text-white hover:bg-sky-900"
                   onClick={() => openInNewTab(applicant.resume)}
                 >
                   Open Resume
