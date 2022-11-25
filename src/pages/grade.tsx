@@ -92,23 +92,26 @@ const GradingPortal: NextPage = () => {
   );
 };
 
-//export const getServerSideProps = async (
-//  context: any,
-//  cdx: GetServerSidePropsContext
-//) => {
-//  const session = await getServerAuthSession(context);
-//  // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
-//  console.log(session?.user?.role);
-//  if (
-//    !session?.user?.role?.includes("ADMIN") ||
-//    !session?.user?.role?.includes("REVIEWER")
-//  ) {
-//    return {
-//      redirect: { destination: "/dashboard", permanent: false },
-//    };
-//  }
-//  // Otherwise, continue.
-//  return { props: {} };
-//};
+export const getServerSideProps = async (
+  context: any,
+  cdx: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
+  // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
+  console.log("hi", session?.user?.role?.includes("ADMIN"));
+  console.log("bob", session?.user?.role?.includes("REVIEWER"));
+  if (
+    !(
+      session?.user?.role?.includes("ADMIN") ||
+      session?.user?.role?.includes("REVIEWER")
+    )
+  ) {
+    return {
+      redirect: { destination: "/dashboard", permanent: false },
+    };
+  }
+  // Otherwise, continue.
+  return { props: {} };
+};
 
 export default GradingPortal;
