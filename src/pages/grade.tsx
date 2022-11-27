@@ -98,8 +98,6 @@ export const getServerSideProps = async (
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
-  console.log("hi", session?.user?.role?.includes("ADMIN"));
-  console.log("bob", session?.user?.role?.includes("REVIEWER"));
   if (
     !(
       session?.user?.role?.includes("ADMIN") ||
