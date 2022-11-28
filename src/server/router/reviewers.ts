@@ -106,18 +106,19 @@ export const reviewerRouter = createProtectedRouter()
   //get applications without enough reviews
   .query("getApplications", {
     async resolve({ ctx, input }) {
-      const reviewNeededApplications: User[] = await ctx.prisma
-        .$queryRaw`SELECT "typeform_response_id", "name"  FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "name", "typeform_response_id"  FROM "Review" RIGHT JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id", "name") AS ids WHERE reviewCount < 3 `;
+      // select all user and their review details joining user on review
+      const what = await ctx.prisma.user.findMany({
+        include: {
+          reviewer: {
+            select: { id: true, hacker: true, reviewer: true, mark: true },
+          },
+        },
+      });
 
-      //get the typeform field
-      const reviewNeededTypeforms = reviewNeededApplications.map(
-        (e) => e.typeform_response_id
-      );
+      console.log("WHAT", what);
 
       const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&before=nek0xhmtbf1nyt91nn2ts05lnek0xhm8&page_size=220`;
-
       const res = await fetch(url, options);
-
       const data: TypeFormResponse = await res.json();
 
       //shuffle the responses
@@ -190,33 +191,35 @@ export const reviewerRouter = createProtectedRouter()
         };
       });
       // filter responses to get the ones that need review
-      const output = converted.filter((item) =>
-        reviewNeededTypeforms.includes(item.response_id)
-      );
-      // console.log(converted)
-      return { data: converted };
+      const output = converted.map((item) => {
+        return {
+          ...item,
+        };
+      });
+
+      return { data: output };
     },
   })
   .mutation("submit", {
     input: z.object({ mark: z.number(), hackerId: z.string() }),
     async resolve({ ctx, input }) {
       // TODO: fix this
-      // const res = await ctx.prisma.review.findFirst({
-      //   where: {
-      //     hackerId: input.hackerId,
-      //     reviewerId: ctx.session.user.id,
-      //   },
-      // });
-      // if (res) {
-      //   throw new Error("Duplicate Review");
-      // }
-      // await ctx.prisma.review.create({
-      //   data: {
-      //     hackerId: input.hackerId,
-      //     reviewerId: ctx.session.user.id,
-      //     mark: input.mark,
-      //   },
-      // });
+      const res = await ctx.prisma.review.findFirst({
+        where: {
+          hackerId: input.hackerId,
+          reviewerId: ctx.session.user.id,
+        },
+      });
+      if (res) {
+        throw new Error("Duplicate Review");
+      }
+      await ctx.prisma.review.create({
+        data: {
+          hackerId: input.hackerId,
+          reviewerId: ctx.session.user.id,
+          mark: input.mark,
+        },
+      });
     },
   });
 
