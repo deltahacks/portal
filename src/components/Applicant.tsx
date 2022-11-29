@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import React from "react";
 import { trpc } from "../utils/trpc";
 
 interface ApplicantProps {
@@ -90,6 +89,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <form className="flex flex-row gap-2">
+            <p></p>
             <input
               type="number"
               min="1"
@@ -101,10 +101,16 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
               className="rounded bg-primary py-2 px-4 text-white"
               onClick={async (e) => {
                 e.preventDefault();
-                await submitGrade.mutateAsync({
-                  mark: parseInt(inputRef?.current?.value || ""),
-                  hackerId: applicant.hackerId,
-                });
+
+                try {
+                  await submitGrade.mutateAsync({
+                    mark: parseInt(inputRef?.current?.value || ""),
+                    hackerId: applicant.hackerId,
+                  });
+                } catch (err) {
+                  console.log(err.message);
+                }
+
                 if (inputRef.current) {
                   inputRef.current.value = "";
                 }
