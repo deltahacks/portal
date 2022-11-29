@@ -89,7 +89,6 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
         return a || b.reviewer.id == session.data?.user?.id;
       }, false)
     );
-    console.log(alreadyReviewed);
   }, [applicant.reviews, session.data?.user?.id]);
 
   return (
@@ -132,6 +131,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                     mark: parseInt(inputRef?.current?.value || ""),
                     hackerId: applicant.hackerId,
                   });
+                  setAlreadyReviewed(true);
                 } catch (err: any) {
                   // FIXME
                   console.log(err.message);
