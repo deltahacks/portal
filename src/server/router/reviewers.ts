@@ -107,20 +107,28 @@ export const reviewerRouter = createProtectedRouter()
       // select all user and their review details joining user on review
       const dbdata = await ctx.prisma.user.findMany({
         include: {
-          reviewer: {
+          hacker: {
             select: {
               id: true,
               hacker: true,
-              reviewer: true,
               mark: true,
+              reviewer: true,
             },
           },
         },
       });
 
+      console.log(dbdata);
+
       const mappedUsers = new Map();
 
       dbdata
+        .map((item) => {
+          return {
+            typeform_response_id: item.typeform_response_id,
+            reviewer: item.hacker,
+          };
+        })
         .filter((item) => item.typeform_response_id != undefined)
         .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
 
