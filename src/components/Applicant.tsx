@@ -74,7 +74,10 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
     for (const review of reviewers) {
       average += review.mark;
     }
-    return average / reviewers.length;
+    if (reviewers.length != 0) {
+      return average / reviewers.length;
+    }
+    return 0;
   };
 
   const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
