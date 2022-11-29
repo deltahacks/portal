@@ -18,6 +18,12 @@ interface ApplicantProps {
   longAnswer3: string;
   socialLinks: string;
   resume: string;
+  reviews: {
+    hacker: IUser;
+    id: string;
+    mark: number;
+    reviewer: IUser;
+  };
   extra: string;
   tshirtSize: string;
   hackerType: string;
@@ -37,6 +43,16 @@ interface ApplicantProps {
   mlhCoc: boolean;
 }
 
+interface IUser {
+  email: string;
+  emailVerified: string;
+  id: string;
+  image: string;
+  name: string;
+  role: string[];
+  typeform_response_id: string;
+}
+
 const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -53,7 +69,9 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
-        <td className="border border-slate-800 p-3">/3</td>
+        <td className="border border-slate-800 p-3">
+          {applicant.reviews.length}/3
+        </td>
         <td className="border border-slate-800 p-3"></td>
         <td
           className="border border-slate-800 p-3"
