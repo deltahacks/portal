@@ -60,7 +60,7 @@ interface IUser {
 
 const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [grade, setGrade] = useState("");
   const submitGrade = trpc.useMutation("reviewer.submit");
 
   const session = useSession();
@@ -74,19 +74,29 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
     for (const review of reviewers) {
       average += review.mark;
     }
-    return average / reviewers.length;
+    if (reviewers.length != 0) {
+      return average / reviewers.length;
+    }
+    return 0;
+  };
+
+  const preventMinus = (e: any) => {
+    if (e.code === "Minus") {
+      e.preventDefault();
+    }
   };
 
   const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log(grade);
     setAlreadyReviewed(
       applicant.reviews.reduce((a, b) => {
         console.log("a", a, "b", b, "myid", session.data?.user?.id);
         return a || b.reviewer.id == session.data?.user?.id;
       }, false)
     );
-  }, [applicant.reviews, session.data?.user?.id]);
+  }, [applicant.reviews, session.data?.user?.id, grade]);
 
   return (
     <>
@@ -104,12 +114,13 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <form className="flex flex-row gap-2">
-            <p></p>
             <input
               type="number"
               min="1"
               max="5"
-              ref={inputRef}
+              onKeyDown={preventMinus}
+              onChange={(e) => setGrade(e.target.value)}
+              value={grade}
               className={
                 alreadyReviewed
                   ? "hidden"
@@ -128,19 +139,18 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                   onClick={async (e) => {
                     e.preventDefault();
                     try {
-                      await submitGrade.mutateAsync({
-                        mark: parseInt(inputRef?.current?.value || ""),
-                        hackerId: applicant.hackerId,
-                      });
-                      setAlreadyReviewed(true);
+                      if (parseInt(grade) < 6 || parseInt(grade) > 0) {
+                        await submitGrade.mutateAsync({
+                          mark: parseInt(grade),
+                          hackerId: applicant.hackerId,
+                        });
+                        setAlreadyReviewed(true);
+                      }
                     } catch (err: any) {
                       // FIXME
                       console.log(err.message);
                     }
-
-                    if (inputRef.current) {
-                      inputRef.current.value = "";
-                    }
+                    setGrade("");
                   }}
                 >
                   Submit
