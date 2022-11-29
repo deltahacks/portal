@@ -62,7 +62,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   const submitGrade = trpc.useMutation("reviewer.submit");
 
   const openInNewTab = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(url, "_blank", "noopener");
   };
 
   const getScore = (reviewers: IReview[]) => {
