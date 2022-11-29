@@ -107,7 +107,8 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                     mark: parseInt(inputRef?.current?.value || ""),
                     hackerId: applicant.hackerId,
                   });
-                } catch (err) {
+                } catch (err: any) {
+                  // FIXME
                   console.log(err.message);
                 }
 
