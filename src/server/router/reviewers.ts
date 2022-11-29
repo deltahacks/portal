@@ -127,6 +127,7 @@ export const reviewerRouter = createProtectedRouter()
           return {
             typeform_response_id: item.typeform_response_id,
             reviewer: item.hacker,
+            id: item.id,
           };
         })
         .filter((item) => item.typeform_response_id != undefined)
