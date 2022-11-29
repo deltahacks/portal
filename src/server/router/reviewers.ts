@@ -204,6 +204,7 @@ export const reviewerRouter = createProtectedRouter()
           return {
             ...item,
             reviews: mappedUsers.get(item.response_id).reviewer,
+            hackerId: mappedUsers.get(item.response_id).id,
           };
         });
 

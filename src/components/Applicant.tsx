@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import React from "react";
+import { trpc } from "../utils/trpc";
 
 interface ApplicantProps {
   response_id: string;
@@ -15,15 +16,11 @@ interface ApplicantProps {
   hackathonCount: string;
   longAnswer1: string;
   longAnswer2: string;
+  hackerId: string;
   longAnswer3: string;
   socialLinks: string;
   resume: string;
-  reviews: {
-    hacker: IUser;
-    id: string;
-    mark: number;
-    reviewer: IUser;
-  };
+  reviews: IReview[];
   extra: string;
   tshirtSize: string;
   hackerType: string;
@@ -43,6 +40,13 @@ interface ApplicantProps {
   mlhCoc: boolean;
 }
 
+interface IReview {
+  hacker: IUser;
+  id: string;
+  mark: number;
+  reviewer: IUser;
+}
+
 interface IUser {
   email: string;
   emailVerified: string;
@@ -55,13 +59,19 @@ interface IUser {
 
 const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const submitGrade = trpc.useMutation("reviewer.submit");
 
   const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const submitScore = (event: React.SyntheticEvent) => {
-    event.preventDefault();
+  const getScore = (reviewers: IReview[]) => {
+    let average = 0;
+    for (const review of reviewers) {
+      average += review.mark;
+    }
+    return average / reviewers.length;
   };
 
   return (
@@ -72,7 +82,9 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
         <td className="border border-slate-800 p-3">
           {applicant.reviews.length}/3
         </td>
-        <td className="border border-slate-800 p-3"></td>
+        <td className="border border-slate-800 p-3">
+          {getScore(applicant.reviews)}
+        </td>
         <td
           className="border border-slate-800 p-3"
           onClick={(e) => e.stopPropagation()}
@@ -82,11 +94,21 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
               type="number"
               min="1"
               max="5"
+              ref={inputRef}
               className="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
             />
             <button
               className="rounded bg-primary py-2 px-4 text-white"
-              onClick={submitScore}
+              onClick={async (e) => {
+                e.preventDefault();
+                await submitGrade.mutateAsync({
+                  mark: parseInt(inputRef?.current?.value || ""),
+                  hackerId: applicant.hackerId,
+                });
+                if (inputRef.current) {
+                  inputRef.current.value = "";
+                }
+              }}
             >
               Submit
             </button>
