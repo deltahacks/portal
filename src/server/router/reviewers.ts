@@ -1,8 +1,6 @@
-import { getEnvironmentData } from "worker_threads";
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
-import { User } from "@prisma/client";
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -107,15 +105,24 @@ export const reviewerRouter = createProtectedRouter()
   .query("getApplications", {
     async resolve({ ctx, input }) {
       // select all user and their review details joining user on review
-      const what = await ctx.prisma.user.findMany({
+      const dbdata = await ctx.prisma.user.findMany({
         include: {
           reviewer: {
-            select: { id: true, hacker: true, reviewer: true, mark: true },
+            select: {
+              id: true,
+              hacker: true,
+              reviewer: true,
+              mark: true,
+            },
           },
         },
       });
 
-      console.log("WHAT", what);
+      const mappedUsers = new Map();
+
+      dbdata
+        .filter((item) => item.typeform_response_id != undefined)
+        .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
 
       const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&before=nek0xhmtbf1nyt91nn2ts05lnek0xhm8&page_size=220`;
       const res = await fetch(url, options);
@@ -191,11 +198,14 @@ export const reviewerRouter = createProtectedRouter()
         };
       });
       // filter responses to get the ones that need review
-      const output = converted.map((item) => {
-        return {
-          ...item,
-        };
-      });
+      const output = converted
+        .filter((item) => mappedUsers.has(item.response_id))
+        .map((item) => {
+          return {
+            ...item,
+            reviews: mappedUsers.get(item.response_id).reviewer,
+          };
+        });
 
       return { data: output };
     },
@@ -203,7 +213,6 @@ export const reviewerRouter = createProtectedRouter()
   .mutation("submit", {
     input: z.object({ mark: z.number(), hackerId: z.string() }),
     async resolve({ ctx, input }) {
-      // TODO: fix this
       const res = await ctx.prisma.review.findFirst({
         where: {
           hackerId: input.hackerId,
