@@ -17,7 +17,6 @@ const GradingPortal: NextPage = () => {
   const { data, isLoading }: IResponse = trpc.useQuery([
     "reviewer.getApplications",
   ]);
-  trpc.useQuery(["reviewer.getReviewed"]);
 
   return (
     <>
