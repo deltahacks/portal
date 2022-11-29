@@ -89,14 +89,13 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(grade);
     setAlreadyReviewed(
       applicant.reviews.reduce((a, b) => {
         console.log("a", a, "b", b, "myid", session.data?.user?.id);
         return a || b.reviewer.id == session.data?.user?.id;
       }, false)
     );
-  }, [applicant.reviews, session.data?.user?.id, grade]);
+  }, [applicant.reviews, session.data?.user?.id]);
 
   return (
     <>
