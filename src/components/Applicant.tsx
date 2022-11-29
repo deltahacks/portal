@@ -1,4 +1,6 @@
-import { useState, useRef } from "react";
+import clsx from "clsx";
+import { useSession } from "next-auth/react";
+import { useState, useRef, useEffect } from "react";
 import { trpc } from "../utils/trpc";
 
 interface ApplicantProps {
@@ -61,6 +63,8 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const submitGrade = trpc.useMutation("reviewer.submit");
 
+  const session = useSession();
+
   const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener");
   };
@@ -73,13 +77,25 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
     return average / reviewers.length;
   };
 
+  const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setAlreadyReviewed(
+      applicant.reviews.reduce((a, b) => {
+        console.log("a", a, "b", b, "myid", session.data?.user?.id);
+        return a || b.reviewer.id == session.data?.user?.id;
+      }, false)
+    );
+    console.log(alreadyReviewed);
+  }, [applicant.reviews, session.data?.user?.id]);
+
   return (
     <>
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">
-          {applicant.reviews.length}/3
+          {applicant.reviews.length} / 3
         </td>
         <td className="border border-slate-800 p-3">
           {getScore(applicant.reviews)}
@@ -95,13 +111,19 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
               min="1"
               max="5"
               ref={inputRef}
-              className="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+              className={
+                alreadyReviewed
+                  ? "hidden"
+                  : "block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+              }
             />
             <button
-              className="rounded bg-primary py-2 px-4 text-white"
+              className={clsx(
+                "w-full rounded  py-2 px-4 text-white",
+                alreadyReviewed ? "bg-red-500" : "bg-primary"
+              )}
               onClick={async (e) => {
                 e.preventDefault();
-
                 try {
                   await submitGrade.mutateAsync({
                     mark: parseInt(inputRef?.current?.value || ""),
@@ -117,7 +139,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                 }
               }}
             >
-              Submit
+              {alreadyReviewed ? "Submitted" : "Submit"}
             </button>
           </form>
         </td>
