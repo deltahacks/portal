@@ -74,10 +74,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
     for (const review of reviewers) {
       average += review.mark;
     }
-    if (reviewers.length != 0) {
-      return average / reviewers.length;
-    }
-    return 0;
+    return average / reviewers.length;
   };
 
   const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
@@ -120,30 +117,36 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                   : "block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
               }
             />
-            <button
-              className={clsx(
-                "w-full rounded  py-2 px-4 text-white",
-                alreadyReviewed ? "bg-red-500" : "bg-primary"
-              )}
-              onClick={async (e) => {
-                e.preventDefault();
-                try {
-                  await submitGrade.mutateAsync({
-                    mark: parseInt(inputRef?.current?.value || ""),
-                    hackerId: applicant.hackerId,
-                  });
-                } catch (err: any) {
-                  // FIXME
-                  console.log(err.message);
-                }
+            <div>
+              {alreadyReviewed ? (
+                <p>Submitted</p>
+              ) : (
+                <button
+                  className={clsx(
+                    "w-full rounded  py-2 px-4 text-white",
+                    "bg-primary"
+                  )}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    try {
+                      await submitGrade.mutateAsync({
+                        mark: parseInt(inputRef?.current?.value || ""),
+                        hackerId: applicant.hackerId,
+                      });
+                    } catch (err: any) {
+                      // FIXME
+                      console.log(err.message);
+                    }
 
-                if (inputRef.current) {
-                  inputRef.current.value = "";
-                }
-              }}
-            >
-              {alreadyReviewed ? "Submitted" : "Submit"}
-            </button>
+                    if (inputRef.current) {
+                      inputRef.current.value = "";
+                    }
+                  }}
+                >
+                  Submit
+                </button>
+              )}
+            </div>
           </form>
         </td>
       </tr>
