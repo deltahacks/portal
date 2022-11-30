@@ -33,9 +33,9 @@ const GradingPortal: NextPage = () => {
               Applications
             </h1>
             <table className="my-8 w-full text-left">
-              <thead className="bg-black">
+              <thead className=" bg-black text-white">
                 <tr>
-                  <th className="border-2 border-slate-800 p-3">First Name</th>
+                  <th className="border-2 border-slate-800 p-3 ">First Name</th>
                   <th className="border-2 border-slate-800 p-3">Last Name</th>
                   <th className="border-2 border-slate-800 p-3">Judged By</th>
                   <th className="border-2 border-slate-800 p-3">Score</th>
@@ -44,7 +44,7 @@ const GradingPortal: NextPage = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-white">
                 {!isLoading
                   ? data?.data.map((application: any) => (
                       <Applicant
