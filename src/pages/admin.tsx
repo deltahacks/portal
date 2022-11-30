@@ -1,24 +1,20 @@
-import { GetServerSidePropsContext, NextPage } from "next";
+import { GetServerSidePropsContext, GetServerSidePropsResult, NextPage } from "next";
 import { useRouter } from "next/router";
-import RBACWrapper from "../components/RBACWrapper";
+import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const Admin: NextPage = () => {
   const router = useRouter();
   return (
-    <RBACWrapper roles={["ADMIN"]}>
-      Tempor tempor ea ad consectetur consequat pariatur et officia est mollit
-      nostrud.
-    </RBACWrapper>
+    <>Tempor tempor ea ad consectetur consequat pariatur et officia est mollit
+    nostrud.</>
   );
 };
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return {
-    props: {
-      session: await getServerAuthSession(context),
-    },
-  };
+  let output: GetServerSidePropsResult<Record<string, unknown>> = {props: {}};
+  output = rbac(await getServerAuthSession(context), ["ADMIN"], undefined, output);
+  return output;
 }
 
 export default Admin;
