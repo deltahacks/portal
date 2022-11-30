@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
+import * as trpc from "@trpc/server";
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -104,6 +105,15 @@ export const reviewerRouter = createProtectedRouter()
   //get applications without enough reviews
   .query("getApplications", {
     async resolve({ ctx, input }) {
+      if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
+
       // select all user and their review details joining user on review
       const dbdata = await ctx.prisma.user.findMany({
         include: {
@@ -221,6 +231,14 @@ export const reviewerRouter = createProtectedRouter()
   .mutation("submit", {
     input: z.object({ mark: z.number(), hackerId: z.string() }),
     async resolve({ ctx, input }) {
+      if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
       const res = await ctx.prisma.review.findFirst({
         where: {
           hackerId: input.hackerId,
