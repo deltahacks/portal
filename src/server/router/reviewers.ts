@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
+import { ClassDictionary } from "clsx";
+import { partialDeepEqual } from "react-query/types/core/utils";
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -169,47 +171,54 @@ export const reviewerRouter = createProtectedRouter()
           responsePreprocessing.set(answer.field.id, answer);
         }
 
-        const submission = {
+        return {
           response_id: item.response_id,
-          { name: "firstName", key: "nfGel41KT3dP", field: "text" },
-          { name: "lastName", key: "mwP5oTr2JHgD", field: "text" },
-          { name: "birthday", key: "m7lNzS2BDhp1", field: "ate)" },
-          { name: "major", key: "PzclVTL14dsF", field: "text" },
-          { name: "school", key: "63Wa2JCZ1N3R", field: "text" },
-          { name: "willBeEnrolled", key: "rG4lrpFoXXpL", field: "boolean" },
-          graduationYear: new Date(
-            responsePreprocessing.get("Ez47B6N0QzKY").date
+          firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "",
+          lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "",
+          birthday: new Date(
+            responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01"
           ),
-          { name: "degree", key: "035Ul4T9mldq", field: "text" },
-          { name: "currentLevel", key: "3SPBWlps2PBj", field: "text" },
-          { name: "hackathonCount", key: "MyObNZSNMZOZ", field: "text" },
-          { name: "longAnswer1", key: "rCIqmnIUzvAV", field: "text" },
-          { name: "longAnswer2", key: "h084NVJ0kEsO", field: "text" },
-          { name: "longAnswer3", key: "wq7KawPVuW4I", field: "text" },
-          { name: "socialLinks", key: "CE5WnCcBNEtj", field: "text" },
-          resume: responsePreprocessing
-            .get("z8wTMK3lMO00")
-            ?.file_url?.replace(
-              "https://api.typeform.com/forms",
-              "/api/resumes"
-            ),
-          { name: "extra", key: "GUpky3mnQ3q5", field: "text" },
-          { name: "tshirtSize", key: "Q9xv6pezGeSc", field: "text" },
-          { name: "hackerType", key: "k9BrMbznssVX", field: "text" },
-          { name: "hasTeam", key: "3h36sGge5G4X", field: "boolean" },
-          { name: "workShop", key: "Q3MisVaz3Ukw", field: "text" },
-          { name: "gender", key: "b3sr6g16jGjj", field: "text" },
-          { name: "considerSponserChat", key: "LzF2H4Fjfwvq", field: "boolean" },
-          { name: "howDidYouHear", key: "OoutsXd4RFcR", field: "text" },
-          { name: "background", key: "kGs2PWAnqBI3", field: "text" },
+          major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "",
+          school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "",
+          willBeEnrolled:
+            responsePreprocessing.get("rG4lrpFoXXpL")?.boolean ?? false,
+          graduationYear: new Date(
+            responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01"
+          ),
+          degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "",
+          currentLevel: responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "",
+          hackathonCount: responsePreprocessing.get("MyObNZSNMZOZ")?.text ?? "",
+          longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV")?.text ?? "",
+          longAnswer2: responsePreprocessing.get("h084NVJ0kEsO")?.text ?? "",
+          longAnswer3: responsePreprocessing.get("wq7KawPVuW4I")?.text ?? "",
+          socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "",
+          resume:
+            responsePreprocessing
+              .get("z8wTMK3lMO00")
+              ?.file_url?.replace(
+                "https://api.typeform.com/forms",
+                "/api/resumes"
+              ) ?? "",
+          extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text ?? "",
+          tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc")?.text ?? "",
+          hackerType: responsePreprocessing.get("k9BrMbznssVX")?.text ?? "",
+          hasTeam: responsePreprocessing.get("3h36sGge5G4X")?.boolean ?? false,
+          workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text ?? "",
+          gender: responsePreprocessing.get("b3sr6g16jGjj")?.text ?? "",
+          considerSponserChat:
+            responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean ?? false,
+          howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR")?.text ?? "",
+          background: responsePreprocessing.get("kGs2PWAnqBI3")?.text ?? "",
           emergencyContactInfo: {
-            { name: "firstName", key: "o5rMp5fj0BMa", field: "text" },
-            { name: "lastName", key: "irlsiZFKVJKD", field: "text" },
-            { name: "phoneNumber", key: "ceNTt9oUhO6Q", field: "phone_number" },
-            { name: "email", key: "onIT7bTImlRj", field: "email" },
+            firstName: responsePreprocessing.get("o5rMp5fj0BMa")?.text ?? "",
+            lastName: responsePreprocessing.get("irlsiZFKVJKD")?.text ?? "",
+            phoneNumber:
+              responsePreprocessing.get("ceNTt9oUhO6Q")?.phone_number ?? "",
+            email: responsePreprocessing.get("onIT7bTImlRj")?.email ?? "",
           },
-          { name: "mlhAgreement", key: "F3vbQhObxXFa", field: "boolean" },
-          { name: "mlhCoc", key: "f3ELfiV5gVSs", field: "boolean" },
+          mlhAgreement:
+            responsePreprocessing.get("F3vbQhObxXFa")?.boolean ?? false,
+          mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs")?.boolean ?? false,
         };
       });
       // filter responses to get the ones that need review
