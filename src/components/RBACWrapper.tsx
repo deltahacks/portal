@@ -1,7 +1,12 @@
 import { Session } from "next-auth";
 import { GetServerSidePropsResult } from "next";
 
-export const rbac = (session: Session | null, roles: string[], redirect = "/dashboard", inObj: GetServerSidePropsResult<Record<string, unknown>>): GetServerSidePropsResult<Record<string, unknown>> => {
+export const rbac = (
+  session: Session | null,
+  roles: string[],
+  redirect = "/dashboard",
+  inObj: GetServerSidePropsResult<Record<string, unknown>>
+): GetServerSidePropsResult<Record<string, unknown>> => {
   if (!session) {
     return {
       redirect: {
@@ -15,7 +20,6 @@ export const rbac = (session: Session | null, roles: string[], redirect = "/dash
   );
   if (!authorized) {
     return {
-      ...inObj,
       redirect: {
         destination: redirect,
         permanent: false,
@@ -24,4 +28,4 @@ export const rbac = (session: Session | null, roles: string[], redirect = "/dash
   } else {
     return inObj;
   }
-}
+};
