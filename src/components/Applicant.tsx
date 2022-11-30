@@ -138,7 +138,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                   onClick={async (e) => {
                     e.preventDefault();
                     try {
-                      if (parseInt(grade) < 6 || parseInt(grade) > 0) {
+                      if (parseInt(grade) < 6 && parseInt(grade) > 0) {
                         await submitGrade.mutateAsync({
                           mark: parseInt(grade),
                           hackerId: applicant.hackerId,
