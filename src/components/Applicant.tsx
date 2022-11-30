@@ -80,7 +80,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
     return 0;
   };
 
-  const preventMinus = (e: any) => {
+  const preventMinus = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.code === "Minus") {
       e.preventDefault();
     }
