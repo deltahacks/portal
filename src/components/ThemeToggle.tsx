@@ -10,10 +10,14 @@ const ThemeToggle = () => {
       }}
     >
       <span className="block dark:hidden">
-        <img src="/images/bxs_moon.svg" />
+        <picture>
+          <img src="/images/bxs_moon.svg" alt="moon" />
+        </picture>
       </span>
       <span className="hidden dark:block">
-        <img src="/images/bxs_sun.svg" />
+        <picture>
+          <img src="/images/bxs_sun.svg" alt="sun" />
+        </picture>
       </span>
     </button>
   );
