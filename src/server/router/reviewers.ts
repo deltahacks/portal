@@ -17,32 +17,38 @@ const TypeFormResponseField = z.object({
   email: z.string().email().nullish(),
 });
 
+type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
+
+const TypeFormResponseItems = z.array(
+  z.object({
+    landing_id: z.string(),
+    token: z.string(),
+    response_id: z.string(),
+    landed_at: z.date(),
+    submitted_at: z.date(),
+    metadata: z.object({
+      user_agent: z.string(),
+      platform: z.string(),
+      referer: z.string(),
+      network_id: z.string(),
+      browser: z.string(),
+    }),
+    hidden: z.object({
+      bobthebuilder: z.string(),
+    }),
+    calculated: z.object({
+      score: z.number(),
+    }),
+    answers: z.array(TypeFormResponseField),
+  })
+);
+
+type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
+
 const TypeFormResponse = z.object({
   total_items: z.number(),
   page_count: z.number(),
-  items: z.array(
-    z.object({
-      landing_id: z.string(),
-      token: z.string(),
-      response_id: z.string(),
-      landed_at: z.date(),
-      submitted_at: z.date(),
-      metadata: z.object({
-        user_agent: z.string(),
-        platform: z.string(),
-        referer: z.string(),
-        network_id: z.string(),
-        browser: z.string(),
-      }),
-      hidden: z.object({
-        bobthebuilder: z.string(),
-      }),
-      calculated: z.object({
-        score: z.number(),
-      }),
-      answers: z.array(TypeFormResponseField),
-    })
-  ),
+  items: TypeFormResponseItems,
 });
 
 type TypeFormResponse = z.infer<typeof TypeFormResponse>;
@@ -94,13 +100,13 @@ const options = {
 };
 
 export const reviewerRouter = createProtectedRouter()
-  //get reviewed applications
-  .query("getReviewed", {
-    async resolve({ ctx }) {
-      const fullyReviewedApplicants = await ctx.prisma
-        .$queryRaw`SELECT "typeform_response_id" FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "typeform_response_id"  FROM "Review" JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id") AS ids WHERE reviewCount >= 3`;
-    },
-  })
+  // get reviewed applications, not used
+  // .query("getReviewed", {
+  //   async resolve({ ctx }) {
+  //     const fullyReviewedApplicants = await ctx.prisma
+  //       .$queryRaw`SELECT "typeform_response_id" FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "typeform_response_id"  FROM "Review" JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id") AS ids WHERE reviewCount >= 3`;
+  //   },
+  // })
   //get applications without enough reviews
   .query("getApplications", {
     async resolve({ ctx }) {
@@ -136,7 +142,7 @@ export const reviewerRouter = createProtectedRouter()
       const data: TypeFormResponse = await res.json();
 
       //shuffle the responses
-      ((array: Array<any>) => {
+      ((array: TypeFormResponseItems) => {
         let currentIndex = array.length,
           randomIndex;
 
@@ -144,64 +150,66 @@ export const reviewerRouter = createProtectedRouter()
           randomIndex = Math.floor(Math.random() * currentIndex);
           currentIndex--;
 
-          [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex],
-            array[currentIndex],
-          ];
-        }
+          const random = array[randomIndex];
+          const current = array[currentIndex];
 
+          // Check for undefined warnings
+          if (random && current) {
+            [array[currentIndex], array[randomIndex]] = [random, current];
+          }
+        }
         return array;
       })(data.items);
 
       // Convert from TypeFormResponse to TypeFormSubmission
       const converted: TypeFormSubmission[] = data.items.map((item) => {
-        const responsePreprocessing: any = new Map();
+        const responsePreprocessing: Map<string, TypeFormResponseField> =
+          new Map();
         for (const answer of item.answers) {
           responsePreprocessing.set(answer.field.id, answer);
         }
-        return {
+
+        const submission = {
           response_id: item.response_id,
-          firstName: responsePreprocessing.get("nfGel41KT3dP").text!,
-          lastName: responsePreprocessing.get("mwP5oTr2JHgD").text!,
-          birthday: new Date(responsePreprocessing.get("m7lNzS2BDhp1").date!),
-          major: responsePreprocessing.get("PzclVTL14dsF").text!,
-          school: responsePreprocessing.get("63Wa2JCZ1N3R").text!,
-          willBeEnrolled: responsePreprocessing.get("rG4lrpFoXXpL").boolean!,
+          { name: "firstName", key: "nfGel41KT3dP", field: "text" },
+          { name: "lastName", key: "mwP5oTr2JHgD", field: "text" },
+          { name: "birthday", key: "m7lNzS2BDhp1", field: "ate)" },
+          { name: "major", key: "PzclVTL14dsF", field: "text" },
+          { name: "school", key: "63Wa2JCZ1N3R", field: "text" },
+          { name: "willBeEnrolled", key: "rG4lrpFoXXpL", field: "boolean" },
           graduationYear: new Date(
-            responsePreprocessing.get("Ez47B6N0QzKY").date!
+            responsePreprocessing.get("Ez47B6N0QzKY").date
           ),
-          degree: responsePreprocessing.get("035Ul4T9mldq").text!,
-          currentLevel: responsePreprocessing.get("3SPBWlps2PBj").text!,
-          hackathonCount: responsePreprocessing.get("MyObNZSNMZOZ").text!,
-          longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV").text!,
-          longAnswer2: responsePreprocessing.get("h084NVJ0kEsO").text!,
-          longAnswer3: responsePreprocessing.get("wq7KawPVuW4I").text!,
-          socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text,
+          { name: "degree", key: "035Ul4T9mldq", field: "text" },
+          { name: "currentLevel", key: "3SPBWlps2PBj", field: "text" },
+          { name: "hackathonCount", key: "MyObNZSNMZOZ", field: "text" },
+          { name: "longAnswer1", key: "rCIqmnIUzvAV", field: "text" },
+          { name: "longAnswer2", key: "h084NVJ0kEsO", field: "text" },
+          { name: "longAnswer3", key: "wq7KawPVuW4I", field: "text" },
+          { name: "socialLinks", key: "CE5WnCcBNEtj", field: "text" },
           resume: responsePreprocessing
             .get("z8wTMK3lMO00")
             ?.file_url?.replace(
               "https://api.typeform.com/forms",
               "/api/resumes"
             ),
-          extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text,
-          tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc").text!,
-          hackerType: responsePreprocessing.get("k9BrMbznssVX").text!,
-          hasTeam: responsePreprocessing.get("3h36sGge5G4X").boolean!,
-          workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text,
-          gender: responsePreprocessing.get("b3sr6g16jGjj").text!,
-          considerSponserChat:
-            responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean,
-          howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR").text!,
-          background: responsePreprocessing.get("kGs2PWAnqBI3").text!,
+          { name: "extra", key: "GUpky3mnQ3q5", field: "text" },
+          { name: "tshirtSize", key: "Q9xv6pezGeSc", field: "text" },
+          { name: "hackerType", key: "k9BrMbznssVX", field: "text" },
+          { name: "hasTeam", key: "3h36sGge5G4X", field: "boolean" },
+          { name: "workShop", key: "Q3MisVaz3Ukw", field: "text" },
+          { name: "gender", key: "b3sr6g16jGjj", field: "text" },
+          { name: "considerSponserChat", key: "LzF2H4Fjfwvq", field: "boolean" },
+          { name: "howDidYouHear", key: "OoutsXd4RFcR", field: "text" },
+          { name: "background", key: "kGs2PWAnqBI3", field: "text" },
           emergencyContactInfo: {
-            firstName: responsePreprocessing.get("o5rMp5fj0BMa").text!,
-            lastName: responsePreprocessing.get("irlsiZFKVJKD").text!,
-            phoneNumber:
-              responsePreprocessing.get("ceNTt9oUhO6Q").phone_number!,
-            email: responsePreprocessing.get("onIT7bTImlRj")?.email,
+            { name: "firstName", key: "o5rMp5fj0BMa", field: "text" },
+            { name: "lastName", key: "irlsiZFKVJKD", field: "text" },
+            { name: "phoneNumber", key: "ceNTt9oUhO6Q", field: "phone_number" },
+            { name: "email", key: "onIT7bTImlRj", field: "email" },
           },
-          mlhAgreement: responsePreprocessing.get("F3vbQhObxXFa").boolean!,
-          mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs").boolean!,
+          { name: "mlhAgreement", key: "F3vbQhObxXFa", field: "boolean" },
+          { name: "mlhCoc", key: "f3ELfiV5gVSs", field: "boolean" },
         };
       });
       // filter responses to get the ones that need review
