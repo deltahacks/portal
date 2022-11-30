@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
 
 interface ApplicantProps {
