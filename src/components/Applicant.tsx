@@ -149,7 +149,6 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                       // FIXME
                       console.log(err.message);
                     }
-                    setGrade("");
                   }}
                 >
                   Submit
