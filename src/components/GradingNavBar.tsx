@@ -3,7 +3,7 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 const GradingNavBar = () => {
-  const { data: session } = useSession();
+  const {} = useSession();
 
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">

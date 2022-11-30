@@ -103,7 +103,7 @@ export const reviewerRouter = createProtectedRouter()
   })
   //get applications without enough reviews
   .query("getApplications", {
-    async resolve({ ctx, input }) {
+    async resolve({ ctx }) {
       // select all user and their review details joining user on review
       const dbdata = await ctx.prisma.user.findMany({
         include: {

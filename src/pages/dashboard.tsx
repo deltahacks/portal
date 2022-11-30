@@ -1,26 +1,17 @@
-import type {
-  GetServerSideProps,
-  GetServerSidePropsContext,
-  NextPage,
-} from "next";
+import type { NextPage } from "next";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect } from "react";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { appRouter } from "../server/router";
-import { createContext } from "../server/router/context";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
 
 const Dashboard: NextPage = () => {
-  const { data: applicationRecieved, isLoading } = trpc.useQuery([
-    "application.received",
-  ]);
+  const {} = trpc.useQuery(["application.received"]);
 
   const { data: session } = useSession();
 
@@ -109,10 +100,7 @@ const Dashboard: NextPage = () => {
   );
 };
 
-export const getServerSideProps = async (
-  context: any,
-  ctx: GetServerSidePropsContext
-) => {
+export const getServerSideProps = async (context: any) => {
   const session = await getServerAuthSession(context);
 
   if (!session || !session.user) {

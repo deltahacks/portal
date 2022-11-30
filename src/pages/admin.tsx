@@ -1,5 +1,4 @@
-import { GetServerSidePropsContext, NextPage } from "next";
-import { getSession } from "next-auth/react";
+import { NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const Admin: NextPage = () => {
@@ -11,10 +10,7 @@ const Admin: NextPage = () => {
   );
 };
 
-export const getServerSideProps = async (
-  context: any,
-  cdx: GetServerSidePropsContext
-) => {
+export const getServerSideProps = async (context: any) => {
   const session = await getServerAuthSession(context);
 
   // If the user is not an ADMIN, kick them back to the dashboard
