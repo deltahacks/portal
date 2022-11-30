@@ -9,6 +9,7 @@ import type { AppRouter } from "../server/router";
 import type { Session } from "next-auth";
 import "../styles/globals.css";
 import Head from "next/head";
+import Script from "next/script";
 import { ThemeProvider } from "next-themes";
 
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -31,6 +32,19 @@ const MyApp: AppType<{ session: Session | null }> = ({
             content="#181818" // TODO: add light/dark mode
           />
         </Head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-G30J8MG25P"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-G30J8MG25P');
+          `}
+        </Script>
         <Component {...pageProps} />
       </ThemeProvider>
     </SessionProvider>

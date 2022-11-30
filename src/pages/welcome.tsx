@@ -7,10 +7,6 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-
-import { appRouter } from "../server/router";
-import { createContext } from "../server/router/context";
-
 import { prisma } from "../server/db/client";
 
 const Content = () => {
@@ -40,12 +36,11 @@ const Content = () => {
             Apply
           </button>
         </Link>
-        {/* Hidden until we have a FAQ Page */}
-        {/* <Link href="#">
+        <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
-        </Link> */}
+        </Link>
       </div>
     </main>
   );
@@ -69,7 +64,6 @@ const Content = () => {
 
 const Welcome: NextPage = () => {
   const { data: session } = useSession();
-
   return (
     <>
       <Head>
@@ -82,7 +76,7 @@ const Welcome: NextPage = () => {
           <Background />
           <NavBar />
           <Content />
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
             <SocialButtons />
           </footer>
         </div>
@@ -106,6 +100,7 @@ const Welcome: NextPage = () => {
                 </a>
               </li> */}
             </ul>
+
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
               <div>

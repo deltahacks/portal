@@ -34,10 +34,10 @@ const Dashboard: NextPage = () => {
         <div className="drawer-content">
           <Background />
           <NavBar />
-
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
             <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-              Thanks for applying{session ? `, ${session.user?.name}` : ""}!
+              Thanks for applying
+              {session ? `, ${session.user?.name}` : ""}!
             </h1>
             <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
               We have recieved your application. You will hear back from us on
@@ -51,8 +51,14 @@ const Dashboard: NextPage = () => {
                 hello@deltahacks.com
               </a>
             </div>
+            <div className="pt-6">
+              <Link href="https://deltahacks.com/#faq">
+                <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+                  FAQ
+                </button>
+              </Link>
+            </div>
           </main>
-
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
