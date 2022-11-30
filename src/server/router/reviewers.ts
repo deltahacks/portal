@@ -1,4 +1,3 @@
-import { getEnvironmentData } from "worker_threads";
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
@@ -19,32 +18,38 @@ const TypeFormResponseField = z.object({
   email: z.string().email().nullish(),
 });
 
+type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
+
+const TypeFormResponseItems = z.array(
+  z.object({
+    landing_id: z.string(),
+    token: z.string(),
+    response_id: z.string(),
+    landed_at: z.date(),
+    submitted_at: z.date(),
+    metadata: z.object({
+      user_agent: z.string(),
+      platform: z.string(),
+      referer: z.string(),
+      network_id: z.string(),
+      browser: z.string(),
+    }),
+    hidden: z.object({
+      bobthebuilder: z.string(),
+    }),
+    calculated: z.object({
+      score: z.number(),
+    }),
+    answers: z.array(TypeFormResponseField),
+  })
+);
+
+type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
+
 const TypeFormResponse = z.object({
   total_items: z.number(),
   page_count: z.number(),
-  items: z.array(
-    z.object({
-      landing_id: z.string(),
-      token: z.string(),
-      response_id: z.string(),
-      landed_at: z.date(),
-      submitted_at: z.date(),
-      metadata: z.object({
-        user_agent: z.string(),
-        platform: z.string(),
-        referer: z.string(),
-        network_id: z.string(),
-        browser: z.string(),
-      }),
-      hidden: z.object({
-        bobthebuilder: z.string(),
-      }),
-      calculated: z.object({
-        score: z.number(),
-      }),
-      answers: z.array(TypeFormResponseField),
-    })
-  ),
+  items: TypeFormResponseItems,
 });
 
 type TypeFormResponse = z.infer<typeof TypeFormResponse>;
@@ -99,13 +104,13 @@ export const reviewerRouter = createProtectedRouter()
   //get reviewed applications
   .query("getReviewed", {
     async resolve({ ctx }) {
-      const fullyReviewedApplicants = await ctx.prisma
-        .$queryRaw`SELECT "typeform_response_id" FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "typeform_response_id"  FROM "Review" JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id") AS ids WHERE reviewCount >= 3`;
+      // const fullyReviewedApplicants = await ctx.prisma
+      //   .$queryRaw`SELECT "typeform_response_id" FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "typeform_response_id"  FROM "Review" JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id") AS ids WHERE reviewCount >= 3`;
     },
   })
   //get applications without enough reviews
   .query("getApplications", {
-    async resolve({ ctx, input }) {
+    async resolve({ ctx }) {
       const reviewNeededApplications: User[] = await ctx.prisma
         .$queryRaw`SELECT "typeform_response_id", "name"  FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "name", "typeform_response_id"  FROM "Review" RIGHT JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id", "name") AS ids WHERE reviewCount < 3 `;
 
@@ -121,7 +126,7 @@ export const reviewerRouter = createProtectedRouter()
       const data: TypeFormResponse = await res.json();
 
       //shuffle the responses
-      ((array: Array<any>) => {
+      ((array: Array<TypeFormResponseItems>) => {
         let currentIndex = array.length,
           randomIndex;
 
@@ -129,12 +134,14 @@ export const reviewerRouter = createProtectedRouter()
           randomIndex = Math.floor(Math.random() * currentIndex);
           currentIndex--;
 
-          [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex],
-            array[currentIndex],
-          ];
-        }
+          const random = array[randomIndex];
+          const current = array[currentIndex];
 
+          // Check for undefined warnings
+          if (random && current) {
+            [array[currentIndex], array[randomIndex]] = [random, current];
+          }
+        }
         return array;
       })(data.items);
 
