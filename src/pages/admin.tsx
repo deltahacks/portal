@@ -1,31 +1,24 @@
 import { GetServerSidePropsContext, NextPage } from "next";
-import { getSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import RBACWrapper from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const Admin: NextPage = () => {
+  const router = useRouter();
   return (
-    <>
+    <RBACWrapper roles={["ADMIN"]}>
       Tempor tempor ea ad consectetur consequat pariatur et officia est mollit
       nostrud.
-    </>
+    </RBACWrapper>
   );
 };
 
-export const getServerSideProps = async (
-  context: any,
-  cdx: GetServerSidePropsContext
-) => {
-  const session = await getServerAuthSession(context);
-
-  // If the user is not an ADMIN, kick them back to the dashboard
-  if (!session?.user?.role?.includes("ADMIN")) {
-    return {
-      redirect: { destination: "/dashboard", permanent: false },
-    };
-  }
-
-  // Otherwise, continue.
-  return { props: {} };
-};
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  return {
+    props: {
+      session: await getServerAuthSession(context),
+    },
+  };
+}
 
 export default Admin;
