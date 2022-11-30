@@ -24,12 +24,12 @@ const GradingNavBar = () => {
       <div className="hidden items-center md:flex">
         <ThemeToggle />
         <p className="mx-2 hidden font-inter text-sm lg:inline-block">
-          <Link href="/dashboard">
+          {/* <Link href="/dashboard">
             <strong>Dashboard</strong>
-          </Link>
-        </p>
-        <p className="mx-2 hidden font-inter text-sm lg:inline-block">
-          <strong>Review</strong>
+          </Link> */}
+          <button className="mx-2 rounded bg-zinc-700 py-2.5 px-5 font-inter text-sm font-bold text-white hover:bg-zinc-800 md:px-7">
+            Dashboard
+          </button>
         </p>
         <button
           onClick={() => signOut()}
