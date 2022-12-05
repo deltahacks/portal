@@ -146,22 +146,22 @@ export const reviewerRouter = createProtectedRouter()
       const data: TypeFormResponse = await res.json();
 
       //shuffle the responses
-      ((array: Array<any>) => {
-        let currentIndex = array.length,
-          randomIndex;
+      // ((array: Array<any>) => {
+      //   let currentIndex = array.length,
+      //     randomIndex;
 
-        while (currentIndex != 0) {
-          randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex--;
+      //   while (currentIndex != 0) {
+      //     randomIndex = Math.floor(Math.random() * currentIndex);
+      //     currentIndex--;
 
-          [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex],
-            array[currentIndex],
-          ];
-        }
+      //     [array[currentIndex], array[randomIndex]] = [
+      //       array[randomIndex],
+      //       array[currentIndex],
+      //     ];
+      //   }
 
-        return array;
-      })(data.items);
+      //   return array;
+      // })(data.items);
 
       // Convert from TypeFormResponse to TypeFormSubmission
       const converted: TypeFormSubmission[] = data.items.map((item) => {
