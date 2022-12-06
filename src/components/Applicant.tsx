@@ -58,7 +58,13 @@ interface IUser {
   typeform_response_id: string;
 }
 
-const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
+const Applicant = ({
+  applicant,
+  index,
+}: {
+  index: number;
+  applicant: ApplicantProps;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
   const submitGrade = trpc.useMutation("reviewer.submit");
@@ -100,6 +106,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
   return (
     <>
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
+        <td className="border border-slate-800 p-3">{index}</td>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">
