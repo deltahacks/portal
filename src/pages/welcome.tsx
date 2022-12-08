@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { NextPage, GetServerSidePropsContext } from "next";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -122,7 +122,10 @@ const Welcome: NextPage = () => {
     </>
   );
 };
-export const getServerSideProps = async (context: any) => {
+export const getServerSideProps = async (context: {
+  req: GetServerSidePropsContext["req"];
+  res: GetServerSidePropsContext["res"];
+}) => {
   const session = await getServerAuthSession(context);
 
   if (!session || !session.user) {
