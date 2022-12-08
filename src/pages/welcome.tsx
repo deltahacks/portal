@@ -122,10 +122,9 @@ const Welcome: NextPage = () => {
     </>
   );
 };
-export const getServerSideProps = async (context: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
-}) => {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
   const session = await getServerAuthSession(context);
 
   if (!session || !session.user) {
