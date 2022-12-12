@@ -35,6 +35,7 @@ const GradingPortal: NextPage = () => {
             <table className="my-8 w-full text-left">
               <thead className=" bg-black text-white">
                 <tr>
+                  <th className="border-2 border-slate-800 p-3 ">Index</th>
                   <th className="border-2 border-slate-800 p-3 ">First Name</th>
                   <th className="border-2 border-slate-800 p-3">Last Name</th>
                   <th className="border-2 border-slate-800 p-3">Judged By</th>
@@ -46,10 +47,11 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody className="text-white">
                 {!isLoading
-                  ? data?.data.map((application: any) => (
+                  ? data?.data.map((application: any, index: number) => (
                       <Applicant
                         key={application.response_id}
                         applicant={application}
+                        index={index + 1}
                       />
                     ))
                   : null}
