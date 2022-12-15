@@ -221,6 +221,18 @@ export const reviewerRouter = createProtectedRouter()
       ) {
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
       }
+
+      // count reviews for a hacker.
+      // if we have 3 already, deny making any more reviews
+      const reviewCount = await ctx.prisma.review.count({
+        where: {
+          hackerId: input.hackerId
+        }
+      })
+      if (reviewCount >= 3) {
+        throw new trpc.TRPCError({ code: "CONFLICT" })
+      }
+      
       const res = await ctx.prisma.review.findFirst({
         where: {
           hackerId: input.hackerId,
