@@ -7,16 +7,20 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
+import { TypeFormSubmission } from "../server/router/reviewers";
+
+interface Data extends TypeFormSubmission {
+  reviewers: any;
+  hackerId: any;
+}
 
 interface IResponse {
-  data: any;
+  data: Data[];
   isLoading: boolean;
 }
 
 const GradingPortal: NextPage = () => {
-  const { data, isLoading }: IResponse = trpc.useQuery([
-    "reviewer.getApplications",
-  ]);
+  const { data, isLoading } = trpc.useQuery(["reviewer.getApplications"]);
 
   return (
     <>
@@ -46,7 +50,7 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody>
                 {!isLoading
-                  ? data?.data.map((application: any) => (
+                  ? data?.data.map((application: Data) => (
                       <Applicant
                         key={application.response_id}
                         applicant={application}
