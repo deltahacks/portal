@@ -137,18 +137,15 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                   )}
                   onClick={async (e) => {
                     e.preventDefault();
-                    try {
-                      if (0 < parseInt(grade) && parseInt(grade) < 6) {
-                        await submitGrade.mutateAsync({
-                          mark: parseInt(grade),
-                          hackerId: applicant.hackerId,
-                        });
-                        setAlreadyReviewed(true);
-                      }
-                    } catch (err: any) {
-                      // FIXME
-                      console.log(err.message);
+                    const gradeInt = parseInt(grade);
+                    if (gradeInt <= 0 || 6 <= gradeInt) {
+                      return;
                     }
+                    await submitGrade.mutateAsync({
+                      mark: gradeInt,
+                      hackerId: applicant.hackerId,
+                    });
+                    setAlreadyReviewed(true);
                   }}
                 >
                   Submit
