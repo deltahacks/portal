@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
@@ -90,7 +90,9 @@ const GradingPortal: NextPage = () => {
   );
 };
 
-export const getServerSideProps = async (context: any) => {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
   if (
