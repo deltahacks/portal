@@ -1,64 +1,18 @@
+import { User } from "@prisma/client";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
-
-interface ApplicantProps {
-  response_id: string;
-  firstName: string;
-  lastName: string;
-  birthday: Date;
-  major: string;
-  school: string;
-  willBeEnrolled: boolean;
-  graduationYear: Date;
-  degree: string;
-  currentLevel: string;
-  hackathonCount: string;
-  longAnswer1: string;
-  longAnswer2: string;
-  hackerId: string;
-  longAnswer3: string;
-  socialLinks: string;
-  resume: string;
-  reviews: IReview[];
-  extra: string;
-  tshirtSize: string;
-  hackerType: string;
-  hasTeam: boolean;
-  workShop: string;
-  gender: string;
-  considerSponserChat: boolean;
-  howDidYouHear: string;
-  background: string;
-  emergencyContactInfo: {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    email: string;
-  };
-  mlhAgreement: boolean;
-  mlhCoc: boolean;
-}
+import { TypeFormSubmission } from "../server/router/reviewers";
 
 interface IReview {
-  hacker: IUser;
   id: string;
   mark: number;
-  reviewer: IUser;
+  hacker: User;
+  reviewer: User;
 }
 
-interface IUser {
-  email: string;
-  emailVerified: string;
-  id: string;
-  image: string;
-  name: string;
-  role: string[];
-  typeform_response_id: string;
-}
-
-const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
+const Applicant = ({ applicant }: { applicant: TypeFormSubmission }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
   const submitGrade = trpc.useMutation("reviewer.submit");
@@ -309,7 +263,7 @@ const Applicant = ({ applicant }: { applicant: ApplicantProps }) => {
                 )}
                 <button
                   className="w-8/12 rounded bg-primary py-2 px-4 text-white hover:bg-sky-900"
-                  onClick={() => openInNewTab(applicant.resume)}
+                  onClick={() => openInNewTab(applicant.resume ?? "")}
                 >
                   Open Resume
                 </button>

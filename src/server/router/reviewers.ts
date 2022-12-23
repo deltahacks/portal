@@ -1,8 +1,7 @@
-import { string, z } from "zod";
+import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
 import { Role, User } from "@prisma/client";
-import { userAgent } from "next/server";
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -90,35 +89,43 @@ const TypeFormSubmission = z.object({
   }),
   mlhAgreement: z.boolean(),
   mlhCoc: z.boolean(),
+  hackerId: z.string(),
   reviews: z.array(
     z.object({
       id: z.string(),
       reviewer: z.object({
         id: z.string(),
-        name: z.string(),
-        email: z.string().email(),
-        emailVerified: z.date(),
-        image: z.string().nullish(),
-        typeform_response_id: z.string().nullish(),
+        name: z.string().nullable(),
+        email: z.string().email().nullable(),
+        emailVerified: z.date().nullable(),
+        image: z.string().nullable(),
+        typeform_response_id: z.string().nullable().nullable(),
         role: z.array(z.enum([Role.HACKER, Role.REVIEWER, Role.ADMIN])),
       }),
+      hacker: z.object({
+        id: z.string(),
+        name: z.string().nullable(),
+        email: z.string().email().nullable(),
+        emailVerified: z.date().nullable(),
+        image: z.string().nullable(),
+        typeform_response_id: z.string().nullable(),
+        role: z.array(z.enum([Role.HACKER, Role.REVIEWER, Role.ADMIN])),
+      }),
+      mark: z.number(),
     })
   ),
-  hackerId: z.string(),
 });
 
 export type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
 
-interface Reviewer {
-  id: string;
-  reviewer: User;
-  hacker: User;
-  mark: number;
-}
-
 interface Item {
   typeform_response_id: string | null;
-  reviewer: Reviewer[];
+  reviewer: {
+    id: string;
+    reviewer: User;
+    hacker: User;
+    mark: number;
+  }[];
   id: string;
 }
 
@@ -247,8 +254,8 @@ export const reviewerRouter = createProtectedRouter()
           mlhAgreement:
             responsePreprocessing.get("F3vbQhObxXFa")?.boolean ?? false,
           mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs")?.boolean ?? false,
-          reviews: mappedUsers.get(item.response_id)?.reviewer ?? [],
           hackerId: mappedUsers.get(item.response_id)?.id ?? "",
+          reviews: mappedUsers.get(item.response_id)?.reviewer ?? [],
         };
       });
       // filter responses to get the ones that need review

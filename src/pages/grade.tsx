@@ -9,16 +9,6 @@ import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
 import { TypeFormSubmission } from "../server/router/reviewers";
 
-interface Data extends TypeFormSubmission {
-  reviewers: any;
-  hackerId: any;
-}
-
-interface IResponse {
-  data: Data[];
-  isLoading: boolean;
-}
-
 const GradingPortal: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["reviewer.getApplications"]);
 
@@ -50,7 +40,7 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody>
                 {!isLoading
-                  ? data?.data.map((application: Data) => (
+                  ? data?.data.map((application: TypeFormSubmission) => (
                       <Applicant
                         key={application.response_id}
                         applicant={application}
