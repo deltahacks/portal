@@ -141,7 +141,7 @@ export const reviewerRouter = createProtectedRouter()
         .filter((item) => item.typeform_response_id != undefined)
         .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
 
-      const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&before=nek0xhmtbf1nyt91nn2ts05lnek0xhm8&page_size=220`;
+      const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000`;
       const res = await fetch(url, options);
       const data: TypeFormResponse = await res.json();
 
