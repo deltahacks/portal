@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
@@ -14,8 +15,12 @@ interface IResponse {
 }
 
 const GradingPortal: NextPage = () => {
+  const [togglePriotity, setTogglePriority] = useState(true);
+
   const { data, isLoading }: IResponse = trpc.useQuery([
-    "reviewer.getApplications",
+    togglePriotity
+      ? "reviewer.getPriorityApplications"
+      : "reviewer.getApplications",
   ]);
 
   return (
@@ -29,9 +34,17 @@ const GradingPortal: NextPage = () => {
           <GradingNavBar />
           <Background />
           <main className="mx-auto px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-11/12 2xl:pt-20">
-            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-              Applications
-            </h1>
+            <div className="flex justify-between">
+              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+                Applications
+              </h1>
+              <button
+                className="btn btn-primary"
+                onClick={() => setTogglePriority(!togglePriotity)}
+              >
+                {togglePriotity ? "Showing Priority" : "Showing All"}
+              </button>
+            </div>
             <table className="my-8 w-full text-left">
               <thead className=" bg-black text-white">
                 <tr>
