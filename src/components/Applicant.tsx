@@ -81,7 +81,9 @@ const Applicant = ({
       average += review.mark;
     }
     if (reviewers.length != 0) {
-      return average / reviewers.length;
+      // round to 2 decimal places
+      const s = average / reviewers.length;
+      return s.toFixed(2);
     }
     return 0;
   };
@@ -95,12 +97,7 @@ const Applicant = ({
   const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
 
   useEffect(() => {
-    setAlreadyReviewed(
-      applicant.reviews.reduce((a, b) => {
-        console.log("a", a, "b", b, "myid", session.data?.user?.id);
-        return a || b.reviewer.id == session.data?.user?.id;
-      }, false)
-    );
+    setAlreadyReviewed(applicant.reviews.length > 2);
   }, [applicant.reviews, session.data?.user?.id]);
 
   return (
@@ -135,7 +132,7 @@ const Applicant = ({
             />
             <div>
               {alreadyReviewed ? (
-                <p>Submitted</p>
+                <p>Reviewed</p>
               ) : (
                 <button
                   className={clsx(
@@ -164,10 +161,17 @@ const Applicant = ({
             </div>
           </form>
         </td>
+        <td className="border border-slate-800 p-4">
+          <input
+            onClick={(e) => e.stopPropagation()}
+            type="checkbox"
+            className="checkbox checkbox-primary"
+          />
+        </td>
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan={6} className="bg-[#1F1F1F] py-5 px-10">
+          <td colSpan={7} className="bg-[#1F1F1F] py-5 px-10">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
