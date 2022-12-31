@@ -304,66 +304,68 @@ export const reviewerRouter = createProtectedRouter()
 
       // Convert from TypeFormResponse to TypeFormSubmission
       const converted: TypeFormSubmission[] = data.items.map((item) => {
-        const responsePreprocessing: any = new Map();
+        const responsePreprocessing = new Map<string, TypeFormResponseField>();
         for (const answer of item.answers) {
           responsePreprocessing.set(answer.field.id, answer);
         }
+
         return {
           response_id: item.response_id,
-          firstName: responsePreprocessing.get("nfGel41KT3dP").text!,
-          lastName: responsePreprocessing.get("mwP5oTr2JHgD").text!,
-          birthday: new Date(responsePreprocessing.get("m7lNzS2BDhp1").date!),
-          major: responsePreprocessing.get("PzclVTL14dsF").text!,
-          school: responsePreprocessing.get("63Wa2JCZ1N3R").text!,
-          willBeEnrolled: responsePreprocessing.get("rG4lrpFoXXpL").boolean!,
-          graduationYear: new Date(
-            responsePreprocessing.get("Ez47B6N0QzKY").date!
+          firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "",
+          lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "",
+          birthday: new Date(
+            responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01"
           ),
-          degree: responsePreprocessing.get("035Ul4T9mldq").text!,
-          currentLevel: responsePreprocessing.get("3SPBWlps2PBj").text!,
-          hackathonCount: responsePreprocessing.get("MyObNZSNMZOZ").text!,
-          longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV").text!,
-          longAnswer2: responsePreprocessing.get("h084NVJ0kEsO").text!,
-          longAnswer3: responsePreprocessing.get("wq7KawPVuW4I").text!,
-          socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text,
-          resume: responsePreprocessing
-            .get("z8wTMK3lMO00")
-            ?.file_url?.replace(
-              "https://api.typeform.com/forms",
-              "/api/resumes"
-            ),
-          extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text,
-          tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc").text!,
-          hackerType: responsePreprocessing.get("k9BrMbznssVX").text!,
-          hasTeam: responsePreprocessing.get("3h36sGge5G4X").boolean!,
-          workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text,
-          gender: responsePreprocessing.get("b3sr6g16jGjj").text!,
+          major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "",
+          school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "",
+          willBeEnrolled:
+            responsePreprocessing.get("rG4lrpFoXXpL")?.boolean ?? false,
+          graduationYear: new Date(
+            responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01"
+          ),
+          degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "",
+          currentLevel: responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "",
+          hackathonCount: responsePreprocessing.get("MyObNZSNMZOZ")?.text ?? "",
+          longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV")?.text ?? "",
+          longAnswer2: responsePreprocessing.get("h084NVJ0kEsO")?.text ?? "",
+          longAnswer3: responsePreprocessing.get("wq7KawPVuW4I")?.text ?? "",
+          socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "",
+          resume:
+            responsePreprocessing
+              .get("z8wTMK3lMO00")
+              ?.file_url?.replace(
+                "https://api.typeform.com/forms",
+                "/api/resumes"
+              ) ?? "",
+          extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text ?? "",
+          tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc")?.text ?? "",
+          hackerType: responsePreprocessing.get("k9BrMbznssVX")?.text ?? "",
+          hasTeam: responsePreprocessing.get("3h36sGge5G4X")?.boolean ?? false,
+          workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text ?? "",
+          gender: responsePreprocessing.get("b3sr6g16jGjj")?.text ?? "",
           considerSponserChat:
-            responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean,
-          howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR").text!,
-          background: responsePreprocessing.get("kGs2PWAnqBI3").text!,
+            responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean ?? false,
+          howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR")?.text ?? "",
+          background: responsePreprocessing.get("kGs2PWAnqBI3")?.text ?? "",
           emergencyContactInfo: {
-            firstName: responsePreprocessing.get("o5rMp5fj0BMa").text!,
-            lastName: responsePreprocessing.get("irlsiZFKVJKD").text!,
+            firstName: responsePreprocessing.get("o5rMp5fj0BMa")?.text ?? "",
+            lastName: responsePreprocessing.get("irlsiZFKVJKD")?.text ?? "",
             phoneNumber:
-              responsePreprocessing.get("ceNTt9oUhO6Q").phone_number!,
-            email: responsePreprocessing.get("onIT7bTImlRj")?.email,
+              responsePreprocessing.get("ceNTt9oUhO6Q")?.phone_number ?? "",
+            email: responsePreprocessing.get("onIT7bTImlRj")?.email ?? "",
           },
-          mlhAgreement: responsePreprocessing.get("F3vbQhObxXFa").boolean!,
-          mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs").boolean!,
+          mlhAgreement:
+            responsePreprocessing.get("F3vbQhObxXFa")?.boolean ?? false,
+          mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs")?.boolean ?? false,
+          hackerId: mappedUsers.get(item.response_id)?.id ?? "",
+          reviews: mappedUsers.get(item.response_id)?.reviewer ?? [],
+          email: mappedUsers.get(item.response_id)?.email ?? "",
         };
       });
       // filter responses to get the ones that need review
-      const output = converted
-        .filter((item) => mappedUsers.has(item.response_id))
-        .map((item) => {
-          return {
-            ...item,
-            reviews: mappedUsers.get(item.response_id).reviewer,
-            hackerId: mappedUsers.get(item.response_id).id,
-            email: mappedUsers.get(item.response_id).email,
-          };
-        });
+      const output = converted.filter((item) =>
+        mappedUsers.has(item.response_id)
+      );
 
       return { data: output };
     },
