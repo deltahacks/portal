@@ -28,7 +28,7 @@ const GradingPortal: NextPage = () => {
         data?.data
           .map((application) => {
             return (
-              application.reviews.reduce((a: number, b: any) => {
+              application.reviews.reduce((a: number, b: { mark: number }) => {
                 return a + b.mark;
               }, 0) / application.reviews.length
             );
