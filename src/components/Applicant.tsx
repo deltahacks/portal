@@ -3,7 +3,49 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
+<<<<<<< HEAD
 import { TypeFormSubmission } from "../server/router/reviewers";
+=======
+
+interface ApplicantProps {
+  response_id: string;
+  firstName: string;
+  lastName: string;
+  birthday: Date;
+  major: string;
+  school: string;
+  willBeEnrolled: boolean;
+  graduationYear: Date;
+  degree: string;
+  currentLevel: string;
+  hackathonCount: string;
+  longAnswer1: string;
+  longAnswer2: string;
+  hackerId: string;
+  longAnswer3: string;
+  socialLinks: string;
+  resume: string;
+  reviews: IReview[];
+  extra: string;
+  tshirtSize: string;
+  hackerType: string;
+  hasTeam: boolean;
+  workShop: string;
+  gender: string;
+  considerSponserChat: boolean;
+  howDidYouHear: string;
+  background: string;
+  emergencyContactInfo: {
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    email: string;
+  };
+  mlhAgreement: boolean;
+  mlhCoc: boolean;
+  email: string;
+}
+>>>>>>> main
 
 interface IReview {
   id: string;
@@ -12,7 +54,27 @@ interface IReview {
   reviewer: User;
 }
 
+<<<<<<< HEAD
 const Applicant = ({ applicant }: { applicant: TypeFormSubmission }) => {
+=======
+interface IUser {
+  email: string;
+  emailVerified: string;
+  id: string;
+  image: string;
+  name: string;
+  role: string[];
+  typeform_response_id: string;
+}
+
+const Applicant = ({
+  applicant,
+  index,
+}: {
+  index: number;
+  applicant: ApplicantProps;
+}) => {
+>>>>>>> main
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
   const submitGrade = trpc.useMutation("reviewer.submit");
@@ -29,7 +91,9 @@ const Applicant = ({ applicant }: { applicant: TypeFormSubmission }) => {
       average += review.mark;
     }
     if (reviewers.length != 0) {
-      return average / reviewers.length;
+      // round to 2 decimal places
+      const s = average / reviewers.length;
+      return s.toFixed(2);
     }
     return 0;
   };
@@ -44,16 +108,18 @@ const Applicant = ({ applicant }: { applicant: TypeFormSubmission }) => {
 
   useEffect(() => {
     setAlreadyReviewed(
-      applicant.reviews.reduce((a, b) => {
-        console.log("a", a, "b", b, "myid", session.data?.user?.id);
-        return a || b.reviewer.id == session.data?.user?.id;
-      }, false)
+      applicant.reviews.length > 2 ||
+        applicant.reviews.some(
+          (review) => review.reviewer.id === session.data?.user?.id
+        )
     );
   }, [applicant.reviews, session.data?.user?.id]);
 
   return (
     <>
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
+        <td className="border border-slate-800 p-3">{index}</td>
+        <td className="border border-slate-800 p-3">{applicant.email}</td>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">
@@ -82,7 +148,7 @@ const Applicant = ({ applicant }: { applicant: TypeFormSubmission }) => {
             />
             <div>
               {alreadyReviewed ? (
-                <p>Submitted</p>
+                <p>Reviewed</p>
               ) : (
                 <button
                   className={clsx(
@@ -108,10 +174,17 @@ const Applicant = ({ applicant }: { applicant: TypeFormSubmission }) => {
             </div>
           </form>
         </td>
+        {/* <td className="border border-slate-800 p-4">
+          <input
+            onClick={(e) => e.stopPropagation()}
+            type="checkbox"
+            className="checkbox checkbox-primary"
+          />
+        </td> */}
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan={6} className="bg-[#1F1F1F] py-5 px-10">
+          <td colSpan={7} className="bg-[#1F1F1F] py-5 px-10">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>

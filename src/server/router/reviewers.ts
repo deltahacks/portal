@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
+<<<<<<< HEAD
 import { Role, User } from "@prisma/client";
+=======
+import * as trpc from "@trpc/server";
+>>>>>>> main
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -146,7 +150,20 @@ export const reviewerRouter = createProtectedRouter()
   // })
   //get applications without enough reviews
   .query("getApplications", {
+<<<<<<< HEAD
     async resolve({ ctx }) {
+=======
+    async resolve({ ctx, input }) {
+      if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+>>>>>>> main
       // select all user and their review details joining user on review
       const dbdata = await ctx.prisma.user.findMany({
         include: {
@@ -169,15 +186,17 @@ export const reviewerRouter = createProtectedRouter()
             typeform_response_id: item.typeform_response_id,
             reviewer: item.hacker,
             id: item.id,
+            email: item.email,
           };
         })
         .filter((item) => item.typeform_response_id != undefined)
         .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
 
-      const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&before=nek0xhmtbf1nyt91nn2ts05lnek0xhm8&page_size=220`;
+      const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000`;
       const res = await fetch(url, options);
       const data: TypeFormResponse = await res.json();
 
+<<<<<<< HEAD
       //shuffle the responses
       ((array: TypeFormResponseItems) => {
         let currentIndex = array.length,
@@ -198,6 +217,8 @@ export const reviewerRouter = createProtectedRouter()
         return array;
       })(data.items);
 
+=======
+>>>>>>> main
       // Convert from TypeFormResponse to TypeFormSubmission
       const converted: TypeFormSubmission[] = data.items.map((item) => {
         const responsePreprocessing: Map<string, TypeFormResponseField> =
@@ -259,9 +280,132 @@ export const reviewerRouter = createProtectedRouter()
         };
       });
       // filter responses to get the ones that need review
+<<<<<<< HEAD
       const output = converted.filter((item) =>
         mappedUsers.has(item.response_id)
       );
+=======
+      const output = converted
+        .filter((item) => mappedUsers.has(item.response_id))
+        .map((item) => {
+          return {
+            ...item,
+            reviews: mappedUsers.get(item.response_id).reviewer,
+            hackerId: mappedUsers.get(item.response_id).id,
+            email: mappedUsers.get(item.response_id).email,
+          };
+        });
+
+      return { data: output };
+    },
+  }) //get applications without enough reviews
+  .query("getPriorityApplications", {
+    async resolve({ ctx, input }) {
+      if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // select all user and their review details joining user on review
+      const dbdata = await ctx.prisma.user.findMany({
+        include: {
+          hacker: {
+            select: {
+              id: true,
+              hacker: true,
+              mark: true,
+              reviewer: true,
+            },
+          },
+        },
+      });
+
+      const mappedUsers = new Map();
+
+      dbdata
+        .map((item) => {
+          return {
+            typeform_response_id: item.typeform_response_id,
+            reviewer: item.hacker,
+            id: item.id,
+            email: item.email,
+          };
+        })
+        .filter((item) => item.typeform_response_id != undefined)
+        .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
+
+      // "before" token removed, and "until" token added, ending just after 11:59 PM on Nov 11
+      const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000&until=2022-11-12T05:00:00Z`;
+      const res = await fetch(url, options);
+      const data: TypeFormResponse = await res.json();
+
+      // Convert from TypeFormResponse to TypeFormSubmission
+      const converted: TypeFormSubmission[] = data.items.map((item) => {
+        const responsePreprocessing: any = new Map();
+        for (const answer of item.answers) {
+          responsePreprocessing.set(answer.field.id, answer);
+        }
+        return {
+          response_id: item.response_id,
+          firstName: responsePreprocessing.get("nfGel41KT3dP").text!,
+          lastName: responsePreprocessing.get("mwP5oTr2JHgD").text!,
+          birthday: new Date(responsePreprocessing.get("m7lNzS2BDhp1").date!),
+          major: responsePreprocessing.get("PzclVTL14dsF").text!,
+          school: responsePreprocessing.get("63Wa2JCZ1N3R").text!,
+          willBeEnrolled: responsePreprocessing.get("rG4lrpFoXXpL").boolean!,
+          graduationYear: new Date(
+            responsePreprocessing.get("Ez47B6N0QzKY").date!
+          ),
+          degree: responsePreprocessing.get("035Ul4T9mldq").text!,
+          currentLevel: responsePreprocessing.get("3SPBWlps2PBj").text!,
+          hackathonCount: responsePreprocessing.get("MyObNZSNMZOZ").text!,
+          longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV").text!,
+          longAnswer2: responsePreprocessing.get("h084NVJ0kEsO").text!,
+          longAnswer3: responsePreprocessing.get("wq7KawPVuW4I").text!,
+          socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text,
+          resume: responsePreprocessing
+            .get("z8wTMK3lMO00")
+            ?.file_url?.replace(
+              "https://api.typeform.com/forms",
+              "/api/resumes"
+            ),
+          extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text,
+          tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc").text!,
+          hackerType: responsePreprocessing.get("k9BrMbznssVX").text!,
+          hasTeam: responsePreprocessing.get("3h36sGge5G4X").boolean!,
+          workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text,
+          gender: responsePreprocessing.get("b3sr6g16jGjj").text!,
+          considerSponserChat:
+            responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean,
+          howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR").text!,
+          background: responsePreprocessing.get("kGs2PWAnqBI3").text!,
+          emergencyContactInfo: {
+            firstName: responsePreprocessing.get("o5rMp5fj0BMa").text!,
+            lastName: responsePreprocessing.get("irlsiZFKVJKD").text!,
+            phoneNumber:
+              responsePreprocessing.get("ceNTt9oUhO6Q").phone_number!,
+            email: responsePreprocessing.get("onIT7bTImlRj")?.email,
+          },
+          mlhAgreement: responsePreprocessing.get("F3vbQhObxXFa").boolean!,
+          mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs").boolean!,
+        };
+      });
+      // filter responses to get the ones that need review
+      const output = converted
+        .filter((item) => mappedUsers.has(item.response_id))
+        .map((item) => {
+          return {
+            ...item,
+            reviews: mappedUsers.get(item.response_id).reviewer,
+            hackerId: mappedUsers.get(item.response_id).id,
+            email: mappedUsers.get(item.response_id).email,
+          };
+        });
+>>>>>>> main
 
       return { data: output };
     },
@@ -269,6 +413,26 @@ export const reviewerRouter = createProtectedRouter()
   .mutation("submit", {
     input: z.object({ mark: z.number(), hackerId: z.string() }),
     async resolve({ ctx, input }) {
+      if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // count reviews for a hacker.
+      // if we have 3 already, deny making any more reviews
+      const reviewCount = await ctx.prisma.review.count({
+        where: {
+          hackerId: input.hackerId,
+        },
+      });
+      if (reviewCount >= 3) {
+        throw new trpc.TRPCError({ code: "CONFLICT" });
+      }
+
       const res = await ctx.prisma.review.findFirst({
         where: {
           hackerId: input.hackerId,
