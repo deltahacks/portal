@@ -136,6 +136,7 @@ export const reviewerRouter = createProtectedRouter()
             typeform_response_id: item.typeform_response_id,
             reviewer: item.hacker,
             id: item.id,
+            email: item.email,
           };
         })
         .filter((item) => item.typeform_response_id != undefined)
@@ -204,6 +205,7 @@ export const reviewerRouter = createProtectedRouter()
             ...item,
             reviews: mappedUsers.get(item.response_id).reviewer,
             hackerId: mappedUsers.get(item.response_id).id,
+            email: mappedUsers.get(item.response_id).email,
           };
         });
 
@@ -243,6 +245,7 @@ export const reviewerRouter = createProtectedRouter()
             typeform_response_id: item.typeform_response_id,
             reviewer: item.hacker,
             id: item.id,
+            email: item.email,
           };
         })
         .filter((item) => item.typeform_response_id != undefined)
@@ -312,6 +315,7 @@ export const reviewerRouter = createProtectedRouter()
             ...item,
             reviews: mappedUsers.get(item.response_id).reviewer,
             hackerId: mappedUsers.get(item.response_id).id,
+            email: mappedUsers.get(item.response_id).email,
           };
         });
 

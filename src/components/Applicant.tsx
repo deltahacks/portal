@@ -39,6 +39,7 @@ interface ApplicantProps {
   };
   mlhAgreement: boolean;
   mlhCoc: boolean;
+  email: string;
 }
 
 interface IReview {
@@ -81,7 +82,9 @@ const Applicant = ({
       average += review.mark;
     }
     if (reviewers.length != 0) {
-      return average / reviewers.length;
+      // round to 2 decimal places
+      const s = average / reviewers.length;
+      return s.toFixed(2);
     }
     return 0;
   };
@@ -96,10 +99,10 @@ const Applicant = ({
 
   useEffect(() => {
     setAlreadyReviewed(
-      applicant.reviews.reduce((a, b) => {
-        console.log("a", a, "b", b, "myid", session.data?.user?.id);
-        return a || b.reviewer.id == session.data?.user?.id;
-      }, false)
+      applicant.reviews.length > 2 ||
+        applicant.reviews.some(
+          (review) => review.reviewer.id === session.data?.user?.id
+        )
     );
   }, [applicant.reviews, session.data?.user?.id]);
 
@@ -107,6 +110,7 @@ const Applicant = ({
     <>
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
         <td className="border border-slate-800 p-3">{index}</td>
+        <td className="border border-slate-800 p-3">{applicant.email}</td>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">
@@ -135,7 +139,7 @@ const Applicant = ({
             />
             <div>
               {alreadyReviewed ? (
-                <p>Submitted</p>
+                <p>Reviewed</p>
               ) : (
                 <button
                   className={clsx(
@@ -164,10 +168,17 @@ const Applicant = ({
             </div>
           </form>
         </td>
+        {/* <td className="border border-slate-800 p-4">
+          <input
+            onClick={(e) => e.stopPropagation()}
+            type="checkbox"
+            className="checkbox checkbox-primary"
+          />
+        </td> */}
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan={6} className="bg-[#1F1F1F] py-5 px-10">
+          <td colSpan={7} className="bg-[#1F1F1F] py-5 px-10">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
