@@ -3,49 +3,7 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
-<<<<<<< HEAD
 import { TypeFormSubmission } from "../server/router/reviewers";
-=======
-
-interface ApplicantProps {
-  response_id: string;
-  firstName: string;
-  lastName: string;
-  birthday: Date;
-  major: string;
-  school: string;
-  willBeEnrolled: boolean;
-  graduationYear: Date;
-  degree: string;
-  currentLevel: string;
-  hackathonCount: string;
-  longAnswer1: string;
-  longAnswer2: string;
-  hackerId: string;
-  longAnswer3: string;
-  socialLinks: string;
-  resume: string;
-  reviews: IReview[];
-  extra: string;
-  tshirtSize: string;
-  hackerType: string;
-  hasTeam: boolean;
-  workShop: string;
-  gender: string;
-  considerSponserChat: boolean;
-  howDidYouHear: string;
-  background: string;
-  emergencyContactInfo: {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    email: string;
-  };
-  mlhAgreement: boolean;
-  mlhCoc: boolean;
-  email: string;
-}
->>>>>>> main
 
 interface IReview {
   id: string;
@@ -54,27 +12,13 @@ interface IReview {
   reviewer: User;
 }
 
-<<<<<<< HEAD
-const Applicant = ({ applicant }: { applicant: TypeFormSubmission }) => {
-=======
-interface IUser {
-  email: string;
-  emailVerified: string;
-  id: string;
-  image: string;
-  name: string;
-  role: string[];
-  typeform_response_id: string;
-}
-
 const Applicant = ({
   applicant,
   index,
 }: {
   index: number;
-  applicant: ApplicantProps;
+  applicant: TypeFormSubmission;
 }) => {
->>>>>>> main
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
   const submitGrade = trpc.useMutation("reviewer.submit");
@@ -104,7 +48,7 @@ const Applicant = ({
     }
   };
 
-  const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
   useEffect(() => {
     setAlreadyReviewed(
