@@ -43,7 +43,6 @@ const GradingPortal: NextPage = () => {
       const mid = Math.floor(scores.length / 2);
       const nums: number[] = [...scores].sort((a, b) => a - b);
 
-      console.log(nums, "Middle element is", nums[mid]);
       const median: number =
         (scores.length % 2 !== 0
           ? nums[mid]
@@ -83,20 +82,21 @@ const GradingPortal: NextPage = () => {
             <table className="my-8 w-full text-left">
               <thead className=" bg-black text-white">
                 <tr>
-                  <th className="border-2 border-slate-800 p-3 ">Index</th>
-                  <th className="border-2 border-slate-800 p-3 ">First Name</th>
+                  <th className="border-2 border-slate-800 p-3">Index</th>
+                  <th className="border-2 border-slate-800 p-3">Email</th>
+                  <th className="border-2 border-slate-800 p-3">First Name</th>
                   <th className="border-2 border-slate-800 p-3">Last Name</th>
                   <th className="border-2 border-slate-800 p-3">Judged By</th>
                   <th className="border-2 border-slate-800 p-3">Score</th>
                   <th className="border-2 border-slate-800 p-3">
                     Submit Score
                   </th>
-                  <th className="border-2 border-slate-800 p-3">Accepted</th>
+                  {/* <th className="border-2 border-slate-800 p-3">Accepted</th> */}
                 </tr>
               </thead>
               <tbody className="text-white">
                 {!isLoading
-                  ? data?.data.map((application: any, index: number) => (
+                  ? data?.data.map((application, index: number) => (
                       <Applicant
                         key={application.response_id}
                         applicant={application}

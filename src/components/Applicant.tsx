@@ -39,6 +39,7 @@ interface ApplicantProps {
   };
   mlhAgreement: boolean;
   mlhCoc: boolean;
+  email: string;
 }
 
 interface IReview {
@@ -109,6 +110,7 @@ const Applicant = ({
     <>
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
         <td className="border border-slate-800 p-3">{index}</td>
+        <td className="border border-slate-800 p-3">{applicant.email}</td>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">
@@ -166,13 +168,13 @@ const Applicant = ({
             </div>
           </form>
         </td>
-        <td className="border border-slate-800 p-4">
+        {/* <td className="border border-slate-800 p-4">
           <input
             onClick={(e) => e.stopPropagation()}
             type="checkbox"
             className="checkbox checkbox-primary"
           />
-        </td>
+        </td> */}
       </tr>
       {isOpen && (
         <tr>
