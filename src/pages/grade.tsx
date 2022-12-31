@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -92,7 +91,6 @@ const GradingPortal: NextPage = () => {
                   / {data?.data.length} Applications Reviewed
                 </div>
               </div>
-
             </div>
             <table className="my-8 w-full text-left">
               <thead className=" bg-black text-white">
