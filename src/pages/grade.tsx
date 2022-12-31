@@ -108,7 +108,7 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody className="text-white">
                 {!isLoading
-                  ? data?.data.map((application, index: number) => (
+                  ? data?.data.map((application: any, index: number) => (
                       <Applicant
                         key={application.response_id}
                         applicant={application}
