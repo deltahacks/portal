@@ -1,11 +1,8 @@
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
-<<<<<<< HEAD
 import { Role, User } from "@prisma/client";
-=======
 import * as trpc from "@trpc/server";
->>>>>>> main
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -131,6 +128,7 @@ interface Item {
     mark: number;
   }[];
   id: string;
+  email: string | null;
 }
 
 const options = {
@@ -150,10 +148,7 @@ export const reviewerRouter = createProtectedRouter()
   // })
   //get applications without enough reviews
   .query("getApplications", {
-<<<<<<< HEAD
     async resolve({ ctx }) {
-=======
-    async resolve({ ctx, input }) {
       if (
         !(
           ctx.session.user.role.includes("ADMIN") ||
@@ -163,7 +158,6 @@ export const reviewerRouter = createProtectedRouter()
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
       }
 
->>>>>>> main
       // select all user and their review details joining user on review
       const dbdata = await ctx.prisma.user.findMany({
         include: {
@@ -196,33 +190,9 @@ export const reviewerRouter = createProtectedRouter()
       const res = await fetch(url, options);
       const data: TypeFormResponse = await res.json();
 
-<<<<<<< HEAD
-      //shuffle the responses
-      ((array: TypeFormResponseItems) => {
-        let currentIndex = array.length,
-          randomIndex;
-
-        while (currentIndex != 0) {
-          randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex--;
-
-          const random = array[randomIndex];
-          const current = array[currentIndex];
-
-          // Check for undefined warnings
-          if (random && current) {
-            [array[currentIndex], array[randomIndex]] = [random, current];
-          }
-        }
-        return array;
-      })(data.items);
-
-=======
->>>>>>> main
       // Convert from TypeFormResponse to TypeFormSubmission
       const converted: TypeFormSubmission[] = data.items.map((item) => {
-        const responsePreprocessing: Map<string, TypeFormResponseField> =
-          new Map();
+        const responsePreprocessing = new Map<string, TypeFormResponseField>();
         for (const answer of item.answers) {
           responsePreprocessing.set(answer.field.id, answer);
         }
@@ -277,30 +247,19 @@ export const reviewerRouter = createProtectedRouter()
           mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs")?.boolean ?? false,
           hackerId: mappedUsers.get(item.response_id)?.id ?? "",
           reviews: mappedUsers.get(item.response_id)?.reviewer ?? [],
+          email: mappedUsers.get(item.response_id)?.email ?? "",
         };
       });
       // filter responses to get the ones that need review
-<<<<<<< HEAD
       const output = converted.filter((item) =>
         mappedUsers.has(item.response_id)
       );
-=======
-      const output = converted
-        .filter((item) => mappedUsers.has(item.response_id))
-        .map((item) => {
-          return {
-            ...item,
-            reviews: mappedUsers.get(item.response_id).reviewer,
-            hackerId: mappedUsers.get(item.response_id).id,
-            email: mappedUsers.get(item.response_id).email,
-          };
-        });
 
       return { data: output };
     },
   }) //get applications without enough reviews
   .query("getPriorityApplications", {
-    async resolve({ ctx, input }) {
+    async resolve({ ctx }) {
       if (
         !(
           ctx.session.user.role.includes("ADMIN") ||
@@ -405,7 +364,6 @@ export const reviewerRouter = createProtectedRouter()
             email: mappedUsers.get(item.response_id).email,
           };
         });
->>>>>>> main
 
       return { data: output };
     },
