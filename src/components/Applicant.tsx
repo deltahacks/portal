@@ -97,7 +97,12 @@ const Applicant = ({
   const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
 
   useEffect(() => {
-    setAlreadyReviewed(applicant.reviews.length > 2);
+    setAlreadyReviewed(
+      applicant.reviews.length > 2 ||
+        applicant.reviews.some(
+          (review) => review.reviewer.id === session.data?.user?.id
+        )
+    );
   }, [applicant.reviews, session.data?.user?.id]);
 
   return (
