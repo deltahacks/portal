@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -61,6 +62,7 @@ const GradingPortal: NextPage = () => {
         <div className="drawer-content">
           <GradingNavBar />
           <Background />
+
           <main className="mx-auto px-14 py-16">
             <div className="flex justify-between">
               <div>
@@ -90,6 +92,7 @@ const GradingPortal: NextPage = () => {
                   / {data?.data.length} Applications Reviewed
                 </div>
               </div>
+
             </div>
             <table className="my-8 w-full text-left">
               <thead className=" bg-black text-white">
