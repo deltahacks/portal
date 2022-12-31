@@ -1,6 +1,5 @@
 import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
 
 const GradingNavBar = () => {
   const {} = useSession();
