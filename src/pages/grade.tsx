@@ -61,7 +61,7 @@ const GradingPortal: NextPage = () => {
         <div className="drawer-content">
           <GradingNavBar />
           <Background />
-          <main className="mx-auto px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-11/12 2xl:pt-20">
+          <main className="mx-auto px-14 py-16">
             <div className="flex justify-between">
               <div>
                 <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
@@ -72,12 +72,24 @@ const GradingPortal: NextPage = () => {
                   <p>Median: {median}</p>
                 </div>
               </div>
-              <button
-                className="btn btn-primary"
-                onClick={() => setTogglePriority(!togglePriotity)}
-              >
-                {togglePriotity ? "Showing Priority" : "Showing All"}
-              </button>
+              <div className="text-right">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setTogglePriority(!togglePriotity)}
+                >
+                  {togglePriotity ? "Showing Priority" : "Showing All"}
+                </button>
+                <div className="py-4">
+                  {
+                    // count how many applications have been reviewed
+                    // an application is considered reviewed if it has 3 or more reviews
+                    data?.data.filter(
+                      (application) => application.reviews.length >= 3
+                    ).length
+                  }{" "}
+                  / {data?.data.length} Applications Reviewed
+                </div>
+              </div>
             </div>
             <table className="my-8 w-full text-left">
               <thead className=" bg-black text-white">
