@@ -10,13 +10,18 @@ import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
 
 const GradingPortal: NextPage = () => {
-  const [togglePriotity, setTogglePriority] = useState(true);
+  const [togglePriority, setTogglePriority] = useState(true);
 
   const { data, isLoading } = trpc.useQuery([
-    togglePriotity
+    togglePriority
       ? "reviewer.getPriorityApplications"
       : "reviewer.getApplications",
   ]);
+
+  const { data: data1, isLoading: isloading1 } = trpc.useQuery([
+    "reviewer.getAcceptedPriority",
+  ]);
+  console.log(data1, isloading1);
 
   const [mean, setMean] = useState<number>(0);
   const [median, setMedian] = useState<number>(0);
@@ -65,6 +70,7 @@ const GradingPortal: NextPage = () => {
           <main className="mx-auto px-14 py-16">
             <div className="flex justify-between">
               <div>
+                <button className="btn btn-primary"> Emails </button>
                 <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
                   Applications
                 </h1>
@@ -76,9 +82,9 @@ const GradingPortal: NextPage = () => {
               <div className="text-right">
                 <button
                   className="btn btn-primary"
-                  onClick={() => setTogglePriority(!togglePriotity)}
+                  onClick={() => setTogglePriority(!togglePriority)}
                 >
-                  {togglePriotity ? "Showing Priority" : "Showing All"}
+                  {togglePriority ? "Showing Priority" : "Showing All"}
                 </button>
                 <div className="py-4">
                   {

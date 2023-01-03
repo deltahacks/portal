@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
 import * as trpc from "@trpc/server";
+import { Interface } from "readline";
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -85,6 +86,25 @@ const TypeFormSubmission = z.object({
   mlhCoc: z.boolean(),
 });
 
+interface IMappedUser {
+  typeform_response_id: string;
+  reviewer: IReviewer[];
+  id: string;
+  email: string;
+}
+
+interface IReviewer {
+  id: string;
+  hacker: {
+    id: string;
+    hacker: boolean;
+    mark: number;
+    reviewer: string;
+  };
+  mark: number;
+  reviewer: string;
+}
+
 type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
 
 const options = {
@@ -100,6 +120,98 @@ export const reviewerRouter = createProtectedRouter()
     async resolve({ ctx }) {
       const fullyReviewedApplicants = await ctx.prisma
         .$queryRaw`SELECT "typeform_response_id" FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "typeform_response_id"  FROM "Review" JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id") AS ids WHERE reviewCount >= 3`;
+    },
+  })
+  // get emails for applications
+  .query("getAcceptedPriority", {
+    async resolve({ ctx }) {
+      const emails: {
+        acceptedPriority: string[];
+        acceptedGeneral: string[];
+      } = {
+        acceptedPriority: [],
+        acceptedGeneral: [],
+      };
+      if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const dbdata = await ctx.prisma.user.findMany({
+        include: {
+          hacker: {
+            select: {
+              id: true,
+              hacker: true,
+              mark: true,
+              reviewer: true,
+            },
+          },
+        },
+      });
+      const mappedUsers = new Map();
+
+      dbdata
+        .map((item) => {
+          return {
+            typeform_response_id: item.typeform_response_id,
+            reviewer: item.hacker,
+            id: item.id,
+            email: item.email,
+          };
+        })
+        .filter((item) => item.typeform_response_id != undefined)
+        .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
+
+      const prioURL = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000&until=2022-11-12T05:00:00Z`;
+      const priorityRes = await fetch(prioURL, options);
+      const priorityResponses: TypeFormResponse = await priorityRes.json();
+      //get array of response_ids from priority responses
+      const priorityResponseIds = priorityResponses.items.map(
+        (item) => item.response_id
+      );
+
+      const allURL = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000`;
+      const allRes = await fetch(allURL, options);
+      const allResponses: TypeFormResponse = await allRes.json();
+      //add response_ids from all responses if they are not in priority response_ids
+      let allResponseIds: string[] = [];
+      for (const item of allResponses.items) {
+        if (!priorityResponseIds.includes(item.response_id)) {
+          allResponseIds.push(item.response_id);
+        }
+      }
+
+      mappedUsers.forEach((value: IMappedUser, key: string) => {
+        const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
+        if (
+          priorityResponseIds.includes(value.typeform_response_id) &&
+          average >= 4
+        ) {
+          emails.acceptedPriority.push(value.email);
+          priorityResponseIds.splice(
+            priorityResponseIds.indexOf(value.typeform_response_id),
+            1
+          );
+        }
+      });
+
+      mappedUsers.forEach((value: IMappedUser, key: string) => {
+        allResponseIds = allResponseIds.concat(priorityResponseIds);
+        const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
+        if (
+          allResponseIds.includes(value.typeform_response_id) &&
+          average >= 4
+        ) {
+          emails.acceptedPriority.push(value.email);
+        }
+      });
+
+      return emails;
     },
   })
   //get applications without enough reviews
