@@ -21,7 +21,6 @@ const GradingPortal: NextPage = () => {
   const { data: data1, isLoading: isloading1 } = trpc.useQuery([
     "reviewer.getAcceptedPriority",
   ]);
-  console.log(data1, isloading1);
 
   const [mean, setMean] = useState<number>(0);
   const [median, setMedian] = useState<number>(0);
