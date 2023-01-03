@@ -117,13 +117,6 @@ export const reviewerRouter = createProtectedRouter()
   // get emails for applications
   .query("getAcceptedPriority", {
     async resolve({ ctx }) {
-      const emails: {
-        acceptedPriority: string[];
-        acceptedGeneral: string[];
-      } = {
-        acceptedPriority: [],
-        acceptedGeneral: [],
-      };
       if (
         !(
           ctx.session.user.role.includes("ADMIN") ||
@@ -132,6 +125,13 @@ export const reviewerRouter = createProtectedRouter()
       ) {
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
       }
+      const emails: {
+        acceptedPriority: string[];
+        acceptedGeneral: string[];
+      } = {
+        acceptedPriority: [],
+        acceptedGeneral: [],
+      };
 
       const dbdata = await ctx.prisma.user.findMany({
         include: {
@@ -194,7 +194,7 @@ export const reviewerRouter = createProtectedRouter()
           allResponseIds.includes(value.typeform_response_id) &&
           average >= 4
         ) {
-          emails.acceptedPriority.push(value.email);
+          emails.acceptedGeneral.push(value.email);
         }
       });
 
