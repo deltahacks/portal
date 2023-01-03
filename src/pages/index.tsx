@@ -1,5 +1,4 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
-import { signIn, signOut, useSession } from "next-auth/react";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const Home: NextPage = () => {

@@ -8,6 +8,7 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
+import { TypeFormSubmission } from "../server/router/reviewers";
 
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
@@ -18,8 +19,8 @@ const GradingPortal: NextPage = () => {
       : "reviewer.getApplications",
   ]);
 
-  const [mean, setMean] = useState<number>(0);
-  const [median, setMedian] = useState<number>(0);
+  const [mean, setMean] = useState(0);
+  const [median, setMedian] = useState(0);
 
   useEffect(() => {
     if (!isLoading) {
@@ -27,7 +28,7 @@ const GradingPortal: NextPage = () => {
         data?.data
           .map((application) => {
             return (
-              application.reviews.reduce((a: number, b: any) => {
+              application.reviews.reduce((a: number, b: { mark: number }) => {
                 return a + b.mark;
               }, 0) / application.reviews.length
             );
@@ -40,13 +41,15 @@ const GradingPortal: NextPage = () => {
       const avg = sum / scores.length || 0;
       setMean(avg);
 
-      const mid = Math.floor(scores.length / 2);
       const nums: number[] = [...scores].sort((a, b) => a - b);
+      const mid = Math.floor(scores.length / 2);
+      const leftMid = nums[mid - 1];
+      const directMid = nums[mid];
 
       const median: number =
-        (scores.length % 2 !== 0
-          ? nums[mid]
-          : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
+        (scores.length % 2 === 0 && leftMid && directMid
+          ? (leftMid + directMid) / 2
+          : nums[mid]) || 0;
       setMedian(median);
     }
   }, [data, isLoading]);
@@ -109,13 +112,15 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody className="text-white">
                 {!isLoading
-                  ? data?.data.map((application: any, index: number) => (
-                      <Applicant
-                        key={application.response_id}
-                        applicant={application}
-                        index={index + 1}
-                      />
-                    ))
+                  ? data?.data.map(
+                      (application: TypeFormSubmission, index: number) => (
+                        <Applicant
+                          key={application.response_id}
+                          applicant={application}
+                          index={index + 1}
+                        />
+                      )
+                    )
                   : null}
               </tbody>
             </table>
@@ -155,8 +160,7 @@ const GradingPortal: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: any,
-  cdx: GetServerSidePropsContext
+  context: GetServerSidePropsContext
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
