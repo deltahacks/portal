@@ -128,9 +128,11 @@ export const reviewerRouter = createProtectedRouter()
       const emails: {
         acceptedPriority: string[];
         acceptedGeneral: string[];
+        rejected: string[];
       } = {
         acceptedPriority: [],
         acceptedGeneral: [],
+        rejected: [],
       };
 
       const dbdata = await ctx.prisma.user.findMany({
@@ -195,9 +197,14 @@ export const reviewerRouter = createProtectedRouter()
           average >= 4
         ) {
           emails.acceptedGeneral.push(value.email);
+          allResponseIds.splice(
+            allResponseIds.indexOf(value.typeform_response_id),
+            1
+          );
         }
       });
 
+      emails.rejected = allResponseIds.map((id) => mappedUsers.get(id).email);
       return emails;
     },
   })
