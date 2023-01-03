@@ -115,7 +115,7 @@ const options = {
 
 export const reviewerRouter = createProtectedRouter()
   // get emails for applications
-  .query("getAcceptedPriority", {
+  .query("getAcceptedEmails", {
     async resolve({ ctx }) {
       if (
         !(

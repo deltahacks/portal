@@ -18,8 +18,8 @@ const GradingPortal: NextPage = () => {
       : "reviewer.getApplications",
   ]);
 
-  const { data: data1, isLoading: isloading1 } = trpc.useQuery([
-    "reviewer.getAcceptedPriority",
+  const { data: emails, isLoading: isLoading1 } = trpc.useQuery([
+    "reviewer.getAcceptedEmails",
   ]);
 
   const [mean, setMean] = useState<number>(0);
