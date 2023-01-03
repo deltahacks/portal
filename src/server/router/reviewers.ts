@@ -114,13 +114,6 @@ const options = {
 };
 
 export const reviewerRouter = createProtectedRouter()
-  //get reviewed applications
-  .query("getReviewed", {
-    async resolve({ ctx }) {
-      const fullyReviewedApplicants = await ctx.prisma
-        .$queryRaw`SELECT "typeform_response_id" FROM (SELECT "hackerId" as id, COUNT("hackerId") as reviewCount, "typeform_response_id"  FROM "Review" JOIN "User" ON "User".id = "hackerId" GROUP BY "hackerId", "typeform_response_id") AS ids WHERE reviewCount >= 3`;
-    },
-  })
   // get emails for applications
   .query("getAcceptedPriority", {
     async resolve({ ctx }) {
@@ -174,16 +167,11 @@ export const reviewerRouter = createProtectedRouter()
         (item) => item.response_id
       );
 
-      const allURL = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000`;
+      const allURL = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000&since=2022-11-12T05:00:00Z`;
       const allRes = await fetch(allURL, options);
       const allResponses: TypeFormResponse = await allRes.json();
       //add response_ids from all responses if they are not in priority response_ids
-      let allResponseIds: string[] = [];
-      for (const item of allResponses.items) {
-        if (!priorityResponseIds.includes(item.response_id)) {
-          allResponseIds.push(item.response_id);
-        }
-      }
+      let allResponseIds = allResponses.items.map((item) => item.response_id);
 
       mappedUsers.forEach((value: IMappedUser, key: string) => {
         const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
