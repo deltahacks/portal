@@ -2,7 +2,6 @@ import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
 import * as trpc from "@trpc/server";
-import { Interface } from "readline";
 
 const TypeFormResponseField = z.object({
   field: z.object({
