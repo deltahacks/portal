@@ -17,6 +17,7 @@ import {
   FiStopCircle,
   FiXCircle,
 } from "react-icons/fi";
+import { useSession } from "next-auth/react";
 
 enum ActionType {
   Add,
@@ -29,7 +30,7 @@ type Action = {
 };
 
 const Roles: NextPage = () => {
-  const router = useRouter();
+  const session = useSession();
   const [role, setRole] = useState("");
   const [action, setAction] = useState<Action | undefined>(undefined);
 
@@ -87,7 +88,10 @@ const Roles: NextPage = () => {
                         </div>
                       </div>
                       <div>
-                        <div className="font-bold">{user.name}</div>
+                        <div>{user.name}</div>
+                        {user.id === session.data?.user?.id ? (
+                          <div className="font-bold">(YOU)</div>
+                        ) : null}
                       </div>
                     </div>
                   </td>
