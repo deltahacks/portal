@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 import { env } from "../../env/server.mjs";
-import { Role, User } from "@prisma/client";
+import { Role, Status, User } from "@prisma/client";
 import * as trpc from "@trpc/server";
 
 const TypeFormResponseField = z.object({
@@ -102,6 +102,7 @@ const TypeFormSubmission = z.object({
         image: z.string().nullable(),
         typeform_response_id: z.string().nullable().nullable(),
         role: z.array(z.enum([Role.HACKER, Role.REVIEWER, Role.ADMIN])),
+        status: z.enum([Status.ACCEPTED, Status.CHECKED_IN, Status.IN_REVIEW, Status.REJECTED, Status.RSVP, Status.WAITLISTED])
       }),
       hacker: z.object({
         id: z.string(),
@@ -111,6 +112,8 @@ const TypeFormSubmission = z.object({
         image: z.string().nullable(),
         typeform_response_id: z.string().nullable(),
         role: z.array(z.enum([Role.HACKER, Role.REVIEWER, Role.ADMIN])),
+        status: z.enum([Status.ACCEPTED, Status.CHECKED_IN, Status.IN_REVIEW, Status.REJECTED, Status.RSVP, Status.WAITLISTED])
+
       }),
       mark: z.number(),
     })
