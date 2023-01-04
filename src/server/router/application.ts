@@ -6,7 +6,8 @@ import { createProtectedRouter } from "./context";
 export const applicationRouter = createProtectedRouter()
   .query("received", {
     async resolve({ ctx }) {
-      const user = await prisma?.user.findFirst({
+
+      const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
 
@@ -25,7 +26,7 @@ export const applicationRouter = createProtectedRouter()
   .query("status", {
     output: z.string(),
     async resolve({ ctx }) {
-      const user = await prisma?.user.findFirst({
+        const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
       if (!user) {
@@ -43,7 +44,7 @@ export const applicationRouter = createProtectedRouter()
   })
   .mutation("rsvp", {
     async resolve({ ctx, input }) {
-      const user = await prisma?.user.findFirst({
+      const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
 
@@ -51,7 +52,8 @@ export const applicationRouter = createProtectedRouter()
         throw new Error("Unauthorized call");
       }
 
-      await prisma?.user.update({
+
+      await ctx.prisma?.user.update({
         where: { id: ctx.session.user.id },
         data: { status: Status.RSVP },
       });
