@@ -1,5 +1,6 @@
 import { Status } from "@prisma/client";
 import { z } from "zod";
+import * as trpc from "@trpc/server";
 import { createProtectedRouter } from "./context";
 
 // Example router with queries that can only be hit if the user requesting is signed in
@@ -23,6 +24,29 @@ export const applicationRouter = createProtectedRouter()
       return true;
     },
   })
+  .query("rsvpCount",
+    {
+      
+      output: z.number(),
+      async resolve({ ctx }) {
+        if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
+        const rsvp_count = await ctx.prisma.user.count({
+          where: {
+            status: Status.RSVP
+          }
+        }) || 0;
+
+        return rsvp_count;
+      }
+    }
+  )
   .query("status", {
     output: z.string(),
     async resolve({ ctx }) {
