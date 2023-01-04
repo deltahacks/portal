@@ -56,6 +56,7 @@ model User {
   role                 Role[]    @default([HACKER])
   hacker               Review[]  @relation("hacker")
   reviewer             Review[]  @relation("reviewer")
+  status               Status    @default(IN_REVIEW)
 }
 
 model Review {
@@ -71,6 +72,15 @@ enum Role {
   HACKER
   ADMIN
   REVIEWER
+}
+
+enum Status {
+  IN_REVIEW
+  REJECTED
+  WAITLISTED
+  ACCEPTED
+  RSVP
+  CHECKED_IN
 }
 
 model VerificationToken {
