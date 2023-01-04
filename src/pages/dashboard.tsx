@@ -33,7 +33,7 @@ const Accepted: React.FC = () => {
       </div>
       <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
         <Link href="https://deltahacks.com/#faq">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <button className="btn btn-primary w-48 border-none text-base font-medium capitalize">
             RSVP
           </button>
         </Link>
