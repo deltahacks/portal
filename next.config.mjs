@@ -22,7 +22,7 @@ export default defineNextConfig({
         hostname: "lh3.googleusercontent.com",
         port: "",
         pathname: "/**",
-      }
-    ]
-  }
+      },
+    ],
+  },
 });
