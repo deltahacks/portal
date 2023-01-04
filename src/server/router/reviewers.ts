@@ -242,7 +242,6 @@ export const reviewerRouter = createProtectedRouter()
         const name: string = mappedUsers.get(responseId)?.name;
         emails.rejected.push([email, name, responseId]);
       });
-      ``;
 
       return { data: emails };
     },
