@@ -1,62 +1,15 @@
+import { User } from "@prisma/client";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
-
-interface ApplicantProps {
-  response_id: string;
-  firstName: string;
-  lastName: string;
-  birthday: Date;
-  major: string;
-  school: string;
-  willBeEnrolled: boolean;
-  graduationYear: Date;
-  degree: string;
-  currentLevel: string;
-  hackathonCount: string;
-  longAnswer1: string;
-  longAnswer2: string;
-  hackerId: string;
-  longAnswer3: string;
-  socialLinks: string;
-  resume: string;
-  reviews: IReview[];
-  extra: string;
-  tshirtSize: string;
-  hackerType: string;
-  hasTeam: boolean;
-  workShop: string;
-  gender: string;
-  considerSponserChat: boolean;
-  howDidYouHear: string;
-  background: string;
-  emergencyContactInfo: {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    email: string;
-  };
-  mlhAgreement: boolean;
-  mlhCoc: boolean;
-  email: string;
-}
+import { TypeFormSubmission } from "../server/router/reviewers";
 
 interface IReview {
-  hacker: IUser;
   id: string;
   mark: number;
-  reviewer: IUser;
-}
-
-interface IUser {
-  email: string;
-  emailVerified: string;
-  id: string;
-  image: string;
-  name: string;
-  role: string[];
-  typeform_response_id: string;
+  hacker: User;
+  reviewer: User;
 }
 
 const Applicant = ({
@@ -64,7 +17,7 @@ const Applicant = ({
   index,
 }: {
   index: number;
-  applicant: ApplicantProps;
+  applicant: TypeFormSubmission;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
@@ -89,13 +42,13 @@ const Applicant = ({
     return 0;
   };
 
-  const preventMinus = (e: any) => {
+  const preventMinus = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.code === "Minus") {
       e.preventDefault();
     }
   };
 
-  const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
   useEffect(() => {
     setAlreadyReviewed(
@@ -148,18 +101,15 @@ const Applicant = ({
                   )}
                   onClick={async (e) => {
                     e.preventDefault();
-                    try {
-                      if (parseInt(grade) < 6 && parseInt(grade) > 0) {
-                        await submitGrade.mutateAsync({
-                          mark: parseInt(grade),
-                          hackerId: applicant.hackerId,
-                        });
-                        setAlreadyReviewed(true);
-                      }
-                    } catch (err: any) {
-                      // FIXME
-                      console.log(err.message);
+                    const gradeInt = parseInt(grade);
+                    if (gradeInt <= 0 || 6 <= gradeInt) {
+                      return;
                     }
+                    await submitGrade.mutateAsync({
+                      mark: gradeInt,
+                      hackerId: applicant.hackerId,
+                    });
+                    setAlreadyReviewed(true);
                   }}
                 >
                   Submit
@@ -330,7 +280,7 @@ const Applicant = ({
                 )}
                 <button
                   className="w-8/12 rounded bg-primary py-2 px-4 text-white hover:bg-sky-900"
-                  onClick={() => openInNewTab(applicant.resume)}
+                  onClick={() => openInNewTab(applicant.resume ?? "")}
                 >
                   Open Resume
                 </button>
