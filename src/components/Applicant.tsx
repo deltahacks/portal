@@ -1,61 +1,15 @@
+import { User } from "@prisma/client";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
-
-interface ApplicantProps {
-  response_id: string;
-  firstName: string;
-  lastName: string;
-  birthday: Date;
-  major: string;
-  school: string;
-  willBeEnrolled: boolean;
-  graduationYear: Date;
-  degree: string;
-  currentLevel: string;
-  hackathonCount: string;
-  longAnswer1: string;
-  longAnswer2: string;
-  hackerId: string;
-  longAnswer3: string;
-  socialLinks: string;
-  resume: string;
-  reviews: IReview[];
-  extra: string;
-  tshirtSize: string;
-  hackerType: string;
-  hasTeam: boolean;
-  workShop: string;
-  gender: string;
-  considerSponserChat: boolean;
-  howDidYouHear: string;
-  background: string;
-  emergencyContactInfo: {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    email: string;
-  };
-  mlhAgreement: boolean;
-  mlhCoc: boolean;
-}
+import { TypeFormSubmission } from "../server/router/reviewers";
 
 interface IReview {
-  hacker: IUser;
   id: string;
   mark: number;
-  reviewer: IUser;
-}
-
-interface IUser {
-  email: string;
-  emailVerified: string;
-  id: string;
-  image: string;
-  name: string;
-  role: string[];
-  typeform_response_id: string;
+  hacker: User;
+  reviewer: User;
 }
 
 const Applicant = ({
@@ -63,7 +17,7 @@ const Applicant = ({
   index,
 }: {
   index: number;
-  applicant: ApplicantProps;
+  applicant: TypeFormSubmission;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
@@ -81,25 +35,27 @@ const Applicant = ({
       average += review.mark;
     }
     if (reviewers.length != 0) {
-      return average / reviewers.length;
+      // round to 2 decimal places
+      const s = average / reviewers.length;
+      return s.toFixed(2);
     }
     return 0;
   };
 
-  const preventMinus = (e: any) => {
+  const preventMinus = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.code === "Minus") {
       e.preventDefault();
     }
   };
 
-  const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
   useEffect(() => {
     setAlreadyReviewed(
-      applicant.reviews.reduce((a, b) => {
-        console.log("a", a, "b", b, "myid", session.data?.user?.id);
-        return a || b.reviewer.id == session.data?.user?.id;
-      }, false)
+      applicant.reviews.length > 2 ||
+        applicant.reviews.some(
+          (review) => review.reviewer.id === session.data?.user?.id
+        )
     );
   }, [applicant.reviews, session.data?.user?.id]);
 
@@ -107,6 +63,7 @@ const Applicant = ({
     <>
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
         <td className="border border-slate-800 p-3">{index}</td>
+        <td className="border border-slate-800 p-3">{applicant.email}</td>
         <td className="border border-slate-800 p-3">{applicant.firstName}</td>
         <td className="border border-slate-800 p-3">{applicant.lastName}</td>
         <td className="border border-slate-800 p-3">
@@ -135,7 +92,7 @@ const Applicant = ({
             />
             <div>
               {alreadyReviewed ? (
-                <p>Submitted</p>
+                <p>Reviewed</p>
               ) : (
                 <button
                   className={clsx(
@@ -144,18 +101,15 @@ const Applicant = ({
                   )}
                   onClick={async (e) => {
                     e.preventDefault();
-                    try {
-                      if (parseInt(grade) < 6 && parseInt(grade) > 0) {
-                        await submitGrade.mutateAsync({
-                          mark: parseInt(grade),
-                          hackerId: applicant.hackerId,
-                        });
-                        setAlreadyReviewed(true);
-                      }
-                    } catch (err: any) {
-                      // FIXME
-                      console.log(err.message);
+                    const gradeInt = parseInt(grade);
+                    if (gradeInt <= 0 || 6 <= gradeInt) {
+                      return;
                     }
+                    await submitGrade.mutateAsync({
+                      mark: gradeInt,
+                      hackerId: applicant.hackerId,
+                    });
+                    setAlreadyReviewed(true);
                   }}
                 >
                   Submit
@@ -164,10 +118,17 @@ const Applicant = ({
             </div>
           </form>
         </td>
+        {/* <td className="border border-slate-800 p-4">
+          <input
+            onClick={(e) => e.stopPropagation()}
+            type="checkbox"
+            className="checkbox checkbox-primary"
+          />
+        </td> */}
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan={6} className="bg-[#1F1F1F] py-5 px-10">
+          <td colSpan={7} className="bg-[#1F1F1F] py-5 px-10">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
@@ -319,7 +280,7 @@ const Applicant = ({
                 )}
                 <button
                   className="w-8/12 rounded bg-primary py-2 px-4 text-white hover:bg-sky-900"
-                  onClick={() => openInNewTab(applicant.resume)}
+                  onClick={() => openInNewTab(applicant.resume ?? "")}
                 >
                   Open Resume
                 </button>
