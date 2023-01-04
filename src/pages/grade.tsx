@@ -19,6 +19,8 @@ const GradingPortal: NextPage = () => {
       : "reviewer.getApplications",
   ]);
 
+  const { data: rsvpCount } = trpc.useQuery(["application.rsvpCount"]);
+
   const [mean, setMean] = useState<number>(0);
   const [median, setMedian] = useState<number>(0);
 
@@ -89,7 +91,8 @@ const GradingPortal: NextPage = () => {
                       (application) => application.reviews.length >= 3
                     ).length
                   }{" "}
-                  / {data?.data.length} Applications Reviewed
+                  / {data?.data.length} Applications Reviewed <br />
+                  {rsvpCount} RSVPs
                 </div>
               </div>
             </div>
