@@ -19,8 +19,8 @@ const GradingPortal: NextPage = () => {
       : "reviewer.getApplications",
   ]);
 
-  const [mean, setMean] = useState(0);
-  const [median, setMedian] = useState(0);
+  const [mean, setMean] = useState<number>(0);
+  const [median, setMedian] = useState<number>(0);
 
   useEffect(() => {
     if (!isLoading) {
@@ -41,15 +41,13 @@ const GradingPortal: NextPage = () => {
       const avg = sum / scores.length || 0;
       setMean(avg);
 
-      const nums: number[] = [...scores].sort((a, b) => a - b);
       const mid = Math.floor(scores.length / 2);
-      const leftMid = nums[mid - 1];
-      const directMid = nums[mid];
+      const nums: number[] = [...scores].sort((a, b) => a - b);
 
       const median: number =
-        (scores.length % 2 === 0 && leftMid && directMid
-          ? (leftMid + directMid) / 2
-          : nums[mid]) || 0;
+        (scores.length % 2 !== 0
+          ? nums[mid]
+          : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
       setMedian(median);
     }
   }, [data, isLoading]);
