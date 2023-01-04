@@ -236,12 +236,13 @@ export const reviewerRouter = createProtectedRouter()
         }
       });
 
+      //adding all the rejected emails
       allResponseIds.forEach((responseId) => {
-        // we know these are rejected people, find their name?
         const email: string = mappedUsers.get(responseId)?.email;
         const name: string = mappedUsers.get(responseId)?.name;
         emails.rejected.push([email, name, responseId]);
-      });``
+      });
+      ``;
 
       return { data: emails };
     },
