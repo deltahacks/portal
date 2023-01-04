@@ -52,7 +52,7 @@ export const userRouter = createProtectedRouter()
         select: { role: true },
       })) || { role: undefined };
       await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
+        where: { id: input.id },
         data: {
           role: {
             set: role?.filter((role) => role !== input.role),
