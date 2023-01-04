@@ -192,7 +192,9 @@ export const reviewerRouter = createProtectedRouter()
 
       //adding all the accepted priority emails
       mappedUsers.forEach((value: IMappedUser, key: string) => {
-        const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
+        const average =
+          value.reviewer.reduce((a, b) => a + b.mark, 0) /
+          value.reviewer.length;
         if (
           priorityResponseIds.includes(value.typeform_response_id) &&
           average >= 3
@@ -208,7 +210,9 @@ export const reviewerRouter = createProtectedRouter()
       //adding all the accepted general emails with the remaining priority responses
       allResponseIds = allResponseIds.concat(priorityResponseIds); //818
       mappedUsers.forEach((value: IMappedUser, key: string) => {
-        const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
+        const average =
+          value.reviewer.reduce((a, b) => a + b.mark, 0) /
+          value.reviewer.length;
         if (
           allResponseIds.includes(value.typeform_response_id) &&
           average >= 3
@@ -223,10 +227,12 @@ export const reviewerRouter = createProtectedRouter()
 
       //adding all the waitlisted emails
       mappedUsers.forEach((value: IMappedUser, key: string) => {
-        const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
+        const average =
+          value.reviewer.reduce((a, b) => a + b.mark, 0) /
+          value.reviewer.length;
         if (
           allResponseIds.includes(value.typeform_response_id) &&
-          average >= 2.32
+          average >= 2.3
         ) {
           emails.waitlisted.push([value.email, value.name]);
           allResponseIds.splice(
