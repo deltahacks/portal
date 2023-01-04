@@ -9,20 +9,24 @@ import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
+import { Status } from "@prisma/client";
 
 const Accepted: React.FC = () => {
   const { data: session } = useSession();
+  const doRsvp = trpc.useMutation("application.rsvp");
+  const utils = trpc.useContext();
+
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, we can't wait to see you
-        at Deltahacks 9!
+        Hey {session ? session.user?.name : ""}, we can{"'"}t wait to see you at
+        Deltahacks 9!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         DeltaHacks 9! Come hack for change and build something incredible with
         hundreds of other hackers from January 13 - 15, 2023! To confirm that
-        you will be attending, please RSVP:
+        you will be attending, please RSVP below.
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -32,11 +36,16 @@ const Accepted: React.FC = () => {
         </a>
       </div>
       <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
-        <Link href="https://deltahacks.com/#faq">
-          <button className="btn btn-primary w-48 border-none text-base font-medium capitalize">
-            RSVP
-          </button>
-        </Link>
+        <button
+          className="btn btn-primary w-48 border-none text-base font-medium capitalize"
+          onClick={async () => {
+            await doRsvp.mutateAsync();
+            await utils.invalidateQueries(["application.status"]);
+          }}
+        >
+          RSVP
+        </button>
+
         <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
@@ -183,9 +192,20 @@ const RSVPed: React.FC = () => {
 };
 
 const Dashboard: NextPage = () => {
-  const {} = trpc.useQuery(["application.received"]);
+  const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
+    "application.status",
+  ]);
 
   const { data: session } = useSession();
+
+  const stateMap = {
+    [Status.IN_REVIEW]: <InReview />,
+    [Status.ACCEPTED]: <Accepted />,
+    [Status.WAITLISTED]: <Waitlisted />,
+    [Status.REJECTED]: <Rejected />,
+    [Status.RSVP]: <RSVPed />,
+    [Status.CHECKED_IN]: <></>,
+  };
 
   return (
     <>
@@ -198,7 +218,13 @@ const Dashboard: NextPage = () => {
           <Background />
           <NavBar />
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <Accepted />
+            {!isStatusLoading ? (
+              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+                Loading...
+              </h1>
+            ) : (
+              stateMap[status as Status]
+            )}
           </main>
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
