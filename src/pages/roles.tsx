@@ -137,7 +137,8 @@ const Roles: NextPage = () => {
                         );
                       }
                     })}
-                    {action?.actionType === ActionType["Add"] ? (
+                    {action?.actionType === ActionType["Add"] &&
+                    action.user === user ? (
                       <input
                         type="text"
                         className="input input-bordered"
