@@ -26,7 +26,7 @@ export const applicationRouter = createProtectedRouter()
   .query("status", {
     output: z.string(),
     async resolve({ ctx }) {
-      const user = await ctx.prisma?.user.findFirst({
+        const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
       if (!user) {
@@ -51,6 +51,7 @@ export const applicationRouter = createProtectedRouter()
       if (user?.status != Status.ACCEPTED) {
         throw new Error("Unauthorized call");
       }
+
 
       await ctx.prisma?.user.update({
         where: { id: ctx.session.user.id },
