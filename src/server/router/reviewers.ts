@@ -90,6 +90,7 @@ interface IMappedUser {
   reviewer: IReviewer[];
   id: string;
   email: string;
+  name: string;
 }
 
 interface IReviewer {
@@ -117,6 +118,17 @@ export const reviewerRouter = createProtectedRouter()
   // get emails for applications
   .query("getAcceptedEmails", {
     async resolve({ ctx }) {
+      const emails: {
+        acceptedPriority: string[][];
+        acceptedGeneral: string[][];
+        waitlisted: string[][];
+        rejected: string[][];
+      } = {
+        acceptedPriority: [],
+        acceptedGeneral: [],
+        waitlisted: [],
+        rejected: [],
+      };
       if (
         !(
           ctx.session.user.role.includes("ADMIN") ||
@@ -125,38 +137,41 @@ export const reviewerRouter = createProtectedRouter()
       ) {
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
       }
-      const emails: {
-        acceptedPriority: string[];
-        acceptedGeneral: string[];
-        rejected: string[];
-      } = {
-        acceptedPriority: [],
-        acceptedGeneral: [],
-        rejected: [],
-      };
 
-      const dbdata = await ctx.prisma.user.findMany({
-        include: {
+      const tdbdata = await ctx.prisma.user.findMany({
+        select: {
+          name: true,
+          email: true,
+          typeform_response_id: true,
+          id: true,
           hacker: {
             select: {
               id: true,
               hacker: true,
               mark: true,
-              reviewer: true,
             },
           },
         },
       });
+
+      const dbdata = tdbdata.map((e: any) => {
+        return { ...e };
+      });
+
       const mappedUsers = new Map();
 
       dbdata
         .map((item) => {
           return {
+            name: item.name,
             typeform_response_id: item.typeform_response_id,
             reviewer: item.hacker,
             id: item.id,
             email: item.email,
           };
+        })
+        .map((e) => {
+          return e;
         })
         .filter((item) => item.typeform_response_id != undefined)
         .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
@@ -175,13 +190,14 @@ export const reviewerRouter = createProtectedRouter()
       //add response_ids from all responses if they are not in priority response_ids
       let allResponseIds = allResponses.items.map((item) => item.response_id);
 
+      //adding all the accepted priority emails
       mappedUsers.forEach((value: IMappedUser, key: string) => {
         const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
         if (
           priorityResponseIds.includes(value.typeform_response_id) &&
-          average >= 4
+          average >= 3
         ) {
-          emails.acceptedPriority.push(value.email);
+          emails.acceptedPriority.push([value.email, value.name]);
           priorityResponseIds.splice(
             priorityResponseIds.indexOf(value.typeform_response_id),
             1
@@ -189,14 +205,15 @@ export const reviewerRouter = createProtectedRouter()
         }
       });
 
+      //adding all the accepted general emails with the remaining priority responses
+      allResponseIds = allResponseIds.concat(priorityResponseIds); //818
       mappedUsers.forEach((value: IMappedUser, key: string) => {
-        allResponseIds = allResponseIds.concat(priorityResponseIds);
         const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
         if (
           allResponseIds.includes(value.typeform_response_id) &&
-          average >= 4
+          average >= 3
         ) {
-          emails.acceptedGeneral.push(value.email);
+          emails.acceptedGeneral.push([value.email, value.name]);
           allResponseIds.splice(
             allResponseIds.indexOf(value.typeform_response_id),
             1
@@ -204,8 +221,29 @@ export const reviewerRouter = createProtectedRouter()
         }
       });
 
-      emails.rejected = allResponseIds.map((id) => mappedUsers.get(id).email);
-      return emails;
+      //adding all the waitlisted emails
+      mappedUsers.forEach((value: IMappedUser, key: string) => {
+        const average = value.reviewer.reduce((a, b) => a + b.mark, 0) / 3;
+        if (
+          allResponseIds.includes(value.typeform_response_id) &&
+          average >= 2.32
+        ) {
+          emails.waitlisted.push([value.email, value.name]);
+          allResponseIds.splice(
+            allResponseIds.indexOf(value.typeform_response_id),
+            1
+          );
+        }
+      });
+
+      allResponseIds.forEach((responseId) => {
+        // we know these are rejected people, find their name?
+        const email: string = mappedUsers.get(responseId)?.email;
+        const name: string = mappedUsers.get(responseId)?.name;
+        emails.rejected.push([email, name, responseId]);
+      });``
+
+      return { data: emails };
     },
   })
   //get applications without enough reviews
