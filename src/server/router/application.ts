@@ -7,7 +7,6 @@ import { createProtectedRouter } from "./context";
 export const applicationRouter = createProtectedRouter()
   .query("received", {
     async resolve({ ctx }) {
-
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
@@ -24,12 +23,10 @@ export const applicationRouter = createProtectedRouter()
       return true;
     },
   })
-  .query("rsvpCount",
-    {
-      
-      output: z.number(),
-      async resolve({ ctx }) {
-        if (
+  .query("rsvpCount", {
+    output: z.number(),
+    async resolve({ ctx }) {
+      if (
         !(
           ctx.session.user.role.includes("ADMIN") ||
           ctx.session.user.role.includes("REVIEWER")
@@ -37,20 +34,20 @@ export const applicationRouter = createProtectedRouter()
       ) {
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
       }
-        const rsvp_count = await ctx.prisma.user.count({
+      const rsvp_count =
+        (await ctx.prisma.user.count({
           where: {
-            status: Status.RSVP
-          }
-        }) || 0;
+            status: Status.RSVP,
+          },
+        })) || 0;
 
-        return rsvp_count;
-      }
-    }
-  )
+      return rsvp_count;
+    },
+  })
   .query("status", {
     output: z.string(),
     async resolve({ ctx }) {
-        const user = await ctx.prisma?.user.findFirst({
+      const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
       if (!user) {
@@ -75,7 +72,6 @@ export const applicationRouter = createProtectedRouter()
       if (user?.status != Status.ACCEPTED) {
         throw new Error("Unauthorized call");
       }
-
 
       await ctx.prisma?.user.update({
         where: { id: ctx.session.user.id },
