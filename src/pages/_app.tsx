@@ -33,7 +33,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           />
         </Head>
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-G30J8MG25P"
+          src="https://www.googletagmanager.com/gtag/js?id=G-419VDPBPXK"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -42,7 +42,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
             function gtag(){window.dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-G30J8MG25P');
+            gtag('config', 'G-419VDPBPXK');
           `}
         </Script>
         <Component {...pageProps} />
