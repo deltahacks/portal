@@ -54,12 +54,33 @@ model User {
   sessions             Session[]
   typeform_response_id String?   @db.Text
   role                 Role[]    @default([HACKER])
+  hacker               Review[]  @relation("hacker")
+  reviewer             Review[]  @relation("reviewer")
+  status               Status    @default(IN_REVIEW)
+}
+
+model Review {
+  id         String @id @default(cuid())
+  hackerId   String
+  hacker     User   @relation("hacker", fields: [hackerId], references: [id], onDelete: Cascade)
+  reviewerId String
+  reviewer   User   @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  mark       Float  @default(0)
 }
 
 enum Role {
   HACKER
   ADMIN
   REVIEWER
+}
+
+enum Status {
+  IN_REVIEW
+  REJECTED
+  WAITLISTED
+  ACCEPTED
+  RSVP
+  CHECKED_IN
 }
 
 model VerificationToken {

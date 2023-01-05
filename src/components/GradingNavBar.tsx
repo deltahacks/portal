@@ -1,8 +1,8 @@
 import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 
-const NavBar = () => {
-  const { data: session } = useSession();
+const GradingNavBar = () => {
+  const {} = useSession();
 
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
@@ -26,8 +26,12 @@ const NavBar = () => {
       <div className="hidden items-center md:flex">
         <ThemeToggle />
         <p className="mx-2 hidden font-inter text-sm lg:inline-block">
-          Logged in as{" "}
-          <strong className="font-bold">{session?.user?.name}</strong>
+          {/* <Link href="/dashboard">
+            <strong>Dashboard</strong>
+          </Link> */}
+          <button className="mx-2 rounded bg-zinc-700 py-2.5 px-5 font-inter text-sm font-bold text-white hover:bg-zinc-800 md:px-7">
+            Dashboard
+          </button>
         </p>
         <button
           onClick={() => signOut()}
@@ -58,4 +62,4 @@ const NavBar = () => {
   );
 };
 
-export default NavBar;
+export default GradingNavBar;

@@ -5,10 +5,13 @@ const NavBar = () => {
     <div className="mx-9 mt-5 flex flex-row items-center justify-between md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
         <a className="mr-5" href="#">
-          <img
-            className="inline-block h-10 w-12 md:h-16 md:w-20"
-            src="logo.svg"
-          />
+          <picture>
+            <img
+              className="inline-block h-10 w-12 md:h-16 md:w-20"
+              src="logo.svg"
+              alt="logo"
+            />
+          </picture>
         </a>
 
         <div className="font-main hidden md:inline-block">
@@ -31,10 +34,13 @@ const NavBar = () => {
 
       <div className="flex items-center">
         <button className="mx-2">
-          <img
-            className="hidden h-5 w-5 md:inline-block"
-            src="dark-toggle.svg"
-          />
+          <picture>
+            <img
+              className="hidden h-5 w-5 md:inline-block"
+              src="dark-toggle.svg"
+              alt="dark"
+            />
+          </picture>
         </button>
 
         <a className="font-sub mx-2 mr-8 text-sm md:hidden" href="#">
