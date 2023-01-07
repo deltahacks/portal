@@ -3,8 +3,6 @@ import { Widget } from "@typeform/embed-react";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
-import { appRouter } from "../server/router";
-import { createContext } from "../server/router/context";
 import { useRouter } from "next/router";
 
 const Apply: NextPage = () => {
@@ -25,8 +23,7 @@ const Apply: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: any,
-  ctx: GetServerSidePropsContext
+  context: GetServerSidePropsContext
 ) => {
   const session = await getServerAuthSession(context);
 

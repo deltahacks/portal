@@ -8,6 +8,7 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
+import { TypeFormSubmission } from "../server/router/reviewers";
 
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
@@ -18,6 +19,8 @@ const GradingPortal: NextPage = () => {
       : "reviewer.getApplications",
   ]);
 
+  const { data: rsvpCount } = trpc.useQuery(["application.rsvpCount"]);
+
   const [mean, setMean] = useState<number>(0);
   const [median, setMedian] = useState<number>(0);
 
@@ -27,7 +30,7 @@ const GradingPortal: NextPage = () => {
         data?.data
           .map((application) => {
             return (
-              application.reviews.reduce((a: number, b: any) => {
+              application.reviews.reduce((a: number, b: { mark: number }) => {
                 return a + b.mark;
               }, 0) / application.reviews.length
             );
@@ -88,7 +91,8 @@ const GradingPortal: NextPage = () => {
                       (application) => application.reviews.length >= 3
                     ).length
                   }{" "}
-                  / {data?.data.length} Applications Reviewed
+                  / {data?.data.length} Applications Reviewed <br />
+                  {rsvpCount} RSVPs
                 </div>
               </div>
             </div>
@@ -109,13 +113,15 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody className="text-white">
                 {!isLoading
-                  ? data?.data.map((application: any, index: number) => (
-                      <Applicant
-                        key={application.response_id}
-                        applicant={application}
-                        index={index + 1}
-                      />
-                    ))
+                  ? data?.data.map(
+                      (application: TypeFormSubmission, index: number) => (
+                        <Applicant
+                          key={application.response_id}
+                          applicant={application}
+                          index={index + 1}
+                        />
+                      )
+                    )
                   : null}
               </tbody>
             </table>
@@ -155,8 +161,7 @@ const GradingPortal: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: any,
-  cdx: GetServerSidePropsContext
+  context: GetServerSidePropsContext
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
