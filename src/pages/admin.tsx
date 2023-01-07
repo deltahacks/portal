@@ -3,6 +3,7 @@ import {
   GetServerSidePropsResult,
   NextPage,
 } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -14,6 +15,10 @@ const Admin: NextPage = () => {
     <>
       Tempor tempor ea ad consectetur consequat pariatur et officia est mollit
       nostrud.
+      <br />
+      <Link href="roles">
+        <span className="link">Roles</span>
+      </Link>
     </>
   );
 };
