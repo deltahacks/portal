@@ -8,6 +8,9 @@ import type { AppType } from "next/app";
 import type { AppRouter } from "../server/router";
 import type { Session } from "next-auth";
 import "../styles/globals.css";
+import Head from "next/head";
+import Script from "next/script";
+import { ThemeProvider } from "next-themes";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -15,7 +18,35 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
+      <ThemeProvider>
+        <Head>
+          <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+          <link rel="icon" type="image/png" href="/images/favicon.png" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+          />
+          <meta name="theme-color" content="#181818" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#181818" // TODO: add light/dark mode
+          />
+        </Head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-G30J8MG25P"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-G30J8MG25P');
+          `}
+        </Script>
+        <Component {...pageProps} />
+      </ThemeProvider>
     </SessionProvider>
   );
 };
@@ -27,7 +58,7 @@ const getBaseUrl = () => {
 };
 
 export default withTRPC<AppRouter>({
-  config({ ctx }) {
+  config({}) {
     /**
      * If you want to use SSR, you need to use the server's full URL
      * @link https://trpc.io/docs/ssr
