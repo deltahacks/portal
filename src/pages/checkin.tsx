@@ -11,49 +11,51 @@ import { Status } from "@prisma/client";
 
 const PreCheckedIn: React.FC = () => {
   return (
-    <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-      <div>
-        <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-          Check In
-        </h1>
-        <div className="text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-          Welcome to DeltaHacks 9! This year we are using a QR code system to
-          check you in to events, meals, and more. To link your account to the
-          QR, please scan it with your camera.
-        </div>
-        <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-          How To Link
-        </div>
-        <h2 className="pb-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-2 lg:text-3xl lg:leading-tight 2xl:pt-4 2xl:text-4xl">
-          1. Grab a QR code from our sign in desk <br />
-          2. Scan your QR code to link it to your profile
-        </h2>
-        <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
-          Enable Camera
-        </button>
+    <div>
+      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+        Welcome to DeltaHacks 9! This year we are using a QR code system to
+        check you in to events, meals, and more. To link your account to the QR,
+        please scan it with your camera.
       </div>
+      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+        How To Link
+      </div>
+      <h2 className="pb-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-2 lg:text-3xl lg:leading-tight 2xl:pt-4 2xl:text-4xl">
+        1. Grab a QR code from our sign in desk <br />
+        2. Scan your QR code to link it to your profile
+      </h2>
+      <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+        Enable Camera
+      </button>
+      <div className="flex items-center gap-4"></div>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you are having any issues scanning the QR code, try to scan in
         improved lighting, or speak to a registration volunteer.
       </div>
-    </main>
+    </div>
   );
 };
 
 const PostCheckedIn: React.FC = () => {
   return (
-    <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-      <div>
-        <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-          Check In
-        </h1>
-        <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-          Your QR code has been successfully linked! Show your QR code to
-          volunteers at events to sign in. <br />
-          Happy hacking!
-        </div>
-      </div>
-    </main>
+    <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      Your QR code has been successfully linked! Show your QR code to volunteers
+      at events to sign in. <br />
+      Happy hacking!
+    </div>
+  );
+};
+
+const NoRSVP: React.FC = () => {
+  return (
+    <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      You have not RSVPed to DeltaHacks 9. If you believe there is an issue
+      regarding this, contact us at{" "}
+      <a href="mailto: hello@deltahacks.com" className="text-sky-400">
+        hello@deltahacks.com
+      </a>
+      .
+    </div>
   );
 };
 
@@ -65,7 +67,7 @@ const Checkin: NextPage = () => {
   ]);
   const stateMap = {
     [Status.IN_REVIEW]: <></>,
-    [Status.ACCEPTED]: <></>,
+    [Status.ACCEPTED]: <PreCheckedIn />,
     [Status.WAITLISTED]: <></>,
     [Status.REJECTED]: <></>,
     [Status.RSVP]: <PreCheckedIn />,
@@ -82,14 +84,19 @@ const Checkin: NextPage = () => {
         <div className="drawer-content">
           <Background />
           <NavBar />
-          {!isStatusLoading ? (
+          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
             <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-              Loading...
+              Check In
             </h1>
-          ) : (
-            stateMap[status as Status]
-          )}
-          <PostCheckedIn />
+            {!isStatusLoading ? (
+              <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+                Loading...
+              </h1>
+            ) : (
+              stateMap[status as Status]
+            )}
+          </main>
+
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
