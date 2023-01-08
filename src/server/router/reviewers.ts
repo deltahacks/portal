@@ -194,7 +194,7 @@ export const reviewerRouter = createProtectedRouter()
         .map((e: any) => {
           return e.email;
         });
-      console.log(filtered);
+
       return { data: filtered };
     },
   })
