@@ -164,6 +164,40 @@ export const reviewerRouter = createProtectedRouter()
   //   },
   // })
   //get applications without enough reviews
+  .query("getRSVPEmails", {
+    async resolve({ ctx }) {
+      if (
+        !(
+          ctx.session.user.role.includes("ADMIN") ||
+          ctx.session.user.role.includes("REVIEWER")
+        )
+      ) {
+        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const tdbdata = await ctx.prisma.user.findMany({
+        select: {
+          email: true,
+          typeform_response_id: true,
+          status: true,
+        },
+      });
+
+      const dbdata = tdbdata.map((e: any) => {
+        return { ...e };
+      });
+
+      const filtered = dbdata
+        .filter((e: any) => {
+          return e.status === "RSVP";
+        })
+        .map((e: any) => {
+          return e.email;
+        });
+      console.log(filtered);
+      return { data: filtered };
+    },
+  })
   .query("getApplications", {
     async resolve({ ctx }) {
       if (
