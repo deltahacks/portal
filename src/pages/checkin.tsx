@@ -29,8 +29,9 @@ const PreCheckedIn: React.FC = () => {
       </button>
       <div className="flex items-center gap-4"></div>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        If you are having any issues scanning the QR code, try to scan in
-        improved lighting, or speak to a registration volunteer.
+        If you are having any issues scanning the QR code, ensure you are
+        scanning the code head on from a moderate distance away. If issues
+        persist, speak to a registration volunteer.
       </div>
     </div>
   );
