@@ -28,9 +28,7 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
   }, [scanValue]);
 
   const handleInternalScan = (newResult: any) => {
-    //console.log("hand ling");
     if (newResult === undefined || newResult === null) {
-      //console.log("Scanned undefined");
       return;
     }
     const t = newResult.text;
@@ -56,7 +54,6 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
       oscillator.stop();
     }, 1000);
 
-    // call the callback function
     handleScan(t);
   };
 
@@ -71,7 +68,7 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
       <h2>{scanValue}</h2>
       <QrReader
         onResult={handleInternalScan}
-        scanDelay={5}
+        scanDelay={10}
         constraints={{
           facingMode: { ideal: "environment" },
         }}
