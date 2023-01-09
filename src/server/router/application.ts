@@ -64,6 +64,16 @@ export const applicationRouter = createProtectedRouter()
       return user.status;
     },
   })
+  .query("qr", {
+    async resolve({ ctx }) {
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: ctx.session.user.id },
+      });
+      const qr = user?.qrcode;
+
+      return qr;
+    },
+  })
   .mutation("rsvp", {
     async resolve({ ctx, input }) {
       const user = await ctx.prisma?.user.findFirst({
@@ -124,6 +134,7 @@ export const applicationRouter = createProtectedRouter()
         where: { id: ctx.session.user.id },
         data: {
           qrcode: input,
+          status: Status.CHECKED_IN,
         },
       });
     },
