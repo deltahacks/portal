@@ -10,6 +10,7 @@ import SocialButtons from "../components/SocialButtons";
 import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -18,6 +19,9 @@ const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
 const PreCheckedIn: React.FC = () => {
   const [shouldShow, setShouldShow] = useState(false);
   const [QRCode, setQRCode] = useState("NONE");
+
+  const doCheckIn = trpc.useMutation("application.checkIn");
+  const router = useRouter();
 
   return (
     <div>
@@ -60,16 +64,21 @@ const PreCheckedIn: React.FC = () => {
           <h3 className="text-md py-1">
             QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
           </h3>
-          {QRCode !== "NONE" ? (
-            <div className="">
-              <button
-                className="btn btn-primary w-full border-none text-base font-medium capitalize"
-                onClick={() => setShouldShow(!shouldShow)}
-              >
-                Link QR Value
-              </button>
-            </div>
-          ) : null}
+
+          <div className="">
+            <button
+              disabled={QRCode === "NONE"}
+              className="btn btn-primary w-full border-none text-base font-medium capitalize"
+              onClick={async () => {
+                await doCheckIn.mutateAsync(parseInt(QRCode));
+                await router.push("/dashboard");
+                setShouldShow(!shouldShow);
+              }}
+            >
+              Link QR Value
+            </button>
+          </div>
+
           <p className="py-4">
             Once you have linked a QR code to your account, it cannot be undone.
             Ensure the QR value on your pass matches the scanned value.
