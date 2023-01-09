@@ -8,14 +8,98 @@ import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import { Status } from "@prisma/client";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 
-const PreCheckedIn: React.FC = () => {
+const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
+  ssr: false,
+});
+
+const Popup: React.FC = () => {
   return (
     <div>
-      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <input type="checkbox" id="my-modal-3" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box relative">
+          <label
+            htmlFor="my-modal-3"
+            className="btn btn-circle btn-sm absolute right-2 top-2"
+          >
+            ✕
+          </label>
+          <h3 className="text-lg font-bold">
+            Congratulations random Internet user!
+          </h3>
+          <p className="py-4">
+            You've been selected for a chance to get one year of subscription to
+            use Wikipedia for free!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PreCheckedIn: React.FC = () => {
+  const [shouldShow, setShouldShow] = useState(false);
+  const [QRCode, setQRCode] = useState("NONE");
+
+  return (
+    <div>
+      <div className="pt-6 pb-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Welcome to DeltaHacks 9! This year we are using a QR code system to
         check you in to events, meals, and more. To link your account to the QR,
         please scan it with your camera.
+      </div>
+
+      <button
+        className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800"
+        onClick={() => setShouldShow(!shouldShow)}
+      >
+        Toggle Camera
+      </button>
+      <input
+        type="checkbox"
+        id="my-modal-3"
+        className="modal-toggle"
+        checked={shouldShow}
+      />
+      <div className="modal">
+        <div className="modal-box relative">
+          <div className="">
+            <div>
+              <QRReaderDynamic
+                handleScan={(data) => {
+                  setQRCode(data);
+                }}
+              />{" "}
+            </div>
+          </div>
+          <label
+            htmlFor="my-modal-3"
+            className="btn btn-circle btn-sm absolute right-2 top-2"
+            onClick={() => setShouldShow(!shouldShow)}
+          >
+            x
+          </label>
+          <h3 className="text-md py-1">
+            QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
+          </h3>
+          {QRCode !== "NONE" ? (
+            <div className="">
+              <button
+                className="btn btn-primary w-full border-none text-base font-medium capitalize"
+                onClick={() => setShouldShow(!shouldShow)}
+              >
+                Link QR Value
+              </button>
+            </div>
+          ) : null}
+          <p className="py-4">
+            Once you have linked a QR code to your account, it cannot be undone.
+            Ensure the QR value on your pass matches the scanned value.
+          </p>
+        </div>
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         How To Link
@@ -24,11 +108,7 @@ const PreCheckedIn: React.FC = () => {
         1. Grab a QR code from our sign in desk <br />
         2. Scan your QR code to link it to your profile
       </h2>
-      <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
-        Enable Camera
-      </button>
-      <div className="flex items-center gap-4"></div>
-      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <div className="pt-2 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you are having any issues scanning the QR code, ensure you are
         scanning the code head-on from a moderate distance away. If issues
         persist, speak to a registration volunteer.

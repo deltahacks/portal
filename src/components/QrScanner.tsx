@@ -46,17 +46,13 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
   };
 
   return (
-    <div className="">
-      <h1 className="text-4xl">{scanned} Scanned </h1>
-      <h2>{scanValue}</h2>
-      <QrReader
-        onResult={handleInternalScan}
-        scanDelay={1}
-        constraints={{
-          facingMode: { ideal: "environment" },
-        }}
-      />
-    </div>
+    <QrReader
+      onResult={handleInternalScan}
+      scanDelay={1}
+      constraints={{
+        facingMode: { ideal: "environment" },
+      }}
+    />
   );
 };
 
