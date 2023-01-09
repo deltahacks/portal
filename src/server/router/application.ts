@@ -2,6 +2,7 @@ import { Status } from "@prisma/client";
 import { z } from "zod";
 import * as trpc from "@trpc/server";
 import { createProtectedRouter } from "./context";
+import { TRPCError } from "@trpc/server";
 
 // Example router with queries that can only be hit if the user requesting is signed in
 export const applicationRouter = createProtectedRouter()
@@ -63,6 +64,16 @@ export const applicationRouter = createProtectedRouter()
       return user.status;
     },
   })
+  .query("qr", {
+    async resolve({ ctx }) {
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: ctx.session.user.id },
+      });
+      const qr = user?.qrcode;
+
+      return qr;
+    },
+  })
   .mutation("rsvp", {
     async resolve({ ctx, input }) {
       const user = await ctx.prisma?.user.findFirst({
@@ -86,6 +97,44 @@ export const applicationRouter = createProtectedRouter()
         where: { id: ctx.session.user.id },
         data: {
           typeform_response_id: input.id,
+        },
+      });
+    },
+  })
+  .mutation("checkIn", {
+    input: z.number(),
+    async resolve({ ctx, input }) {
+      // Ensure that user does not have a QR code already
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: ctx.session.user.id },
+      });
+
+      if (user?.qrcode !== null) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are already checked in.",
+        });
+      }
+
+      // Check if this was because there was a duplicate in the DB
+      // this means this QR code is already registered to someone else
+      const qrCount = await ctx.prisma.user.count({
+        where: { qrcode: input },
+      });
+
+      if (qrCount != 0) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This QR code is already in use",
+        });
+      }
+
+      // Actual Update
+      await ctx.prisma.user.update({
+        where: { id: ctx.session.user.id },
+        data: {
+          qrcode: input,
+          status: Status.CHECKED_IN,
         },
       });
     },

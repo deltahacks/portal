@@ -192,6 +192,12 @@ const RSVPed: React.FC = () => {
   );
 };
 
+const CheckedIn: React.FC = () => {
+  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+
+  return <div>Checked in with code: {qrcode}</div>;
+};
+
 const Dashboard: NextPage = () => {
   const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
     "application.status",
@@ -205,7 +211,7 @@ const Dashboard: NextPage = () => {
     [Status.WAITLISTED]: <Waitlisted />,
     [Status.REJECTED]: <Rejected />,
     [Status.RSVP]: <RSVPed />,
-    [Status.CHECKED_IN]: <></>,
+    [Status.CHECKED_IN]: <CheckedIn />,
   };
 
   return (
