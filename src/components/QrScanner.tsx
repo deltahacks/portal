@@ -28,15 +28,32 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
   }, [scanValue]);
 
   const handleInternalScan = (newResult: any) => {
-    // console.log("handling");
     if (newResult === undefined || newResult === null) {
-      // console.log("Scanned undefined");
       return;
     }
     const t = newResult.text;
-    // play a beep sound
 
-    // call the callback function
+    if (t === scanValue) {
+      return;
+    }
+
+    console.log(t);
+    setScanValue(t);
+    setScanned((scanned) => scanned + 1);
+
+    const audioCtx = new AudioContext();
+    const oscillator = audioCtx.createOscillator();
+    oscillator.type = "square";
+    oscillator.frequency.value = 440;
+    const gain = audioCtx.createGain();
+    gain.gain.value = 3;
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+    oscillator.start();
+    setTimeout(() => {
+      oscillator.stop();
+    }, 1000);
+
     handleScan(t);
   };
 
@@ -46,13 +63,17 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
   };
 
   return (
-    <QrReader
-      onResult={handleInternalScan}
-      scanDelay={1}
-      constraints={{
-        facingMode: { ideal: "environment" },
-      }}
-    />
+    <div className="">
+      <h1 className="text-4xl">{scanned} Scanned </h1>
+      <h2>{scanValue}</h2>
+      <QrReader
+        onResult={handleInternalScan}
+        scanDelay={10}
+        constraints={{
+          facingMode: { ideal: "environment" },
+        }}
+      />
+    </div>
   );
 };
 
