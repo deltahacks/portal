@@ -109,7 +109,7 @@ export const applicationRouter = createProtectedRouter()
         where: { id: ctx.session.user.id },
       });
 
-      if (user?.qrcode !== null || user.qrcode !== undefined) {
+      if (user?.qrcode !== null) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You are already checked in.",
