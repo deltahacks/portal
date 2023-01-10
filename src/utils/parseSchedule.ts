@@ -1,31 +1,39 @@
 // TODO remove before merging
-const fs = require("fs");
-const Papa = require("papaparse");
+// const fs = require("fs");
 
-const csvFilePath = "public/Final_Deltahacks_Schedule_-_FINAL.tsv";
+// const csvFilePath = "public/Final_Deltahacks_schedule_-_FINAL.tsv";
 
-const csvToArray = (csv) => {
-  const rows = csv.split("\n");
-  return rows.map((row) => {
-    return row.split("\t");
-  });
-};
+// const csvToArray = (csv) => {
+//   const rows = csv.split("\n");
+//   return rows.map((row) => { //     return row.split("\t"); //   });
+// };
 
-fs.readFile(csvFilePath, (err, data) => {
-  if (err) throw err;
+// fs.readFile(csvFilePath, (err, data) => {
+//   if (err) throw err;
 
-  const csv = csvToArray(data.toString());
-  parseSchedule(csv);
-});
+//   const csv = csvToArray(data.toString());
+//   parseschedule(csv);
+// });
 // TODO end remove before merging
 
-// interface ScheduleEvent {
-//   range: [number, number];
-//   event: string;
-// }
+interface ScheduleEvent {
+  range: [number, number];
+  event: string;
+}
+
+interface Schedule2Event {
+  day: string;
+  range: [string, string];
+  event: string;
+}
+
+interface ScheduleDay {
+  events: ScheduleEvent[];
+  day: string;
+}
 
 // Parse the column of the csv
-const parseColumn = (csv, schedule, day, col) => {
+const parseColumn = (csv: string[][], schedule, day, col) => {
   let prevEvent = { event: "", row: -1 };
 
   for (let row = 2; row < csv.length; ++row) {
@@ -81,49 +89,52 @@ const insertBlankSpaces = (schedule) => {
   }
 };
 
-const parseSchedule = (csv) => {
-  let schedule = new Map();
+const parseSchedule = (csv: string[][]) => {
+  const schedule = new Map<number, ScheduleDay>();
 
   // Pre Processing
   // Add row of placeholders for last row in csv for algorithm
-  csv.push(Array(csv[0].length).fill("A"));
+  csv.push(Array(csv[0]?.length).fill("A"));
   // Fill in the gaps in the time column
   for (let row = 3; row < csv.length; ++row) {
-    if (csv[row][0] !== "") continue;
-    csv[row][0] = csv[row - 1][0];
+    const rowArr = csv[row] ?? [];
+    if (rowArr[0] !== "") continue;
+    rowArr[0] = csv[row - 1]?.[0] ?? "";
   }
 
   // read the first row to get the columns
-  for (let i = 2; i < csv[0].length - 1; ++i) {
-    if (csv[0][i] === "") continue;
-    schedule.set(i, { events: [], day: csv[0][i].trim() });
+  const firstRow = csv[0] ?? [];
+  for (let i = 2; i < firstRow.length - 1; ++i) {
+    if (firstRow[i] === "") continue;
+    schedule.set(i, { events: [], day: firstRow[i]?.trim() ?? "" });
   }
 
   // Read the data
-  for (const [day, _] of schedule.entries()) {
+  schedule.forEach((_, day) => {
     for (
       let col = day;
-      (!schedule.has(col) || col === day) && col < csv[0].length - 1;
+      (!schedule.has(col) || col === day) && col < (csv[0]?.length ?? 0) - 1;
       ++col
     ) {
       parseColumn(csv, schedule, day, col);
     }
-  }
+  });
 
   insertBlankSpaces(schedule);
 
-  let schedule2 = [];
-  for (const [i, j] of schedule.entries()) {
-    for (const event of j.events) {
+  const schedule2: Schedule2Event[] = [];
+  schedule.forEach((day, col) => {
+    for (const event of day.events) {
       schedule2.push({
-        day: csv[0][i].trim(),
-        range: [csv[event.range[0]][0], csv[event.range[1]][0]],
+        day: csv[0]?.[col]?.trim() ?? "",
+        range: [csv[event.range[0]]?.[0] ?? "", csv[event.range[1]]?.[0] ?? ""],
         event: event.event,
       });
     }
-  }
+  });
 
   console.log(schedule2);
+
   return schedule2;
 
   // log the schedule
@@ -137,3 +148,5 @@ const parseSchedule = (csv) => {
   //   }
   // }
 };
+
+export default parseSchedule;
