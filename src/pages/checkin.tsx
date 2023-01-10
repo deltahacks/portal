@@ -1,4 +1,8 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
+  NextPage,
+} from "next";
 import Head from "next/head";
 import { getSession, signOut, useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
@@ -9,8 +13,10 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
+import { rbac } from "../components/RBACWrapper";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -18,10 +24,15 @@ const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
 
 const PreCheckedIn: React.FC = () => {
   const [shouldShow, setShouldShow] = useState(false);
+  const [shouldShowScanner, setShouldShowScanner] = useState(false);
   const [QRCode, setQRCode] = useState("NONE");
+  const qrDefer = useDeferredValue(QRCode);
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
 
   const doCheckIn = trpc.useMutation("application.checkIn");
   const router = useRouter();
+
+  console.log("Rendering...");
 
   return (
     <div>
@@ -33,7 +44,10 @@ const PreCheckedIn: React.FC = () => {
 
       <button
         className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800"
-        onClick={() => setShouldShow(!shouldShow)}
+        onClick={() => {
+          setShouldShowScanner(true);
+          setShouldShow(!shouldShow);
+        }}
       >
         Toggle Camera
       </button>
@@ -47,28 +61,29 @@ const PreCheckedIn: React.FC = () => {
         <div className="modal-box relative">
           <div className="">
             <div>
-              <QRReaderDynamic
-                handleScan={(data) => {
-                  setQRCode(data);
-                }}
-              />{" "}
+              {shouldShowScanner ? (
+                <QRReaderDynamic
+                  scanDelay={scanDelay}
+                  handleScan={(data) => {
+                    setQRCode(data);
+                    // console.log("WTF HUH", data);
+                    setScanDelay(false);
+                    setShouldShowScanner(false);
+                  }}
+                  lastVal={qrDefer}
+                />
+              ) : null}
             </div>
           </div>
-          <label
-            htmlFor="my-modal-3"
-            className="btn btn-circle btn-sm absolute right-2 top-2"
-            onClick={() => setShouldShow(!shouldShow)}
-          >
-            x
-          </label>
+
           <h3 className="text-md py-1">
             QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
           </h3>
 
-          <div className="">
+          <div className="flex w-full justify-between gap-4">
             <button
               disabled={QRCode === "NONE"}
-              className="btn btn-primary w-full border-none text-base font-medium capitalize"
+              className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
               onClick={async () => {
                 await doCheckIn.mutateAsync(parseInt(QRCode));
                 await router.push("/dashboard");
@@ -76,6 +91,15 @@ const PreCheckedIn: React.FC = () => {
               }}
             >
               Link QR Value
+            </button>
+            <button
+              className="btn btn-error flex-1 border-none text-base font-medium capitalize"
+              disabled={QRCode === "NONE"}
+              onClick={async () => {
+                await router.reload();
+              }}
+            >
+              Reset
             </button>
           </div>
 
@@ -205,4 +229,18 @@ const Checkin: NextPage = () => {
     </>
   );
 };
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
+  output = rbac(
+    await getServerAuthSession(context),
+    ["ADMIN"],
+    undefined,
+    output
+  );
+  return output;
+};
+
 export default Checkin;

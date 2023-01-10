@@ -20,6 +20,7 @@
     "@typeform/embed-react": "^2.1.0",
     "clsx": "^1.2.1",
     "daisyui": "^2.46.1",
+    "fork-react-qr-reader": "^3.0.1-beta-1",
     "next": "^12.3.1",
     "next-auth": "^4.10.3",
     "next-themes": "^0.2.1",
