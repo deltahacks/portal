@@ -163,7 +163,7 @@ const RSVPed: React.FC = () => {
         We are pleased to inform you that your registration for DeltaHacks 9 has
         been confirmed. Please look for an Attendee Package in your email with
         important information about the event in the coming days. Registration
-        will take place at 5pm at{" "}
+        will take place at{" "}
         <a
           className="text-sky-400 hover:underline"
           href="https://www.google.com/maps/place/Peter+George+Centre+for+Living+and+Learning/@43.2654,-79.9208391,17z/data=!3m1!4b1!4m5!3m4!1s0x882c9b6596106407:0xf256463687b966a8!8m2!3d43.2654!4d-79.9182642?coh=164777&entry=tt&shorturl=1"
@@ -171,7 +171,8 @@ const RSVPed: React.FC = () => {
           Peter George Centre for Living and Learning building at McMaster
           University{" "}
         </a>
-        from January 13-15. We look forward to seeing you there!
+        from January 13-15. Please regularly check your email for updates and
+        more information. We look forward to seeing you there!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -191,6 +192,12 @@ const RSVPed: React.FC = () => {
   );
 };
 
+const CheckedIn: React.FC = () => {
+  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+
+  return <div>Checked in with code: {qrcode}</div>;
+};
+
 const Dashboard: NextPage = () => {
   const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
     "application.status",
@@ -204,7 +211,7 @@ const Dashboard: NextPage = () => {
     [Status.WAITLISTED]: <Waitlisted />,
     [Status.REJECTED]: <Rejected />,
     [Status.RSVP]: <RSVPed />,
-    [Status.CHECKED_IN]: <></>,
+    [Status.CHECKED_IN]: <CheckedIn />,
   };
 
   return (

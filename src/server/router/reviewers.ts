@@ -110,6 +110,7 @@ const TypeFormSubmission = z.object({
           Status.RSVP,
           Status.WAITLISTED,
         ]),
+        qrcode: z.number().nullable(),
       }),
       hacker: z.object({
         id: z.string(),
@@ -127,6 +128,7 @@ const TypeFormSubmission = z.object({
           Status.RSVP,
           Status.WAITLISTED,
         ]),
+        qrcode: z.number().nullable(),
       }),
       mark: z.number(),
     })

@@ -57,6 +57,7 @@ model User {
   hacker               Review[]  @relation("hacker")
   reviewer             Review[]  @relation("reviewer")
   status               Status    @default(IN_REVIEW)
+  qrcode               Int?      @unique
 }
 
 model Review {

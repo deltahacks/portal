@@ -2,6 +2,7 @@ import { Status } from "@prisma/client";
 import { z } from "zod";
 import * as trpc from "@trpc/server";
 import { createProtectedRouter } from "./context";
+import { TRPCError } from "@trpc/server";
 
 // Example router with queries that can only be hit if the user requesting is signed in
 export const applicationRouter = createProtectedRouter()
@@ -24,12 +25,10 @@ export const applicationRouter = createProtectedRouter()
       return true;
     },
   })
-  .query("rsvpCount",
-    {
-      
-      output: z.number(),
-      async resolve({ ctx }) {
-        if (
+  .query("rsvpCount", {
+    output: z.number(),
+    async resolve({ ctx }) {
+      if (
         !(
           ctx.session.user.role.includes("ADMIN") ||
           ctx.session.user.role.includes("REVIEWER")
@@ -37,20 +36,20 @@ export const applicationRouter = createProtectedRouter()
       ) {
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
       }
-        const rsvp_count = await ctx.prisma.user.count({
+      const rsvp_count =
+        (await ctx.prisma.user.count({
           where: {
-            status: Status.RSVP
-          }
-        }) || 0;
+            status: Status.RSVP,
+          },
+        })) || 0;
 
-        return rsvp_count;
-      }
-    }
-  )
+      return rsvp_count;
+    },
+  })
   .query("status", {
     output: z.string(),
     async resolve({ ctx }) {
-        const user = await ctx.prisma?.user.findFirst({
+      const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
       if (!user) {
@@ -66,6 +65,16 @@ export const applicationRouter = createProtectedRouter()
       return user.status;
     },
   })
+  .query("qr", {
+    async resolve({ ctx }) {
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: ctx.session.user.id },
+      });
+      const qr = user?.qrcode;
+
+      return qr;
+    },
+  })
   .mutation("rsvp", {
     async resolve({ ctx, input }) {
       const user = await ctx.prisma?.user.findFirst({
@@ -75,7 +84,6 @@ export const applicationRouter = createProtectedRouter()
       if (user?.status != Status.ACCEPTED) {
         throw new Error("Unauthorized call");
       }
-
 
       await ctx.prisma?.user.update({
         where: { id: ctx.session.user.id },
@@ -90,6 +98,44 @@ export const applicationRouter = createProtectedRouter()
         where: { id: ctx.session.user.id },
         data: {
           typeform_response_id: input.id,
+        },
+      });
+    },
+  })
+  .mutation("checkIn", {
+    input: z.number(),
+    async resolve({ ctx, input }) {
+      // Ensure that user does not have a QR code already
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: ctx.session.user.id },
+      });
+
+      if (user?.qrcode !== null) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are already checked in.",
+        });
+      }
+
+      // Check if this was because there was a duplicate in the DB
+      // this means this QR code is already registered to someone else
+      const qrCount = await ctx.prisma.user.count({
+        where: { qrcode: input },
+      });
+
+      if (qrCount != 0) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This QR code is already in use",
+        });
+      }
+
+      // Actual Update
+      await ctx.prisma.user.update({
+        where: { id: ctx.session.user.id },
+        data: {
+          qrcode: input,
+          status: Status.CHECKED_IN,
         },
       });
     },
