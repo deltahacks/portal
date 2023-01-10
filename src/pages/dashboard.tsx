@@ -171,8 +171,13 @@ const RSVPed: React.FC = () => {
           Peter George Centre for Living and Learning building at McMaster
           University{" "}
         </a>
-        from January 13-15. Please regularly check your email for updates and
-        more information. We look forward to seeing you there!
+        from January 13-15{" "}
+        <span className="font-bold">
+          (Reminder: Friday is NOT in-person and will be taking place on
+          Discord).
+        </span>{" "}
+        Please regularly check your email for updates and more information. We
+        look forward to seeing you there!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -181,12 +186,26 @@ const RSVPed: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+      <div className="t-6 flex gap-6 pt-6">
+        <a href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
-        </Link>
+        </a>
+        <a
+          href="https://drive.google.com/file/d/1r4oLL37piVo_1xrJt34SA95pLaeaU9do/view?usp=sharing"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Attendee Package
+          </button>
+        </a>
+        <a href="https://discord.gg/KpEdu3J5" target="_blank" rel="noreferrer">
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Discord
+          </button>
+        </a>
       </div>
     </div>
   );
