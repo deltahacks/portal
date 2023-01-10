@@ -8,38 +8,33 @@ import { QrReader } from "react-qr-reader";
 
 interface QRScannerProps {
   handleScan: (result: string) => void;
+  lastVal?: string;
+  scanDelay: number | boolean;
 }
 
-const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
-  const [scanned, setScanned] = useState(0);
-
+const QrScanner: React.FC<QRScannerProps> = ({
+  handleScan,
+  lastVal,
+  scanDelay,
+}) => {
+  const [any, setA] = useState<boolean>(false);
   const handleError = (err: Error) => {
     console.error(err);
   };
 
-  const [scanValue, setScanValue] = useState(undefined);
-
-  const eff = useEffect(() => {
-    if (scanValue === undefined) {
+  const handleInternalScan = (newResult: any) => {
+    if (any) {
       return;
     }
-
-    setScanned((scanned) => scanned + 1);
-  }, [scanValue]);
-
-  const handleInternalScan = (newResult: any) => {
     if (newResult === undefined || newResult === null) {
       return;
     }
     const t = newResult.text;
 
-    if (t === scanValue) {
+    console.log("lastVal", lastVal, t);
+    if (t === lastVal) {
       return;
     }
-
-    console.log(t);
-    setScanValue(t);
-    setScanned((scanned) => scanned + 1);
 
     const audioCtx = new AudioContext();
     const oscillator = audioCtx.createOscillator();
@@ -54,6 +49,7 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
       oscillator.stop();
     }, 1000);
 
+    setA(true);
     handleScan(t);
   };
 
@@ -64,11 +60,9 @@ const QrScanner: React.FC<QRScannerProps> = ({ handleScan }) => {
 
   return (
     <div className="">
-      <h1 className="text-4xl">{scanned} Scanned </h1>
-      <h2>{scanValue}</h2>
       <QrReader
         onResult={handleInternalScan}
-        scanDelay={10}
+        scanDelay={scanDelay as any} // VERY HACKY VERY HACKY this is bad bad code. too bad!
         constraints={{
           facingMode: { ideal: "environment" },
         }}
