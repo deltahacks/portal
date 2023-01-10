@@ -1,4 +1,4 @@
-// TODO remove before pushing
+// TODO remove before merging
 const fs = require("fs");
 const Papa = require("papaparse");
 
@@ -17,7 +17,7 @@ fs.readFile(csvFilePath, (err, data) => {
   const csv = csvToArray(data.toString());
   parseSchedule(csv);
 });
-// TODO end remove before pushing
+// TODO end remove before merging
 
 // interface ScheduleEvent {
 //   range: [number, number];
@@ -25,14 +25,14 @@ fs.readFile(csvFilePath, (err, data) => {
 // }
 
 // Parse the column of the csv
-const parseColumn = (csv, schedule, i, col) => {
+const parseColumn = (csv, schedule, day, col) => {
   let prevEvent = { event: "", row: -1 };
 
   for (let row = 2; row < csv.length; ++row) {
     if (csv[row][col] === "") continue;
     else if (prevEvent.event !== "") {
       // Parse all the events in the column
-      schedule.get(i).events.push({
+      schedule.get(day).events.push({
         range: [prevEvent.row, row - 1],
         event: prevEvent.event,
       });
@@ -66,9 +66,15 @@ const insertBlankSpaces = (schedule) => {
   ];
 
   for (const [event, duration] of EVENT_EXCEPTIONS) {
-    for (const [_, { events }] of schedule.entries()) {
+    for (const [day, { events }] of schedule.entries()) {
       for (let i = 0; i < events.length; ++i) {
         if (events[i].event !== event) continue;
+
+        // Remove anything with duration 0
+        if (duration === 0) {
+          events.splice(i, 1);
+        }
+
         events[i].range[1] = events[i].range[0] + duration - 1;
       }
     }
@@ -94,17 +100,31 @@ const parseSchedule = (csv) => {
   }
 
   // Read the data
-  for (const [i, _] of schedule.entries()) {
+  for (const [day, _] of schedule.entries()) {
     for (
-      let col = i;
-      (!schedule.has(col) || col === i) && col < csv[0].length - 1;
+      let col = day;
+      (!schedule.has(col) || col === day) && col < csv[0].length - 1;
       ++col
     ) {
-      parseColumn(csv, schedule, i, col);
+      parseColumn(csv, schedule, day, col);
     }
   }
 
   insertBlankSpaces(schedule);
+
+  let schedule2 = [];
+  for (const [i, j] of schedule.entries()) {
+    for (const event of j.events) {
+      schedule2.push({
+        day: csv[0][i].trim(),
+        range: [csv[event.range[0]][0], csv[event.range[1]][0]],
+        event: event.event,
+      });
+    }
+  }
+
+  console.log(schedule2);
+  return schedule2;
 
   // log the schedule
   // for (const [i, j] of schedule.entries()) {
