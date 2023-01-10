@@ -1,21 +1,3 @@
-// TODO remove before merging
-// const fs = require("fs");
-
-// const csvFilePath = "public/Final_Deltahacks_schedule_-_FINAL.tsv";
-
-// const csvToArray = (csv) => {
-//   const rows = csv.split("\n");
-//   return rows.map((row) => { //     return row.split("\t"); //   });
-// };
-
-// fs.readFile(csvFilePath, (err, data) => {
-//   if (err) throw err;
-
-//   const csv = csvToArray(data.toString());
-//   parseschedule(csv);
-// });
-// TODO end remove before merging
-
 interface ScheduleEvent {
   range: [number, number];
   event: string;
