@@ -26,34 +26,61 @@ fs.readFile(csvFilePath, (err, data) => {
 
 // Parse the column of the csv
 const parseColumn = (csv, schedule, i, col) => {
-  let prevEvent = { events: [], row: -1 };
+  let prevEvent = { event: "", row: -1 };
+
   for (let row = 2; row < csv.length; ++row) {
     if (csv[row][col] === "") continue;
-    else if (prevEvent.events.length && csv[row][0] !== "") {
+    else if (prevEvent.event !== "") {
       // Parse all the events in the column
-      for (const event of prevEvent.events) {
-        schedule.get(i).events.push({
-          range: [csv[prevEvent.row][0], csv[row][0]],
-          event: event,
-        });
-      }
-      prevEvent = { events: [], row };
+      schedule.get(i).events.push({
+        range: [csv[prevEvent.row][0], csv[row - 1][0]],
+        event: prevEvent.event,
+      });
     }
+
+    prevEvent = { event: csv[row][col], row };
   }
 };
 
 const parseSchedule = (csv) => {
   let schedule = new Map();
 
+  // Pre Processing
+  // Add row of placeholders for last row in csv for algorithm
+  csv.push(Array(csv[0].length).fill("A"));
+  // Fill in the gaps in the time column
+  for (let row = 3; row < csv.length; ++row) {
+    if (csv[row][0] !== "") continue;
+    csv[row][0] = csv[row - 1][0];
+  }
+
+  // Name of event: their actual duration (in rows)
+  // ? data doesn't represent blank spaces in the schedule so here's me hard coding it
+  const EVENT_EXCEPTIONS = new Map([
+    ["Note", 0],
+    ["Fire Drill Training at 10:00am - OUTSIDE (LOT G)", 1],
+    ["Breakfast Clean-up (11:00 am)  - B138", 1],
+    ["Lunch Clean-up (2:00) - B138", 1],
+    ["Graph QL Workshop w/ HyperCare - 124", 2],
+    ["Andriod APP w Afzal Najam (127)", 2],
+    ["JAX Workshop, (ROOM 124)", 2],
+    ["Dinner Setup (6:30) - B138", 1],
+    ["Sponsor Showcase Cleanup - M21", 1],
+    ["Cup Stacking Cleanup (10:00)", 1],
+    ["Midnight Snack Cleanup (1:00)", 1],
+    ["Sleeping room CLOSED/Clean up  - M12, M22, M24, M25", 1],
+    ["Breakfast Clean-up (10:00 am)", 1],
+    ["Submissions due at 12:00 pm", 1],
+    ["Lunch Cleanup (1:30 pm) - B1381", 1],
+    ["Closing Ceremony Setup (2:30 pm)", 1],
+    ["Judging - M21 (4:00-5:00)", 2],
+  ]);
+
   // read the first row to get the columns
-  for (let i = 2; i < csv[0].length; ++i) {
+  for (let i = 2; i < csv[0].length - 1; ++i) {
     if (csv[0][i] === "") continue;
     schedule.set(i, { events: [], day: csv[0][i].trim() });
   }
-
-  // Add row of placeholders for last row in csv for algorithm
-  csv.push(Array(csv[0].length).fill("A"));
-  csv[csv.length - 1][0] = csv[csv.length - 2][0];
 
   // Read the data
   for (const [i, _] of schedule.entries()) {
