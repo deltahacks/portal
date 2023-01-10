@@ -19,7 +19,7 @@ const Schedule: NextPage = () => {
       Id: 1,
       Subject: "Meeting",
       StartTime: new Date(2023, 1, 15, 10, 0),
-      EndTime: new Date(2023, 1, 15, 12, 30),
+      EndTime: new Date(2023, 1, 15, 12, 31),
     },
   ];
 
