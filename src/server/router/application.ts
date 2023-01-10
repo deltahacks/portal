@@ -8,6 +8,7 @@ import { TRPCError } from "@trpc/server";
 export const applicationRouter = createProtectedRouter()
   .query("received", {
     async resolve({ ctx }) {
+
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
       });
