@@ -22,8 +22,7 @@ interface ScheduleEvent {
 }
 
 interface Schedule2Event {
-  day: string;
-  range: [string, string];
+  range: [Date, Date];
   event: string;
 }
 
@@ -133,15 +132,15 @@ const parseSchedule = (csv: string[][]) => {
   const schedule2: Schedule2Event[] = [];
   schedule.forEach(({ events }, col) => {
     for (const event of events) {
+      const day = csv[0]?.[col]?.trim() ?? "";
+      const start = csv[event.range[0]]?.[0]?.split("-")[0] ?? "";
+      const end = csv[event.range[1]]?.[0]?.split("-")[1] ?? "";
       schedule2.push({
-        day: csv[0]?.[col]?.trim() ?? "",
-        range: [csv[event.range[0]]?.[0] ?? "", csv[event.range[1]]?.[0] ?? ""],
+        range: [new Date(`${day} ${start}`), new Date(`${day} ${end}`)],
         event: event.event,
       });
     }
   });
-
-  console.log(schedule2);
 
   return schedule2;
 
