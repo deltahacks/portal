@@ -62,7 +62,7 @@ const QrScanner: React.FC<QRScannerProps> = ({
     <div className="">
       <QrReader
         onResult={handleInternalScan}
-        scanDelay={scanDelay as any} // VERY HACKY VERY HACKY this is bad bad code. too bad!
+        scanDelay={scanDelay as any} // VERY HACKY VERY HACKY this is terrible code. too bad!
         constraints={{
           facingMode: { ideal: "environment" },
         }}
