@@ -51,7 +51,7 @@ const parseColumn = (
       });
     }
 
-    prevEvent = { event: csv[row][col].trim(), row };
+    prevEvent = { event: csv[row]?.[col]?.trim() ?? "", row };
   }
 };
 
