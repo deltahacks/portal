@@ -1,4 +1,8 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
+  NextPage,
+} from "next";
 import Head from "next/head";
 import { getSession, signOut, useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
@@ -11,6 +15,8 @@ import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
+import { rbac } from "../components/RBACWrapper";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -223,4 +229,18 @@ const Checkin: NextPage = () => {
     </>
   );
 };
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
+  output = rbac(
+    await getServerAuthSession(context),
+    ["ADMIN"],
+    undefined,
+    output
+  );
+  return output;
+};
+
 export default Checkin;
