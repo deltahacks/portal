@@ -33,14 +33,19 @@ interface ScheduleDay {
 }
 
 // Parse the column of the csv
-const parseColumn = (csv: string[][], schedule, day, col) => {
+const parseColumn = (
+  csv: string[][],
+  schedule: Map<number, ScheduleDay>,
+  dayCol: number,
+  col: number
+) => {
   let prevEvent = { event: "", row: -1 };
 
   for (let row = 2; row < csv.length; ++row) {
-    if (csv[row][col] === "") continue;
+    if (csv[row]?.[col] === "") continue;
     else if (prevEvent.event !== "") {
       // Parse all the events in the column
-      schedule.get(day).events.push({
+      schedule.get(dayCol)?.events.push({
         range: [prevEvent.row, row - 1],
         event: prevEvent.event,
       });
@@ -50,42 +55,45 @@ const parseColumn = (csv: string[][], schedule, day, col) => {
   }
 };
 
-const insertBlankSpaces = (schedule) => {
+const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
   // Name of event: their actual duration (in rows)
   // ? data doesn't represent blank spaces in the schedule so here's me hard coding it
   const EVENT_EXCEPTIONS = [
-    ["Note", 0],
-    ["Fire Drill Training at 10:00am - OUTSIDE (LOT G)", 1],
-    ["Breakfast Clean-up (11:00 am)  - B138", 1],
-    ["Lunch Clean-up (2:00) - B138", 1],
-    ["Graph QL Workshop w/ HyperCare - 124", 2],
-    ["Andriod APP w Afzal Najam (127)", 2],
-    ["JAX Workshop, (ROOM 124)", 2],
-    ["Dinner Setup (6:30) - B138", 1],
-    ["Sponsor Showcase Cleanup - M21", 1],
-    ["Cup Stacking Cleanup (10:00)", 1],
-    ["Midnight Snack Cleanup (1:00)", 1],
-    ["Sleeping room CLOSED/Clean up  - M12, M22, M24, M25", 1],
-    ["Breakfast Clean-up (10:00 am)", 1],
-    ["Submissions due at 12:00 pm", 1],
-    ["Lunch Cleanup (1:30 pm) - B1381", 1],
-    ["Closing Ceremony Setup (2:30 pm)", 1],
-    ["Judging - M21 (4:00-5:00)", 2],
+    { event: "Note", duration: 0 },
+    { event: "Fire Drill Training at 10:00am - OUTSIDE (LOT G)", duration: 1 },
+    { event: "Breakfast Clean-up (11:00 am)  - B138", duration: 1 },
+    { event: "Lunch Clean-up (2:00) - B138", duration: 1 },
+    { event: "Graph QL Workshop w/ HyperCare - 124", duration: 2 },
+    { event: "Andriod APP w Afzal Najam (127)", duration: 2 },
+    { event: "JAX Workshop, (ROOM 124)", duration: 2 },
+    { event: "Dinner Setup (6:30) - B138", duration: 1 },
+    { event: "Sponsor Showcase Cleanup - M21", duration: 1 },
+    { event: "Cup Stacking Cleanup (10:00)", duration: 1 },
+    { event: "Midnight Snack Cleanup (1:00)", duration: 1 },
+    {
+      event: "Sleeping room CLOSED/Clean up  - M12, M22, M24, M25",
+      duration: 1,
+    },
+    { event: "Breakfast Clean-up (10:00 am)", duration: 1 },
+    { event: "Submissions due at 12:00 pm", duration: 1 },
+    { event: "Lunch Cleanup (1:30 pm) - B1381", duration: 1 },
+    { event: "Closing Ceremony Setup (2:30 pm)", duration: 1 },
+    { event: "Judging - M21 (4:00-5:00)", duration: 2 },
   ];
 
-  for (const [event, duration] of EVENT_EXCEPTIONS) {
-    for (const [day, { events }] of schedule.entries()) {
+  for (const { event: eventException, duration } of EVENT_EXCEPTIONS) {
+    schedule.forEach(({ events }) => {
       for (let i = 0; i < events.length; ++i) {
-        if (events[i].event !== event) continue;
+        if (events[i]?.event !== eventException) continue;
 
         // Remove anything with duration 0
         if (duration === 0) {
           events.splice(i, 1);
         }
-
-        events[i].range[1] = events[i].range[0] + duration - 1;
+        const event = events[i] ?? { range: [0, 0], event: "" };
+        event.range[1] = event.range[0] + duration - 1;
       }
-    }
+    });
   }
 };
 
@@ -110,21 +118,21 @@ const parseSchedule = (csv: string[][]) => {
   }
 
   // Read the data
-  schedule.forEach((_, day) => {
+  schedule.forEach((_, dayCol) => {
     for (
-      let col = day;
-      (!schedule.has(col) || col === day) && col < (csv[0]?.length ?? 0) - 1;
+      let col = dayCol;
+      (!schedule.has(col) || col === dayCol) && col < (csv[0]?.length ?? 0) - 1;
       ++col
     ) {
-      parseColumn(csv, schedule, day, col);
+      parseColumn(csv, schedule, dayCol, col);
     }
   });
 
   insertBlankSpaces(schedule);
 
   const schedule2: Schedule2Event[] = [];
-  schedule.forEach((day, col) => {
-    for (const event of day.events) {
+  schedule.forEach(({ events }, col) => {
+    for (const event of events) {
       schedule2.push({
         day: csv[0]?.[col]?.trim() ?? "",
         range: [csv[event.range[0]]?.[0] ?? "", csv[event.range[1]]?.[0] ?? ""],
