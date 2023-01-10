@@ -33,30 +33,19 @@ const parseColumn = (csv, schedule, i, col) => {
     else if (prevEvent.event !== "") {
       // Parse all the events in the column
       schedule.get(i).events.push({
-        range: [csv[prevEvent.row][0], csv[row - 1][0]],
+        range: [prevEvent.row, row - 1],
         event: prevEvent.event,
       });
     }
 
-    prevEvent = { event: csv[row][col], row };
+    prevEvent = { event: csv[row][col].trim(), row };
   }
 };
 
-const parseSchedule = (csv) => {
-  let schedule = new Map();
-
-  // Pre Processing
-  // Add row of placeholders for last row in csv for algorithm
-  csv.push(Array(csv[0].length).fill("A"));
-  // Fill in the gaps in the time column
-  for (let row = 3; row < csv.length; ++row) {
-    if (csv[row][0] !== "") continue;
-    csv[row][0] = csv[row - 1][0];
-  }
-
+const insertBlankSpaces = (schedule) => {
   // Name of event: their actual duration (in rows)
   // ? data doesn't represent blank spaces in the schedule so here's me hard coding it
-  const EVENT_EXCEPTIONS = new Map([
+  const EVENT_EXCEPTIONS = [
     ["Note", 0],
     ["Fire Drill Training at 10:00am - OUTSIDE (LOT G)", 1],
     ["Breakfast Clean-up (11:00 am)  - B138", 1],
@@ -74,7 +63,29 @@ const parseSchedule = (csv) => {
     ["Lunch Cleanup (1:30 pm) - B1381", 1],
     ["Closing Ceremony Setup (2:30 pm)", 1],
     ["Judging - M21 (4:00-5:00)", 2],
-  ]);
+  ];
+
+  for (const [event, duration] of EVENT_EXCEPTIONS) {
+    for (const [_, { events }] of schedule.entries()) {
+      for (let i = 0; i < events.length; ++i) {
+        if (events[i].event !== event) continue;
+        events[i].range[1] = events[i].range[0] + duration - 1;
+      }
+    }
+  }
+};
+
+const parseSchedule = (csv) => {
+  let schedule = new Map();
+
+  // Pre Processing
+  // Add row of placeholders for last row in csv for algorithm
+  csv.push(Array(csv[0].length).fill("A"));
+  // Fill in the gaps in the time column
+  for (let row = 3; row < csv.length; ++row) {
+    if (csv[row][0] !== "") continue;
+    csv[row][0] = csv[row - 1][0];
+  }
 
   // read the first row to get the columns
   for (let i = 2; i < csv[0].length - 1; ++i) {
@@ -86,17 +97,23 @@ const parseSchedule = (csv) => {
   for (const [i, _] of schedule.entries()) {
     for (
       let col = i;
-      (!schedule.has(col) || col === i) && col < csv[0].length;
+      (!schedule.has(col) || col === i) && col < csv[0].length - 1;
       ++col
     ) {
       parseColumn(csv, schedule, i, col);
     }
   }
 
-  for (const [i, j] of schedule.entries()) {
-    console.log(i);
-    for (const event of j.events) {
-      console.log(event.range, event.event);
-    }
-  }
+  insertBlankSpaces(schedule);
+
+  // log the schedule
+  // for (const [i, j] of schedule.entries()) {
+  //   console.log(i);
+  //   for (const event of j.events) {
+  //     console.log(
+  //       [csv[event.range[0]][0], csv[event.range[1]][0]],
+  //       event.event
+  //     );
+  //   }
+  // }
 };
