@@ -23,17 +23,7 @@ const Schedule: NextPage = () => {
     });
   };
 
-  // Change theme of calendar and load in the tsv
-  React.useEffect(() => {
-    const csvFilePath = "./Final_Deltahacks_Schedule_-_FINAL.tsv";
-    fetch(csvFilePath)
-      .then((response) => response.text())
-      .then((response) => {
-        // -- parse csv
-        const csv = csvToArray(response);
-        setEvents(parseSchedule(csv));
-      });
-
+  const adjustStyles = () => {
     const adjustStyleOf = (
       element: string,
       className: string,
@@ -47,7 +37,10 @@ const Schedule: NextPage = () => {
           className: "",
           style: { outline: "", height: "" },
         };
-        el.className = el.className + " " + className;
+        if (element === ".fc-event-title") {
+          console.log(el.className, className);
+        }
+        el.className += " " + className;
         el.style.outline = outline;
         el.style.height = height;
         el.style.whiteSpace = whiteSpace;
@@ -58,9 +51,23 @@ const Schedule: NextPage = () => {
       adjustStyleOf(".fc-view-harness", "bg-white");
       adjustStyleOf("table", "", "1px solid black");
       adjustStyleOf("h2", "text-white");
-      adjustStyleOf(".fc-timegrid-slot", "", "", "2.5rem");
-      adjustStyleOf(".fc-event-title", "");
+      adjustStyleOf(".fc-timegrid-slot", "", "", "7em");
+      adjustStyleOf(".fc-event-title", "pr-20 md:pr-40");
+      adjustStyleOf(".fc-event", "");
     }, 250);
+  };
+
+  // Change theme of calendar and load in the tsv
+  React.useEffect(() => {
+    const csvFilePath = "./Final_Deltahacks_Schedule_-_FINAL.tsv";
+    fetch(csvFilePath)
+      .then((response) => response.text())
+      .then((response) => {
+        // -- parse csv
+        const csv = csvToArray(response);
+        setEvents(parseSchedule(csv));
+      });
+    adjustStyles();
   }, []);
 
   const Calendar = ({ size }: { size: string }) => {
@@ -76,6 +83,7 @@ const Schedule: NextPage = () => {
         headerToolbar={{
           left: "prev,next today",
           center: "title",
+          right: "",
         }}
         initialView="timeGridDay"
         displayEventTime={false}
@@ -88,7 +96,7 @@ const Schedule: NextPage = () => {
     <div className="drawer-content absolute h-screen w-screen">
       <Background />
       <NavBar />
-      <div className="py-5 px-9 lg:py-8 lg:px-10">
+      <div className="py-5 px-9 lg:py-8 lg:px-10" onClick={adjustStyles}>
         <div className="h-full text-black lg:hidden">
           <Calendar size="small" />
         </div>

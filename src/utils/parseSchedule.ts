@@ -120,10 +120,10 @@ const parseSchedule = (csv: string[][]) => {
       const end = csv[event.range[1]]?.[0]?.split("-")[1] ?? "";
 
       // Remove time stamps from event.event
-      const title = event.event
-        .replace(/\(?\d{1,2}:\d{1,2}(am|pm)?( ?- ?\d{1,2}:\d\d(am|pm)?)?/g, "")
-        .replace(/\(\)/g, "");
-      console.log(title);
+      const title = event.event.replace(
+        /\(?\d{1,2}:\d{1,2} ?(am|pm)?( ?- ?\d{1,2}:\d\d ?(am|pm)?)?\)? ?/g,
+        ""
+      );
 
       schedule2.push({
         title: title,
