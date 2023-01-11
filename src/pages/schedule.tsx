@@ -37,42 +37,35 @@ const Schedule: NextPage = () => {
     const adjustStyleOf = (
       element: string,
       className: string,
-      outline: string,
-      height: string
+      outline = "",
+      height = "",
+      whiteSpace = ""
     ) => {
       const elements = document.querySelectorAll(element) ?? [];
       for (let i = 0; i < elements.length; ++i) {
-        const el = elements[i] ?? {
+        const el = (elements[i] as HTMLElement) ?? {
           className: "",
           style: { outline: "", height: "" },
         };
         el.className = el.className + " " + className;
         el.style.outline = outline;
         el.style.height = height;
+        el.style.whiteSpace = whiteSpace;
       }
     };
 
     setTimeout(() => {
-      adjustStyleOf(".fc-view-harness", "bg-white", "", "");
-      adjustStyleOf("table", "", "1px solid black", "");
-      adjustStyleOf("h2", "text-white", "", "");
+      adjustStyleOf(".fc-view-harness", "bg-white");
+      adjustStyleOf("table", "", "1px solid black");
+      adjustStyleOf("h2", "text-white");
       adjustStyleOf(".fc-timegrid-slot", "", "", "2.5rem");
+      adjustStyleOf(".fc-event-title", "");
     }, 250);
   }, []);
 
   const Calendar = ({ size }: { size: string }) => {
     const props =
-      size === "small"
-        ? {
-            height: 48 + 20 * 5,
-            initialView: "timeGridDay",
-            right: "",
-          }
-        : {
-            height: 64 + 32 * 3,
-            initialView: "timeGridWeek",
-            right: "timeGridWeek,timeGridDay",
-          };
+      size === "small" ? { height: 48 + 20 * 5 } : { height: 64 + 32 * 3 };
 
     return (
       <FullCalendar
@@ -83,9 +76,8 @@ const Schedule: NextPage = () => {
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: props.right,
         }}
-        initialView={props.initialView}
+        initialView="timeGridDay"
         displayEventTime={false}
         events={events}
       />
