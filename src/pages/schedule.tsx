@@ -1,36 +1,64 @@
 import { NextPage } from "next";
-import React from "react";
+import React, { useState } from "react";
 import FullCalendar from "@fullcalendar/react"; // must go before plugins
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
+import parseSchedule from "../utils/parseSchedule";
 
+interface Event {
+  title: string;
+  start: Date;
+  end: Date;
+}
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
-
 const Schedule: NextPage = () => {
-  const events = [
-    {
-      title: "meeting 1",
-      start: new Date(2023, 0, 10, 10, 0),
-      end: new Date(2023, 0, 10, 12, 30),
-    },
-  ];
-  const csvToArray = (csv: string) =>{
-    const rows = csv.split("\n")
-    return rows.map((row)=>{
-      return row.split("\t")
-    })
-  } 
-  const csvFilePath = "./Final_Deltahacks_Schedule_-_FINAL.tsv"
-  fetch( csvFilePath )
-    .then( response => response.text() )
-    .then( response => {
-        // -- parse csv
-        const csv = csvToArray(response)
-        console.log('data:', csv);
+  const [events, setEvents] = useState<Event[]>([]);
+  const csvToArray = (csv: string) => {
+    const rows = csv.split("\n");
+    return rows.map((row) => {
+      return row.split("\t");
     });
+  };
+
+  // Change theme of calendar and load in the tsv
+  React.useEffect(() => {
+    const csvFilePath = "./Final_Deltahacks_Schedule_-_FINAL.tsv";
+    fetch(csvFilePath)
+      .then((response) => response.text())
+      .then((response) => {
+        // -- parse csv
+        const csv = csvToArray(response);
+        setEvents(parseSchedule(csv));
+      });
+
+    const adjustStyleOf = (
+      element: string,
+      className: string,
+      outline: string,
+      height: string
+    ) => {
+      const elements = document.querySelectorAll(element) ?? [];
+      for (let i = 0; i < elements.length; ++i) {
+        const el = elements[i] ?? {
+          className: "",
+          style: { outline: "", height: "" },
+        };
+        el.className = el.className + " " + className;
+        el.style.outline = outline;
+        el.style.height = height;
+      }
+    };
+
+    setTimeout(() => {
+      adjustStyleOf(".fc-view-harness", "bg-white", "", "");
+      adjustStyleOf("table", "", "1px solid black", "");
+      adjustStyleOf("h2", "text-white", "", "");
+      adjustStyleOf(".fc-timegrid-slot", "", "", "2.5rem");
+    }, 250);
+  }, []);
 
   const Calendar = ({ size }: { size: string }) => {
     const props =
@@ -58,31 +86,11 @@ const Schedule: NextPage = () => {
           right: props.right,
         }}
         initialView={props.initialView}
+        displayEventTime={false}
         events={events}
       />
     );
   };
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      const calendars = document.querySelectorAll(".fc-view-harness") ?? [
-        { className: "" },
-      ];
-      for (let i = 0; i < calendars.length; ++i) {
-        const calendar = calendars[i] ?? { className: "" };
-        calendar.className = calendar.className + " bg-white";
-      }
-
-      const tables = document.querySelectorAll("table");
-      for (let i = 0; i < tables.length; ++i) {
-        const table = tables[i] ?? { style: { outline: "" } };
-        table.style.outline = "1px solid black";
-      }
-
-      const title = document.querySelector("h2") ?? { className: "" };
-      title.className = title.className + " text-white";
-    }, 250);
-  }, []);
 
   return (
     <div className="drawer-content absolute h-screen w-screen">

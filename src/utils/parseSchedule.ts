@@ -4,8 +4,9 @@ interface ScheduleEvent {
 }
 
 interface Schedule2Event {
-  range: [Date, Date];
-  event: string;
+  title: string;
+  start: Date;
+  end: Date;
 }
 
 interface ScheduleDay {
@@ -117,9 +118,17 @@ const parseSchedule = (csv: string[][]) => {
       const day = csv[0]?.[col]?.trim() ?? "";
       const start = csv[event.range[0]]?.[0]?.split("-")[0] ?? "";
       const end = csv[event.range[1]]?.[0]?.split("-")[1] ?? "";
+
+      // Remove time stamps from event.event
+      const title = event.event
+        .replace(/\(?\d{1,2}:\d{1,2}(am|pm)?( ?- ?\d{1,2}:\d\d(am|pm)?)?/g, "")
+        .replace(/\(\)/g, "");
+      console.log(title);
+
       schedule2.push({
-        range: [new Date(`${day} ${start}`), new Date(`${day} ${end}`)],
-        event: event.event,
+        title: title,
+        start: new Date(`${day} ${start}`),
+        end: new Date(`${day} ${end}`),
       });
     }
   });
