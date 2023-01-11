@@ -6,6 +6,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 
+
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
 
 const Schedule: NextPage = () => {
@@ -16,6 +17,20 @@ const Schedule: NextPage = () => {
       end: new Date(2023, 0, 10, 12, 30),
     },
   ];
+  const csvToArray = (csv: string) =>{
+    const rows = csv.split("\n")
+    return rows.map((row)=>{
+      return row.split("\t")
+    })
+  } 
+  const csvFilePath = "./Final_Deltahacks_Schedule_-_FINAL.tsv"
+  fetch( csvFilePath )
+    .then( response => response.text() )
+    .then( response => {
+        // -- parse csv
+        const csv = csvToArray(response)
+        console.log('data:', csv);
+    });
 
   const Calendar = ({ size }: { size: string }) => {
     const props =
