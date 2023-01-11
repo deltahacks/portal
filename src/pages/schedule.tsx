@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import * as React from "react";
+import React from "react";
 import FullCalendar from "@fullcalendar/react"; // must go before plugins
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -18,45 +18,53 @@ const Schedule: NextPage = () => {
   ];
 
   const Calendar = ({ size }: { size: string }) => {
-    if (size === "small") {
-      return (
-        <FullCalendar
-          height="100%t "
-          plugins={[dayGridPlugin, timeGridPlugin]}
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-          }}
-          initialView="timeGridDay"
-          events={events}
-        />
-      );
-    }
+    const props =
+      size === "small"
+        ? {
+            height: 48 + 20 * 5,
+            initialView: "timeGridDay",
+            right: "",
+          }
+        : {
+            height: 64 + 32 * 3,
+            initialView: "timeGridWeek",
+            right: "timeGridWeek,timeGridDay",
+          };
+
     return (
       <FullCalendar
-        height="100%"
+        height={`calc(100vh - ${props.height}px)`}
         plugins={[dayGridPlugin, timeGridPlugin]}
+        nowIndicator={true}
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "timeGridWeek,timeGridDay",
+          right: props.right,
         }}
-        initialView="timeGridWeek"
+        initialView={props.initialView}
         events={events}
       />
     );
   };
 
+  React.useEffect(() => {
+    const fcDayToday = document.querySelector(".fc-day-today") ?? {
+      style: { background: "" },
+    };
+    fcDayToday.style.background = "#F9FAFB !important";
+    fcDayToday.style.border = "none !important";
+  });
+
   return (
-    <div className="drawer-content">
+    <div className="drawer-content absolute h-screen w-screen">
       <Background />
       <NavBar />
-      <div className="p-8">
-        <div className="hidden lg:block">
-          <Calendar size="medium" />
-        </div>
-        <div className="lg:hidden">
+      <div className="py-5 px-9 lg:py-8 lg:px-10">
+        <div className="h-full lg:hidden">
           <Calendar size="small" />
+        </div>
+        <div className="hidden h-full lg:block">
+          <Calendar size="large" />
         </div>
       </div>
     </div>
