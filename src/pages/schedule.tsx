@@ -34,6 +34,7 @@ const Schedule: NextPage = () => {
     return (
       <FullCalendar
         height={`calc(100vh - ${props.height}px)`}
+        themeSystem="bootstrap"
         plugins={[dayGridPlugin, timeGridPlugin]}
         nowIndicator={true}
         headerToolbar={{
@@ -48,22 +49,35 @@ const Schedule: NextPage = () => {
   };
 
   React.useEffect(() => {
-    const fcDayToday = document.querySelector(".fc-day-today") ?? {
-      style: { background: "" },
-    };
-    fcDayToday.style.background = "#F9FAFB !important";
-    fcDayToday.style.border = "none !important";
-  });
+    setTimeout(() => {
+      const calendars = document.querySelectorAll(".fc-view-harness") ?? [
+        { className: "" },
+      ];
+      for (let i = 0; i < calendars.length; ++i) {
+        const calendar = calendars[i] ?? { className: "" };
+        calendar.className = calendar.className + " bg-white";
+      }
+
+      const tables = document.querySelectorAll("table");
+      for (let i = 0; i < tables.length; ++i) {
+        const table = tables[i] ?? { style: { outline: "" } };
+        table.style.outline = "1px solid black";
+      }
+
+      const title = document.querySelector("h2") ?? { className: "" };
+      title.className = title.className + " text-white";
+    }, 250);
+  }, []);
 
   return (
     <div className="drawer-content absolute h-screen w-screen">
       <Background />
       <NavBar />
       <div className="py-5 px-9 lg:py-8 lg:px-10">
-        <div className="h-full lg:hidden">
+        <div className="h-full text-black lg:hidden">
           <Calendar size="small" />
         </div>
-        <div className="hidden h-full lg:block">
+        <div className="hidden h-full text-black lg:block">
           <Calendar size="large" />
         </div>
       </div>
