@@ -17,11 +17,12 @@ interface Event {
 }
 
 const eventColours = [
-  { id: 0, color: "#50d2de" },
-  { id: 1, color: "#fed750" },
-  { id: 2, color: "#eb5e7a" },
-  { id: 3, color: "#aa7ef7" },
-  { id: 4, color: "rgba(250, 250, 250, 88%)" },
+  { id: 0, color: "rgba(250, 250, 250, 88%)" },
+  { id: 1, color: "#50d2de" },
+  { id: 2, color: "#fed750" },
+  { id: 3, color: "#eb5e7a" },
+  { id: 4, color: "#aa7ef7" },
+  { id: 5, color: "#7ee683" },
 ];
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
@@ -39,14 +40,14 @@ const Schedule: NextPage = () => {
           endDate: new Date("2023-1-13 23:59"),
           disabled: true,
           allDay: true,
-          colorId: 4,
+          colorId: 0,
         },
         ...(await parseSchedule()).map((v) => ({
           ...v,
           disabled: true,
           allDay: false,
           // Randomize the colour of the event
-          colorId: Math.floor(Math.random() * (eventColours.length - 1)),
+          colorId: Math.floor(Math.random() * (eventColours.length - 1) + 1),
         })),
       ];
       setEvents(data);

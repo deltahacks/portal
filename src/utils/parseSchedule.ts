@@ -174,6 +174,7 @@ const tsvToArray = (csv: string) => {
   });
 };
 
+// Read from the file parse it
 const parseSchedule = async () => {
   const response = await (
     await fetch("./Final_Deltahacks_Schedule_-_FINAL.tsv")
