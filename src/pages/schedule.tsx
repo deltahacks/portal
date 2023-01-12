@@ -58,19 +58,37 @@ const Schedule: NextPage = () => {
       <div className="flex-initial">
         <NavBar />
       </div>
-      <div className="flex-auto p-9">
-        <Scheduler
-          className="h-[95%]"
-          dataSource={events}
-          views={["timelineDay"]}
-          defaultCurrentView="timelineDay"
-          defaultCurrentDate={currentDate}
-          cellDuration={60}
-          firstDayOfWeek={0}
-          onCellClick={(e) => {
-            e.cancel = true;
-          }}
-        />
+      <div className="flex-auto overflow-hidden p-9">
+        {/* desktop view */}
+        <div className="h-[95%] sm:hidden">
+          <Scheduler
+            className="h-full"
+            dataSource={events}
+            views={["timelineDay", "agenda"]}
+            defaultCurrentView="agenda"
+            defaultCurrentDate={currentDate}
+            cellDuration={60}
+            firstDayOfWeek={0}
+            onCellClick={(e) => {
+              e.cancel = true;
+            }}
+          />
+        </div>
+        {/* desktop view */}
+        <div className="hidden h-[95%] sm:block">
+          <Scheduler
+            className="h-full"
+            dataSource={events}
+            views={["timelineDay", "agenda"]}
+            defaultCurrentView="timelineDay"
+            defaultCurrentDate={currentDate}
+            cellDuration={60}
+            firstDayOfWeek={0}
+            onCellClick={(e) => {
+              e.cancel = true;
+            }}
+          />
+        </div>
       </div>
     </div>
   );
