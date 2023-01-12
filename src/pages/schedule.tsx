@@ -10,8 +10,9 @@ import "devextreme/dist/css/dx.dark.css";
 interface Event {
   text: string;
   startDate: Date;
-  endDate: Date;
+  endDate?: Date;
   disabled: boolean;
+  allDay: boolean;
   colorId: number;
 }
 
@@ -20,6 +21,7 @@ const eventColours = [
   { id: 1, color: "#fed750" },
   { id: 2, color: "#eb5e7a" },
   { id: 3, color: "#aa7ef7" },
+  { id: 4, color: "rgba(250, 250, 250, 70%)" },
 ];
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
@@ -43,14 +45,24 @@ const Schedule: NextPage = () => {
           eventColours[Math.floor(Math.random() * eventColours.length)]
         );
         // -- parse csv
-        const tsv = csvToArray(response);
-        setEvents(
-          parseSchedule(tsv).map((v) => ({
+        const csv = csvToArray(response);
+        const data = [
+          {
+            text: "ALL DAY ONLINE",
+            startDate: new Date("2023-01-13 17:30"),
+            endDate: new Date("2023-01-13 23:59"),
+            disabled: true,
+            allDay: true,
+            colorId: 4,
+          },
+          ...parseSchedule(csv).map((v) => ({
             ...v,
             disabled: true,
-            colorId: Math.floor(Math.random() * eventColours.length),
-          }))
-        );
+            allDay: false,
+            colorId: Math.floor(Math.random() * (eventColours.length - 1)),
+          })),
+        ];
+        setEvents(data);
       });
   }, []);
 
