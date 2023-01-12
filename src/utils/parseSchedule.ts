@@ -7,7 +7,6 @@ interface Schedule2Event {
   text: string;
   startDate: Date;
   endDate: Date;
-  disabled: boolean;
 }
 
 interface ScheduleDay {
@@ -146,7 +145,6 @@ const parseSchedule = (csvOG: string[][]) => {
         text: event.event,
         startDate: new Date(`${day} ${start}`),
         endDate: new Date(`${day} ${end}`),
-        disabled: true,
       });
     }
   });
