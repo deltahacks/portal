@@ -48,7 +48,6 @@ const Schedule: NextPage = () => {
       .then((response) => {
         // -- parse csv
         const tsv = csvToArray(response);
-        console.log(parseSchedule(tsv));
         setEvents(parseSchedule(tsv));
       });
   }, []);
@@ -68,6 +67,9 @@ const Schedule: NextPage = () => {
           defaultCurrentDate={currentDate}
           cellDuration={60}
           firstDayOfWeek={0}
+          onCellClick={(e) => {
+            e.cancel = true;
+          }}
         />
       </div>
     </div>
