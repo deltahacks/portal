@@ -24,9 +24,11 @@ const RedirectToDashboard: React.FC = () => {
 };
 
 const FoodManagerView: React.FC = () => {
-  return <>
-    <QrScanner />
-  </>;
+  return (
+    <>
+      <QrScanner />
+    </>
+  );
 };
 const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
@@ -39,7 +41,7 @@ const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
   const stateMap = {
     [Role.ADMIN]: <FoodManagerView />,
-    // [Role.FOOD_MANAGER]: <FoodManagerView />,
+    [Role.FOOD_MANAGER]: <FoodManagerView />,
     [Role.HACKER]: <RedirectToDashboard />,
     [Role.REVIEWER]: <RedirectToDashboard />,
     // Add security guard and eventes people
