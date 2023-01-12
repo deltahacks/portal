@@ -28,40 +28,29 @@ const eventColours = [
 const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
 
-  const csvToArray = (csv: string) => {
-    const rows = csv.split("\n");
-    return rows.map((row) => {
-      return row.split("\t");
-    });
-  };
-
   // Load in the tsv into the scheduler
   React.useEffect(() => {
-    fetch("./Final_Deltahacks_Schedule_-_FINAL.tsv")
-      .then((response) => response.text())
-      .then((response) => {
-        // parse csv
-        const csv = csvToArray(response);
-        // Add all day online for the first day
-        const data = [
-          {
-            text: "All Day Online",
-            startDate: new Date("2023-1-13 17:30"),
-            endDate: new Date("2023-1-13 23:59"),
-            disabled: true,
-            allDay: true,
-            colorId: 4,
-          },
-          ...parseSchedule(csv).map((v) => ({
-            ...v,
-            disabled: true,
-            allDay: false,
-            // Randomize the colour of the event
-            colorId: Math.floor(Math.random() * (eventColours.length - 1)),
-          })),
-        ];
-        setEvents(data);
-      });
+    (async () => {
+      // Add all day online for the first day
+      const data = [
+        {
+          text: "All Day Online",
+          startDate: new Date("2023-1-13 17:30"),
+          endDate: new Date("2023-1-13 23:59"),
+          disabled: true,
+          allDay: true,
+          colorId: 4,
+        },
+        ...(await parseSchedule()).map((v) => ({
+          ...v,
+          disabled: true,
+          allDay: false,
+          // Randomize the colour of the event
+          colorId: Math.floor(Math.random() * (eventColours.length - 1)),
+        })),
+      ];
+      setEvents(data);
+    })();
   }, []);
 
   const Schedule = ({ defaultCurrentView }: { defaultCurrentView: string }) => {

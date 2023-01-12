@@ -14,17 +14,17 @@ interface ScheduleDay {
   day: string;
 }
 
-// Parse the column of the csv
+// Parse the column of the tsv
 const parseColumn = (
-  csv: string[][],
+  tsv: string[][],
   schedule: Map<number, ScheduleDay>,
   dayCol: number,
   col: number
 ) => {
   let prevEvent = { event: "", row: -1 };
 
-  for (let row = 2; row < csv.length; ++row) {
-    if (csv[row]?.[col] === "") continue;
+  for (let row = 2; row < tsv.length; ++row) {
+    if (tsv[row]?.[col] === "") continue;
     else if (prevEvent.event !== "") {
       // Parse all the events in the column
       schedule.get(dayCol)?.events.push({
@@ -33,7 +33,7 @@ const parseColumn = (
       });
     }
 
-    prevEvent = { event: csv[row]?.[col]?.trim() ?? "", row };
+    prevEvent = { event: tsv[row]?.[col]?.trim() ?? "", row };
   }
 };
 
@@ -96,23 +96,23 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
   }
 };
 
-const parseSchedule = (csvOG: string[][]) => {
-  // Copy csvOG into csv
-  const csv = csvOG.map((row) => [...row]);
+const parseTsv = (tsvOG: string[][]) => {
+  // Copy tsvOG into tsv
+  const tsv = tsvOG.map((row) => [...row]);
   const schedule = new Map<number, ScheduleDay>();
 
   // Pre Processing
-  // Add row of placeholders for last row in csv for algorithm
-  csv.push(Array(csv[0]?.length).fill("A"));
+  // Add row of placeholders for last row in tsv for algorithm
+  tsv.push(Array(tsv[0]?.length).fill("A"));
   // Fill in the gaps in the time column
-  for (let row = 3; row < csv.length; ++row) {
-    const rowArr = csv[row] ?? [];
+  for (let row = 3; row < tsv.length; ++row) {
+    const rowArr = tsv[row] ?? [];
     if (rowArr[0] !== "") continue;
-    rowArr[0] = csv[row - 1]?.[0] ?? "";
+    rowArr[0] = tsv[row - 1]?.[0] ?? "";
   }
 
   // read the first row to get the columns
-  const firstRow = csv[0] ?? [];
+  const firstRow = tsv[0] ?? [];
   for (let i = 2; i < firstRow.length - 1; ++i) {
     if (firstRow[i] === "") continue;
     schedule.set(i, { events: [], day: firstRow[i]?.trim() ?? "" });
@@ -122,10 +122,10 @@ const parseSchedule = (csvOG: string[][]) => {
   schedule.forEach((_, dayCol) => {
     for (
       let col = dayCol;
-      (!schedule.has(col) || col === dayCol) && col < (csv[0]?.length ?? 0) - 1;
+      (!schedule.has(col) || col === dayCol) && col < (tsv[0]?.length ?? 0) - 1;
       ++col
     ) {
-      parseColumn(csv, schedule, dayCol, col);
+      parseColumn(tsv, schedule, dayCol, col);
     }
   });
 
@@ -135,9 +135,9 @@ const parseSchedule = (csvOG: string[][]) => {
   const schedule2: Schedule2Event[] = [];
   schedule.forEach(({ events }, col) => {
     for (const event of events) {
-      const day = csv[0]?.[col]?.trim() ?? "";
-      const start = csv[event.range[0]]?.[0]?.split("-")[0] ?? "";
-      const end = csv[event.range[1]]?.[0]?.split("-")[1] ?? "";
+      const day = tsv[0]?.[col]?.trim() ?? "";
+      const start = tsv[event.range[0]]?.[0]?.split("-")[0] ?? "";
+      const end = tsv[event.range[1]]?.[0]?.split("-")[1] ?? "";
 
       // Remove time stamps from event.event
       // const text = event.event.replace(
@@ -160,11 +160,26 @@ const parseSchedule = (csvOG: string[][]) => {
   //   console.log(i);
   //   for (const event of j.events) {
   //     console.log(
-  //       [csv[event.range[0]][0], csv[event.range[1]][0]],
+  //       [tsv[event.range[0]][0], tsv[event.range[1]][0]],
   //       event.event
   //     );
   //   }
   // }
+};
+
+const tsvToArray = (csv: string) => {
+  const rows = csv.split("\n");
+  return rows.map((row) => {
+    return row.split("\t");
+  });
+};
+
+const parseSchedule = async () => {
+  const response = await (
+    await fetch("./Final_Deltahacks_Schedule_-_FINAL.tsv")
+  ).text();
+  const tsv = parseTsv(tsvToArray(response));
+  return tsv;
 };
 
 export default parseSchedule;
