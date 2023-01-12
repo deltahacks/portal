@@ -35,14 +35,14 @@ const Schedule: NextPage = () => {
     });
   };
 
-  // Change theme of calendar and load in the tsv
+  // Load in the tsv into the scheduler
   React.useEffect(() => {
-    const csvFilePath = "./Final_Deltahacks_Schedule_-_FINAL.tsv";
-    fetch(csvFilePath)
+    fetch("./Final_Deltahacks_Schedule_-_FINAL.tsv")
       .then((response) => response.text())
       .then((response) => {
-        // -- parse csv
+        // parse csv
         const csv = csvToArray(response);
+        // Add all day online for the first day
         const data = [
           {
             text: "All Day Online",
@@ -64,11 +64,13 @@ const Schedule: NextPage = () => {
   }, []);
 
   const Schedule = ({ defaultCurrentView }: { defaultCurrentView: string }) => {
+    // If the user is out of range of the event default them to the start date
     const curDate = new Date(Date.now());
     const defaultCurrentDate =
       curDate < new Date("2023-1-13") || new Date("2023-1-15") < curDate
         ? new Date("2023-1-13")
         : curDate;
+
     return (
       <Scheduler
         className="h-full"

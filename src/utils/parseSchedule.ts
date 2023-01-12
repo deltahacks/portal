@@ -38,7 +38,7 @@ const parseColumn = (
 };
 
 const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
-  // Name of event: their actual duration (in rows)
+  // { event: Name of event, duration: their actual duration (in rows) }
   // ? data doesn't represent blank spaces in the schedule so here's me hard coding it
   const EVENT_EXCEPTIONS = [
     { event: "Note", duration: 0 },
@@ -69,6 +69,7 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
     { event: "Closing Ceremony - PGCLL B138 5:30 pm - 6:30 pm", duration: 2 },
   ];
 
+  // Change the duration for each event in EVENT_EXCEPTIONS
   for (const { event: eventException, duration } of EVENT_EXCEPTIONS) {
     schedule.forEach(({ events }) => {
       const remove: number[] = [];
@@ -76,15 +77,17 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
       for (let i = 0; i < events.length; ++i) {
         if (events[i]?.event !== eventException) continue;
 
-        // Remove anything with duration 0
+        // Mark anything with duration 0
         if (duration === 0) {
           remove.push(i);
           continue;
         }
+
         const event = events[i] ?? { range: [0, 0], event: "" };
         event.range[1] = event.range[0] + duration - 1;
       }
 
+      // Remove duration 0 events
       const reverse = remove.reverse();
       for (let i = 0; i < reverse.length; ++i) {
         events.splice(reverse[i] ?? -1, 1);
@@ -128,6 +131,7 @@ const parseSchedule = (csvOG: string[][]) => {
 
   insertBlankSpaces(schedule);
 
+  // Map the data to the devextreme scheduler data format
   const schedule2: Schedule2Event[] = [];
   schedule.forEach(({ events }, col) => {
     for (const event of events) {
