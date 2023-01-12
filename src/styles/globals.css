@@ -39,3 +39,7 @@ body,
 .dx-state-disabled {
   opacity: 1 !important;
 }
+
+.dx-scheduler-all-day-appointment {
+  height: 2rem !important;
+}

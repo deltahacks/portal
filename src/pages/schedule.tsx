@@ -10,7 +10,7 @@ import "devextreme/dist/css/dx.dark.css";
 interface Event {
   text: string;
   startDate: Date;
-  endDate?: Date;
+  endDate: Date;
   disabled: boolean;
   allDay: boolean;
   colorId: number;
@@ -21,6 +21,7 @@ const eventColours = [
   { id: 1, color: "#fed750" },
   { id: 2, color: "#eb5e7a" },
   { id: 3, color: "#aa7ef7" },
+  { id: 4, color: "rgba(250, 250, 250, 88%)" },
 ];
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
@@ -42,12 +43,22 @@ const Schedule: NextPage = () => {
       .then((response) => {
         // -- parse csv
         const csv = csvToArray(response);
-        const data = parseSchedule(csv).map((v) => ({
-          ...v,
-          disabled: true,
-          allDay: false,
-          colorId: Math.floor(Math.random() * eventColours.length),
-        }));
+        const data = [
+          {
+            text: "All Day Online",
+            startDate: new Date("2023-1-13 17:30"),
+            endDate: new Date("2023-1-13 23:59"),
+            disabled: true,
+            allDay: true,
+            colorId: 4,
+          },
+          ...parseSchedule(csv).map((v) => ({
+            ...v,
+            disabled: true,
+            allDay: false,
+            colorId: Math.floor(Math.random() * (eventColours.length - 1)),
+          })),
+        ];
         setEvents(data);
       });
   }, []);
@@ -85,14 +96,11 @@ const Schedule: NextPage = () => {
         <NavBar />
       </div>
       <div className="flex-auto overflow-hidden p-9">
-        <h1 className="text-lg font-bold">
-          January 13th, 2023 - ALL DAY ONLINE
-        </h1>
         {/* desktop view */}
         <div className="h-[95%] sm:hidden">
           <Schedule defaultCurrentView="agenda" />
         </div>
-        {/* desktop view */}
+        {/* mobile view */}
         <div className="hidden h-[95%] sm:block">
           <Schedule defaultCurrentView="timelineDay" />
         </div>
