@@ -62,12 +62,13 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
     { event: "Lunch Cleanup (1:30 pm) - B1381", duration: 1 },
     { event: "Closing Ceremony Setup (2:30 pm)", duration: 1 },
     { event: "Judging - M21 (4:00-5:00)", duration: 2 },
+    { event: "Smash Event - 124", duration: 4 },
   ];
 
   for (const { event: eventException, duration } of EVENT_EXCEPTIONS) {
-    const remove: number[] = [];
-
     schedule.forEach(({ events }) => {
+      const remove: number[] = [];
+
       for (let i = 0; i < events.length; ++i) {
         if (events[i]?.event !== eventException) continue;
 
@@ -130,6 +131,12 @@ const parseSchedule = (csvOG: string[][]) => {
       const start = csv[event.range[0]]?.[0]?.split("-")[0] ?? "";
       const end = csv[event.range[1]]?.[0]?.split("-")[1] ?? "";
 
+      if (event.event === "GeoGuessr") {
+        console.log(event.event);
+      }
+      if (event.event === "GeoGuesser") {
+        console.log(event.event);
+      }
       // Remove time stamps from event.event
       // const text = event.event.replace(
       //   /\(?\d{1,2}:\d{1,2} ?(am|pm)?( ?- ?\d{1,2}:\d\d ?(am|pm)?)?\)? ?/g,
