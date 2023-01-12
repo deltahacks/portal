@@ -65,16 +65,24 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
   ];
 
   for (const { event: eventException, duration } of EVENT_EXCEPTIONS) {
+    const remove: number[] = [];
+
     schedule.forEach(({ events }) => {
       for (let i = 0; i < events.length; ++i) {
         if (events[i]?.event !== eventException) continue;
 
         // Remove anything with duration 0
         if (duration === 0) {
-          events.splice(i, 1);
+          remove.push(i);
+          continue;
         }
         const event = events[i] ?? { range: [0, 0], event: "" };
         event.range[1] = event.range[0] + duration - 1;
+      }
+
+      const reverse = remove.reverse();
+      for (let i = 0; i < reverse.length; ++i) {
+        events.splice(reverse[i] ?? -1, 1);
       }
     });
   }

@@ -48,6 +48,7 @@ const Schedule: NextPage = () => {
       .then((response) => {
         // -- parse csv
         const tsv = csvToArray(response);
+        // console.log(parseSchedule(tsv));
         setEvents(parseSchedule(tsv));
       });
   }, []);
