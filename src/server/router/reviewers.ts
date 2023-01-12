@@ -19,7 +19,7 @@ const TypeFormResponseField = z.object({
   email: z.string().email().nullish(),
 });
 
-type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
+export type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
 
 const TypeFormResponseItems = z.array(
   z.object({
@@ -45,7 +45,7 @@ const TypeFormResponseItems = z.array(
   })
 );
 
-type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
+export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
 
 const TypeFormResponse = z.object({
   total_items: z.number(),
@@ -53,7 +53,7 @@ const TypeFormResponse = z.object({
   items: TypeFormResponseItems,
 });
 
-type TypeFormResponse = z.infer<typeof TypeFormResponse>;
+export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
 
 // TODO: Double check this type
 const TypeFormSubmission = z.object({
@@ -150,7 +150,7 @@ interface Item {
   email: string | null;
 }
 
-const options = {
+export const options = {
   method: "GET",
   headers: {
     Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
