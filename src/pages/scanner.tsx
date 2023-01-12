@@ -13,11 +13,13 @@ import { useEffect } from "react";
 const RedirectToDashboard: React.FC = () => {
   const router = useRouter();
 
-  useEffect(() => {
-    router.push("/dashboard");
-  }, []);
-
-  return <></>;
+  return (
+    <div
+      onLoad={async () => {
+        await router.push("/dashboard");
+      }}
+    ></div>
+  );
 };
 
 const FoodManagerView: React.FC = () => {
