@@ -30,7 +30,8 @@ const Accepted: React.FC = () => {
         you will be attending, please RSVP below.
       </h2>*/}
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        Sorry, RSVP's are now closed. Thank you so much for your interest in DeltaHacks and we hope to see you next year!
+        Sorry, RSVPs are now closed. Thank you so much for your interest in
+        DeltaHacks and we hope to see you next year!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
