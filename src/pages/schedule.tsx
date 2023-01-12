@@ -97,7 +97,7 @@ const Schedule: NextPage = () => {
       </div>
       <div className="flex-auto overflow-hidden">
         {/* desktop view */}
-        <div className="h-full pt-9 sm:hidden">
+        <div className="h-full pt-5 sm:hidden">
           <Schedule defaultCurrentView="agenda" />
         </div>
         {/* mobile view */}
