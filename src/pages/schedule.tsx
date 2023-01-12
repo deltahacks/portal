@@ -21,7 +21,6 @@ const eventColours = [
   { id: 1, color: "#fed750" },
   { id: 2, color: "#eb5e7a" },
   { id: 3, color: "#aa7ef7" },
-  { id: 4, color: "rgba(250, 250, 250, 70%)" },
 ];
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
@@ -41,27 +40,14 @@ const Schedule: NextPage = () => {
     fetch(csvFilePath)
       .then((response) => response.text())
       .then((response) => {
-        console.log(
-          eventColours[Math.floor(Math.random() * eventColours.length)]
-        );
         // -- parse csv
         const csv = csvToArray(response);
-        const data = [
-          {
-            text: "ALL DAY ONLINE",
-            startDate: new Date("2023-01-13 17:30"),
-            endDate: new Date("2023-01-13 23:59"),
-            disabled: true,
-            allDay: true,
-            colorId: 4,
-          },
-          ...parseSchedule(csv).map((v) => ({
-            ...v,
-            disabled: true,
-            allDay: false,
-            colorId: Math.floor(Math.random() * (eventColours.length - 1)),
-          })),
-        ];
+        const data = parseSchedule(csv).map((v) => ({
+          ...v,
+          disabled: true,
+          allDay: false,
+          colorId: Math.floor(Math.random() * eventColours.length),
+        }));
         setEvents(data);
       });
   }, []);
@@ -99,6 +85,9 @@ const Schedule: NextPage = () => {
         <NavBar />
       </div>
       <div className="flex-auto overflow-hidden p-9">
+        <h1 className="text-lg font-bold">
+          January 13th, 2023 - ALL DAY ONLINE
+        </h1>
         {/* desktop view */}
         <div className="h-[95%] sm:hidden">
           <Schedule defaultCurrentView="agenda" />
