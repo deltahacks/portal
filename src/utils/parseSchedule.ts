@@ -57,6 +57,7 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
       event: "Sleeping room CLOSED/Clean up  - M12, M22, M24, M25",
       duration: 1,
     },
+    { event: "Group Formation Setup (11:30) - 124", duration: 1 },
     { event: "Breakfast Clean-up (10:00 am)", duration: 1 },
     { event: "Submissions due at 12:00 pm", duration: 1 },
     { event: "Lunch Cleanup (1:30 pm) - B1381", duration: 1 },
