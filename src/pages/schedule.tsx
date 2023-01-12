@@ -56,6 +56,7 @@ const Schedule: NextPage = () => {
             ...v,
             disabled: true,
             allDay: false,
+            // Randomize the colour of the event
             colorId: Math.floor(Math.random() * (eventColours.length - 1)),
           })),
         ];
@@ -103,7 +104,7 @@ const Schedule: NextPage = () => {
           <Schedule defaultCurrentView="agenda" />
         </div>
         {/* mobile view */}
-        <div className="hidden h-full p-9 sm:block">
+        <div className="hidden h-full p-8 sm:block">
           <Schedule defaultCurrentView="timelineDay" />
         </div>
       </div>
