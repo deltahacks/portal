@@ -67,13 +67,18 @@ const Schedule: NextPage = () => {
   }, []);
 
   const Schedule = ({ defaultCurrentView }: { defaultCurrentView: string }) => {
+    const curDate = new Date(Date.now());
+    const defaultCurrentDate =
+      curDate < new Date("2023-1-13") || new Date("2023-1-15") < curDate
+        ? new Date("2023-1-13")
+        : curDate;
     return (
       <Scheduler
         className="h-full"
         dataSource={events}
         views={["timelineDay", "agenda"]}
         defaultCurrentView={defaultCurrentView}
-        defaultCurrentDate={Date.now()}
+        defaultCurrentDate={defaultCurrentDate}
         cellDuration={60}
         firstDayOfWeek={0}
       >
