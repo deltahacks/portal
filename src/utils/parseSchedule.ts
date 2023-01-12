@@ -80,7 +80,9 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
   }
 };
 
-const parseSchedule = (csv: string[][]) => {
+const parseSchedule = (csvOG: string[][]) => {
+  // Copy csvOG into csv
+  const csv = csvOG.map((row) => [...row]);
   const schedule = new Map<number, ScheduleDay>();
 
   // Pre Processing

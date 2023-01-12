@@ -14,6 +14,19 @@ interface Event {
   disabled: boolean;
 }
 
+const test = [
+  {
+    disabled: true,
+    startDate: new Date(
+      "Sat Jan 14 2023 11:30:00 GMT-0500 (Eastern Standard Time)"
+    ),
+    endDate: new Date(
+      "Sat Jan 14 2023 20:30:00 GMT-0500 (Eastern Standard Time)"
+    ),
+    text: "Group Formation Setup (11:30) - 124",
+  },
+];
+
 const currentDate = Date.now();
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
@@ -34,15 +47,10 @@ const Schedule: NextPage = () => {
       .then((response) => response.text())
       .then((response) => {
         // -- parse csv
-        const csv = csvToArray(response);
-        setEvents(parseSchedule(csv));
+        const tsv = csvToArray(response);
+        console.log(parseSchedule(tsv));
+        setEvents(parseSchedule(tsv));
       });
-
-    setTimeout(() => {
-      const timeline =
-        document.querySelector(".dx-scheduler-work-space") ??
-        document.createElement("div");
-    }, 250);
   }, []);
 
   return (
@@ -54,15 +62,12 @@ const Schedule: NextPage = () => {
       <div className="flex-auto p-9">
         <Scheduler
           className="h-[95%]"
-          timeZone="America/Los_Angeles"
           dataSource={events}
           views={["timelineDay"]}
           defaultCurrentView="timelineDay"
           defaultCurrentDate={currentDate}
           cellDuration={60}
           firstDayOfWeek={0}
-          startDayHour={8}
-          endDayHour={20}
         />
       </div>
     </div>
