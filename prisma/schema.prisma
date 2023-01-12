@@ -75,6 +75,7 @@ enum Role {
   HACKER
   ADMIN
   REVIEWER
+  FOOD_MANAGER
 }
 
 enum Status {
