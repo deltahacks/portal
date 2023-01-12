@@ -95,13 +95,13 @@ const Schedule: NextPage = () => {
       <div className="flex-initial">
         <NavBar />
       </div>
-      <div className="flex-auto overflow-hidden p-9">
+      <div className="flex-auto overflow-hidden">
         {/* desktop view */}
-        <div className="h-[95%] sm:hidden">
+        <div className="h-full pt-9 sm:hidden">
           <Schedule defaultCurrentView="agenda" />
         </div>
         {/* mobile view */}
-        <div className="hidden h-[95%] sm:block">
+        <div className="hidden h-full p-9 sm:block">
           <Schedule defaultCurrentView="timelineDay" />
         </div>
       </div>
