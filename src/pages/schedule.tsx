@@ -3,18 +3,10 @@ import React, { useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
-import parseSchedule from "../utils/parseSchedule";
+import parseTsvSchedule from "../utils/parseTsvSchedule";
+import { Event } from "../types/scheduler";
 
 import "devextreme/dist/css/dx.dark.css";
-
-interface Event {
-  text: string;
-  startDate: Date;
-  endDate: Date;
-  disabled: boolean;
-  allDay: boolean;
-  colorId: number;
-}
 
 const eventColours = [
   { id: 0, color: "rgba(250, 250, 250, 88%)" },
@@ -42,7 +34,7 @@ const Schedule: NextPage = () => {
           allDay: true,
           colorId: 0,
         },
-        ...(await parseSchedule()).map((v) => ({
+        ...(await parseTsvSchedule()).map((v) => ({
           ...v,
           disabled: true,
           allDay: false,

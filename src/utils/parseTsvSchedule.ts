@@ -1,23 +1,9 @@
-interface ScheduleEvent {
-  range: [number, number];
-  event: string;
-}
-
-interface Schedule2Event {
-  text: string;
-  startDate: Date;
-  endDate: Date;
-}
-
-interface ScheduleDay {
-  events: ScheduleEvent[];
-  day: string;
-}
+import { SchedulerDay, Scheduler2Event } from "../types/scheduler";
 
 // Parse the column of the tsv
 const parseColumn = (
   tsv: string[][],
-  schedule: Map<number, ScheduleDay>,
+  schedule: Map<number, SchedulerDay>,
   dayCol: number,
   col: number
 ) => {
@@ -37,7 +23,7 @@ const parseColumn = (
   }
 };
 
-const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
+const insertBlankSpaces = (schedule: Map<number, SchedulerDay>) => {
   // { event: Name of event, duration: their actual duration (in rows) }
   // ? data doesn't represent blank spaces in the schedule so here's me hard coding it
   const EVENT_EXCEPTIONS = [
@@ -99,7 +85,7 @@ const insertBlankSpaces = (schedule: Map<number, ScheduleDay>) => {
 const parseTsv = (tsvOG: string[][]) => {
   // Copy tsvOG into tsv
   const tsv = tsvOG.map((row) => [...row]);
-  const schedule = new Map<number, ScheduleDay>();
+  const schedule = new Map<number, SchedulerDay>();
 
   // Pre Processing
   // Add row of placeholders for last row in tsv for algorithm
@@ -132,7 +118,7 @@ const parseTsv = (tsvOG: string[][]) => {
   insertBlankSpaces(schedule);
 
   // Map the data to the devextreme scheduler data format
-  const schedule2: Schedule2Event[] = [];
+  const schedule2: Scheduler2Event[] = [];
   schedule.forEach(({ events }, col) => {
     for (const event of events) {
       const day = tsv[0]?.[col]?.trim() ?? "";
@@ -175,7 +161,7 @@ const tsvToArray = (csv: string) => {
 };
 
 // Read from the file parse it
-const parseSchedule = async () => {
+const parseTsvSchedule = async () => {
   const response = await (
     await fetch("./Final_Deltahacks_Schedule_-_FINAL.tsv")
   ).text();
@@ -183,4 +169,4 @@ const parseSchedule = async () => {
   return tsv;
 };
 
-export default parseSchedule;
+export default parseTsvSchedule;
