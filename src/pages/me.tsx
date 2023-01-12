@@ -13,6 +13,7 @@ import SocialButtons from "../components/SocialButtons";
 import { trpc } from "../utils/trpc";
 import { useEffect, useRef, useState } from "react";
 import autoAnimate from "@formkit/auto-animate";
+import clsx from "clsx";
 
 const Me: NextPage = () => {
   const { data: session } = useSession();
@@ -43,6 +44,16 @@ const Me: NextPage = () => {
           <NavBar />
 
           <main className="-transform-x-1/2  static top-1/2 left-1/2 flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
+            {/* <div className="absolute right-52 w-fit">
+              <div className="alert alert-info bg-[#570df8] text-white shadow-lg">
+                <div>
+                  <span>
+                    Press on the QR card <br></br>to see more info.
+                  </span>
+                </div>
+              </div>
+            </div> */}
+
             <div className=" -mb-8 w-36 overflow-hidden rounded-full border-2 border-white md:w-52">
               <img className="w-full" src={session?.user?.image || ""}></img>
             </div>
@@ -52,12 +63,25 @@ const Me: NextPage = () => {
               ref={parent}
             >
               <h1 className="pb-2 text-3xl font-bold text-black">
-                {data?.firstName} {data?.lastName}
+                {data?.typeform?.firstName} {data?.typeform?.lastName}
               </h1>
+              <p className={clsx({ "text-black": true, "pb-5": !showPrivate })}>
+                {/* <p className="pb-5 text-black"> */}
+                Meals taken :{" "}
+                <span className="text-md ">
+                  {data?.mealData.mealsTaken}
+                </span>{" "}
+                <span className="text-md">/ 4</span>
+              </p>
               {showPrivate && (
                 <div className="pb-2">
-                  <p className="text-lg text-black">
-                    {data?.birthday.toLocaleDateString()}
+                  <p className="text-md text-black">
+                    Birthdate: {data?.typeform?.birthday.toLocaleDateString()}
+                  </p>
+                  <p className="text-md text-black">
+                    Last Meal:{" "}
+                    {data?.mealData?.lastMeal?.toLocaleDateString() ||
+                      "No meal taken yet"}
                   </p>
                 </div>
               )}

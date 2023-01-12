@@ -193,6 +193,9 @@ export const applicationRouter = createProtectedRouter()
         }
       );
       // Convert from TypeFormResponse to TypeFormSubmission
-      return converted[0];
+      return {
+        typeform: converted[0],
+        mealData: { lastMeal: user.lastMealTaken, mealsTaken: user.mealsTaken },
+      };
     },
   });
