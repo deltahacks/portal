@@ -8,7 +8,8 @@ import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import QrScanner from "../components/QrScanner";
 
 const RedirectToDashboard: React.FC = () => {
   const router = useRouter();
@@ -23,7 +24,9 @@ const RedirectToDashboard: React.FC = () => {
 };
 
 const FoodManagerView: React.FC = () => {
-  return <h1></h1>;
+  return <>
+    <QrScanner />
+  </>;
 };
 const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
@@ -33,14 +36,17 @@ const EventsView: React.FC = () => {
 };
 
 const Scanner: NextPage = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const stateMap = {
     [Role.ADMIN]: <FoodManagerView />,
-    [Role.FOOD_MANAGER]: <FoodManagerView />,
+    // [Role.FOOD_MANAGER]: <FoodManagerView />,
     [Role.HACKER]: <RedirectToDashboard />,
     [Role.REVIEWER]: <RedirectToDashboard />,
     // Add security guard and eventes people
   };
+
+  const [selectedTab, setSelectedTab] = useState("HACKER");
+
   return (
     <>
       <Head>
@@ -57,13 +63,32 @@ const Scanner: NextPage = () => {
               Scanner
             </h1>
 
-            {/* {!isStatusLoading ? (
+            {status == "loading" ? (
               <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
                 Loading...
               </h1>
             ) : (
-              stateMap[status as Status]
-            )} */}
+              <>
+                <div className="tabs tabs-boxed">
+                  {session?.user?.role.map((e) => {
+                    return (
+                      <a
+                        className={
+                          "tab" + (selectedTab == e ? " tab-active" : "")
+                        }
+                        key={e}
+                        onClick={() => {
+                          setSelectedTab(e as Role);
+                        }}
+                      >
+                        {e}
+                      </a>
+                    );
+                  })}
+                </div>
+                {stateMap[selectedTab as Role]}
+              </>
+            )}
           </main>
 
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
