@@ -58,6 +58,8 @@ model User {
   reviewer             Review[]  @relation("reviewer")
   status               Status    @default(IN_REVIEW)
   qrcode               Int?      @unique
+  mealsTaken           Int       @default(0)
+  lastMealTaken        DateTime
 }
 
 model Review {
