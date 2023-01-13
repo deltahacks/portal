@@ -12,9 +12,9 @@ export const userRouter = createProtectedRouter()
       }
 
       if (input.role === null) {
-        return await prisma?.user.findMany();
+        return await ctx.prisma?.user.findMany();
       }
-      return await prisma?.user.findMany({
+      return await ctx.prisma?.user.findMany({
         where: {
           role: {
             has: input.role,
@@ -30,12 +30,19 @@ export const userRouter = createProtectedRouter()
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: input.id },
+      });
+
+      if (user == null || user == undefined) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      // else update
       await ctx.prisma.user.update({
         where: { id: input.id },
         data: {
-          role: {
-            push: input.role,
-          },
+          role: [...user.role, input.role],
         },
       });
     },
@@ -47,7 +54,7 @@ export const userRouter = createProtectedRouter()
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const { role } = (await prisma?.user.findFirstOrThrow({
+      const { role } = (await ctx.prisma?.user.findFirstOrThrow({
         where: { id: input.id },
         select: { role: true },
       })) || { role: undefined };
@@ -55,7 +62,7 @@ export const userRouter = createProtectedRouter()
         where: { id: input.id },
         data: {
           role: {
-            set: role?.filter((role) => role !== input.role),
+            set: role?.filter((role: any) => role !== input.role),
           },
         },
       });
