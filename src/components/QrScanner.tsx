@@ -50,7 +50,7 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
     if (parent.current) {
       setUpReader().then(() => console.log("Camera ready"));
     }
-  }, [parent]);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -115,7 +115,7 @@ export const QRScanner: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
     if (parent.current) {
       setUpReader().then(() => console.log("Camera ready"));
     }
-  }, [parent]);
+  }, []);
 
   return <video ref={parent}></video>;
 };
