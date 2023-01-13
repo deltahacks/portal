@@ -177,12 +177,12 @@ const SponsorView: React.FC = () => {
             src={getResume.resume || " "}
           ></iframe>
           <div className=" pt-4">
-            <button
+            {/* <button
               onClick={() => resetScanner()}
               className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800"
             >
               Get New Resume
-            </button>
+      </button> */}
           </div>
         </div>
       ) : null}
