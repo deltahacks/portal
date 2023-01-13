@@ -53,7 +53,7 @@ const FoodManagerView: React.FC = () => {
 
   return (
     <>
-      <div>
+      <div className="lg:w-2/3">
         {
           <QRReaderDynamic
             scanDelay={scanDelay}
@@ -116,36 +116,62 @@ const HackerView: React.FC = () => {
     }
   );
 
+  useEffect(() => {
+    if (QRCode !== "NONE") {
+      setShouldShowScanner(false);
+    }
+  }, [QRCode]);
+
   return (
     <>
       <div>
         {shouldShowScanner ? (
-          <QRReaderDynamic
-            scanDelay={scanDelay}
-            handleScan={(data) => {
-              setQRCode(data);
-              setScanDelay(false);
-              setShouldShowScanner(false);
-            }}
-            lastVal={qrDefer}
-          />
+          <div>
+            <QRReaderDynamic
+              scanDelay={scanDelay}
+              handleScan={(data) => {
+                setQRCode(data);
+                setScanDelay(false);
+              }}
+              lastVal={qrDefer}
+            />
+          </div>
         ) : null}
       </div>
-      <div>
-        <h1>
-          {socialInfo?.firstName},{socialInfo?.lastName}
-        </h1>
-        <h2>
-          {socialInfo?.school},{socialInfo?.degree},{socialInfo?.currentLevel}
-        </h2>
-        <h3>
-          {socialInfo?.socialLinks?.map((link, i) => (
-            <a key={i} className="block text-blue-400" href={link}>
-              {link}
-            </a>
-          ))}
-        </h3>
-        <img src={socialInfo?.image || ""}></img>
+      <div className="w-full">
+        {!shouldShowScanner ? (
+          <div className="flex flex-col sm:flex-row sm:items-center">
+            <div className="flex flex-col">
+              <div>
+                <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:py-2 sm:pt-4 sm:text-3xl lg:text-5xl 2xl:text-6xl">
+                  {socialInfo?.firstName},&nbsp;{socialInfo?.lastName}
+                </h1>
+                <h2 className="pt-2 text-xl font-normal dark:text-[#737373] sm:py-2 sm:pt-0 sm:text-2xl lg:pt-2 lg:text-3xl lg:leading-tight 2xl:pt-6 2xl:text-4xl">
+                  {socialInfo?.school},&nbsp;{socialInfo?.degree},&nbsp;
+                  {socialInfo?.currentLevel}
+                </h2>
+              </div>
+              <h3 className="pt-4 text-black dark:text-white lg:pt-6">
+                {socialInfo?.socialLinks?.map((link, i) => (
+                  <a
+                    key={i}
+                    className="block py-2 font-medium transition ease-in-out hover:text-[#833bff] dark:hover:text-[#9575cc] sm:py-4 "
+                    href={link}
+                    target="_blank"
+                  >
+                    <h1 className="text-base sm:text-xl lg:text-2xl ">
+                      {link}
+                    </h1>
+                  </a>
+                ))}
+              </h3>
+            </div>
+            <img
+              className="h-auto w-full max-w-full p-8 md:w-1/2"
+              src={socialInfo?.image || ""}
+            ></img>
+          </div>
+        ) : null}
       </div>
     </>
   );
@@ -171,6 +197,9 @@ const EventsView: React.FC = () => {
           />
         }
       </div>
+      <h3 className="text-md py-1">
+        QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
+      </h3>
     </>
   );
 };
@@ -199,7 +228,7 @@ const Scanner: NextPage = () => {
           <Background />
           <NavBar />
 
-          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+          <main className="py-16 px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
             <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Scanner
             </h1>
@@ -232,7 +261,7 @@ const Scanner: NextPage = () => {
             )}
           </main>
 
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
