@@ -45,21 +45,22 @@ model Session {
 }
 
 model User {
-  id                   String    @id @default(cuid())
+  id                   String     @id @default(cuid())
   name                 String?
-  email                String?   @unique
+  email                String?    @unique
   emailVerified        DateTime?
   image                String?
   accounts             Account[]
   sessions             Session[]
-  typeform_response_id String?   @db.Text
-  role                 Role[]    @default([HACKER])
-  hacker               Review[]  @relation("hacker")
-  reviewer             Review[]  @relation("reviewer")
-  status               Status    @default(IN_REVIEW)
-  qrcode               Int?      @unique
-  mealsTaken           Int       @default(0)
+  typeform_response_id String?    @db.Text
+  role                 Role[]     @default([HACKER])
+  hacker               Review[]   @relation("hacker")
+  reviewer             Review[]   @relation("reviewer")
+  status               Status     @default(IN_REVIEW)
+  qrcode               Int?       @unique
+  mealsTaken           Int        @default(0)
   lastMealTaken        DateTime?
+  EventLog             EventLog[]
 }
 
 model Review {
@@ -69,6 +70,14 @@ model Review {
   reviewerId String
   reviewer   User   @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
   mark       Float  @default(0)
+}
+
+model EventLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timestamp DateTime @default(now())
+  event     String
 }
 
 enum Role {
