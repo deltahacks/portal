@@ -266,18 +266,16 @@ const CheckedIn: React.FC = () => {
         of your QR code, as well as the event schedule.
       </h2>
       <div className="flex flex-col gap-4 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
-        <a
-          href="/me"
-          className="btn btn-primary w-full border-none text-base font-medium capitalize "
-        >
-          My Profile
-        </a>
-        <a
-          href="/schedule"
-          className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 "
-        >
-          Schedule
-        </a>
+        <Link href="/me">
+          <div className="btn btn-primary w-full border-none text-base font-medium capitalize ">
+            My Profile{" "}
+          </div>
+        </Link>
+        <Link href="/schedule">
+          <div className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 ">
+            Schedule
+          </div>
+        </Link>
       </div>
     </div>
   );
