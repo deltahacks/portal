@@ -100,6 +100,52 @@ const FoodManagerView: React.FC = () => {
     </>
   );
 };
+const HackerView: React.FC = () => {
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  const [QRCode, setQRCode] = useState("NONE");
+  const qrDefer = useDeferredValue(QRCode);
+  const [shouldShowScanner, setShouldShowScanner] = useState(true);
+  const { data: socialInfo } = trpc.useQuery(
+    ["application.socialInfo", parseInt(QRCode)],
+    {
+      enabled: qrDefer !== "NONE",
+      retry: 0,
+    }
+  );
+
+  return (
+    <>
+      <div>
+        {shouldShowScanner ? (
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={(data) => {
+              setQRCode(data);
+              setScanDelay(false);
+              setShouldShowScanner(false);
+            }}
+            lastVal={qrDefer}
+          />
+        ) : null}
+      </div>
+      <div>
+        <h1>
+          {socialInfo?.firstName},{socialInfo?.lastName}
+        </h1>
+        <h2>
+          {socialInfo?.school},{socialInfo?.degree},{socialInfo?.currentLevel}
+        </h2>
+        <h3>
+          {socialInfo?.socialLinks?.map((link) => (
+            <a className="block text-blue-400" href={link}>
+              {link}
+            </a>
+          ))}
+        </h3>
+      </div>
+    </>
+  );
+};
 const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
 };
@@ -112,7 +158,7 @@ const Scanner: NextPage = () => {
   const stateMap = {
     [Role.ADMIN]: <FoodManagerView />,
     [Role.FOOD_MANAGER]: <FoodManagerView />,
-    [Role.HACKER]: <RedirectToDashboard />,
+    [Role.HACKER]: <HackerView />,
     [Role.REVIEWER]: <RedirectToDashboard />,
     // Add security guard and eventes people
   };
