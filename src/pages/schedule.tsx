@@ -90,25 +90,20 @@ const Schedule: NextPage = () => {
 
   return (
     <Drawer>
-      <div className="flex h-full flex-col">
-        <div
-          className="flex-auto overflow-hidden"
-          onClick={removeResourceLabel}
-        >
-          {/* desktop view */}
-          <div className="h-full pt-5 sm:hidden">
-            {events.length === 0 && (
-              <div className="py-4 text-4xl font-bold">Loading...</div>
-            )}
-            <Schedule defaultCurrentView="agenda" />
-          </div>
-          {/* mobile view */}
-          <div className="hidden h-full p-8 sm:block">
-            {events.length === 0 && (
-              <div className="py-4 text-4xl font-bold">Loading...</div>
-            )}
-            <Schedule defaultCurrentView="timelineDay" />
-          </div>
+      <div className="flex-auto overflow-hidden" onClick={removeResourceLabel}>
+        {/* desktop view */}
+        <div className="h-full pt-5 sm:hidden">
+          {events.length === 0 && (
+            <div className="py-4 text-4xl font-bold">Loading...</div>
+          )}
+          <Schedule defaultCurrentView="agenda" />
+        </div>
+        {/* mobile view */}
+        <div className="hidden h-full p-8 sm:block">
+          {events.length === 0 && (
+            <div className="py-4 text-4xl font-bold">Loading...</div>
+          )}
+          <Schedule defaultCurrentView="timelineDay" />
         </div>
       </div>
     </Drawer>

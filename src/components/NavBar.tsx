@@ -1,10 +1,11 @@
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
-import { Session } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import Background from "./Background";
 
-const NavBar = ({ session }: { session: Session | null }) => {
+const NavBar = () => {
+  const { data: session } = useSession();
+
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
@@ -61,17 +62,17 @@ const NavBar = ({ session }: { session: Session | null }) => {
   );
 };
 
-const Drawer = ({ children }: { children: JSX.Element[] | JSX.Element }) => {
+export const Drawer = ({ children }: { children: JSX.Element[] | JSX.Element }) => {
   const { data: session } = useSession();
 
   return (
     <>
-      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
+      <div className="drawer drawer-end relative h-full w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
-        <div className="drawer-content">
+        <div className="drawer-content flex flex-col">
           <Background />
-          <NavBar session={session} />
+          <NavBar />
           {children}
         </div>
         <div className="drawer-side md:hidden">
@@ -117,4 +118,4 @@ const Drawer = ({ children }: { children: JSX.Element[] | JSX.Element }) => {
   );
 };
 
-export default Drawer;
+export default NavBar;
