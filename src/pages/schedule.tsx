@@ -17,6 +17,15 @@ const eventColours = [
   // { id: 5, color: "#7ee683" },
 ];
 
+const movie = [
+  { id: 0, color: "rgba(250, 250, 250, 88%)" },
+  { id: 1, color: "#50d2de" },
+  { id: 2, color: "#fed750" },
+  { id: 3, color: "#eb5e7a" },
+  { id: 4, color: "#aa7ef7" },
+  // { id: 5, color: "#7ee683" },
+];
+
 const test = [
   {
     text: "hi",
