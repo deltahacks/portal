@@ -1,4 +1,6 @@
 import * as trpc from "@trpc/server";
+import * as sgMail from "@sendgrid/mail";
+import * as fs from "fs";
 import { createProtectedRouter } from "./context";
 import { Role } from "@prisma/client";
 import { z } from "zod";
@@ -27,25 +29,29 @@ const TypeFormSubmissionResume = z.object({
 type TypeFormSubmissionResume = z.infer<typeof TypeFormSubmissionResume>;
 
 export const sponsorRouter = createProtectedRouter().query("getEmail", {
-  input: z.number(),
+  input: z.object({
+    qrcode: z.number(),
+    email: z.string(),
+  }),
   async resolve({ ctx, input }) {
-    console.log(input);
+    sgMail.setApiKey(env.SENDGRID_API_KEY);
+    console.log(input.qrcode, input.email);
     if (
       !(
         ctx.session.user.role.includes(Role.ADMIN) ||
-        ctx.session.user.role.includes(Role.SPONSER)
+        ctx.session.user.role.includes(Role.SPONSOR)
       )
     ) {
       throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
     }
     const user = await ctx.prisma.user.findFirst({
-      where: { qrcode: input },
+      where: { qrcode: input.qrcode },
     });
 
     if (user === null || user === undefined) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
-    
+
     const url = `https://api.typeform.com/forms/MVo09hRB/responses?included_response_ids=${user.typeform_response_id}`;
     const res = await fetch(url, options);
     const data: TypeFormResponse = await res.json();
@@ -73,6 +79,24 @@ export const sponsorRouter = createProtectedRouter().query("getEmail", {
             ) ?? "N/A",
       };
     });
+
+    console.log(converted[0]?.resume);
+    const msg = {
+      to: input.email,
+      from: "hello@deltahacks.com",
+      subject: "Your DeltaHacks VI Scanned Resume",
+      text: "Here is a resume you scanned at DeltaHacks VI",
+    };
+
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log("Email sent");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
     return converted[0];
   },
 });

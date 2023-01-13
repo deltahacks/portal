@@ -7,13 +7,10 @@ import SocialButtons from "../components/SocialButtons";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
-import { router } from "@trpc/server";
-import { userAgent } from "next/server";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -107,15 +104,22 @@ const SponsorView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
+  const { data: session } = useSession();
   const utils = trpc.useContext();
   const {
     data: getResume,
     isLoading,
     isError,
-  } = trpc.useQuery(["sponsor.getEmail", parseInt(QRCode)], {
-    enabled: qrDefer !== "NONE",
-    retry: 0,
-  });
+  } = trpc.useQuery(
+    [
+      "sponsor.getEmail",
+      { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
+    ],
+    {
+      enabled: qrDefer !== "NONE",
+      retry: 0,
+    }
+  );
   console.log(getResume);
 
   useEffect(() => {
