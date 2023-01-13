@@ -17,6 +17,8 @@ import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -86,7 +88,7 @@ const PreCheckedIn: React.FC = () => {
               className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
               onClick={async () => {
                 await doCheckIn.mutateAsync(parseInt(QRCode));
-                await router.push("/dashboard");
+                await router.push("/me");
                 setShouldShow(!shouldShow);
               }}
             >
