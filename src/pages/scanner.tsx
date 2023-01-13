@@ -125,7 +125,7 @@ const SponsorView: React.FC = () => {
   }, [getResume]);
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full pb-24">
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
@@ -149,9 +149,9 @@ const SponsorView: React.FC = () => {
           ></iframe>
         </div>
       ) : null}
-      <div>
+      {/*<div>
         <button>Send Resume To My Email</button>
-      </div>
+      </div>*/}
     </div>
   );
 };
@@ -234,38 +234,38 @@ const Scanner: NextPage = () => {
           <NavBar />
 
           <main className="h-full flex-auto">
-          <div className="h-full px-7 py-16 sm:px-14 g:pl-20 2xl:pt-20">
-            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-              Scanner
-            </h1>
-
-            {status == "loading" ? (
-              <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-                Loading...
+            <div className="g:pl-20 h-full px-7 py-16 sm:px-14 2xl:pt-20">
+              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+                Scanner
               </h1>
-            ) : (
-              <>
-                <div className="tabs tabs-boxed">
-                  {session?.user?.role.map((e) => {
-                    return (
-                      <a
-                        className={
-                          "tab" + (selectedTab == e ? " tab-active" : "")
-                        }
-                        key={e}
-                        onClick={() => {
-                          setSelectedTab(e as Role);
-                        }}
-                      >
-                        {e}
-                      </a>
-                    );
-                  })}
-                </div>
-                {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
-              </>
-            )}
-          </div>
+
+              {status == "loading" ? (
+                <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+                  Loading...
+                </h1>
+              ) : (
+                <>
+                  <div className="tabs tabs-boxed">
+                    {session?.user?.role.map((e) => {
+                      return (
+                        <a
+                          className={
+                            "tab" + (selectedTab == e ? " tab-active" : "")
+                          }
+                          key={e}
+                          onClick={() => {
+                            setSelectedTab(e as Role);
+                          }}
+                        >
+                          {e}
+                        </a>
+                      );
+                    })}
+                  </div>
+                  {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
+                </>
+              )}
+            </div>
           </main>
 
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">

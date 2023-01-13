@@ -45,7 +45,7 @@ export const sponsorRouter = createProtectedRouter().query("getEmail", {
     if (user === null || user === undefined) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
-
+    
     const url = `https://api.typeform.com/forms/MVo09hRB/responses?included_response_ids=${user.typeform_response_id}`;
     const res = await fetch(url, options);
     const data: TypeFormResponse = await res.json();
