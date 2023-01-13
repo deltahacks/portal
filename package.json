@@ -20,6 +20,7 @@
     "@trpc/react": "^9.27.2",
     "@trpc/server": "^9.27.2",
     "@typeform/embed-react": "^2.1.0",
+    "@zxing/browser": "^0.1.1",
     "clsx": "^1.2.1",
     "daisyui": "^2.46.1",
     "fork-react-qr-reader": "^3.0.1-beta-1",
