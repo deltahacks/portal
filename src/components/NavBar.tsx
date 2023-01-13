@@ -62,7 +62,11 @@ const NavBar = () => {
   );
 };
 
-export const Drawer = ({ children }: { children: JSX.Element[] | JSX.Element }) => {
+export const Drawer = ({
+  children,
+}: {
+  children: JSX.Element[] | JSX.Element;
+}) => {
   const { data: session } = useSession();
 
   return (
