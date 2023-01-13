@@ -41,8 +41,10 @@ const Schedule: NextPage = () => {
         ...(await parseIcsSchedule()).map((v) => ({
           ...v,
           disabled: true,
-          // Randomize the colour of the event
-          colorId: Math.floor(Math.random() * (eventColours.length - 1) + 1),
+          // Randomize the colour of the event. If allDay then make it white
+          colorId: v.allDay
+            ? Math.floor(Math.random() * (eventColours.length - 1) + 1)
+            : 0,
         })),
       ];
       setEvents(data);

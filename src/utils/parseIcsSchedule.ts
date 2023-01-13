@@ -1,5 +1,4 @@
 import ICalParser from "ical-js-parser";
-import { env } from "../env/client.mjs";
 
 const parseTime = (time: string) => {
   let date = time;
