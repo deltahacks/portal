@@ -89,7 +89,7 @@ const PreCheckedIn: React.FC = () => {
               onClick={async () => {
                 try {
                   await doCheckIn.mutateAsync(parseInt(QRCode));
-                  await router.push("/me");
+                  await router.push("/dashboard");
                   setShouldShow(!shouldShow);
                 } catch (e: any) {
                   setError(e.message);
