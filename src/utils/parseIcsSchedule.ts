@@ -1,4 +1,5 @@
 import ICalParser from "ical-js-parser";
+import { env } from "../env/client.mjs";
 
 const parseTime = (time: string) => {
   let date = time;
@@ -16,11 +17,11 @@ const parseTime = (time: string) => {
 };
 
 const parseICSSchedule = async () => {
-  // TODO put in .env
+  // Fetch the calendar
   const json = ICalParser.toJSON(
     await (
       await fetch(
-        "/api/cors/a?path=https://calendar.google.com/calendar/ical/19061ded5963d8f3264d85463d16c008cd8212cccef06ab47901dbc9ea26d2b6%40group.calendar.google.com/private-24dac76dead730471c7f89cc3e949566/basic.ics"
+        `/api/cors/a?path=https://calendar.google.com/calendar/ical/19061ded5963d8f3264d85463d16c008cd8212cccef06ab47901dbc9ea26d2b6%40group.calendar.google.com/private-24dac76dead730471c7f89cc3e949566/basic.ics`
       )
     ).text()
   );
