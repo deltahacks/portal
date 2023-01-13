@@ -7,16 +7,12 @@ import SocialButtons from "../components/SocialButtons";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { router } from "@trpc/server";
 import { userAgent } from "next/server";
-import clsx from "clsx";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { prisma } from "../server/db/client";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -104,6 +100,68 @@ const FoodManagerView: React.FC = () => {
     </>
   );
 };
+
+const SponsorView: React.FC = () => {
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  const [QRCode, setQRCode] = useState("NONE");
+  const [shouldShowScanner, setShouldShowScanner] = useState(true);
+  const qrDefer = useDeferredValue(QRCode);
+  const { data: session } = useSession();
+  const utils = trpc.useContext();
+  const {
+    data: getResume,
+    isLoading,
+    isError,
+  } = trpc.useQuery(
+    [
+      "sponsor.getEmail",
+      { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
+    ],
+    {
+      enabled: qrDefer !== "NONE",
+      retry: 0,
+    }
+  );
+  console.log(getResume);
+
+  useEffect(() => {
+    if (getResume) {
+      setShouldShowScanner(false);
+    }
+  }, [getResume]);
+
+  return (
+    <div className="h-full w-full pb-24">
+      <div>
+        {shouldShowScanner ? (
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={async (data) => {
+              setQRCode(data);
+              setScanDelay(false);
+              await utils.invalidateQueries(["sponsor.getEmail"]);
+            }}
+            lastVal={qrDefer}
+          />
+        ) : null}
+      </div>
+      {getResume ? (
+        <div className="h-full">
+          <iframe
+            width="100%"
+            height="100%"
+            loading="lazy"
+            src={getResume.resume || " "}
+          ></iframe>
+        </div>
+      ) : null}
+      {/*<div>
+        <button>Send Resume To My Email</button>
+      </div>*/}
+    </div>
+  );
+};
+
 const HackerView: React.FC = () => {
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
@@ -273,13 +331,10 @@ const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
   // Add security guard and events people
   const stateMap = new Map<string, React.ReactElement>();
-  stateMap.set(Role.ADMIN, <FoodManagerView />);
+  stateMap.set(Role.ADMIN, <SponsorView />);
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
-  stateMap.set(Role.EVENT_MANAGER, <EventsView />);
-  stateMap.set(Role.GENERAL_SCANNER, <></>);
-  stateMap.set(Role.SPONSER, <></>);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
   return (
@@ -287,43 +342,44 @@ const Scanner: NextPage = () => {
       <Head>
         <title>Check In - DeltaHacks 9</title>
       </Head>
-      <div className="relative w-full h-full min-h-screen overflow-x-hidden drawer drawer-end font-montserrat">
+      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
+        <div className="drawer-content flex flex-col">
           <Background />
           <NavBar />
 
-          <main className="py-16 px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <h1 className="pb-4 text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Scanner
             </h1>
 
-            {status == "loading" ? (
-              <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-                Loading...
-              </h1>
-            ) : (
-              <>
-                <div className="tabs tabs-boxed">
-                  {session?.user?.role.map((e) => {
-                    return (
-                      <a
-                        className={
-                          "tab" + (selectedTab == e ? " tab-active" : "")
-                        }
-                        key={e}
-                        onClick={() => {
-                          setSelectedTab(e as Role);
-                        }}
-                      >
-                        {e}
-                      </a>
-                    );
-                  })}
-                </div>
-                {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
-              </>
-            )}
+              {status == "loading" ? (
+                <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+                  Loading...
+                </h1>
+              ) : (
+                <>
+                  <div className="tabs tabs-boxed">
+                    {session?.user?.role.map((e) => {
+                      return (
+                        <a
+                          className={
+                            "tab" + (selectedTab == e ? " tab-active" : "")
+                          }
+                          key={e}
+                          onClick={() => {
+                            setSelectedTab(e as Role);
+                          }}
+                        >
+                          {e}
+                        </a>
+                      );
+                    })}
+                  </div>
+                  {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
+                </>
+              )}
+            </div>
           </main>
 
           <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
