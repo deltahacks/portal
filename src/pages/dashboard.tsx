@@ -226,7 +226,7 @@ const RSVPed: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="t-6 flex gap-6 pt-6">
+      <div className="t-6 flex  flex-wrap gap-6 pt-6 pb-24">
         <a href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
