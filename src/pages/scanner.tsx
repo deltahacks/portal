@@ -227,11 +227,11 @@ const Scanner: NextPage = () => {
       <Head>
         <title>Check In - DeltaHacks 9</title>
       </Head>
-      <div className="drawer drawer-end relative flex flex-col h-full overflow-x-hidden font-montserrat">
+      <div className="drawer drawer-end relative h-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content flex flex-col">
           <Background />
-          <div className="flex-initial"><NavBar /></div>
+          <NavBar />
 
           <main className="h-full flex-auto">
           <div className="h-full px-7 py-16 sm:px-14 g:pl-20 2xl:pt-20">
