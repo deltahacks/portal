@@ -193,7 +193,7 @@ const RSVPed: React.FC = () => {
       </div>
       <div className="t-6 flex  flex-wrap gap-6 pt-6 pb-24">
         <a href="https://deltahacks.com/#faq">
-          <button className="w-fullbtn-primary btn w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
         </a>
