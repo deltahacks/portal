@@ -39,7 +39,7 @@ const QrScanner: React.FC<QRScannerProps> = ({
     const audioCtx = new AudioContext();
     const oscillator = audioCtx.createOscillator();
     oscillator.type = "square";
-    oscillator.frequency.value = 440;
+    oscillator.frequency.value = 800;
     const gain = audioCtx.createGain();
     gain.gain.value = 3;
     oscillator.connect(gain);
@@ -47,7 +47,7 @@ const QrScanner: React.FC<QRScannerProps> = ({
     oscillator.start();
     setTimeout(() => {
       oscillator.stop();
-    }, 1000);
+    }, 350);
 
     setA(true);
     handleScan(t);

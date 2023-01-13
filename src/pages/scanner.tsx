@@ -11,6 +11,8 @@ import { useRouter } from "next/router";
 import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
+import { trpc } from "../utils/trpc";
+import { router } from "@trpc/server";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -33,15 +35,29 @@ const FoodManagerView: React.FC = () => {
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
+  const utils = trpc.useContext();
+
+  const {
+    data: foodData,
+    isLoading,
+    isError,
+  } = trpc.useQuery(["food.getFood", parseInt(QRCode)], {
+    enabled: qrDefer !== "NONE",
+    retry: 0,
+  });
+  const foodMutationAdd = trpc.useMutation(["food.addFood"]);
+  const foodMutationSub = trpc.useMutation(["food.subFood"]);
+
   return (
     <>
       <div>
         {
           <QRReaderDynamic
             scanDelay={scanDelay}
-            handleScan={(data) => {
+            handleScan={async (data) => {
               setQRCode(data);
               setScanDelay(false);
+              await utils.invalidateQueries(["food.getFood"]);
             }}
             lastVal={qrDefer}
           />
@@ -50,19 +66,35 @@ const FoodManagerView: React.FC = () => {
       <h3 className="text-md py-1">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
+      <h1>
+        {" "}
+        last food :{" "}
+        {isError
+          ? "not food data"
+          : `${foodData?.lastMeal?.toDateString()} ${foodData?.lastMeal?.toLocaleTimeString()}`}
+      </h1>
+      <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
 
       <div className="flex w-full justify-between gap-4">
         <button
           disabled={QRCode === "NONE"}
           className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
           onClick={async () => {
-            // await doCheckIn.mutateAsync(parseInt(QRCode));
-            // await router.push("/dashboard");
-            // setShouldShow(!shouldShow);
-            console.log(QRCode);
+            await foodMutationAdd.mutateAsync(parseInt(QRCode));
+            await utils.invalidateQueries(["food.getFood"]);
           }}
         >
-          Link QR Value
+          +
+        </button>
+        <button
+          disabled={QRCode === "NONE"}
+          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
+          onClick={async () => {
+            await foodMutationSub.mutateAsync(parseInt(QRCode));
+            await utils.invalidateQueries(["food.getFood"]);
+          }}
+        >
+          -
         </button>
       </div>
     </>
