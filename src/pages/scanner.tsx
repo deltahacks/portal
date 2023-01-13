@@ -13,6 +13,8 @@ import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { router } from "@trpc/server";
 import { userAgent } from "next/server";
+import clsx from "clsx";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -63,7 +65,7 @@ const FoodManagerView: React.FC = () => {
           />
         }
       </div>
-      <h3 className="py-1 text-md">
+      <h3 className="text-md py-1">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
       <h1>
@@ -75,10 +77,10 @@ const FoodManagerView: React.FC = () => {
       </h1>
       <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
 
-      <div className="flex justify-between w-full gap-4">
+      <div className="flex w-full justify-between gap-4">
         <button
           disabled={QRCode === "NONE"}
-          className="flex-1 text-base font-medium capitalize border-none btn btn-primary"
+          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
           onClick={async () => {
             await foodMutationAdd.mutateAsync(parseInt(QRCode));
             await utils.invalidateQueries(["food.getFood"]);
@@ -88,7 +90,7 @@ const FoodManagerView: React.FC = () => {
         </button>
         <button
           disabled={QRCode === "NONE"}
-          className="flex-1 text-base font-medium capitalize border-none btn btn-primary"
+          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
           onClick={async () => {
             await foodMutationSub.mutateAsync(parseInt(QRCode));
             await utils.invalidateQueries(["food.getFood"]);
@@ -200,7 +202,7 @@ const HackerView: React.FC = () => {
       <div className="w-full">
         {!shouldShowScanner ? (
           <div className="flex flex-col sm:flex-row sm:items-center">
-            <div className="flex flex-col w-full">
+            <div className="flex w-full flex-col">
               <div>
                 <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:pt-6 sm:text-3xl lg:pt-8 lg:text-5xl 2xl:text-6xl">
                   <div className="font-light lg:pb-1">✌️Hello, I'm</div>
@@ -237,9 +239,9 @@ const HackerView: React.FC = () => {
                 ))}
               </h3>
             </div>
-            <div className="flex justify-center w-full p-8 ">
+            <div className="flex w-full justify-center p-8 ">
               <img
-                className="w-full h-auto max-w-full rounded-xl lg:w-3/4"
+                className="h-auto w-full max-w-full rounded-xl lg:w-3/4"
                 src={socialInfo?.image || ""}
               ></img>
             </div>
@@ -294,7 +296,7 @@ const EventsView: React.FC = () => {
           />
         }
       </div>
-      <h3 className="py-1 text-md">
+      <h3 className="text-md py-1">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
       <div>
@@ -353,39 +355,38 @@ const Scanner: NextPage = () => {
               Scanner
             </h1>
 
-              {status == "loading" ? (
-                <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-                  Loading...
-                </h1>
-              ) : (
-                <>
-                  <div className="tabs tabs-boxed">
-                    {session?.user?.role.map((e) => {
-                      return (
-                        <a
-                          className={
-                            "tab" + (selectedTab == e ? " tab-active" : "")
-                          }
-                          key={e}
-                          onClick={() => {
-                            setSelectedTab(e as Role);
-                          }}
-                        >
-                          {e}
-                        </a>
-                      );
-                    })}
-                  </div>
-                  {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
-                </>
-              )}
-            </div>
+            {status == "loading" ? (
+              <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+                Loading...
+              </h1>
+            ) : (
+              <>
+                <div className="tabs tabs-boxed">
+                  {session?.user?.role.map((e) => {
+                    return (
+                      <a
+                        className={
+                          "tab" + (selectedTab == e ? " tab-active" : "")
+                        }
+                        key={e}
+                        onClick={() => {
+                          setSelectedTab(e as Role);
+                        }}
+                      >
+                        {e}
+                      </a>
+                    );
+                  })}
+                </div>
+                {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
+              </>
+            )}
           </main>
-
-          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
-            <SocialButtons />
-          </footer>
         </div>
+
+        <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
+          <SocialButtons />
+        </footer>
         <div className="drawer-side md:hidden">
           <label
             htmlFor="my-drawer-3"
@@ -404,7 +405,7 @@ const Scanner: NextPage = () => {
                 </Link>
               </li>
             </ul>
-            <div className="flex items-center justify-between w-full mx-1 mb-2">
+            <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
               <div>
                 <a className="font-sub mx-2.5 text-sm">
@@ -434,6 +435,8 @@ export const getServerSideProps = async (
   if (!session || !session.user) {
     return { redirect: { destination: "/login", permanent: false } };
   }
+
+  return { props: {} };
 };
 
 export default Scanner;
