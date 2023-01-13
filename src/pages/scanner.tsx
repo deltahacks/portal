@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { GetServerSidePropsContext, NextPage } from "next";
+import { NextPage } from "next";
 import Head from "next/head";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
@@ -7,15 +7,10 @@ import SocialButtons from "../components/SocialButtons";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
-import { router } from "@trpc/server";
-import { userAgent } from "next/server";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { prisma } from "../server/db/client";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -53,7 +48,7 @@ const FoodManagerView: React.FC = () => {
 
   return (
     <>
-      <div className="lg:w-2/3">
+      <div>
         {
           <QRReaderDynamic
             scanDelay={scanDelay}
@@ -109,15 +104,22 @@ const SponsorView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
+  const { data: session } = useSession();
   const utils = trpc.useContext();
   const {
     data: getResume,
     isLoading,
     isError,
-  } = trpc.useQuery(["sponsor.getEmail", parseInt(QRCode)], {
-    enabled: qrDefer !== "NONE",
-    retry: 0,
-  });
+  } = trpc.useQuery(
+    [
+      "sponsor.getEmail",
+      { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
+    ],
+    {
+      enabled: qrDefer !== "NONE",
+      retry: 0,
+    }
+  );
   console.log(getResume);
 
   useEffect(() => {
@@ -127,7 +129,7 @@ const SponsorView: React.FC = () => {
   }, [getResume]);
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full pb-24">
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
@@ -151,9 +153,9 @@ const SponsorView: React.FC = () => {
           ></iframe>
         </div>
       ) : null}
-      <div>
+      {/*<div>
         <button>Send Resume To My Email</button>
-      </div>
+      </div>*/}
     </div>
   );
 };
@@ -171,62 +173,36 @@ const HackerView: React.FC = () => {
     }
   );
 
-  useEffect(() => {
-    if (QRCode !== "NONE") {
-      setShouldShowScanner(false);
-    }
-  }, [QRCode]);
-
   return (
     <>
       <div>
         {shouldShowScanner ? (
-          <div>
-            <QRReaderDynamic
-              scanDelay={scanDelay}
-              handleScan={(data) => {
-                setQRCode(data);
-                setScanDelay(false);
-              }}
-              lastVal={qrDefer}
-            />
-          </div>
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={(data) => {
+              setQRCode(data);
+              setScanDelay(false);
+              setShouldShowScanner(false);
+            }}
+            lastVal={qrDefer}
+          />
         ) : null}
       </div>
-      <div className="w-full">
-        {!shouldShowScanner ? (
-          <div className="flex flex-col sm:flex-row sm:items-center">
-            <div className="flex flex-col">
-              <div>
-                <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:py-2 sm:pt-4 sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                  {socialInfo?.firstName},&nbsp;{socialInfo?.lastName}
-                </h1>
-                <h2 className="pt-2 text-xl font-normal dark:text-[#737373] sm:py-2 sm:pt-0 sm:text-2xl lg:pt-2 lg:text-3xl lg:leading-tight 2xl:pt-6 2xl:text-4xl">
-                  {socialInfo?.school},&nbsp;{socialInfo?.degree},&nbsp;
-                  {socialInfo?.currentLevel}
-                </h2>
-              </div>
-              <h3 className="pt-4 text-black dark:text-white lg:pt-6">
-                {socialInfo?.socialLinks?.map((link, i) => (
-                  <a
-                    key={i}
-                    className="block py-2 font-medium transition ease-in-out hover:text-[#833bff] dark:hover:text-[#9575cc] sm:py-4 "
-                    href={link}
-                    target="_blank"
-                  >
-                    <h1 className="text-base sm:text-xl lg:text-2xl ">
-                      {link}
-                    </h1>
-                  </a>
-                ))}
-              </h3>
-            </div>
-            <img
-              className="h-auto w-full max-w-full p-8 md:w-1/2"
-              src={socialInfo?.image || ""}
-            ></img>
-          </div>
-        ) : null}
+      <div>
+        <h1>
+          {socialInfo?.firstName},{socialInfo?.lastName}
+        </h1>
+        <h2>
+          {socialInfo?.school},{socialInfo?.degree},{socialInfo?.currentLevel}
+        </h2>
+        <h3>
+          {socialInfo?.socialLinks?.map((link, i) => (
+            <a key={i} className="block text-blue-400" href={link}>
+              {link}
+            </a>
+          ))}
+        </h3>
+        <img src={socialInfo?.image || ""}></img>
       </div>
     </>
   );
@@ -235,28 +211,7 @@ const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
 };
 const EventsView: React.FC = () => {
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
-  const [QRCode, setQRCode] = useState("NONE");
-  const qrDefer = useDeferredValue(QRCode);
-  return (
-    <>
-      <div>
-        {
-          <QRReaderDynamic
-            scanDelay={scanDelay}
-            handleScan={async (data) => {
-              setQRCode(data);
-              setScanDelay(false);
-            }}
-            lastVal={qrDefer}
-          />
-        }
-      </div>
-      <h3 className="text-md py-1">
-        QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
-      </h3>
-    </>
-  );
+  return <h1></h1>;
 };
 
 const Scanner: NextPage = () => {
@@ -268,11 +223,9 @@ const Scanner: NextPage = () => {
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
   //stateMap.set(Role.SPONSOR, <SponsorView />);
-  stateMap.set(Role.EVENT_MANAGER, <EventsView />);
-  stateMap.set(Role.GENERAL_SCANNER, <></>);
-  stateMap.set(Role.SPONSER, <></>);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
+
   return (
     <>
       <Head>
@@ -319,7 +272,7 @@ const Scanner: NextPage = () => {
             </div>
           </main>
 
-          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
@@ -361,16 +314,6 @@ const Scanner: NextPage = () => {
       </div>
     </>
   );
-};
-
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  const session = await getServerAuthSession(context);
-
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
-  }
 };
 
 export default Scanner;
