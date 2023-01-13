@@ -4,16 +4,13 @@ import {
   GetServerSidePropsResult,
   NextPage,
 } from "next";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useState } from "react";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import {
   FiPlusCircle,
   FiMinusCircle,
-  FiAlertCircle,
   FiStopCircle,
   FiXCircle,
 } from "react-icons/fi";
@@ -39,6 +36,7 @@ const Roles: NextPage = () => {
     { role: role ? (role.toUpperCase() as keyof typeof Role) : null },
   ]);
 
+  const role_options = ["Admin", "Reviewer", "Hacker"];
   const addRole = trpc.useMutation(["user.addRole"]);
   const removeRole = trpc.useMutation(["user.removeRole"]);
 
@@ -73,18 +71,14 @@ const Roles: NextPage = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.map((user, idx) => {
+            {data?.map((user: any, idx: any) => {
               return (
                 <tr key={idx}>
                   <td>
                     <div className="flex items-center space-x-3">
                       <div className="avatar">
                         <div className="mask mask-squircle h-12 w-12">
-                          <Image
-                            src={user.image || ""}
-                            alt={user.name || ""}
-                            layout="fill"
-                          />
+                          <img src={user.image || ""} alt={user.name || ""} />
                         </div>
                       </div>
                       <div>
@@ -97,7 +91,7 @@ const Roles: NextPage = () => {
                   </td>
                   <td>{user.email}</td>
                   <td className="flex-auto space-x-1">
-                    {user.role.map((role) => {
+                    {user.role.map((role: any) => {
                       if (
                         action?.actionType === ActionType["Remove"] &&
                         action.user === user &&
@@ -143,25 +137,41 @@ const Roles: NextPage = () => {
                     })}
                     {action?.actionType === ActionType["Add"] &&
                     action.user === user ? (
-                      <input
-                        type="text"
-                        className="input input-bordered"
-                        onKeyDown={async (e) => {
-                          console.log(e.key);
-                          if (e.key === "Enter") {
-                            await addRole.mutateAsync({
-                              id: user.id,
-                              role: e.currentTarget.value.toUpperCase() as keyof typeof Role,
-                            });
-                            setAction(undefined);
-                            await refetch();
-                          }
-                        }}
-                      />
+                      <div className="dropdown">
+                        <label tabIndex={0} className="btn btn-sm m-1">
+                          Roles
+                        </label>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
+                        >
+                          {role_options.map((role, idx) => {
+                            return (
+                              <li key={idx}>
+                                <option
+                                  onClick={async (e) => {
+                                    await addRole.mutateAsync({
+                                      id: user.id,
+                                      role: e.currentTarget.value.toUpperCase() as keyof typeof Role,
+                                    });
+                                    setAction(undefined);
+                                    await refetch();
+                                  }}
+                                  value={role}
+                                >
+                                  {role}
+                                </option>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
                     ) : (
                       <button
                         className="btn btn-success btn-sm"
                         onClick={() => {
+                          console.log(user);
+                          console.log(ActionType["Add"]);
                           setAction({
                             actionType: ActionType["Add"],
                             user: user,
