@@ -18,17 +18,17 @@ const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
 });
 
-const RedirectToDashboard: React.FC = () => {
-  const router = useRouter();
+// const RedirectToDashboard: React.FC = () => {
+//   const router = useRouter();
 
-  return (
-    <div
-      onLoad={async () => {
-        await router.push("/dashboard");
-      }}
-    ></div>
-  );
-};
+//   return (
+//     <div
+//       onLoad={async () => {
+//         await router.push("/dashboard");
+//       }}
+//     ></div>
+//   );
+// };
 
 const FoodManagerView: React.FC = () => {
   //   const [shouldShowScanner, setShouldShowScanner] = useState(true);
