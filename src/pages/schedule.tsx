@@ -1,10 +1,9 @@
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import React, { useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import parseIcsSchedule from "../utils/parseIcsSchedule";
-import parseTsvSchedule from "../utils/parseTsvSchedule";
 import { Event } from "../types/scheduler";
 
 import "devextreme/dist/css/dx.dark.css";
@@ -15,7 +14,7 @@ const eventColours = [
   { id: 2, color: "#fed750" },
   { id: 3, color: "#eb5e7a" },
   { id: 4, color: "#aa7ef7" },
-  { id: 5, color: "#7ee683" },
+  // { id: 5, color: "#7ee683" },
 ];
 
 const test = [
@@ -37,24 +36,6 @@ const Schedule: NextPage = () => {
   // Load in the tsv into the scheduler
   React.useEffect(() => {
     (async () => {
-      // Add all day online for the first day
-      // const data = [
-      //   {
-      //     text: "All Day Online",
-      //     startDate: new Date("2023-1-13 17:30"),
-      //     endDate: new Date("2023-1-13 23:59"),
-      //     disabled: true,
-      //     allDay: true,
-      //     colorId: 0,
-      //   },
-      //   ...(await parseTsvSchedule()).map((v) => ({
-      //     ...v,
-      //     disabled: true,
-      //     allDay: false,
-      //     // Randomize the colour of the event
-      //     colorId: Math.floor(Math.random() * (eventColours.length - 1) + 1),
-      //   })),
-      // ];
       const data = [
         ...(await parseIcsSchedule()).map((v) => ({
           ...v,
@@ -115,4 +96,8 @@ const Schedule: NextPage = () => {
   );
 };
 
-export default Schedule;
+import dynamic from "next/dynamic";
+
+export default dynamic(() => Promise.resolve(Schedule), {
+  ssr: false,
+});
