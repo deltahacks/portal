@@ -7,6 +7,9 @@ import SocialButtons from "../components/SocialButtons";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useDeferredValue, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
@@ -34,6 +37,7 @@ const FoodManagerView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
   const utils = trpc.useContext();
+  const [value, setValue] = useState("");
 
   const {
     data: foodData,
@@ -72,7 +76,23 @@ const FoodManagerView: React.FC = () => {
           : `${foodData?.lastMeal?.toDateString()} ${foodData?.lastMeal?.toLocaleTimeString()}`}
       </h1>
       <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
-
+      <div className="form-control">
+        <div className="input-group">
+          <input
+            type="text"
+            placeholder="QR CODE"
+            className="input input-bordered"
+            maxLength={7}
+            minLength={7}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            pattern="[0-9]*"
+          />
+          <button className="btn btn-primary" onClick={() => setQRCode(value)}>
+            Submit
+          </button>
+        </div>
+      </div>
       <div className="flex w-full justify-between gap-4">
         <button
           disabled={QRCode === "NONE"}
@@ -314,6 +334,17 @@ const Scanner: NextPage = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
+
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
+  return { props: {} };
 };
 
 export default Scanner;
