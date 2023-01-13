@@ -221,7 +221,7 @@ export const applicationRouter = createProtectedRouter()
       const res = await fetch(url, options);
       const data: TypeFormResponse = await res.json();
 
-      let converted: TypeFormSubmissionSocial[] = data.items.map((item) => {
+      const converted: TypeFormSubmissionSocial[] = data.items.map((item) => {
         const responsePreprocessing = new Map<string, TypeFormResponseField>();
         for (const answer of item.answers) {
           responsePreprocessing.set(answer.field.id, answer);
