@@ -34,7 +34,15 @@ const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
 
   // Remove resource label from scheduler
-  const removeResourceLabel = () =>
+  const removeResourceLabel = () => {
+    setTimeout(() => {
+      // Add an event listener to popup
+      const popups = document.querySelectorAll(".dx-overlay-content");
+      popups.forEach((popup) => {
+        popup.addEventListener("click", removeResourceLabel);
+      });
+    }, 500);
+
     setTimeout(() => {
       const resource = document.querySelector("textarea");
       const parent8 =
@@ -42,6 +50,7 @@ const Schedule: NextPage = () => {
           ?.parentElement?.parentElement?.parentElement?.parentElement;
       parent8?.removeChild(parent8?.lastElementChild as Node);
     }, 250);
+  };
 
   // Load in the tsv into the scheduler
   useEffect(() => {
