@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 
@@ -7,15 +8,17 @@ const NavBar = () => {
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
-        <a className="mr-5" href="#">
-          <picture>
-            <img
-              className="inline-block h-10 w-12 md:h-16 md:w-20"
-              src="logo.svg"
-              alt="logo"
-            />
-          </picture>
-        </a>
+        <Link href="/welcome">
+          <button className="mr-5">
+            <picture>
+              <img
+                className="inline-block h-10 w-12 md:h-16 md:w-20"
+                src="logo.svg"
+                alt="logo"
+              />
+            </picture>
+          </button>
+        </Link>
         <div className="hidden font-montserrat md:inline-block">
           <h1 className="text-2xl">
             <strong>Delta</strong>Hacks <strong>IX</strong>
