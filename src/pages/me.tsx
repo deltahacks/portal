@@ -158,7 +158,6 @@ export const getServerSideProps = async (
     where: { id: session.user.id },
   });
 
-  // If submitted then go dashboard
   if (
     userEntry &&
     (userEntry.qrcode === null || userEntry.qrcode === undefined)

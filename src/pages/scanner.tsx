@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { NextPage } from "next";
+import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
@@ -14,6 +14,8 @@ import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { router } from "@trpc/server";
 import { userAgent } from "next/server";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { prisma } from "../server/db/client";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -152,7 +154,25 @@ const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
 };
 const EventsView: React.FC = () => {
-  return <h1></h1>;
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  const [QRCode, setQRCode] = useState("NONE");
+  const qrDefer = useDeferredValue(QRCode);
+  return (
+    <>
+      <div>
+        {
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={async (data) => {
+              setQRCode(data);
+              setScanDelay(false);
+            }}
+            lastVal={qrDefer}
+          />
+        }
+      </div>
+    </>
+  );
 };
 
 const Scanner: NextPage = () => {
@@ -163,9 +183,11 @@ const Scanner: NextPage = () => {
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
+  stateMap.set(Role.EVENT_MANAGER, <EventsView />);
+  stateMap.set(Role.GENERAL_SCANNER, <></>);
+  stateMap.set(Role.SPONSER, <></>);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
-
   return (
     <>
       <Head>
@@ -252,6 +274,16 @@ const Scanner: NextPage = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
+
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
 };
 
 export default Scanner;
