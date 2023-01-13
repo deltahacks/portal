@@ -1,8 +1,7 @@
 import type { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
-import Background from "../components/Background";
-import NavBar from "../components/NavBar";
+import Drawer from "../components/NavBar";
 import parseIcsSchedule from "../utils/parseIcsSchedule";
 import { Event } from "../types/scheduler";
 
@@ -90,13 +89,8 @@ const Schedule: NextPage = () => {
   };
 
   return (
-    <div className="drawer drawer-end relative flex h-full flex-col overflow-x-hidden font-montserrat">
-      <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content flex h-full flex-col">
-        <Background />
-        <div className="flex-initial">
-          <NavBar />
-        </div>
+    <Drawer>
+      <div className="flex h-full flex-col">
         <div
           className="flex-auto overflow-hidden"
           onClick={removeResourceLabel}
@@ -117,7 +111,7 @@ const Schedule: NextPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Drawer>
   );
 };
 

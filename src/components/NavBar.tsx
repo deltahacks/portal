@@ -4,7 +4,7 @@ import { Session } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import Background from "./Background";
 
-export const NavBar = ({ session }: { session: Session | null }) => {
+const NavBar = ({ session }: { session: Session | null }) => {
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
@@ -61,11 +61,7 @@ export const NavBar = ({ session }: { session: Session | null }) => {
   );
 };
 
-export const Drawer = ({
-  children,
-}: {
-  children: JSX.Element[] | JSX.Element;
-}) => {
+const Drawer = ({ children }: { children: JSX.Element[] | JSX.Element }) => {
   const { data: session } = useSession();
 
   return (
