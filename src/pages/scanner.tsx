@@ -64,7 +64,7 @@ const FoodManagerView: React.FC = () => {
           />
         }
       </div>
-      <h3 className="py-1 text-md">
+      <h3 className="text-md py-1">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
       <h1>
@@ -76,10 +76,10 @@ const FoodManagerView: React.FC = () => {
       </h1>
       <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
 
-      <div className="flex justify-between w-full gap-4">
+      <div className="flex w-full justify-between gap-4">
         <button
           disabled={QRCode === "NONE"}
-          className="flex-1 text-base font-medium capitalize border-none btn btn-primary"
+          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
           onClick={async () => {
             await foodMutationAdd.mutateAsync(parseInt(QRCode));
             await utils.invalidateQueries(["food.getFood"]);
@@ -89,7 +89,7 @@ const FoodManagerView: React.FC = () => {
         </button>
         <button
           disabled={QRCode === "NONE"}
-          className="flex-1 text-base font-medium capitalize border-none btn btn-primary"
+          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
           onClick={async () => {
             await foodMutationSub.mutateAsync(parseInt(QRCode));
             await utils.invalidateQueries(["food.getFood"]);
@@ -114,6 +114,12 @@ const HackerView: React.FC = () => {
     }
   );
 
+  useEffect(() => {
+    if (QRCode !== "NONE") {
+      setShouldShowScanner(false);
+    }
+  }, [QRCode]);
+
   return (
     <>
       <div>
@@ -124,7 +130,6 @@ const HackerView: React.FC = () => {
               handleScan={(data) => {
                 setQRCode(data);
                 setScanDelay(false);
-                setShouldShowScanner(false);
               }}
               lastVal={qrDefer}
             />
@@ -160,7 +165,7 @@ const HackerView: React.FC = () => {
               </h3>
             </div>
             <img
-              className="w-full h-auto max-w-full p-8 md:w-1/2"
+              className="h-auto w-full max-w-full p-8 md:w-1/2"
               src={socialInfo?.image || ""}
             ></img>
           </div>
@@ -173,7 +178,28 @@ const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
 };
 const EventsView: React.FC = () => {
-  return <h1></h1>;
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  const [QRCode, setQRCode] = useState("NONE");
+  const qrDefer = useDeferredValue(QRCode);
+  return (
+    <>
+      <div>
+        {
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={async (data) => {
+              setQRCode(data);
+              setScanDelay(false);
+            }}
+            lastVal={qrDefer}
+          />
+        }
+      </div>
+      <h3 className="text-md py-1">
+        QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
+      </h3>
+    </>
+  );
 };
 
 const Scanner: NextPage = () => {
@@ -192,7 +218,7 @@ const Scanner: NextPage = () => {
       <Head>
         <title>Check In - DeltaHacks 9</title>
       </Head>
-      <div className="relative w-full h-full min-h-screen overflow-x-hidden drawer drawer-end font-montserrat">
+      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           <Background />
@@ -253,7 +279,7 @@ const Scanner: NextPage = () => {
                 </Link>
               </li>
             </ul>
-            <div className="flex items-center justify-between w-full mx-1 mb-2">
+            <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
               <div>
                 <a className="font-sub mx-2.5 text-sm">
