@@ -19,14 +19,19 @@ const Accepted: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? session.user?.name : ""}, we can{"'"}t wait to see you at
-        Deltahacks 9!
+        Hey {session ? session.user?.name : ""}
+        {/*, we can{"'"}t wait to see you at
+        Deltahacks 9!*/}
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      {/*<h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         DeltaHacks 9! Come hack for change and build something incredible with
         hundreds of other hackers from January 13 - 15, 2023! To confirm that
         you will be attending, please RSVP below.
+      </h2>*/}
+      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+        Sorry, RSVPs are now closed. Thank you so much for your interest in
+        DeltaHacks and we hope to see you next year!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -36,7 +41,7 @@ const Accepted: React.FC = () => {
         </a>
       </div>
       <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
-        <button
+        {/*<button
           className="btn btn-primary w-48 border-none text-base font-medium capitalize"
           onClick={async () => {
             await doRsvp.mutateAsync();
@@ -44,7 +49,7 @@ const Accepted: React.FC = () => {
           }}
         >
           RSVP
-        </button>
+        </button>*/}
 
         <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
@@ -171,8 +176,13 @@ const RSVPed: React.FC = () => {
           Peter George Centre for Living and Learning building at McMaster
           University{" "}
         </a>
-        from January 13-15. Please regularly check your email for updates and
-        more information. We look forward to seeing you there!
+        from January 13-15{" "}
+        <span className="font-bold">
+          (Reminder: Friday is NOT in-person and will be taking place on
+          Discord).
+        </span>{" "}
+        Please regularly check your email for updates and more information. We
+        look forward to seeing you there!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -181,15 +191,35 @@ const RSVPed: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+      <div className="t-6 flex gap-6 pt-6">
+        <a href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
-        </Link>
+        </a>
+        <a
+          href="https://drive.google.com/file/d/1r4oLL37piVo_1xrJt34SA95pLaeaU9do/view?usp=sharing"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Attendee Package
+          </button>
+        </a>
+        <a href="https://discord.gg/KpEdu3J5" target="_blank" rel="noreferrer">
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Discord
+          </button>
+        </a>
       </div>
     </div>
   );
+};
+
+const CheckedIn: React.FC = () => {
+  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+
+  return <div>Checked in with code: {qrcode}</div>;
 };
 
 const Dashboard: NextPage = () => {
@@ -205,7 +235,7 @@ const Dashboard: NextPage = () => {
     [Status.WAITLISTED]: <Waitlisted />,
     [Status.REJECTED]: <Rejected />,
     [Status.RSVP]: <RSVPed />,
-    [Status.CHECKED_IN]: <></>,
+    [Status.CHECKED_IN]: <CheckedIn />,
   };
 
   return (
