@@ -16,8 +16,9 @@ export interface SchedulerDay {
 
 export interface Event {
   text: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
+  description: string;
   disabled: boolean;
   allDay: boolean;
   colorId: number;

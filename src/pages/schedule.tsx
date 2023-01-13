@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
+import parseIcsSchedule from "../utils/parseIcsSchedule";
 import parseTsvSchedule from "../utils/parseTsvSchedule";
 import { Event } from "../types/scheduler";
 
@@ -17,6 +18,18 @@ const eventColours = [
   { id: 5, color: "#7ee683" },
 ];
 
+const test = [
+  {
+    text: "hi",
+    startDate: new Date(Date.now()),
+    endDate: new Date("2023-1-13 23:59"),
+    description: "hi",
+    disabled: true,
+    allDay: false,
+    colorId: 0,
+  },
+];
+
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
 const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -25,19 +38,27 @@ const Schedule: NextPage = () => {
   React.useEffect(() => {
     (async () => {
       // Add all day online for the first day
+      // const data = [
+      //   {
+      //     text: "All Day Online",
+      //     startDate: new Date("2023-1-13 17:30"),
+      //     endDate: new Date("2023-1-13 23:59"),
+      //     disabled: true,
+      //     allDay: true,
+      //     colorId: 0,
+      //   },
+      //   ...(await parseTsvSchedule()).map((v) => ({
+      //     ...v,
+      //     disabled: true,
+      //     allDay: false,
+      //     // Randomize the colour of the event
+      //     colorId: Math.floor(Math.random() * (eventColours.length - 1) + 1),
+      //   })),
+      // ];
       const data = [
-        {
-          text: "All Day Online",
-          startDate: new Date("2023-1-13 17:30"),
-          endDate: new Date("2023-1-13 23:59"),
-          disabled: true,
-          allDay: true,
-          colorId: 0,
-        },
-        ...(await parseTsvSchedule()).map((v) => ({
+        ...(await parseIcsSchedule()).map((v) => ({
           ...v,
           disabled: true,
-          allDay: false,
           // Randomize the colour of the event
           colorId: Math.floor(Math.random() * (eventColours.length - 1) + 1),
         })),
