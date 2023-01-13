@@ -136,8 +136,8 @@ const HackerView: React.FC = () => {
           {socialInfo?.school},{socialInfo?.degree},{socialInfo?.currentLevel}
         </h2>
         <h3>
-          {socialInfo?.socialLinks?.map((link) => (
-            <a className="block text-blue-400" href={link}>
+          {socialInfo?.socialLinks?.map((link, i) => (
+            <a key={i} className="block text-blue-400" href={link}>
               {link}
             </a>
           ))}
