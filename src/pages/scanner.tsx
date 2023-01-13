@@ -64,7 +64,7 @@ const FoodManagerView: React.FC = () => {
           />
         }
       </div>
-      <h3 className="text-md py-1">
+      <h3 className="py-1 text-md">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
       <h1>
@@ -76,10 +76,10 @@ const FoodManagerView: React.FC = () => {
       </h1>
       <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
 
-      <div className="flex w-full justify-between gap-4">
+      <div className="flex justify-between w-full gap-4">
         <button
           disabled={QRCode === "NONE"}
-          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
+          className="flex-1 text-base font-medium capitalize border-none btn btn-primary"
           onClick={async () => {
             await foodMutationAdd.mutateAsync(parseInt(QRCode));
             await utils.invalidateQueries(["food.getFood"]);
@@ -89,7 +89,7 @@ const FoodManagerView: React.FC = () => {
         </button>
         <button
           disabled={QRCode === "NONE"}
-          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
+          className="flex-1 text-base font-medium capitalize border-none btn btn-primary"
           onClick={async () => {
             await foodMutationSub.mutateAsync(parseInt(QRCode));
             await utils.invalidateQueries(["food.getFood"]);
@@ -139,21 +139,33 @@ const HackerView: React.FC = () => {
       <div className="w-full">
         {!shouldShowScanner ? (
           <div className="flex flex-col sm:flex-row sm:items-center">
-            <div className="flex flex-col">
+            <div className="flex flex-col w-full">
               <div>
-                <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:py-2 sm:pt-4 sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                  {socialInfo?.firstName},&nbsp;{socialInfo?.lastName}
+                <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:pt-6 sm:text-3xl lg:pt-8 lg:text-5xl 2xl:text-6xl">
+                  <div className="font-light lg:pb-1">✌️Hello, I'm</div>
+                  {socialInfo?.firstName}&nbsp;
+                  {socialInfo?.lastName}
                 </h1>
-                <h2 className="pt-2 text-xl font-normal dark:text-[#737373] sm:py-2 sm:pt-0 sm:text-2xl lg:pt-2 lg:text-3xl lg:leading-tight 2xl:pt-6 2xl:text-4xl">
-                  {socialInfo?.school},&nbsp;{socialInfo?.degree},&nbsp;
-                  {socialInfo?.currentLevel}
+                <h2 className="text-md pt-1 font-normal dark:text-[#737373] sm:py-2 sm:pt-2 sm:text-lg lg:text-2xl lg:leading-tight 2xl:pt-4 2xl:text-3xl">
+                  I am a{" "}
+                  {socialInfo?.currentLevel?.replace(
+                    "High School",
+                    "High Schooler"
+                  )}{" "}
+                  attending {socialInfo?.school} for {socialInfo?.major}{" "}
+                  at&nbsp;
+                  {socialInfo?.degree} level!
                 </h2>
               </div>
-              <h3 className="pt-4 text-black dark:text-white lg:pt-6">
+              <h1 className="w-full pt-8 text-xl font-semibold leading-tight text-black dark:text-white sm:py-2 sm:pt-6 sm:text-2xl lg:text-3xl 2xl:text-4xl">
+                <div className="font-light">Learn More About Me:</div>
+              </h1>
+              <hr></hr>
+              <h3 className="text-black dark:text-white">
                 {socialInfo?.socialLinks?.map((link, i) => (
                   <a
                     key={i}
-                    className="block py-2 font-medium transition ease-in-out hover:text-[#833bff] dark:hover:text-[#9575cc] sm:py-4 "
+                    className="block py-2 font-medium transition ease-in-out hover:text-[#833bff] dark:hover:text-[#9575cc] sm:py-2 "
                     href={link}
                     target="_blank"
                   >
@@ -164,10 +176,12 @@ const HackerView: React.FC = () => {
                 ))}
               </h3>
             </div>
-            <img
-              className="h-auto w-full max-w-full p-8 md:w-1/2"
-              src={socialInfo?.image || ""}
-            ></img>
+            <div className="flex justify-center w-full p-8 ">
+              <img
+                className="w-full h-auto max-w-full rounded-xl lg:w-3/4"
+                src={socialInfo?.image || ""}
+              ></img>
+            </div>
           </div>
         ) : null}
       </div>
@@ -195,7 +209,7 @@ const EventsView: React.FC = () => {
           />
         }
       </div>
-      <h3 className="text-md py-1">
+      <h3 className="py-1 text-md">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
     </>
@@ -218,14 +232,14 @@ const Scanner: NextPage = () => {
       <Head>
         <title>Check In - DeltaHacks 9</title>
       </Head>
-      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
+      <div className="relative w-full h-full min-h-screen overflow-x-hidden drawer drawer-end font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           <Background />
           <NavBar />
 
           <main className="py-16 px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+            <h1 className="pb-4 text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Scanner
             </h1>
 
@@ -279,7 +293,7 @@ const Scanner: NextPage = () => {
                 </Link>
               </li>
             </ul>
-            <div className="mx-1 mb-2 flex w-full items-center justify-between">
+            <div className="flex items-center justify-between w-full mx-1 mb-2">
               <ThemeToggle />
               <div>
                 <a className="font-sub mx-2.5 text-sm">

@@ -25,6 +25,7 @@ const TypeFormSubmissionSocial = z.object({
   lastName: z.string(),
   school: z.string(),
   degree: z.string(),
+  major: z.string(),
   currentLevel: z.string(),
   socialLinks: z.string().nullish(),
 });
@@ -236,7 +237,9 @@ export const applicationRouter = createProtectedRouter()
           currentLevel:
             responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "N/A",
           socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "N/A",
+          major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
         };
+
       });
       const socialLinks = converted[0]?.socialLinks?.match(
         /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim
