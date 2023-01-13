@@ -70,14 +70,17 @@ const FoodManagerView: React.FC = () => {
       </h3>
       <h1>
         {" "}
-        last food :{" "}
+        Last Time Eaten:{" "}
         {isError
           ? "not food data"
           : `${foodData?.lastMeal?.toDateString()} ${foodData?.lastMeal?.toLocaleTimeString()}`}
       </h1>
-      <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
+      <h1>
+        Food Tickets Redeemed:{" "}
+        {isError ? "not food data" : foodData?.mealsTaken}
+      </h1>
       <div className="form-control">
-        <div className="input-group">
+        <div className="input-group pb-4">
           <input
             type="text"
             placeholder="QR CODE"
