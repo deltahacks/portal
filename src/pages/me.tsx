@@ -137,7 +137,10 @@ export const getServerSideProps = async (
   // If submitted then go dashboard
   if (
     userEntry &&
-    (userEntry.qrcode === null || userEntry.qrcode === undefined)
+    (userEntry.qrcode === null ||
+      userEntry.qrcode === undefined ||
+      userEntry.typeform_response_id === null ||
+      userEntry.typeform_response_id === undefined)
   ) {
     return { redirect: { destination: "/checkin", permanent: false } };
   }

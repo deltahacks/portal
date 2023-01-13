@@ -4,7 +4,7 @@ import type {
   NextPage,
 } from "next";
 import Head from "next/head";
-import { getSession, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 import ThemeToggle from "../components/ThemeToggle";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -147,20 +147,52 @@ const NoRSVP: React.FC = () => {
     </div>
   );
 };
+const NotApplied: React.FC = () => {
+  return (
+    <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      You have not yet applied to DeltaHacks 9. Click the apply button below and
+      fill out the form to continue your check in.
+      <div className="pt-6">
+        <Link href="/apply">
+          <button className="btn btn-primary w-48 border-none text-base font-medium capitalize">
+            APPLY
+          </button>
+        </Link>
+      </div>
+      <div className="pt-6">
+        If you are experiencing any issues, contact us at{" "}
+        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
+          hello@deltahacks.com
+        </a>
+        .
+      </div>
+    </div>
+  );
+};
+
+const RedirectToMe = () => {
+  const router = useRouter();
+  useEffect(() => {
+    router.push("/me");
+  }, []);
+  return null;
+};
 
 const Checkin: NextPage = () => {
   const { data: session } = useSession();
+  const router = useRouter();
 
   const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
     "application.status",
   ]);
   const stateMap = {
-    [Status.IN_REVIEW]: <></>,
+    [Status.IN_REVIEW]: <NotApplied />,
     [Status.ACCEPTED]: <PreCheckedIn />,
-    [Status.WAITLISTED]: <></>,
-    [Status.REJECTED]: <></>,
+    [Status.WAITLISTED]: <PreCheckedIn />,
+    [Status.REJECTED]: <PreCheckedIn />,
     [Status.RSVP]: <PreCheckedIn />,
-    [Status.CHECKED_IN]: <PostCheckedIn />,
+    [Status.CHECKED_IN]: <RedirectToMe />,
+    ["NULL"]: <NotApplied />,
   };
 
   return (
