@@ -51,7 +51,7 @@ const FoodManagerView: React.FC = () => {
 
   return (
     <>
-      <div>
+      <div className="lg:w-2/3">
         {
           <QRReaderDynamic
             scanDelay={scanDelay}
