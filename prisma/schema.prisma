@@ -76,6 +76,8 @@ enum Role {
   ADMIN
   REVIEWER
   FOOD_MANAGER
+  EVENT_MANAGER
+  GENERAL_SCANNER
 }
 
 enum Status {
