@@ -43,3 +43,7 @@ body,
 .dx-scheduler-all-day-appointment {
   height: 2rem !important;
 }
+
+.dx-scheduler-appointment-resource-list {
+  display: none !important;
+}

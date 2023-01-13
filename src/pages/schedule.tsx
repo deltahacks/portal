@@ -17,17 +17,18 @@ const eventColours = [
   // { id: 5, color: "#7ee683" },
 ];
 
-const test = [
-  {
-    text: "hi",
-    startDate: new Date(Date.now()),
-    endDate: new Date("2023-1-13 23:59"),
-    description: "hi",
-    disabled: true,
-    allDay: false,
-    colorId: 0,
-  },
-];
+// Filter out the organizer events
+// const test = [
+//   {
+//     text: "hi",
+//     startDate: new Date(Date.now()),
+//     endDate: new Date("2023-1-13 23:59"),
+//     description: "hi",
+//     disabled: true,
+//     allDay: false,
+//     colorId: 0,
+//   },
+// ];
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
 const Schedule: NextPage = () => {
