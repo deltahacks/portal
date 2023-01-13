@@ -28,13 +28,16 @@ const parseICSSchedule = async () => {
       const endDate = event.dtend ? parseTime(event.dtend.value) : startDate;
       const location = event.location ? event.location : "N/A";
       const description = event.description ?? "";
+      const completeDescription = `Located in ${location}.${
+        description && "\n\n"
+      }${description}`.replaceAll("\\", "");
 
       return {
         text: event.summary ?? "",
         startDate: startDate,
         endDate: endDate,
         allDay: isAllDay,
-        description: `Located in ${location}.\n\n${description}`,
+        description: completeDescription,
       };
 
       // Filter out the organizer events
