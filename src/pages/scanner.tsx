@@ -12,11 +12,8 @@ import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
-import { router } from "@trpc/server";
-import { userAgent } from "next/server";
-import clsx from "clsx";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { prisma } from "../server/db/client";
+import clsx from "clsx";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -40,6 +37,7 @@ const FoodManagerView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
   const utils = trpc.useContext();
+  const [value, setValue] = useState("");
 
   const {
     data: foodData,
@@ -54,7 +52,7 @@ const FoodManagerView: React.FC = () => {
 
   return (
     <>
-      <div className="lg:w-2/3">
+      <div>
         {
           <QRReaderDynamic
             scanDelay={scanDelay}
@@ -72,13 +70,32 @@ const FoodManagerView: React.FC = () => {
       </h3>
       <h1>
         {" "}
-        last food :{" "}
+        Last Time Eaten:{" "}
         {isError
           ? "not food data"
           : `${foodData?.lastMeal?.toDateString()} ${foodData?.lastMeal?.toLocaleTimeString()}`}
       </h1>
-      <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
-
+      <h1>
+        Food Tickets Redeemed:{" "}
+        {isError ? "not food data" : foodData?.mealsTaken}
+      </h1>
+      <div className="form-control">
+        <div className="input-group pb-4">
+          <input
+            type="text"
+            placeholder="QR CODE"
+            className="input input-bordered"
+            maxLength={7}
+            minLength={7}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            pattern="[0-9]*"
+          />
+          <button className="btn btn-primary" onClick={() => setQRCode(value)}>
+            Submit
+          </button>
+        </div>
+      </div>
       <div className="flex w-full justify-between gap-4">
         <button
           disabled={QRCode === "NONE"}
@@ -104,6 +121,78 @@ const FoodManagerView: React.FC = () => {
     </>
   );
 };
+
+const SponsorView: React.FC = () => {
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  const [QRCode, setQRCode] = useState("NONE");
+  const [shouldShowScanner, setShouldShowScanner] = useState(true);
+  const qrDefer = useDeferredValue(QRCode);
+  const { data: session } = useSession();
+  const utils = trpc.useContext();
+  const {
+    data: getResume,
+    isLoading,
+    isError,
+  } = trpc.useQuery(
+    [
+      "sponsor.getEmail",
+      { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
+    ],
+    {
+      enabled: qrDefer !== "NONE",
+      retry: 0,
+    }
+  );
+  console.log(getResume);
+
+  useEffect(() => {
+    if (getResume) {
+      setShouldShowScanner(false);
+    }
+  }, [getResume]);
+
+  function resetScanner() {}
+
+  return (
+    <div className="h-full w-full pb-24 md:h-[200%]">
+      <div>
+        {shouldShowScanner ? (
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={async (data) => {
+              setQRCode(data);
+              setScanDelay(false);
+              await utils.invalidateQueries(["sponsor.getEmail"]);
+            }}
+            lastVal={qrDefer}
+          />
+        ) : null}
+      </div>
+      {getResume ? (
+        <div className="h-full">
+          <iframe
+            width="100%"
+            height="100%"
+            loading="lazy"
+            src={getResume.resume || " "}
+          ></iframe>
+          <div className=" pt-4">
+            <button
+              onClick={() => resetScanner()}
+              className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800"
+            >
+              Get New Resume
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {/*<div>
+        <button>Send Resume To My Email</button>
+      </div>*/}
+    </div>
+  );
+};
+
 const HackerView: React.FC = () => {
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
@@ -117,46 +206,51 @@ const HackerView: React.FC = () => {
     }
   );
 
-  useEffect(() => {
-    if (QRCode !== "NONE") {
-      setShouldShowScanner(false);
-    }
-  }, [QRCode]);
-
   return (
     <>
       <div>
         {shouldShowScanner ? (
-          <div>
-            <QRReaderDynamic
-              scanDelay={scanDelay}
-              handleScan={(data) => {
-                setQRCode(data);
-                setScanDelay(false);
-              }}
-              lastVal={qrDefer}
-            />
-          </div>
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={(data) => {
+              setQRCode(data);
+              setScanDelay(false);
+              setShouldShowScanner(false);
+            }}
+            lastVal={qrDefer}
+          />
         ) : null}
       </div>
       <div className="w-full">
         {!shouldShowScanner ? (
           <div className="flex flex-col sm:flex-row sm:items-center">
-            <div className="flex flex-col">
+            <div className="flex w-full flex-col">
               <div>
-                <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:py-2 sm:pt-4 sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                  {socialInfo?.firstName},&nbsp;{socialInfo?.lastName}
+                <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:pt-6 sm:text-3xl lg:pt-8 lg:text-5xl 2xl:text-6xl">
+                  <div className="font-light lg:pb-1">✌️Hello, I'm</div>
+                  {socialInfo?.firstName}&nbsp;
+                  {socialInfo?.lastName}
                 </h1>
-                <h2 className="pt-2 text-xl font-normal dark:text-[#737373] sm:py-2 sm:pt-0 sm:text-2xl lg:pt-2 lg:text-3xl lg:leading-tight 2xl:pt-6 2xl:text-4xl">
-                  {socialInfo?.school},&nbsp;{socialInfo?.degree},&nbsp;
-                  {socialInfo?.currentLevel}
+                <h2 className="text-md pt-1 font-normal dark:text-[#737373] sm:py-2 sm:pt-2 sm:text-lg lg:text-2xl lg:leading-tight 2xl:pt-4 2xl:text-3xl">
+                  I am a{" "}
+                  {socialInfo?.currentLevel?.replace(
+                    "High School",
+                    "High Schooler"
+                  )}{" "}
+                  attending {socialInfo?.school} for {socialInfo?.major}{" "}
+                  at&nbsp;
+                  {socialInfo?.degree} level!
                 </h2>
               </div>
-              <h3 className="pt-4 text-black dark:text-white lg:pt-6">
+              <h1 className="w-full pt-8 text-xl font-semibold leading-tight text-black dark:text-white sm:py-2 sm:pt-6 sm:text-2xl lg:text-3xl 2xl:text-4xl">
+                <div className="font-light">Learn More About Me:</div>
+              </h1>
+              <hr></hr>
+              <h3 className="text-black dark:text-white">
                 {socialInfo?.socialLinks?.map((link, i) => (
                   <a
                     key={i}
-                    className="block py-2 font-medium transition ease-in-out hover:text-[#833bff] dark:hover:text-[#9575cc] sm:py-4 "
+                    className="block py-2 font-medium transition ease-in-out hover:text-[#833bff] dark:hover:text-[#9575cc] sm:py-2 "
                     href={link}
                     target="_blank"
                   >
@@ -167,10 +261,12 @@ const HackerView: React.FC = () => {
                 ))}
               </h3>
             </div>
-            <img
-              className="h-auto w-full max-w-full p-8 md:w-1/2"
-              src={socialInfo?.image || ""}
-            ></img>
+            <div className="flex w-full justify-center p-8 ">
+              <img
+                className="h-auto w-full max-w-full rounded-xl lg:w-3/4"
+                src={socialInfo?.image || ""}
+              ></img>
+            </div>
           </div>
         ) : null}
       </div>
@@ -259,15 +355,14 @@ const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
   // Add security guard and events people
   const stateMap = new Map<string, React.ReactElement>();
-  stateMap.set(Role.ADMIN, <FoodManagerView />);
+  stateMap.set(Role.ADMIN, <SponsorView />);
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
-  stateMap.set(Role.EVENT_MANAGER, <EventsView />);
-  stateMap.set(Role.GENERAL_SCANNER, <></>);
-  stateMap.set(Role.SPONSER, <></>);
+  //stateMap.set(Role.SPONSOR, <SponsorView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
+
   return (
     <>
       <Head>
@@ -275,11 +370,11 @@ const Scanner: NextPage = () => {
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
+        <div className="drawer-content flex flex-col">
           <Background />
           <NavBar />
 
-          <main className="py-16 px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
             <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Scanner
             </h1>
@@ -312,10 +407,14 @@ const Scanner: NextPage = () => {
             )}
           </main>
 
-          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
+
+        <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
+          <SocialButtons />
+        </footer>
         <div className="drawer-side md:hidden">
           <label
             htmlFor="my-drawer-3"
@@ -364,6 +463,7 @@ export const getServerSideProps = async (
   if (!session || !session.user) {
     return { redirect: { destination: "/login", permanent: false } };
   }
+  return { props: {} };
 };
 
 export default Scanner;
