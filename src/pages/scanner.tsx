@@ -13,6 +13,7 @@ import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { router } from "@trpc/server";
+import { userAgent } from "next/server";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -142,6 +143,7 @@ const HackerView: React.FC = () => {
             </a>
           ))}
         </h3>
+        <img src={socialInfo?.image || ""}></img>
       </div>
     </>
   );
@@ -159,7 +161,7 @@ const Scanner: NextPage = () => {
   const stateMap = new Map<string, React.ReactElement>();
   stateMap.set(Role.ADMIN, <FoodManagerView />);
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
-  stateMap.set(Role.HACKER, <FoodManagerView />);
+  stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
