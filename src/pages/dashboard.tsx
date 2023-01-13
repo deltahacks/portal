@@ -246,6 +246,11 @@ const RSVPed: React.FC = () => {
             Discord
           </button>
         </a>
+        <a href="/schedule" target="_blank" rel="noreferrer">
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Schedule
+          </button>
+        </a>
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import ICalParser from "ical-js-parser";
-import { env } from "../env/client.mjs";
 
 const parseTime = (time: string) => {
   let date = time;
@@ -18,7 +17,7 @@ const parseTime = (time: string) => {
 
 const parseICSSchedule = async () => {
   // Fetch the calendar
-  const json = ICalParser.toJSON(await (await fetch(`/api/cal`)).text());
+  const json = ICalParser.toJSON(await (await fetch("/api/cal")).text());
 
   const data = json.events
     .map((event) => {
