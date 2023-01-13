@@ -55,8 +55,67 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
   useEffect(() => {
     return () => {
       BrowserCodeReader.releaseAllStreams();
+    };
+  });
+
+  return <video ref={parent}></video>;
+};
+
+export const QRScanner: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
+  const parent = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const setUpReader = async () => {
+      const codeReader = new BrowserQRCodeReader();
+      const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
+      let lastFired = new Date(0);
+
+      if (videoInputDevices === undefined || videoInputDevices.length === 0) {
+        console.log("No video input devices found.");
+        return;
+      }
+      // choose the environment camera
+      const selectedDeviceId = videoInputDevices[0]!.deviceId;
+
+      console.log(`Started decode from camera with id ${selectedDeviceId}`);
+
+      // you can use the controls to stop() the scan or switchTorch() if available
+      const controls = codeReader.decodeFromVideoDevice(
+        selectedDeviceId,
+        parent!.current!,
+        (result) => {
+          if (result && lastFired.getTime() < Date.now() - 2000) {
+            console.log(lastFired);
+            const audioCtx = new AudioContext();
+            const oscillator = audioCtx.createOscillator();
+            oscillator.type = "square";
+            oscillator.frequency.value = 440;
+            const gain = audioCtx.createGain();
+            gain.gain.value = 1;
+            oscillator.connect(gain);
+            gain.connect(audioCtx.destination);
+            oscillator.start();
+            setTimeout(() => {
+              oscillator.stop();
+            }, 1000);
+            console.log("Scanned", result);
+            callback(result.getText());
+
+            // bad wait condition
+            lastFired = new Date(Date.now());
+          }
+        }
+      );
+      // const result = await codeReader.decodeOnceFromVideoDevice(
+      //   selectedDeviceId,
+      //   parent!.current!
+      // );
+    };
+
+    if (parent.current) {
+      setUpReader().then(() => console.log("Camera ready"));
     }
-  })
+  }, [parent]);
 
   return <video ref={parent}></video>;
 };

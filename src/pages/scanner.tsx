@@ -19,6 +19,13 @@ const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
 });
 
+const ConstantQRReaderDynamic = dynamic(
+  () => import("../components/QrScanner").then((mod) => mod.QRScanner),
+  {
+    ssr: false,
+  }
+);
+
 // const RedirectToDashboard: React.FC = () => {
 //   const router = useRouter();
 
@@ -54,14 +61,14 @@ const FoodManagerView: React.FC = () => {
     <>
       <div>
         {
-          <QRReaderDynamic
-            scanDelay={scanDelay}
-            handleScan={async (data) => {
+          <ConstantQRReaderDynamic
+            // scanDelay={scanDelay}
+            callback={async (data) => {
               setQRCode(data);
               setScanDelay(false);
               await utils.invalidateQueries(["food.getFood"]);
             }}
-            lastVal={qrDefer}
+            // lastVal={qrDefer}
           />
         }
       </div>
@@ -159,7 +166,7 @@ const SponsorView: React.FC = () => {
         {shouldShowScanner ? (
           <QRReaderDynamic
             scanDelay={scanDelay}
-            handleScan={async (data) => {
+            callback={async (data) => {
               setQRCode(data);
               setScanDelay(false);
               await utils.invalidateQueries(["sponsor.getEmail"]);
@@ -211,13 +218,13 @@ const HackerView: React.FC = () => {
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
-            scanDelay={scanDelay}
-            handleScan={(data) => {
+            // scanDelay={scanDelay}
+            callback={(data) => {
               setQRCode(data);
-              setScanDelay(false);
+              // setScanDelay(false);
               setShouldShowScanner(false);
             }}
-            lastVal={qrDefer}
+            // lastVal={qrDefer}
           />
         ) : null}
       </div>
