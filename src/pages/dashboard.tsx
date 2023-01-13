@@ -268,7 +268,7 @@ const CheckedIn: React.FC = () => {
       <div className="flex flex-col gap-4 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
         <a
           href="/me"
-          className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 "
+          className="btn btn-primary w-full border-none text-base font-medium capitalize "
         >
           My Profile
         </a>
