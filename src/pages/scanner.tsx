@@ -13,22 +13,23 @@ import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { router } from "@trpc/server";
+import { userAgent } from "next/server";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
 });
 
-const RedirectToDashboard: React.FC = () => {
-  const router = useRouter();
+// const RedirectToDashboard: React.FC = () => {
+//   const router = useRouter();
 
-  return (
-    <div
-      onLoad={async () => {
-        await router.push("/dashboard");
-      }}
-    ></div>
-  );
-};
+//   return (
+//     <div
+//       onLoad={async () => {
+//         await router.push("/dashboard");
+//       }}
+//     ></div>
+//   );
+// };
 
 const FoodManagerView: React.FC = () => {
   //   const [shouldShowScanner, setShouldShowScanner] = useState(true);
@@ -136,12 +137,13 @@ const HackerView: React.FC = () => {
           {socialInfo?.school},{socialInfo?.degree},{socialInfo?.currentLevel}
         </h2>
         <h3>
-          {socialInfo?.socialLinks?.map((link) => (
-            <a className="block text-blue-400" href={link}>
+          {socialInfo?.socialLinks?.map((link, i) => (
+            <a key={i} className="block text-blue-400" href={link}>
               {link}
             </a>
           ))}
         </h3>
+        <img src={socialInfo?.image || ""}></img>
       </div>
     </>
   );
@@ -155,13 +157,12 @@ const EventsView: React.FC = () => {
 
 const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
-  const stateMap = {
-    [Role.ADMIN]: <FoodManagerView />,
-    [Role.FOOD_MANAGER]: <FoodManagerView />,
-    [Role.HACKER]: <HackerView />,
-    [Role.REVIEWER]: <RedirectToDashboard />,
-    // Add security guard and eventes people
-  };
+  // Add security guard and events people
+  const stateMap = new Map<string, React.ReactElement>();
+  stateMap.set(Role.ADMIN, <FoodManagerView />);
+  stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
+  stateMap.set(Role.HACKER, <HackerView />);
+  stateMap.set(Role.REVIEWER, <FoodManagerView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
 
@@ -204,7 +205,7 @@ const Scanner: NextPage = () => {
                     );
                   })}
                 </div>
-                {stateMap[selectedTab as Role]}
+                {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
               </>
             )}
           </main>
