@@ -36,7 +36,7 @@ const Roles: NextPage = () => {
     { role: role ? (role.toUpperCase() as keyof typeof Role) : null },
   ]);
 
-  const role_options = ["Admin", "Reviewer", "Hacker"];
+  const role_options = Object.keys(Role);
   const addRole = trpc.useMutation(["user.addRole"]);
   const removeRole = trpc.useMutation(["user.removeRole"]);
 
