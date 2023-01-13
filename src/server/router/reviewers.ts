@@ -100,8 +100,18 @@ const TypeFormSubmission = z.object({
         email: z.string().email().nullable(),
         emailVerified: z.date().nullable(),
         image: z.string().nullable(),
-        typeform_response_id: z.string().nullable().nullable(),
-        role: z.array(z.enum([Role.HACKER, Role.REVIEWER, Role.ADMIN])),
+        typeform_response_id: z.string().nullable(),
+        role: z.array(
+          z.enum([
+            Role.HACKER,
+            Role.REVIEWER,
+            Role.ADMIN,
+            Role.FOOD_MANAGER,
+            Role.EVENT_MANAGER,
+            Role.GENERAL_SCANNER,
+            Role.SPONSER,
+          ])
+        ),
         status: z.enum([
           Status.ACCEPTED,
           Status.CHECKED_IN,
@@ -111,6 +121,8 @@ const TypeFormSubmission = z.object({
           Status.WAITLISTED,
         ]),
         qrcode: z.number().nullable(),
+        mealsTaken: z.number(),
+        lastMealTaken: z.date().nullable(),
       }),
       hacker: z.object({
         id: z.string(),
@@ -119,7 +131,17 @@ const TypeFormSubmission = z.object({
         emailVerified: z.date().nullable(),
         image: z.string().nullable(),
         typeform_response_id: z.string().nullable(),
-        role: z.array(z.enum([Role.HACKER, Role.REVIEWER, Role.ADMIN])),
+        role: z.array(
+          z.enum([
+            Role.HACKER,
+            Role.REVIEWER,
+            Role.ADMIN,
+            Role.FOOD_MANAGER,
+            Role.EVENT_MANAGER,
+            Role.GENERAL_SCANNER,
+            Role.SPONSER,
+          ])
+        ),
         status: z.enum([
           Status.ACCEPTED,
           Status.CHECKED_IN,
@@ -129,6 +151,8 @@ const TypeFormSubmission = z.object({
           Status.WAITLISTED,
         ]),
         qrcode: z.number().nullable(),
+        mealsTaken: z.number(),
+        lastMealTaken: z.date().nullable(),
       }),
       mark: z.number(),
     })

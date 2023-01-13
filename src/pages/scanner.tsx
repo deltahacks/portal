@@ -155,13 +155,12 @@ const EventsView: React.FC = () => {
 
 const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
-  const stateMap = {
-    [Role.ADMIN]: <FoodManagerView />,
-    [Role.FOOD_MANAGER]: <FoodManagerView />,
-    [Role.HACKER]: <HackerView />,
-    [Role.REVIEWER]: <RedirectToDashboard />,
-    // Add security guard and eventes people
-  };
+  // Add security guard and events people
+  const stateMap = new Map<string, React.ReactElement>();
+  stateMap.set(Role.ADMIN, <FoodManagerView />);
+  stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
+  stateMap.set(Role.HACKER, <FoodManagerView />);
+  stateMap.set(Role.REVIEWER, <FoodManagerView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
 
@@ -204,7 +203,7 @@ const Scanner: NextPage = () => {
                     );
                   })}
                 </div>
-                {stateMap[selectedTab as Role]}
+                {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
               </>
             )}
           </main>
