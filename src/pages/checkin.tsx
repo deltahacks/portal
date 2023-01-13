@@ -26,8 +26,8 @@ const PreCheckedIn: React.FC = () => {
   const [shouldShow, setShouldShow] = useState(false);
   const [shouldShowScanner, setShouldShowScanner] = useState(false);
   const [QRCode, setQRCode] = useState("NONE");
-  const qrDefer = useDeferredValue(QRCode);
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  // const qrDefer = useDeferredValue(QRCode);
+  // const [scanDelay, setScanDelay] = useState<boolean | number>(10);
 
   const doCheckIn = trpc.useMutation("application.checkIn");
   const router = useRouter();
@@ -62,15 +62,22 @@ const PreCheckedIn: React.FC = () => {
           <div className="">
             <div>
               {shouldShowScanner ? (
+                // <QRReaderDynamic
+                //   scanDelay={scanDelay}
+                //   handleScan={(data) => {
+                //     setQRCode(data);
+                //     // console.log("WTF HUH", data);
+                //     setScanDelay(false);
+                //     setShouldShowScanner(false);
+                //   }}
+                //   lastVal={qrDefer}
+                // />
                 <QRReaderDynamic
-                  scanDelay={scanDelay}
-                  handleScan={(data) => {
-                    setQRCode(data);
-                    // console.log("WTF HUH", data);
-                    setScanDelay(false);
+                  callback={(e) => {
+                    console.log(e);
+                    setQRCode(e);
                     setShouldShowScanner(false);
                   }}
-                  lastVal={qrDefer}
                 />
               ) : null}
             </div>
