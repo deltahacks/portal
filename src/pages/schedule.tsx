@@ -90,25 +90,31 @@ const Schedule: NextPage = () => {
   };
 
   return (
-    <div className="flex h-full flex-col">
-      <Background />
-      <div className="flex-initial">
-        <NavBar />
-      </div>
-      <div className="flex-auto overflow-hidden" onClick={removeResourceLabel}>
-        {/* desktop view */}
-        <div className="h-full pt-5 sm:hidden">
-          {events.length === 0 && (
-            <div className="py-4 text-4xl font-bold">Loading...</div>
-          )}
-          <Schedule defaultCurrentView="agenda" />
+    <div className="drawer drawer-end relative flex h-full flex-col overflow-x-hidden font-montserrat">
+      <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
+      <div className="drawer-content flex h-full flex-col">
+        <Background />
+        <div className="flex-initial">
+          <NavBar />
         </div>
-        {/* mobile view */}
-        <div className="hidden h-full p-8 sm:block">
-          {events.length === 0 && (
-            <div className="py-4 text-4xl font-bold">Loading...</div>
-          )}
-          <Schedule defaultCurrentView="timelineDay" />
+        <div
+          className="flex-auto overflow-hidden"
+          onClick={removeResourceLabel}
+        >
+          {/* desktop view */}
+          <div className="h-full pt-5 sm:hidden">
+            {events.length === 0 && (
+              <div className="py-4 text-4xl font-bold">Loading...</div>
+            )}
+            <Schedule defaultCurrentView="agenda" />
+          </div>
+          {/* mobile view */}
+          <div className="hidden h-full p-8 sm:block">
+            {events.length === 0 && (
+              <div className="py-4 text-4xl font-bold">Loading...</div>
+            )}
+            <Schedule defaultCurrentView="timelineDay" />
+          </div>
         </div>
       </div>
     </div>

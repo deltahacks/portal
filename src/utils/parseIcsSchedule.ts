@@ -17,7 +17,13 @@ const parseTime = (time: string) => {
 
 const parseICSSchedule = async () => {
   // Fetch the calendar
-  const json = ICalParser.toJSON(await (await fetch("/api/cal")).text());
+  const json = ICalParser.toJSON(
+    await (
+      await fetch(
+        "https://corsproxy.io/?https://calendar.google.com/calendar/ical/19061ded5963d8f3264d85463d16c008cd8212cccef06ab47901dbc9ea26d2b6%40group.calendar.google.com/private-24dac76dead730471c7f89cc3e949566/basic.ics"
+      )
+    ).text()
+  );
 
   const data = json.events
     .map((event) => {

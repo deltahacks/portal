@@ -1,10 +1,10 @@
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
+import { Session } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
+import Background from "./Background";
 
-const NavBar = () => {
-  const { data: session } = useSession();
-
+export const NavBar = ({ session }: { session: Session | null }) => {
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
@@ -61,4 +61,64 @@ const NavBar = () => {
   );
 };
 
-export default NavBar;
+export const Drawer = ({
+  children,
+}: {
+  children: JSX.Element[] | JSX.Element;
+}) => {
+  const { data: session } = useSession();
+
+  return (
+    <>
+      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
+        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
+
+        <div className="drawer-content">
+          <Background />
+          <NavBar session={session} />
+          {children}
+        </div>
+        <div className="drawer-side md:hidden">
+          <label
+            htmlFor="my-drawer-3"
+            className="drawer-overlay md:hidden"
+          ></label>
+          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
+            <ul className="w-full">
+              <li>Your application has not been received.</li>
+              {/* <!-- Sidebar content here --> */}
+              {/* <li>
+                <a className="mx-2 my-2 text-base font-bold" href="#">
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <a className="mx-2 my-2 text-base font-bold" href="#">
+                  Calendar
+                </a>
+              </li> */}
+            </ul>
+
+            <div className="mx-1 mb-2 flex w-full items-center justify-between">
+              <ThemeToggle />
+              <div>
+                <a className="font-sub mx-2.5 text-sm">
+                  Hi,{" "}
+                  <strong className="font-bold">{session?.user?.name}</strong>
+                </a>
+                <button
+                  onClick={() => signOut()}
+                  className="font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Drawer;
