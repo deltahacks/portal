@@ -10,6 +10,7 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
 import { Status } from "@prisma/client";
+import EventsDropdown from "../components/EventsDropdown";
 
 const Accepted: React.FC = () => {
   const { data: session } = useSession();
@@ -219,7 +220,12 @@ const RSVPed: React.FC = () => {
 const CheckedIn: React.FC = () => {
   const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
 
-  return <div>Checked in with code: {qrcode}</div>;
+  return (
+    <div>
+      Checked in with code: {qrcode}
+      <EventsDropdown />
+    </div>
+  );
 };
 
 const Dashboard: NextPage = () => {

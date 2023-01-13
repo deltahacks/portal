@@ -18,13 +18,10 @@ const DropdownItem = ({
 const EventsDropdown = () => {
   const events = [
     "REGISTRATION",
-    "BREAKFAST",
-    "FIRE DRILL TRAINING",
     "OPENING CEREMONY",
     "GROUP FORMATION",
     "GITHUB BASICS & ESSENTIALS",
     "RBC EMPLOYER EVENT - RESUME ROAST",
-    "LUNCH",
     "GRAPH QL WORKSHOP W/ HYPERCARE",
     "FIRE NOODLE CHALLENGE",
     "SPONSOR SHOWCASE",
@@ -33,12 +30,9 @@ const EventsDropdown = () => {
     "JAX WORKSHOP",
     "MACHINE LEARNING WORKSHOP, CREATE AN APP FROM SCRATCH",
     "REACT WORKSHOP",
-    "DINNER",
     "CUP STACKING",
     "SMASH EVENT",
-    "BREAKFAST",
     "TALK WITH FUAD",
-    "LUNCH",
     "CLOSING CEREMONY",
   ];
 
@@ -46,10 +40,12 @@ const EventsDropdown = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Choose an Event (you can scroll)</h1>
+      <h1 className="py-8 text-2xl font-bold">
+        Choose an Event (you can scroll)
+      </h1>
       <div
         tabIndex={0}
-        className="max-h-60 overflow-y-scroll rounded-2xl bg-gray-400 p-4"
+        className="max-h-60 overflow-y-scroll rounded-2xl bg-transparent p-4"
       >
         {events.map((event) => {
           return (
@@ -67,7 +63,7 @@ const EventsDropdown = () => {
           );
         })}
       </div>
-      Currently scanning for: {selected}
+      <div className="py-8">Currently scanning for: {selected}</div>
     </div>
   );
 };
