@@ -49,7 +49,7 @@ const Schedule: NextPage = () => {
         resource?.parentElement?.parentElement?.parentElement?.parentElement
           ?.parentElement?.parentElement?.parentElement?.parentElement;
       parent8?.removeChild(parent8?.lastElementChild as Node);
-    }, 250);
+    }, 100);
   };
 
   // Load in the tsv into the scheduler
