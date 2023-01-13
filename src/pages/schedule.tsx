@@ -34,16 +34,16 @@ const eventColours = [
 const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
 
-  // Add mouse event listner to popups
-  const addMouseListener = () =>
+  // Remove resource label from scheduler
+  const removeResourceLabel = () =>
     setTimeout(() => {
       const resource = document.querySelector("textarea");
-      const parent7 =
+      const parent8 =
         resource?.parentElement?.parentElement?.parentElement?.parentElement
-          ?.parentElement?.parentElement?.parentElement;
-      const parent8 = parent7?.parentElement;
+          ?.parentElement?.parentElement?.parentElement?.parentElement;
       parent8?.removeChild(parent8?.lastElementChild as Node);
     }, 250);
+
   // Load in the tsv into the scheduler
   useEffect(() => {
     (async () => {
@@ -95,7 +95,7 @@ const Schedule: NextPage = () => {
       <div className="flex-initial">
         <NavBar />
       </div>
-      <div className="flex-auto overflow-hidden" onClick={addMouseListener}>
+      <div className="flex-auto overflow-hidden" onClick={removeResourceLabel}>
         {/* desktop view */}
         <div className="h-full pt-5 sm:hidden">
           {events.length === 0 && (
