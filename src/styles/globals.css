@@ -47,3 +47,11 @@ body,
 .dx-scheduler-appointment-resource-list {
   display: none !important;
 }
+
+textarea {
+  height: 200px !important;
+}
+
+.dx-layout-manager .dx-label-h-align.dx-flex-layout {
+  display: none !important;
+}

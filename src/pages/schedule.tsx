@@ -34,6 +34,21 @@ const eventColours = [
 const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
 
+  // Add mouse event listner to popups
+  const addMouseListener = () =>
+    setTimeout(() => {
+      const resource = document.querySelector("textarea");
+      const parent7 =
+        resource?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode
+          ?.parentNode?.parentNode;
+      const parent8 = parent7?.parentNode;
+      try {
+        parent8?.removeChild(parent7?.nextSibling as Node);
+        parent8?.removeChild(parent7?.nextSibling as Node);
+      } catch (_) {
+        // ignore
+      }
+    }, 250);
   // Load in the tsv into the scheduler
   useEffect(() => {
     (async () => {
@@ -43,8 +58,8 @@ const Schedule: NextPage = () => {
           disabled: true,
           // Randomize the colour of the event. If allDay then make it white
           colorId: v.allDay
-            ? Math.floor(Math.random() * (eventColours.length - 1) + 1)
-            : 0,
+            ? 0
+            : Math.floor(Math.random() * (eventColours.length - 1) + 1),
         })),
       ];
       setEvents(data);
@@ -85,7 +100,7 @@ const Schedule: NextPage = () => {
       <div className="flex-initial">
         <NavBar />
       </div>
-      <div className="flex-auto overflow-hidden">
+      <div className="flex-auto overflow-hidden" onClick={addMouseListener}>
         {/* desktop view */}
         <div className="h-full pt-5 sm:hidden">
           {events.length === 0 && (
