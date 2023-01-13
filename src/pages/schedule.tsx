@@ -1,8 +1,7 @@
 import type { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
-import Background from "../components/Background";
-import NavBar from "../components/NavBar";
+import { Drawer } from "../components/NavBar";
 import parseIcsSchedule from "../utils/parseIcsSchedule";
 import { Event } from "../types/scheduler";
 
@@ -34,6 +33,16 @@ const eventColours = [
 const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
 
+  // Remove resource label from scheduler
+  const removeResourceLabel = () =>
+    setTimeout(() => {
+      const resource = document.querySelector("textarea");
+      const parent8 =
+        resource?.parentElement?.parentElement?.parentElement?.parentElement
+          ?.parentElement?.parentElement?.parentElement?.parentElement;
+      parent8?.removeChild(parent8?.lastElementChild as Node);
+    }, 250);
+
   // Load in the tsv into the scheduler
   useEffect(() => {
     (async () => {
@@ -41,8 +50,10 @@ const Schedule: NextPage = () => {
         ...(await parseIcsSchedule()).map((v) => ({
           ...v,
           disabled: true,
-          // Randomize the colour of the event
-          colorId: Math.floor(Math.random() * (eventColours.length - 1) + 1),
+          // Randomize the colour of the event. If allDay then make it white
+          colorId: v.allDay
+            ? 0
+            : Math.floor(Math.random() * (eventColours.length - 1) + 1),
         })),
       ];
       setEvents(data);
@@ -78,12 +89,8 @@ const Schedule: NextPage = () => {
   };
 
   return (
-    <div className="flex h-full flex-col">
-      <Background />
-      <div className="flex-initial">
-        <NavBar />
-      </div>
-      <div className="flex-auto overflow-hidden">
+    <Drawer>
+      <div className="flex-auto overflow-hidden" onClick={removeResourceLabel}>
         {/* desktop view */}
         <div className="h-full pt-5 sm:hidden">
           {events.length === 0 && (
@@ -99,7 +106,7 @@ const Schedule: NextPage = () => {
           <Schedule defaultCurrentView="timelineDay" />
         </div>
       </div>
-    </div>
+    </Drawer>
   );
 };
 
