@@ -151,8 +151,10 @@ const SponsorView: React.FC = () => {
     }
   }, [getResume]);
 
+  function resetScanner() {}
+
   return (
-    <div className="h-full w-full pb-24">
+    <div className="h-full w-full pb-24 md:h-[200%]">
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
@@ -174,6 +176,14 @@ const SponsorView: React.FC = () => {
             loading="lazy"
             src={getResume.resume || " "}
           ></iframe>
+          <div className=" pt-4">
+            <button
+              onClick={() => resetScanner()}
+              className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800"
+            >
+              Get New Resume
+            </button>
+          </div>
         </div>
       ) : null}
       {/*<div>
