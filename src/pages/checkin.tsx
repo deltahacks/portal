@@ -17,8 +17,6 @@ import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
