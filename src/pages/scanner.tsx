@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { NextPage } from "next";
+import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
@@ -9,11 +9,10 @@ import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useDeferredValue, useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
