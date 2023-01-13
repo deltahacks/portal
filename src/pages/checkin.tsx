@@ -30,6 +30,7 @@ const PreCheckedIn: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  const [error, setError] = useState(null);
 
   const doCheckIn = trpc.useMutation("application.checkIn");
   const router = useRouter();
@@ -61,6 +62,7 @@ const PreCheckedIn: React.FC = () => {
       />
       <div className="modal">
         <div className="modal-box relative">
+          <span>{error !== null ? error : null}</span>
           <div className="">
             <div>
               {shouldShowScanner ? (
@@ -87,9 +89,13 @@ const PreCheckedIn: React.FC = () => {
               disabled={QRCode === "NONE"}
               className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
               onClick={async () => {
-                await doCheckIn.mutateAsync(parseInt(QRCode));
-                await router.push("/me");
-                setShouldShow(!shouldShow);
+                try {
+                  await doCheckIn.mutateAsync(parseInt(QRCode));
+                  await router.push("/me");
+                  setShouldShow(!shouldShow);
+                } catch (e: any) {
+                  setError(e.message);
+                }
               }}
             >
               Link QR Value
@@ -149,13 +155,13 @@ const NoRSVP: React.FC = () => {
     </div>
   );
 };
-
 const Checkin: NextPage = () => {
   const { data: session } = useSession();
 
   const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
     "application.status",
   ]);
+
   const stateMap = {
     [Status.IN_REVIEW]: <></>,
     [Status.ACCEPTED]: <PreCheckedIn />,
