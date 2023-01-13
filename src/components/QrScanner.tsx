@@ -52,6 +52,12 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
     }
   }, [parent]);
 
+  useEffect(() => {
+    return () => {
+      BrowserCodeReader.releaseAllStreams();
+    }
+  })
+
   return <video ref={parent}></video>;
 };
 
