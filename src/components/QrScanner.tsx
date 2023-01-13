@@ -43,7 +43,7 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
       oscillator.start();
       setTimeout(() => {
         oscillator.stop();
-      }, 1000);
+      }, 100);
       callback(result.getText());
     };
 
@@ -61,7 +61,12 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
   return <video ref={parent}></video>;
 };
 
-export const QRScanner: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
+interface QRScannerProps {
+  callback: (result: string) => void;
+  delay: number;
+}
+
+export const QRScanner: React.FC<QRScannerProps> = ({ callback, delay = 2000 }) => {
   const parent = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -84,7 +89,7 @@ export const QRScanner: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
         selectedDeviceId,
         parent!.current!,
         (result) => {
-          if (result && lastFired.getTime() < Date.now() - 2000) {
+          if (result && lastFired.getTime() < Date.now() - delay) {
             console.log(lastFired);
             const audioCtx = new AudioContext();
             const oscillator = audioCtx.createOscillator();
@@ -97,7 +102,7 @@ export const QRScanner: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
             oscillator.start();
             setTimeout(() => {
               oscillator.stop();
-            }, 1000);
+            }, 200);
             console.log("Scanned", result);
             callback(result.getText());
 
@@ -115,7 +120,7 @@ export const QRScanner: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
     if (parent.current) {
       setUpReader().then(() => console.log("Camera ready"));
     }
-  }, []);
+  }, [callback, delay]);
 
   return <video ref={parent}></video>;
 };

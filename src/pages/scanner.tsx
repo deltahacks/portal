@@ -8,7 +8,7 @@ import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useDeferredValue, useEffect, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
@@ -158,20 +158,18 @@ const SponsorView: React.FC = () => {
     }
   }, [getResume]);
 
-  function resetScanner() {}
+  // function resetScanner() {}
 
   return (
     <div className="h-full w-full pb-24 md:h-[200%]">
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
-            scanDelay={scanDelay}
             callback={async (data) => {
               setQRCode(data);
               setScanDelay(false);
               await utils.invalidateQueries(["sponsor.getEmail"]);
             }}
-            lastVal={qrDefer}
           />
         ) : null}
       </div>
@@ -285,9 +283,9 @@ const SecurityGuardView: React.FC = () => {
 };
 
 const EventsView: React.FC = () => {
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  // const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
-  const qrDefer = useDeferredValue(QRCode);
+  // const qrDefer = useDeferredValue(QRCode);
 
   const events = [
     "REGISTRATION",
@@ -311,17 +309,21 @@ const EventsView: React.FC = () => {
 
   const [selected, setSelected] = useState(events[0]);
 
+  useEffect(() => {
+    console.log(QRCode, selected);
+  }, [QRCode, selected])
+
+
+
   return (
     <div>
       <div>
         {
-          <QRReaderDynamic
-            scanDelay={scanDelay}
-            handleScan={async (data) => {
+          <ConstantQRReaderDynamic
+            callback={(data: string) => {
               setQRCode(data);
-              setScanDelay(false);
             }}
-            lastVal={qrDefer}
+            delay={1000}
           />
         }
       </div>
@@ -366,6 +368,8 @@ const Scanner: NextPage = () => {
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
+  stateMap.set(Role.EVENT_MANAGER, <EventsView />);
+
   //stateMap.set(Role.SPONSOR, <SponsorView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
