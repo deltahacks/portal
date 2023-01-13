@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { NextPage } from "next";
+import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
@@ -14,6 +14,9 @@ import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { router } from "@trpc/server";
 import { userAgent } from "next/server";
+import clsx from "clsx";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { prisma } from "../server/db/client";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -191,12 +194,36 @@ const HackerView: React.FC = () => {
 const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
 };
+
 const EventsView: React.FC = () => {
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
+
+  const events = [
+    "REGISTRATION",
+    "OPENING CEREMONY",
+    "GROUP FORMATION",
+    "GITHUB BASICS & ESSENTIALS",
+    "RBC EMPLOYER EVENT - RESUME ROAST",
+    "GRAPH QL WORKSHOP W/ HYPERCARE",
+    "FIRE NOODLE CHALLENGE",
+    "SPONSOR SHOWCASE",
+    "BOARD GAME LOUNGE OPENS",
+    "ANDROID APP WITH AFZAL NAJAM",
+    "JAX WORKSHOP",
+    "MACHINE LEARNING WORKSHOP, CREATE AN APP FROM SCRATCH",
+    "REACT WORKSHOP",
+    "CUP STACKING",
+    "SMASH EVENT",
+    "TALK WITH FUAD",
+    "CLOSING CEREMONY",
+  ];
+
+  const [selected, setSelected] = useState(events[0]);
+
   return (
-    <>
+    <div>
       <div>
         {
           <QRReaderDynamic
@@ -212,7 +239,33 @@ const EventsView: React.FC = () => {
       <h3 className="py-1 text-md">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
-    </>
+      <div>
+        <h1 className="py-8 text-2xl font-bold">
+          Choose an Event (you can scroll)
+        </h1>
+        <div
+          tabIndex={0}
+          className="max-h-60 overflow-y-scroll rounded-2xl bg-transparent p-4"
+        >
+          {events.map((event) => {
+            return (
+              <div
+                key={event}
+                onClick={() => setSelected(event)}
+                className={clsx({
+                  "btn mb-4 flex w-full items-center justify-center": true,
+                  "btn-primary": selected !== event,
+                  "btn-success": selected === event,
+                })}
+              >
+                {event}
+              </div>
+            );
+          })}
+        </div>
+        <div className="py-8">Currently scanning for: {selected}</div>
+      </div>
+    </div>
   );
 };
 
@@ -224,9 +277,11 @@ const Scanner: NextPage = () => {
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
+  stateMap.set(Role.EVENT_MANAGER, <EventsView />);
+  stateMap.set(Role.GENERAL_SCANNER, <></>);
+  stateMap.set(Role.SPONSER, <></>);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
-
   return (
     <>
       <Head>
@@ -313,6 +368,16 @@ const Scanner: NextPage = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
+
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
 };
 
 export default Scanner;
