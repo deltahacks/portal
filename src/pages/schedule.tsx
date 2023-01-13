@@ -39,15 +39,10 @@ const Schedule: NextPage = () => {
     setTimeout(() => {
       const resource = document.querySelector("textarea");
       const parent7 =
-        resource?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode
-          ?.parentNode?.parentNode;
-      const parent8 = parent7?.parentNode;
-      try {
-        parent8?.removeChild(parent7?.nextSibling as Node);
-        parent8?.removeChild(parent7?.nextSibling as Node);
-      } catch (_) {
-        // ignore
-      }
+        resource?.parentElement?.parentElement?.parentElement?.parentElement
+          ?.parentElement?.parentElement?.parentElement;
+      const parent8 = parent7?.parentElement;
+      parent8?.removeChild(parent8?.lastElementChild as Node);
     }, 250);
   // Load in the tsv into the scheduler
   useEffect(() => {
