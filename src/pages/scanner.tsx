@@ -7,14 +7,13 @@ import SocialButtons from "../components/SocialButtons";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
-import { router } from "@trpc/server";
-import { userAgent } from "next/server";
-import clsx from "clsx";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import clsx from "clsx";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -38,6 +37,7 @@ const FoodManagerView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
   const utils = trpc.useContext();
+  const [value, setValue] = useState("");
 
   const {
     data: foodData,
@@ -52,7 +52,7 @@ const FoodManagerView: React.FC = () => {
 
   return (
     <>
-      <div className="lg:w-2/3">
+      <div>
         {
           <QRReaderDynamic
             scanDelay={scanDelay}
@@ -76,7 +76,23 @@ const FoodManagerView: React.FC = () => {
           : `${foodData?.lastMeal?.toDateString()} ${foodData?.lastMeal?.toLocaleTimeString()}`}
       </h1>
       <h1>food go brr : {isError ? "not food data" : foodData?.mealsTaken}</h1>
-
+      <div className="form-control">
+        <div className="input-group">
+          <input
+            type="text"
+            placeholder="QR CODE"
+            className="input input-bordered"
+            maxLength={7}
+            minLength={7}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            pattern="[0-9]*"
+          />
+          <button className="btn btn-primary" onClick={() => setQRCode(value)}>
+            Submit
+          </button>
+        </div>
+      </div>
       <div className="flex w-full justify-between gap-4">
         <button
           disabled={QRCode === "NONE"}
@@ -177,26 +193,19 @@ const HackerView: React.FC = () => {
     }
   );
 
-  useEffect(() => {
-    if (QRCode !== "NONE") {
-      setShouldShowScanner(false);
-    }
-  }, [QRCode]);
-
   return (
     <>
       <div>
         {shouldShowScanner ? (
-          <div>
-            <QRReaderDynamic
-              scanDelay={scanDelay}
-              handleScan={(data) => {
-                setQRCode(data);
-                setScanDelay(false);
-              }}
-              lastVal={qrDefer}
-            />
-          </div>
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={(data) => {
+              setQRCode(data);
+              setScanDelay(false);
+              setShouldShowScanner(false);
+            }}
+            lastVal={qrDefer}
+          />
         ) : null}
       </div>
       <div className="w-full">
@@ -337,8 +346,10 @@ const Scanner: NextPage = () => {
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
+  //stateMap.set(Role.SPONSOR, <SponsorView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
+
   return (
     <>
       <Head>
@@ -382,6 +393,10 @@ const Scanner: NextPage = () => {
               </>
             )}
           </main>
+
+          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+            <SocialButtons />
+          </footer>
         </div>
 
         <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
@@ -435,7 +450,6 @@ export const getServerSideProps = async (
   if (!session || !session.user) {
     return { redirect: { destination: "/login", permanent: false } };
   }
-
   return { props: {} };
 };
 
