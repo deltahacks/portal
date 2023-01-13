@@ -8,8 +8,13 @@ import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import QrScanner from "../components/QrScanner";
+import dynamic from "next/dynamic";
+
+const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
+  ssr: false,
+});
 
 const RedirectToDashboard: React.FC = () => {
   const router = useRouter();
@@ -24,9 +29,42 @@ const RedirectToDashboard: React.FC = () => {
 };
 
 const FoodManagerView: React.FC = () => {
+  //   const [shouldShowScanner, setShouldShowScanner] = useState(true);
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
+  const [QRCode, setQRCode] = useState("NONE");
+  const qrDefer = useDeferredValue(QRCode);
   return (
     <>
-      <QrScanner />
+      <div>
+        {
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={(data) => {
+              setQRCode(data);
+              setScanDelay(false);
+            }}
+            lastVal={qrDefer}
+          />
+        }
+      </div>
+      <h3 className="text-md py-1">
+        QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
+      </h3>
+
+      <div className="flex w-full justify-between gap-4">
+        <button
+          disabled={QRCode === "NONE"}
+          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
+          onClick={async () => {
+            // await doCheckIn.mutateAsync(parseInt(QRCode));
+            // await router.push("/dashboard");
+            // setShouldShow(!shouldShow);
+            console.log(QRCode);
+          }}
+        >
+          Link QR Value
+        </button>
+      </div>
     </>
   );
 };
