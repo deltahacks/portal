@@ -39,9 +39,8 @@ const parseICSSchedule = async () => {
         allDay: isAllDay,
         description: completeDescription,
       };
-
-      // Filter out the organizer events
     })
+    // Filter out the organizer events
     .filter((event) => event.description.indexOf("Organizer") === -1)
     // Port All Day events first
     .sort((a) => (a.allDay ? -1 : 1));
