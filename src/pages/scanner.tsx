@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { router } from "@trpc/server";
 import { userAgent } from "next/server";
+import clsx from "clsx";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 
@@ -179,12 +180,36 @@ const HackerView: React.FC = () => {
 const SecurityGuardView: React.FC = () => {
   return <h1></h1>;
 };
+
 const EventsView: React.FC = () => {
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
+
+  const events = [
+    "REGISTRATION",
+    "OPENING CEREMONY",
+    "GROUP FORMATION",
+    "GITHUB BASICS & ESSENTIALS",
+    "RBC EMPLOYER EVENT - RESUME ROAST",
+    "GRAPH QL WORKSHOP W/ HYPERCARE",
+    "FIRE NOODLE CHALLENGE",
+    "SPONSOR SHOWCASE",
+    "BOARD GAME LOUNGE OPENS",
+    "ANDROID APP WITH AFZAL NAJAM",
+    "JAX WORKSHOP",
+    "MACHINE LEARNING WORKSHOP, CREATE AN APP FROM SCRATCH",
+    "REACT WORKSHOP",
+    "CUP STACKING",
+    "SMASH EVENT",
+    "TALK WITH FUAD",
+    "CLOSING CEREMONY",
+  ];
+
+  const [selected, setSelected] = useState(events[0]);
+
   return (
-    <>
+    <div>
       <div>
         {
           <QRReaderDynamic
@@ -200,7 +225,33 @@ const EventsView: React.FC = () => {
       <h3 className="text-md py-1">
         QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
       </h3>
-    </>
+      <div>
+        <h1 className="py-8 text-2xl font-bold">
+          Choose an Event (you can scroll)
+        </h1>
+        <div
+          tabIndex={0}
+          className="max-h-60 overflow-y-scroll rounded-2xl bg-transparent p-4"
+        >
+          {events.map((event) => {
+            return (
+              <div
+                key={event}
+                onClick={() => setSelected(event)}
+                className={clsx({
+                  "btn mb-4 flex w-full items-center justify-center": true,
+                  "btn-primary": selected !== event,
+                  "btn-success": selected === event,
+                })}
+              >
+                {event}
+              </div>
+            );
+          })}
+        </div>
+        <div className="py-8">Currently scanning for: {selected}</div>
+      </div>
+    </div>
   );
 };
 
