@@ -40,7 +40,9 @@ const parseICSSchedule = async () => {
         startDate: startDate,
         endDate: endDate,
         allDay: isAllDay,
-        description: `Located in ${location}.\n\n${description}`,
+        description: `Located in ${location}.${
+          description && "\n\n"
+        }${description}`,
       };
 
       // Filter out the organizer events
