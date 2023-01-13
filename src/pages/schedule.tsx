@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
-import Drawer from "../components/NavBar";
+import { Drawer } from "../components/NavBar";
 import parseIcsSchedule from "../utils/parseIcsSchedule";
 import { Event } from "../types/scheduler";
 
