@@ -220,12 +220,7 @@ const RSVPed: React.FC = () => {
 const CheckedIn: React.FC = () => {
   const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
 
-  return (
-    <div>
-      Checked in with code: {qrcode}
-      <EventsDropdown />
-    </div>
-  );
+  return <div>Checked in with code: {qrcode}</div>;
 };
 
 const Dashboard: NextPage = () => {
