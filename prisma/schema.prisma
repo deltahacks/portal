@@ -87,6 +87,7 @@ enum Role {
   FOOD_MANAGER
   EVENT_MANAGER
   GENERAL_SCANNER
+  SPONSER
 }
 
 enum Status {
