@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
@@ -34,7 +34,7 @@ const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
 
   // Load in the tsv into the scheduler
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const data = [
         ...(await parseIcsSchedule()).map((v) => ({
@@ -85,10 +85,16 @@ const Schedule: NextPage = () => {
       <div className="flex-auto overflow-hidden">
         {/* desktop view */}
         <div className="h-full pt-5 sm:hidden">
+          {events.length === 0 && (
+            <div className="py-4 text-4xl font-bold">Loading...</div>
+          )}
           <Schedule defaultCurrentView="agenda" />
         </div>
         {/* mobile view */}
         <div className="hidden h-full p-8 sm:block">
+          {events.length === 0 && (
+            <div className="py-4 text-4xl font-bold">Loading...</div>
+          )}
           <Schedule defaultCurrentView="timelineDay" />
         </div>
       </div>
