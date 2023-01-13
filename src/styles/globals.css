@@ -35,3 +35,11 @@ body,
     background-size: 200% 200%;
   }
 }
+
+.dx-state-disabled {
+  opacity: 1 !important;
+}
+
+.dx-scheduler-all-day-appointment {
+  height: 2rem !important;
+}
