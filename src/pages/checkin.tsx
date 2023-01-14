@@ -32,6 +32,7 @@ const PreCheckedIn: React.FC = () => {
 
   const doCheckIn = trpc.useMutation("application.checkIn");
   const router = useRouter();
+  const [value, setValue] = useState("");
 
   console.log("Rendering...");
 
@@ -52,6 +53,7 @@ const PreCheckedIn: React.FC = () => {
       >
         Toggle Camera
       </button>
+
       <input
         type="checkbox"
         id="my-modal-3"
@@ -82,6 +84,29 @@ const PreCheckedIn: React.FC = () => {
                   }}
                 />
               ) : null}
+            </div>
+            <div className="flex flex-col gap-5 p-5">
+              <h1 className="text-white">Link manually :</h1>
+              <div className="form-control">
+                <div className="input-group pb-4">
+                  <input
+                    type="text"
+                    placeholder="QR CODE"
+                    className="input input-bordered"
+                    maxLength={7}
+                    minLength={7}
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    pattern="[0-9]*"
+                  />
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setQRCode(value)}
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
