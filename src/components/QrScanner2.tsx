@@ -4,63 +4,6 @@ import { QrReader } from "react-qr-reader";
 
 import { BrowserQRCodeReader, BrowserCodeReader } from "@zxing/browser";
 
-interface QRScannerScanOnceProps {
-  callback: (result: string) => void;
-}
-
-const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
-  const parent = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const setUpReader = async () => {
-      const codeReader = new BrowserQRCodeReader();
-      const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
-
-      if (videoInputDevices === undefined || videoInputDevices.length === 0) {
-        console.log("No video input devices found.");
-        return;
-      }
-      // choose the environment camera
-      const selectedDeviceId = videoInputDevices[0]!.deviceId;
-
-      console.log(`Started decode from camera with id ${selectedDeviceId}`);
-
-      // you can use the controls to stop() the scan or switchTorch() if available
-      const result = await codeReader.decodeOnceFromVideoDevice(
-        selectedDeviceId,
-        parent!.current!
-      );
-      console.log("Scanned", result);
-
-      const audioCtx = new AudioContext();
-      const oscillator = audioCtx.createOscillator();
-      oscillator.type = "square";
-      oscillator.frequency.value = 440;
-      const gain = audioCtx.createGain();
-      gain.gain.value = 3;
-      oscillator.connect(gain);
-      gain.connect(audioCtx.destination);
-      oscillator.start();
-      setTimeout(() => {
-        oscillator.stop();
-      }, 100);
-      callback(result.getText());
-    };
-
-    if (parent.current) {
-      setUpReader().then(() => console.log("Camera ready"));
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      BrowserCodeReader.releaseAllStreams();
-    };
-  });
-
-  return <video ref={parent}></video>;
-};
-
 interface QRScannerProps {
   callback: (result: string) => void;
   delay: number;
@@ -71,6 +14,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
   delay = 2000,
 }) => {
   const parent = useRef<HTMLVideoElement>(null);
+  const [cameraIdx, setCameraIdx] = useState(0);
 
   useEffect(() => {
     const setUpReader = async () => {
@@ -83,7 +27,8 @@ export const QRScanner: React.FC<QRScannerProps> = ({
         return;
       }
       // choose the environment camera
-      const selectedDeviceId = videoInputDevices[0]!.deviceId;
+      const selectedDeviceId =
+        videoInputDevices[cameraIdx % videoInputDevices.length]!.deviceId;
 
       console.log(`Started decode from camera with id ${selectedDeviceId}`);
 
@@ -123,9 +68,25 @@ export const QRScanner: React.FC<QRScannerProps> = ({
     if (parent.current) {
       setUpReader().then(() => console.log("Camera ready"));
     }
-  }, [callback, delay]);
 
-  return <video ref={parent}></video>;
+    return () => {
+      BrowserCodeReader.releaseAllStreams();
+    };
+  }, [callback, delay, cameraIdx]);
+
+  return (
+    <div>
+      <video ref={parent}></video>
+      <button
+        className="btn btn-primary"
+        onClick={() => (
+          setCameraIdx(cameraIdx + 1), console.log(cameraIdx % 2)
+        )}
+      >
+        Flip camera
+      </button>
+    </div>
+  );
 };
 
 export default QRScanner;
