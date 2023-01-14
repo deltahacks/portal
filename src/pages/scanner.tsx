@@ -57,18 +57,23 @@ const FoodManagerView: React.FC = () => {
   const foodMutationAdd = trpc.useMutation(["food.addFood"]);
   const foodMutationSub = trpc.useMutation(["food.subFood"]);
 
+  const cb = useCallback(
+    async (data: string) => {
+      setQRCode(data);
+      setScanDelay(false);
+      await utils.invalidateQueries(["food.getFood"]);
+    },
+    [utils]
+  );
   return (
     <>
       <div>
         {
           <ConstantQRReaderDynamic
             // scanDelay={scanDelay}
-            callback={async (data) => {
-              setQRCode(data);
-              setScanDelay(false);
-              await utils.invalidateQueries(["food.getFood"]);
-            }}
+            callback={cb}
             // lastVal={qrDefer}
+            delay={1000}
           />
         }
       </div>
@@ -309,11 +314,20 @@ const EventsView: React.FC = () => {
 
   const [selected, setSelected] = useState(events[0]);
 
+  const eCheckIn = trpc.useMutation("events.checkin");
+
   useEffect(() => {
+    const asdf = async () => {
     console.log(QRCode, selected);
-  }, [QRCode, selected])
-
-
+      if (!Number.isNaN(parseInt(QRCode)) && selected) {
+        await eCheckIn.mutateAsync({
+          qrcode: parseInt(QRCode),
+          eventName: selected,
+        });
+      }
+    };
+    asdf();
+  }, [QRCode, selected]);
 
   return (
     <div>
@@ -342,7 +356,10 @@ const EventsView: React.FC = () => {
             return (
               <div
                 key={event}
-                onClick={() => setSelected(event)}
+                onClick={() => {
+                  setQRCode("");
+                  setSelected(event);
+                }}
                 className={clsx({
                   "btn mb-4 flex w-full items-center justify-center": true,
                   "btn-primary": selected !== event,

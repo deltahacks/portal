@@ -14,7 +14,7 @@ export const eventsRouter = createProtectedRouter().mutation("checkin", {
     if (
       !(
         ctx.session.user.role.includes(Role.ADMIN) ||
-        ctx.session.user.role.includes(Role.FOOD_MANAGER)
+        ctx.session.user.role.includes(Role.EVENT_MANAGER)
       )
     ) {
       throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
@@ -29,7 +29,6 @@ export const eventsRouter = createProtectedRouter().mutation("checkin", {
     const currentTime = new Date();
     await ctx.prisma.eventLog.create({
       data: {
-        id: ctx.session.user.id,
         userId: user.id,
         timestamp: currentTime,
         event: input.eventName,
