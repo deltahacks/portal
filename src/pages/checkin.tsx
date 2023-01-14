@@ -237,17 +237,17 @@ const Checkin: NextPage = () => {
   );
 };
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
-  output = rbac(
-    await getServerAuthSession(context),
-    ["ADMIN"],
-    undefined,
-    output
-  );
-  return output;
-};
+// export const getServerSideProps = async (
+//   context: GetServerSidePropsContext
+// ) => {
+//   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
+//   output = rbac(
+//     await getServerAuthSession(context),
+//     ["ADMIN"],
+//     undefined,
+//     output
+//   );
+//   return output;
+// };
 
 export default Checkin;
