@@ -44,8 +44,9 @@ const Me: NextPage = () => {
           <Background />
           <NavBar />
 
-          <main className="-transform-x-1/2  static top-1/2 left-1/2 flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
-            {/* <div className="absolute right-52 w-fit">
+          <main className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+              {/* <div className="absolute right-52 w-fit">
               <div className="alert alert-info bg-[#570df8] text-white shadow-lg">
                 <div>
                   <span>
@@ -55,59 +56,62 @@ const Me: NextPage = () => {
               </div>
             </div> */}
 
-            <div className="-mb-8 h-36 w-36 overflow-hidden rounded-full border-2 border-white md:h-52 md:w-52">
-              <Image
-                width="250%"
-                height="250%"
-                referrerPolicy="no-referrer"
-                src={session?.user?.image || ""}
-                alt="profile-picture.png"
-              />
-            </div>
-            <div
-              className="rounded-lg bg-white p-4"
-              onClick={() => setShowPrivate(!showPrivate)}
-              ref={parent}
-            >
-              <h1 className="pb-2 text-3xl font-bold text-black">
-                {data?.typeform?.firstName} {data?.typeform?.lastName}
-              </h1>
-              <p className={clsx({ "text-black": true, "pb-5": !showPrivate })}>
-                {/* <p className="pb-5 text-black"> */}
-                Meals taken :{" "}
-                <span className="text-md ">
-                  {data?.mealData.mealsTaken}
-                </span>{" "}
-                <span className="text-md">/ 4</span>
-              </p>
-              {showPrivate && (
-                <div className="pb-2">
-                  <p className="text-md text-black">
-                    Birthdate:{" "}
-                    {(() => {
-                      // Correct the date by 1 day
-                      const birthday = new Date(
-                        data?.typeform?.birthday.getTime() ?? 0
-                      );
-                      birthday.setDate(birthday.getDate() + 1);
-                      return birthday?.toLocaleDateString();
-                    })()}
-                  </p>
-                  <p className="text-md text-black">
-                    Last Meal:{" "}
-                    {data?.mealData?.lastMeal?.toLocaleDateString() ||
-                      "No meal taken yet"}
-                  </p>
-                </div>
-              )}
+              <div className="-mb-8 h-36 w-36 overflow-hidden rounded-full border-2 border-white md:h-52 md:w-52">
+                <Image
+                  width="250%"
+                  height="250%"
+                  referrerPolicy="no-referrer"
+                  src={session?.user?.image || ""}
+                  alt="profile-picture.png"
+                />
+              </div>
+              <div
+                className="rounded-lg bg-white p-4"
+                onClick={() => setShowPrivate(!showPrivate)}
+                ref={parent}
+              >
+                <h1 className="pb-2 text-3xl font-bold text-black">
+                  {data?.typeform?.firstName} {data?.typeform?.lastName}
+                </h1>
+                <p
+                  className={clsx({ "text-black": true, "pb-5": !showPrivate })}
+                >
+                  {/* <p className="pb-5 text-black"> */}
+                  Meals taken :{" "}
+                  <span className="text-md">
+                    {data?.mealData.mealsTaken}
+                  </span>{" "}
+                  <span className="text-md">/ 4</span>
+                </p>
+                {showPrivate && (
+                  <div className="pb-2">
+                    <p className="text-md text-black">
+                      Birthdate:{" "}
+                      {(() => {
+                        // Correct the date by 1 day
+                        const birthday = new Date(
+                          data?.typeform?.birthday.getTime() ?? 0
+                        );
+                        birthday.setDate(birthday.getDate() + 1);
+                        return birthday?.toLocaleDateString();
+                      })()}
+                    </p>
+                    <p className="text-md text-black">
+                      Last Meal:{" "}
+                      {data?.mealData?.lastMeal?.toLocaleDateString() ||
+                        "No meal taken yet"}
+                    </p>
+                  </div>
+                )}
 
-              <QRCode
-                size={256}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                value={"123"}
-                viewBox={`0 0 256 256`}
-                values={"H"}
-              />
+                <QRCode
+                  className="h-auto w-full max-w-full"
+                  size={256}
+                  value={"123"}
+                  viewBox={`0 0 256 256`}
+                  values={"H"}
+                />
+              </div>
             </div>
           </main>
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
@@ -131,7 +135,7 @@ const Me: NextPage = () => {
                   Dashboard
                 </Link>
               </li>
-              {/* 
+              {/*
               <li>
                 <a className="mx-2 my-2 text-base font-bold" href="#">
                   Calendar
