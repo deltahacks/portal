@@ -15,6 +15,8 @@ import { trpc } from "../utils/trpc";
 import { useEffect, useRef, useState } from "react";
 import auto from "@formkit/auto-animate";
 import clsx from "clsx";
+import { router } from "@trpc/server";
+import { useRouter } from "next/router";
 
 const Me: NextPage = () => {
   const { data: session } = useSession();
@@ -31,6 +33,16 @@ const Me: NextPage = () => {
     parent.current && auto(parent.current);
   }, [parent, showPrivate]);
 
+  const router = useRouter();
+  const [rickCount, setRick] = useState(0);
+  const RickRoll = async () => {
+    setRick(rickCount + 1);
+    console.log(rickCount);
+    if (rickCount === 5) {
+      await router.push("https://www.youtube.com/watch?v=q-Y0bnx6Ndw");
+    }
+  };
+
   return (
     <>
       <Head>
@@ -43,22 +55,10 @@ const Me: NextPage = () => {
         <div className="drawer-content h-full">
           <Background />
           <NavBar />
-
-          <main className="flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
-            {/* <div className="absolute right-52 w-fit">
-              <div className="alert alert-info bg-[#570df8] text-white shadow-lg">
-                <div>
-                  <span>
-                    Press on the QR card <br></br>to see more info.
-                  </span>
-                </div>
-              </div>
-            </div> */}
-
-            <div className="-mb-8 h-36 w-36 overflow-hidden rounded-full border-2 border-white md:h-52 md:w-52">
-              <Image
-                width="250%"
-                height="250%"
+          <main className="-transform-x-1/2  static top-1/2 left-1/2 flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
+            <div className=" -mb-8 w-36 overflow-hidden rounded-full border-2 border-white md:w-52">
+              <img
+                className="w-full"
                 referrerPolicy="no-referrer"
                 src={session?.user?.image || ""}
                 alt="profile-picture.png"
@@ -66,7 +66,7 @@ const Me: NextPage = () => {
             </div>
             <div
               className="rounded-lg bg-white p-4"
-              onClick={() => setShowPrivate(!showPrivate)}
+              onClick={() => (setShowPrivate(!showPrivate), RickRoll())}
               ref={parent}
             >
               <h1 className="pb-2 text-3xl font-bold text-black">
@@ -100,6 +100,12 @@ const Me: NextPage = () => {
                 viewBox={`0 0 256 256`}
                 values={"H"}
               />
+            </div>
+            <div
+              className="absolute left-0 bottom-0 rotate-180 text-[8px]"
+              style={{ writingMode: "vertical-rl" }}
+            >
+              Find the easter egg
             </div>
           </main>
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
