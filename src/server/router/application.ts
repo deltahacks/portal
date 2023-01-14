@@ -239,7 +239,6 @@ export const applicationRouter = createProtectedRouter()
           socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "N/A",
           major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
         };
-
       });
       const socialLinks = converted[0]?.socialLinks?.match(
         /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim

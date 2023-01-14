@@ -327,7 +327,7 @@ const EventsView: React.FC = () => {
 
   useEffect(() => {
     const asdf = async () => {
-    console.log(QRCode, selected);
+      console.log(QRCode, selected);
       if (!Number.isNaN(parseInt(QRCode)) && selected) {
         await eCheckIn.mutateAsync({
           qrcode: parseInt(QRCode),

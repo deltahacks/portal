@@ -66,7 +66,10 @@ interface QRScannerProps {
   delay: number;
 }
 
-export const QRScanner: React.FC<QRScannerProps> = ({ callback, delay = 2000 }) => {
+export const QRScanner: React.FC<QRScannerProps> = ({
+  callback,
+  delay = 2000,
+}) => {
   const parent = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
