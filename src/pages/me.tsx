@@ -104,6 +104,7 @@ const Me: NextPage = () => {
                   </p>
                 </div>
               )}
+
               {qrcode ? (
                 <QRCode
                   className="h-auto w-full max-w-full"
@@ -113,6 +114,7 @@ const Me: NextPage = () => {
                   values={"H"}
                 />
               ) : null}
+
               <h1 className=" text-3xl font-bold text-black">{qrcode}</h1>
             </div>
             <div
