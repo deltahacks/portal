@@ -326,9 +326,9 @@ const Dashboard: NextPage = () => {
 
   const stateMap = {
     [Status.IN_REVIEW]: <WalkIns />,
-    [Status.ACCEPTED]: <Accepted />,
-    [Status.WAITLISTED]: <Waitlisted />,
-    [Status.REJECTED]: <Rejected />,
+    [Status.ACCEPTED]: <WalkIns />,
+    [Status.WAITLISTED]: <WalkIns />,
+    [Status.REJECTED]: <WalkIns />,
     [Status.RSVP]: <RSVPed />,
     [Status.CHECKED_IN]: <CheckedIn />,
   };
