@@ -1,4 +1,5 @@
 import { GetServerSidePropsContext, NextPage } from "next";
+import Image from "next/image";
 import QRCode from "react-qr-code";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
@@ -54,12 +55,14 @@ const Me: NextPage = () => {
               </div>
             </div> */}
 
-            <div className=" -mb-8 w-36 overflow-hidden rounded-full border-2 border-white md:w-52">
-              <img
-                className="w-full"
+            <div className="-mb-8 h-36 w-36 overflow-hidden rounded-full border-2 border-white md:h-52 md:w-52">
+              <Image
+                width="250%"
+                height="250%"
                 referrerPolicy="no-referrer"
                 src={session?.user?.image || ""}
-              ></img>
+                alt="profile-picture.png"
+              />
             </div>
             <div
               className="rounded-lg bg-white p-4"
