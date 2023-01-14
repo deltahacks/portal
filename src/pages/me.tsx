@@ -75,7 +75,7 @@ const Me: NextPage = () => {
               <p className={clsx({ "text-black": true, "pb-5": !showPrivate })}>
                 {/* <p className="pb-5 text-black"> */}
                 Meals taken :{" "}
-                <span className="text-md ">
+                <span className="text-md">
                   {data?.mealData.mealsTaken}
                 </span>{" "}
                 <span className="text-md">/ 4</span>
@@ -102,8 +102,8 @@ const Me: NextPage = () => {
               )}
 
               <QRCode
+                className="h-auto w-full max-w-full"
                 size={256}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                 value={"123"}
                 viewBox={`0 0 256 256`}
                 values={"H"}
@@ -131,7 +131,7 @@ const Me: NextPage = () => {
                   Dashboard
                 </Link>
               </li>
-              {/* 
+              {/*
               <li>
                 <a className="mx-2 my-2 text-base font-bold" href="#">
                   Calendar
