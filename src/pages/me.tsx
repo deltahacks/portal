@@ -107,7 +107,7 @@ const Me: NextPage = () => {
               <QRCode
                 className="h-auto w-full max-w-full"
                 size={256}
-                value={"123"}
+                value={qrcode!.toString()}
                 viewBox={`0 0 256 256`}
                 values={"H"}
               />
