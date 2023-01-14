@@ -26,6 +26,8 @@ const PreCheckedIn: React.FC = () => {
   const [shouldShow, setShouldShow] = useState(false);
   const [shouldShowScanner, setShouldShowScanner] = useState(false);
   const [QRCode, setQRCode] = useState("NONE");
+  const qrDefer = useDeferredValue(QRCode);
+  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [error, setError] = useState(null);
 
   const doCheckIn = trpc.useMutation("application.checkIn");
