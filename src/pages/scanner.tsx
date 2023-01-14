@@ -141,6 +141,7 @@ const SponsorView: React.FC = () => {
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
   const sendResumeEmail = trpc.useMutation("sponsor.sendResumeEmail");
+  const [error, setError] = useState("");
   const { data: session } = useSession();
   const utils = trpc.useContext();
   const {
@@ -164,8 +165,16 @@ const SponsorView: React.FC = () => {
     }
   }, [getResume]);
 
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError("");
+      }, 2000);
+    }
+  }, [error]);
+
   return (
-    <div className="h-full w-full pb-24 md:h-[200%]">
+    <div className="my-4 h-full w-full pb-24 md:h-[200%]">
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
@@ -185,27 +194,38 @@ const SponsorView: React.FC = () => {
             loading="lazy"
             src={getResume.resume || " "}
           ></iframe>
-          <div className=" pt-4">
-            {/* <button
-              onClick={() => resetScanner()}
-              className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800"
-            >
-              Get New Resume
-      </button> */}
-          </div>
         </div>
       ) : null}
-      <div
-        onClick={async () => {
-          await sendResumeEmail.mutateAsync({
-            qrcode: parseInt(QRCode),
-            email: session?.user?.email ?? "",
-          });
-          setQRCode("NONE");
-          setShouldShowScanner(true);
-        }}
-      >
-        <button>Send Resume To My Email</button>
+      <div className="pb-4 font-semibold text-red-500">
+        {error ? error : null}
+      </div>
+      <div className="mt-6 flex flex-wrap gap-4">
+        <button
+          className="btn btn-primary"
+          onClick={async () => {
+            if (QRCode === "NONE") {
+              setError("Please scan a QR Code");
+            } else {
+              await sendResumeEmail.mutateAsync({
+                qrcode: parseInt(QRCode),
+                email: session?.user?.email ?? "",
+              });
+              setQRCode("NONE");
+              setShouldShowScanner(true);
+            }
+          }}
+        >
+          Send Me This Resume!
+        </button>
+        {/*<button
+          className="btn btn-primary"
+          onClick={() => {
+            setQRCode("NONE");
+            setShouldShowScanner(true);
+          }}
+        >
+          Reset Scanner
+        </button>*/}
       </div>
     </div>
   );
@@ -291,9 +311,6 @@ const HackerView: React.FC = () => {
       </div>
     </>
   );
-};
-const SecurityGuardView: React.FC = () => {
-  return <h1></h1>;
 };
 
 const EventsView: React.FC = () => {
@@ -388,15 +405,12 @@ const EventsView: React.FC = () => {
 
 const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
-  // Add security guard and events people
   const stateMap = new Map<string, React.ReactElement>();
-  stateMap.set(Role.ADMIN, <SponsorView />);
+  //stateMap.set(Role.ADMIN, <SponsorView />);
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
-  stateMap.set(Role.REVIEWER, <FoodManagerView />);
   stateMap.set(Role.EVENT_MANAGER, <EventsView />);
-
-  //stateMap.set(Role.SPONSOR, <SponsorView />);
+  stateMap.set(Role.SPONSER, <SponsorView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
 
@@ -412,7 +426,7 @@ const Scanner: NextPage = () => {
           <NavBar />
 
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+            <h1 className="mb-4 text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Scanner
             </h1>
 
