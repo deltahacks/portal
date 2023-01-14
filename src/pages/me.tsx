@@ -45,7 +45,7 @@ const Me: NextPage = () => {
           <NavBar />
 
           <main className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+            <div className="flex w-[512px] flex-col items-center justify-center gap-4 py-16 md:flex-row 2xl:pt-20">
               {/* <div className="absolute right-52 w-fit">
               <div className="alert alert-info bg-[#570df8] text-white shadow-lg">
                 <div>
