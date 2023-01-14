@@ -104,13 +104,17 @@ const Me: NextPage = () => {
                   </p>
                 </div>
               )}
-              <QRCode
-                className="h-auto w-full max-w-full"
-                size={256}
-                value={qrcode!.toString()}
-                viewBox={`0 0 256 256`}
-                values={"H"}
-              />
+
+              {qrcode ? (
+                <QRCode
+                  className="h-auto w-full max-w-full"
+                  size={256}
+                  value={qrcode.toString()}
+                  viewBox={`0 0 256 256`}
+                  values={"H"}
+                />
+              ) : null}
+
               <h1 className=" text-3xl font-bold text-black">{qrcode}</h1>
             </div>
             <div
