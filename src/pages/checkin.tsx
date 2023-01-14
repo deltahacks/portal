@@ -15,7 +15,7 @@ import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
-import { rbac } from "../components/RBACWrapper";
+import { prisma } from "../server/db/client";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
@@ -64,15 +64,22 @@ const PreCheckedIn: React.FC = () => {
           <div className="">
             <div>
               {shouldShowScanner ? (
+                // <QRReaderDynamic
+                //   scanDelay={scanDelay}
+                //   handleScan={(data) => {
+                //     setQRCode(data);
+                //     // console.log("WTF HUH", data);
+                //     setScanDelay(false);
+                //     setShouldShowScanner(false);
+                //   }}
+                //   lastVal={qrDefer}
+                // />
                 <QRReaderDynamic
-                  scanDelay={scanDelay}
-                  handleScan={(data) => {
-                    setQRCode(data);
-                    // console.log("WTF HUH", data);
-                    setScanDelay(false);
+                  callback={(e) => {
+                    console.log(e);
+                    setQRCode(e);
                     setShouldShowScanner(false);
                   }}
-                  lastVal={qrDefer}
                 />
               ) : null}
             </div>
@@ -161,10 +168,10 @@ const Checkin: NextPage = () => {
   ]);
 
   const stateMap = {
-    [Status.IN_REVIEW]: <></>,
+    [Status.IN_REVIEW]: <PreCheckedIn />,
     [Status.ACCEPTED]: <PreCheckedIn />,
-    [Status.WAITLISTED]: <></>,
-    [Status.REJECTED]: <></>,
+    [Status.WAITLISTED]: <PreCheckedIn />,
+    [Status.REJECTED]: <PreCheckedIn />,
     [Status.RSVP]: <PreCheckedIn />,
     [Status.CHECKED_IN]: <PostCheckedIn />,
   };
@@ -236,17 +243,29 @@ const Checkin: NextPage = () => {
   );
 };
 
+// copied from dashboard.tsx
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
-  output = rbac(
-    await getServerAuthSession(context),
-    ["ADMIN"],
-    undefined,
-    output
-  );
-  return output;
+  const session = await getServerAuthSession(context);
+
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
+
+  const userEntry = await prisma.user.findFirst({
+    where: { id: session.user.id },
+  });
+
+  if (
+    userEntry &&
+    (userEntry.typeform_response_id === null ||
+      userEntry.typeform_response_id === undefined)
+  ) {
+    return { redirect: { destination: "/welcome", permanent: false } };
+  }
+
+  return { props: {} };
 };
 
 export default Checkin;
