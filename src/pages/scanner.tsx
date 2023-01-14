@@ -8,11 +8,7 @@ import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-<<<<<<< Updated upstream
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
-=======
-import { SetStateAction, useDeferredValue, useEffect, useState } from "react";
->>>>>>> Stashed changes
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
@@ -168,11 +164,6 @@ const SponsorView: React.FC = () => {
     }
   }, [getResume]);
 
-<<<<<<< Updated upstream
-  // function resetScanner() {}
-
-=======
->>>>>>> Stashed changes
   return (
     <div className="h-full w-full pb-24 md:h-[200%]">
       <div>
@@ -351,14 +342,8 @@ const EventsView: React.FC = () => {
     <div>
       <div>
         {
-<<<<<<< Updated upstream
           <ConstantQRReaderDynamic
             callback={(data: string) => {
-=======
-          <QRReaderDynamic
-            scanDelay={scanDelay}
-            handleScan={async (data: SetStateAction<string>) => {
->>>>>>> Stashed changes
               setQRCode(data);
             }}
             delay={1000}
