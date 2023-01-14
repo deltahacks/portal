@@ -83,7 +83,15 @@ const Me: NextPage = () => {
               {showPrivate && (
                 <div className="pb-2">
                   <p className="text-md text-black">
-                    Birthdate: {data?.typeform?.birthday.toLocaleDateString()}
+                    Birthdate:{" "}
+                    {(() => {
+                      // Correct the date by 1 day
+                      const birthday = new Date(
+                        data?.typeform?.birthday.getTime() ?? 0
+                      );
+                      birthday.setDate(birthday.getDate() + 1);
+                      return birthday?.toLocaleDateString();
+                    })()}
                   </p>
                   <p className="text-md text-black">
                     Last Meal:{" "}
