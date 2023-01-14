@@ -1,5 +1,7 @@
+import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
+import Background from "./Background";
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -7,15 +9,17 @@ const NavBar = () => {
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
       <div className="flex flex-row items-center justify-between">
-        <a className="mr-5" href="#">
-          <picture>
-            <img
-              className="inline-block h-10 w-12 md:h-16 md:w-20"
-              src="logo.svg"
-              alt="logo"
-            />
-          </picture>
-        </a>
+        <Link href="/welcome">
+          <button className="mr-5">
+            <picture>
+              <img
+                className="inline-block h-10 w-12 md:h-16 md:w-20"
+                src="logo.svg"
+                alt="logo"
+              />
+            </picture>
+          </button>
+        </Link>
         <div className="hidden font-montserrat md:inline-block">
           <h1 className="text-2xl">
             <strong>Delta</strong>Hacks <strong>IX</strong>
@@ -55,6 +59,66 @@ const NavBar = () => {
         </label>
       </div>
     </div>
+  );
+};
+
+export const Drawer = ({
+  children,
+}: {
+  children: JSX.Element[] | JSX.Element;
+}) => {
+  const { data: session } = useSession();
+
+  return (
+    <>
+      <div className="drawer drawer-end relative h-full w-full overflow-x-hidden font-montserrat">
+        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
+
+        <div className="drawer-content flex flex-col">
+          <Background />
+          <NavBar />
+          {children}
+        </div>
+        <div className="drawer-side md:hidden">
+          <label
+            htmlFor="my-drawer-3"
+            className="drawer-overlay md:hidden"
+          ></label>
+          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
+            <ul className="w-full">
+              <li>Your application has not been received.</li>
+              {/* <!-- Sidebar content here --> */}
+              {/* <li>
+                <a className="mx-2 my-2 text-base font-bold" href="#">
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <a className="mx-2 my-2 text-base font-bold" href="#">
+                  Calendar
+                </a>
+              </li> */}
+            </ul>
+
+            <div className="mx-1 mb-2 flex w-full items-center justify-between">
+              <ThemeToggle />
+              <div>
+                <a className="font-sub mx-2.5 text-sm">
+                  Hi,{" "}
+                  <strong className="font-bold">{session?.user?.name}</strong>
+                </a>
+                <button
+                  onClick={() => signOut()}
+                  className="font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

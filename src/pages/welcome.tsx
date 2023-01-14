@@ -3,7 +3,7 @@ import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import Background from "../components/Background";
-import NavBar from "../components/NavBar";
+import { Drawer } from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -63,62 +63,17 @@ const Content = () => {
 // };
 
 const Welcome: NextPage = () => {
-  const { data: session } = useSession();
   return (
     <>
       <Head>
         <title>Welcome - DeltaHacks 9</title>
       </Head>
-      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
-        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-
-        <div className="drawer-content">
-          <Background />
-          <NavBar />
-          <Content />
-          <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
-            <SocialButtons />
-          </footer>
-        </div>
-        <div className="drawer-side md:hidden">
-          <label
-            htmlFor="my-drawer-3"
-            className="drawer-overlay md:hidden"
-          ></label>
-          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
-            <ul className="w-full">
-              <li>Your application has not been received.</li>
-              {/* <!-- Sidebar content here --> */}
-              {/* <li>
-                <a className="mx-2 my-2 text-base font-bold" href="#">
-                  Dashboard
-                </a>
-              </li>
-              <li>
-                <a className="mx-2 my-2 text-base font-bold" href="#">
-                  Calendar
-                </a>
-              </li> */}
-            </ul>
-
-            <div className="mx-1 mb-2 flex w-full items-center justify-between">
-              <ThemeToggle />
-              <div>
-                <a className="font-sub mx-2.5 text-sm">
-                  Hi,{" "}
-                  <strong className="font-bold">{session?.user?.name}</strong>
-                </a>
-                <button
-                  onClick={() => signOut()}
-                  className="font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Drawer>
+        <Content />
+        <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
+          <SocialButtons />
+        </footer>
+      </Drawer>
     </>
   );
 };

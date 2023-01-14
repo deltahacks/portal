@@ -10,6 +10,41 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
 import { Status } from "@prisma/client";
+import React from "react";
+
+interface TimeUntilStartInterface {
+  hms: [h: number, m: number, s: number];
+}
+
+const TimeUntilStart: React.FC<TimeUntilStartInterface> = ({ hms }) => {
+  const [[hrs, mins, secs], setTime] = React.useState(hms);
+
+  const tick = () => {
+    if (hrs === 0 && mins === 0 && secs === 0) reset();
+    else if (mins === 0 && secs === 0) {
+      setTime([hrs - 1, 59, 59]);
+    } else if (secs === 0) {
+      setTime([hrs, mins - 1, 59]);
+    } else {
+      setTime([hrs, mins, secs - 1]);
+    }
+  };
+
+  const reset = () => setTime([0, 0, 0]);
+
+  React.useEffect(() => {
+    const timerId = setInterval(() => tick(), 1000);
+    return () => clearInterval(timerId);
+  });
+
+  return (
+    <div>
+      <p>{`${hrs.toString().padStart(2, "0")}:${mins
+        .toString()
+        .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`}</p>
+    </div>
+  );
+};
 
 const Accepted: React.FC = () => {
   const { data: session } = useSession();
@@ -191,7 +226,7 @@ const RSVPed: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="t-6 flex gap-6 pt-6">
+      <div className="t-6 flex  flex-wrap gap-6 pt-6 pb-24">
         <a href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
@@ -211,6 +246,11 @@ const RSVPed: React.FC = () => {
             Discord
           </button>
         </a>
+        <a href="/schedule" target="_blank" rel="noreferrer">
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Schedule
+          </button>
+        </a>
       </div>
     </div>
   );
@@ -218,8 +258,32 @@ const RSVPed: React.FC = () => {
 
 const CheckedIn: React.FC = () => {
   const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+  const { data: session } = useSession();
+  const hoursMinSecs = [1, 30, 20];
 
-  return <div>Checked in with code: {qrcode}</div>;
+  return (
+    <div>
+      <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+        Hey {session ? `${session.user?.name}` : ""}, welcome to your dashboard!
+      </h1>
+      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+        Here is where you can access your profile, which will contain a backup
+        of your QR code, as well as the event schedule.
+      </h2>
+      <div className="flex flex-col gap-4 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
+        <Link href="/me">
+          <div className="btn btn-primary w-full border-none text-base font-medium capitalize ">
+            My Profile{" "}
+          </div>
+        </Link>
+        <Link href="/schedule">
+          <div className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 ">
+            Schedule
+          </div>
+        </Link>
+      </div>
+    </div>
+  );
 };
 
 const Dashboard: NextPage = () => {

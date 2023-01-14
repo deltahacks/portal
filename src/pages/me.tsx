@@ -55,7 +55,11 @@ const Me: NextPage = () => {
             </div> */}
 
             <div className=" -mb-8 w-36 overflow-hidden rounded-full border-2 border-white md:w-52">
-              <img className="w-full" src={session?.user?.image || ""}></img>
+              <img
+                className="w-full"
+                referrerPolicy="no-referrer"
+                src={session?.user?.image || ""}
+              ></img>
             </div>
             <div
               className="rounded-lg bg-white p-4"
