@@ -278,15 +278,40 @@ const CheckedIn: React.FC = () => {
             My Profile{" "}
           </div>
         </Link>
+        <Link href="/scanner">
+          <div className="btn btn-primary w-full border-none text-base font-medium capitalize sm:w-1/2">
+            Scanner
+          </div>
+        </Link>
         <Link href="/schedule">
           <div className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             Schedule
           </div>
         </Link>
-        <Link href="/scanner">
-          <div className="btn btn-primary w-full border-none text-base font-medium capitalize sm:w-1/2">
-            Scanner
-          </div>
+      </div>
+      <div className="flex w-full flex-col gap-4 pt-6 pb-24 sm:w-1/2 sm:flex-row md:gap-8">
+        <Link href="https://deltahacks.com/#faq">
+          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            FAQ
+          </button>
+        </Link>
+        <Link
+          href="https://drive.google.com/file/d/1r4oLL37piVo_1xrJt34SA95pLaeaU9do/view?usp=sharing"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Attendee Package
+          </button>
+        </Link>
+        <Link
+          href="https://discord.gg/KpEdu3J5"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            Discord
+          </button>
         </Link>
       </div>
     </div>
