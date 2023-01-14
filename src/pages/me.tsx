@@ -13,7 +13,7 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import { trpc } from "../utils/trpc";
 import { useEffect, useRef, useState } from "react";
-import autoAnimate from "@formkit/auto-animate";
+import auto from "@formkit/auto-animate";
 import clsx from "clsx";
 
 const Me: NextPage = () => {
@@ -28,7 +28,7 @@ const Me: NextPage = () => {
   const parent = useRef(null);
 
   useEffect(() => {
-    parent.current && autoAnimate(parent.current);
+    parent.current && auto(parent.current);
   }, [parent, showPrivate]);
 
   return (
