@@ -10,7 +10,6 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
 import { Status } from "@prisma/client";
-import EventsDropdown from "../components/EventsDropdown";
 
 const Accepted: React.FC = () => {
   const { data: session } = useSession();

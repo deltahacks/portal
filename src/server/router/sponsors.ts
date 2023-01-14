@@ -38,7 +38,7 @@ export const sponsorRouter = createProtectedRouter()
       if (
         !(
           ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.SPONSOR)
+          ctx.session.user.role.includes(Role.SPONSER)
         )
       ) {
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
@@ -92,7 +92,7 @@ export const sponsorRouter = createProtectedRouter()
       if (
         !(
           ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.SPONSOR)
+          ctx.session.user.role.includes(Role.SPONSER)
         )
       ) {
         throw new trpc.TRPCError({ code: "UNAUTHORIZED" });

@@ -20,7 +20,7 @@ const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
 });
 
 const ConstantQRReaderDynamic = dynamic(
-  () => import("../components/QrScanner").then((mod) => mod.QRScanner),
+  () => import("../components/QrScanner2"),
   {
     ssr: false,
   }
