@@ -22,6 +22,8 @@ const Me: NextPage = () => {
     "application.getUser",
   ]);
 
+  const { data: qrcode } = trpc.useQuery(["application.qr"]);
+
   const [showPrivate, setShowPrivate] = useState<boolean>(false);
 
   const parent = useRef(null);
@@ -53,7 +55,6 @@ const Me: NextPage = () => {
                 </div>
               </div>
             </div> */}
-
             <div className=" -mb-8 w-36 overflow-hidden rounded-full border-2 border-white md:w-52">
               <img
                 className="w-full"
@@ -89,7 +90,6 @@ const Me: NextPage = () => {
                   </p>
                 </div>
               )}
-
               <QRCode
                 size={256}
                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
@@ -97,6 +97,7 @@ const Me: NextPage = () => {
                 viewBox={`0 0 256 256`}
                 values={"H"}
               />
+              <h1 className=" text-3xl font-bold text-black">{qrcode}</h1>
             </div>
           </main>
           <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
