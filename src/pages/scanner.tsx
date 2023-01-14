@@ -8,7 +8,11 @@ import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+<<<<<<< Updated upstream
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
+=======
+import { SetStateAction, useDeferredValue, useEffect, useState } from "react";
+>>>>>>> Stashed changes
 import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
@@ -42,6 +46,7 @@ const FoodManagerView: React.FC = () => {
   //   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
+  const [email, setEmail] = useState(null);
   const qrDefer = useDeferredValue(QRCode);
   const utils = trpc.useContext();
   const [value, setValue] = useState("");
@@ -139,6 +144,7 @@ const SponsorView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
+  const sendResumeEmail = trpc.useMutation("sponsor.sendResumeEmail");
   const { data: session } = useSession();
   const utils = trpc.useContext();
   const {
@@ -147,7 +153,7 @@ const SponsorView: React.FC = () => {
     isError,
   } = trpc.useQuery(
     [
-      "sponsor.getEmail",
+      "sponsor.getResume",
       { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
     ],
     {
@@ -155,7 +161,6 @@ const SponsorView: React.FC = () => {
       retry: 0,
     }
   );
-  console.log(getResume);
 
   useEffect(() => {
     if (getResume) {
@@ -163,8 +168,11 @@ const SponsorView: React.FC = () => {
     }
   }, [getResume]);
 
+<<<<<<< Updated upstream
   // function resetScanner() {}
 
+=======
+>>>>>>> Stashed changes
   return (
     <div className="h-full w-full pb-24 md:h-[200%]">
       <div>
@@ -173,7 +181,7 @@ const SponsorView: React.FC = () => {
             callback={async (data) => {
               setQRCode(data);
               setScanDelay(false);
-              await utils.invalidateQueries(["sponsor.getEmail"]);
+              await utils.invalidateQueries(["sponsor.getResume"]);
             }}
           />
         ) : null}
@@ -196,9 +204,18 @@ const SponsorView: React.FC = () => {
           </div>
         </div>
       ) : null}
-      {/*<div>
+      <div
+        onClick={async () => {
+          await sendResumeEmail.mutateAsync({
+            qrcode: parseInt(QRCode),
+            email: session?.user?.email ?? "",
+          });
+          setQRCode("NONE");
+          setShouldShowScanner(true);
+        }}
+      >
         <button>Send Resume To My Email</button>
-      </div>*/}
+      </div>
     </div>
   );
 };
@@ -237,7 +254,7 @@ const HackerView: React.FC = () => {
             <div className="flex w-full flex-col">
               <div>
                 <h1 className="w-full pt-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:pt-6 sm:text-3xl lg:pt-8 lg:text-5xl 2xl:text-6xl">
-                  <div className="font-light lg:pb-1">✌️Hello, I'm</div>
+                  <div className="font-light lg:pb-1">✌️Hello, I am</div>
                   {socialInfo?.firstName}&nbsp;
                   {socialInfo?.lastName}
                 </h1>
@@ -263,6 +280,7 @@ const HackerView: React.FC = () => {
                     className="block py-2 font-medium transition ease-in-out hover:text-[#833bff] dark:hover:text-[#9575cc] sm:py-2 "
                     href={link}
                     target="_blank"
+                    rel="noreferrer"
                   >
                     <h1 className="text-base sm:text-xl lg:text-2xl ">
                       {link}
@@ -333,8 +351,14 @@ const EventsView: React.FC = () => {
     <div>
       <div>
         {
+<<<<<<< Updated upstream
           <ConstantQRReaderDynamic
             callback={(data: string) => {
+=======
+          <QRReaderDynamic
+            scanDelay={scanDelay}
+            handleScan={async (data: SetStateAction<string>) => {
+>>>>>>> Stashed changes
               setQRCode(data);
             }}
             delay={1000}
