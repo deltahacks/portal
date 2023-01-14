@@ -244,6 +244,11 @@ export const applicationRouter = createProtectedRouter()
         /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim
       );
 
-      return { ...converted[0], socialLinks: socialLinks, image: user?.image };
+      return {
+        ...converted[0],
+        socialLinks: socialLinks,
+        image: user?.image,
+        role: user?.role,
+      };
     },
   });
