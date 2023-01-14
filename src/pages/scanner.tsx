@@ -503,10 +503,12 @@ const EventsView: React.FC = () => {
 
 const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
+  // Add security guard and events people
   const stateMap = new Map<string, React.ReactElement>();
-  //stateMap.set(Role.ADMIN, <SponsorView />);
+  stateMap.set(Role.ADMIN, <SponsorView />);
   stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
   stateMap.set(Role.HACKER, <HackerView />);
+  stateMap.set(Role.REVIEWER, <FoodManagerView />);
   stateMap.set(Role.EVENT_MANAGER, <EventsView />);
   stateMap.set(Role.SPONSER, <SponsorView />);
 
