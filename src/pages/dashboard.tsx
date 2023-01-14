@@ -291,7 +291,7 @@ const CheckedIn: React.FC = () => {
       </div>
       <div className="flex w-full flex-col gap-4 pt-6 pb-24 sm:w-1/2 sm:flex-row md:gap-8">
         <Link href="https://deltahacks.com/#faq">
-          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             FAQ
           </button>
         </Link>
@@ -300,7 +300,7 @@ const CheckedIn: React.FC = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             Attendee Package
           </button>
         </Link>
@@ -309,7 +309,7 @@ const CheckedIn: React.FC = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             Discord
           </button>
         </Link>
