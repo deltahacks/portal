@@ -168,10 +168,10 @@ const Checkin: NextPage = () => {
   ]);
 
   const stateMap = {
-    [Status.IN_REVIEW]: <></>,
+    [Status.IN_REVIEW]: <PreCheckedIn />,
     [Status.ACCEPTED]: <PreCheckedIn />,
-    [Status.WAITLISTED]: <></>,
-    [Status.REJECTED]: <></>,
+    [Status.WAITLISTED]: <PreCheckedIn />,
+    [Status.REJECTED]: <PreCheckedIn />,
     [Status.RSVP]: <PreCheckedIn />,
     [Status.CHECKED_IN]: <PostCheckedIn />,
   };
