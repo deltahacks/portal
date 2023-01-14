@@ -1,4 +1,5 @@
 import { GetServerSidePropsContext, NextPage } from "next";
+import Image from "next/image";
 import QRCode from "react-qr-code";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
@@ -12,7 +13,7 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import { trpc } from "../utils/trpc";
 import { useEffect, useRef, useState } from "react";
-import autoAnimate from "@formkit/auto-animate";
+import auto from "@formkit/auto-animate";
 import clsx from "clsx";
 import { router } from "@trpc/server";
 import { useRouter } from "next/router";
@@ -29,7 +30,7 @@ const Me: NextPage = () => {
   const parent = useRef(null);
 
   useEffect(() => {
-    parent.current && autoAnimate(parent.current);
+    parent.current && auto(parent.current);
   }, [parent, showPrivate]);
 
   const router = useRouter();
@@ -54,14 +55,14 @@ const Me: NextPage = () => {
         <div className="drawer-content h-full">
           <Background />
           <NavBar />
-
           <main className="-transform-x-1/2  static top-1/2 left-1/2 flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
             <div className=" -mb-8 w-36 overflow-hidden rounded-full border-2 border-white md:w-52">
               <img
                 className="w-full"
                 referrerPolicy="no-referrer"
                 src={session?.user?.image || ""}
-              ></img>
+                alt="profile-picture.png"
+              />
             </div>
             <div
               className="rounded-lg bg-white p-4"
@@ -74,7 +75,7 @@ const Me: NextPage = () => {
               <p className={clsx({ "text-black": true, "pb-5": !showPrivate })}>
                 {/* <p className="pb-5 text-black"> */}
                 Meals taken :{" "}
-                <span className="text-md ">
+                <span className="text-md">
                   {data?.mealData.mealsTaken}
                 </span>{" "}
                 <span className="text-md">/ 4</span>
@@ -93,8 +94,8 @@ const Me: NextPage = () => {
               )}
 
               <QRCode
+                className="h-auto w-full max-w-full"
                 size={256}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                 value={"123"}
                 viewBox={`0 0 256 256`}
                 values={"H"}
@@ -128,7 +129,7 @@ const Me: NextPage = () => {
                   Dashboard
                 </Link>
               </li>
-              {/* 
+              {/*
               <li>
                 <a className="mx-2 my-2 text-base font-bold" href="#">
                   Calendar
