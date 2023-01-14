@@ -19,6 +19,7 @@ export const serverSchema = z.object({
   LINKEDIN_CLIENT_ID: z.string(),
   LINKEDIN_CLIENT_SECRET: z.string(),
   TYPEFORM_API_KEY: z.string(),
+  SENDGRID_API_KEY: z.string(),
 });
 
 /**

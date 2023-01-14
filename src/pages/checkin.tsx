@@ -26,8 +26,6 @@ const PreCheckedIn: React.FC = () => {
   const [shouldShow, setShouldShow] = useState(false);
   const [shouldShowScanner, setShouldShowScanner] = useState(false);
   const [QRCode, setQRCode] = useState("NONE");
-  const qrDefer = useDeferredValue(QRCode);
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [error, setError] = useState(null);
 
   const doCheckIn = trpc.useMutation("application.checkIn");
@@ -64,15 +62,22 @@ const PreCheckedIn: React.FC = () => {
           <div className="">
             <div>
               {shouldShowScanner ? (
+                // <QRReaderDynamic
+                //   scanDelay={scanDelay}
+                //   handleScan={(data) => {
+                //     setQRCode(data);
+                //     // console.log("WTF HUH", data);
+                //     setScanDelay(false);
+                //     setShouldShowScanner(false);
+                //   }}
+                //   lastVal={qrDefer}
+                // />
                 <QRReaderDynamic
-                  scanDelay={scanDelay}
-                  handleScan={(data) => {
-                    setQRCode(data);
-                    // console.log("WTF HUH", data);
-                    setScanDelay(false);
+                  callback={(e) => {
+                    console.log(e);
+                    setQRCode(e);
                     setShouldShowScanner(false);
                   }}
-                  lastVal={qrDefer}
                 />
               ) : null}
             </div>
@@ -236,17 +241,17 @@ const Checkin: NextPage = () => {
   );
 };
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
-  output = rbac(
-    await getServerAuthSession(context),
-    ["ADMIN"],
-    undefined,
-    output
-  );
-  return output;
-};
+// export const getServerSideProps = async (
+//   context: GetServerSidePropsContext
+// ) => {
+//   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
+//   output = rbac(
+//     await getServerAuthSession(context),
+//     ["ADMIN"],
+//     undefined,
+//     output
+//   );
+//   return output;
+// };
 
 export default Checkin;

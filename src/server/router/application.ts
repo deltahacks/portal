@@ -19,6 +19,19 @@ const TypeFormSubmissionTruncated = z.object({
 
 type TypeFormSubmissionTruncated = z.infer<typeof TypeFormSubmissionTruncated>;
 
+const TypeFormSubmissionSocial = z.object({
+  response_id: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  school: z.string(),
+  degree: z.string(),
+  major: z.string(),
+  currentLevel: z.string(),
+  socialLinks: z.string().nullish(),
+});
+
+type TypeFormSubmissionSocial = z.infer<typeof TypeFormSubmissionSocial>;
+
 // Example router with queries that can only be hit if the user requesting is signed in
 export const applicationRouter = createProtectedRouter()
   .query("received", {
@@ -193,6 +206,44 @@ export const applicationRouter = createProtectedRouter()
         }
       );
       // Convert from TypeFormResponse to TypeFormSubmission
-      return converted[0];
+      return {
+        typeform: converted[0],
+        mealData: { lastMeal: user.lastMealTaken, mealsTaken: user.mealsTaken },
+      };
+    },
+  })
+  .query("socialInfo", {
+    input: z.number(),
+    async resolve({ ctx, input }) {
+      const user = await ctx.prisma.user.findFirst({
+        where: { qrcode: input },
+      });
+      const url = `https://api.typeform.com/forms/MVo09hRB/responses?included_response_ids=${user?.typeform_response_id}`;
+      const res = await fetch(url, options);
+      const data: TypeFormResponse = await res.json();
+
+      const converted: TypeFormSubmissionSocial[] = data.items.map((item) => {
+        const responsePreprocessing = new Map<string, TypeFormResponseField>();
+        for (const answer of item.answers) {
+          responsePreprocessing.set(answer.field.id, answer);
+        }
+
+        return {
+          response_id: item.response_id,
+          firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
+          lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
+          school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "N/A",
+          degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "N/A",
+          currentLevel:
+            responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "N/A",
+          socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "N/A",
+          major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
+        };
+      });
+      const socialLinks = converted[0]?.socialLinks?.match(
+        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim
+      );
+
+      return { ...converted[0], socialLinks: socialLinks, image: user?.image };
     },
   });
