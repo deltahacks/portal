@@ -302,7 +302,7 @@ const HackerView: React.FC = () => {
                 </h1>
                 {socialInfo?.role?.includes(Role.ADMIN) ? (
                   <h2 className="text-md pt-1 font-normal dark:text-[#737373] sm:py-2 sm:pt-2 sm:text-lg lg:text-2xl lg:leading-tight 2xl:pt-4 2xl:text-3xl">
-                    I'm one of the <span className="text-[#f8d868]">Del</span>
+                    I am one of the <span className="text-[#f8d868]">Del</span>
                     <span className="text-[#eb4b63]">taha</span>
                     <span className="text-[#52b5c7]">cks</span> organizers. Ask
                     me whatever you want :)
