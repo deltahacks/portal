@@ -128,4 +128,4 @@ export const QRScanner: React.FC<QRScannerProps> = ({
   return <video ref={parent}></video>;
 };
 
-export default QRScannerScanOnce;
+export default QRScanner;
