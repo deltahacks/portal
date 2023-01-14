@@ -78,59 +78,72 @@ const FoodManagerView: React.FC = () => {
           />
         }
       </div>
-      <h3 className="text-md py-1">
-        QR Value Scanned: <div className="text-2xl font-bold">{QRCode}</div>
-      </h3>
-      <h1>
-        {" "}
-        Last Time Eaten:{" "}
-        {isError
-          ? "not food data"
-          : `${foodData?.lastMeal?.toDateString()} ${foodData?.lastMeal?.toLocaleTimeString()}`}
-      </h1>
-      <h1>
-        Food Tickets Redeemed:{" "}
-        {isError ? "not food data" : foodData?.mealsTaken}
-      </h1>
-      <div className="form-control">
-        <div className="input-group pb-4">
-          <input
-            type="text"
-            placeholder="QR CODE"
-            className="input input-bordered"
-            maxLength={7}
-            minLength={7}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            pattern="[0-9]*"
-          />
-          <button className="btn btn-primary" onClick={() => setQRCode(value)}>
-            Submit
-          </button>
+      <div className="flex items-center justify-center">
+        <div className="mt-6 flex flex-wrap items-center gap-10">
+          <div className=" mb-5 flex flex-col gap-5 rounded bg-gray-600 p-10 md:flex-row">
+            <div className="flex flex-col gap-5">
+              <h1 className="font-bold text-white">
+                {" "}
+                Last Time Eaten:{" "}
+                {isError
+                  ? "not food data"
+                  : `${foodData?.lastMeal?.toDateString()} ${foodData?.lastMeal?.toLocaleTimeString()}`}
+              </h1>
+              <h1 className="font-bold text-white">
+                Food Tickets Redeemed:{" "}
+                {isError ? "not food data" : foodData?.mealsTaken}
+              </h1>
+              <div className="flex gap-10">
+                <button
+                  disabled={QRCode === "NONE"}
+                  className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
+                  onClick={async () => {
+                    await foodMutationAdd.mutateAsync(parseInt(QRCode));
+                    await utils.invalidateQueries(["food.getFood"]);
+                  }}
+                >
+                  Reedem ticket
+                </button>
+                <button
+                  disabled={QRCode === "NONE"}
+                  className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
+                  onClick={async () => {
+                    await foodMutationSub.mutateAsync(parseInt(QRCode));
+                    await utils.invalidateQueries(["food.getFood"]);
+                  }}
+                >
+                  Revert Redemption
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-5">
+              <h1 className="text-white">Lookup using hackerID :</h1>
+              <div className="form-control">
+                <div className="input-group pb-4">
+                  <input
+                    type="text"
+                    placeholder="QR CODE"
+                    className="input input-bordered"
+                    maxLength={7}
+                    minLength={7}
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    pattern="[0-9]*"
+                  />
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setQRCode(value)}
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex w-full justify-between gap-4">
-        <button
-          disabled={QRCode === "NONE"}
-          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
-          onClick={async () => {
-            await foodMutationAdd.mutateAsync(parseInt(QRCode));
-            await utils.invalidateQueries(["food.getFood"]);
-          }}
-        >
-          +
-        </button>
-        <button
-          disabled={QRCode === "NONE"}
-          className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
-          onClick={async () => {
-            await foodMutationSub.mutateAsync(parseInt(QRCode));
-            await utils.invalidateQueries(["food.getFood"]);
-          }}
-        >
-          -
-        </button>
-      </div>
+
+      <div className="flex w-full justify-between gap-4"></div>
     </>
   );
 };
@@ -141,8 +154,10 @@ const SponsorView: React.FC = () => {
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
   const sendResumeEmail = trpc.useMutation("sponsor.sendResumeEmail");
+  const [error, setError] = useState("");
   const { data: session } = useSession();
   const utils = trpc.useContext();
+  const [value, setValue] = useState("");
   const {
     data: getResume,
     isLoading,
@@ -164,8 +179,16 @@ const SponsorView: React.FC = () => {
     }
   }, [getResume]);
 
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError("");
+      }, 2000);
+    }
+  }, [error]);
+
   return (
-    <div className="h-full w-full pb-24 md:h-[200%]">
+    <div className="my-4 h-full w-full pb-24 md:h-[200%]">
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
@@ -185,27 +208,54 @@ const SponsorView: React.FC = () => {
             loading="lazy"
             src={getResume.resume || " "}
           ></iframe>
-          <div className=" pt-4">
-            {/* <button
-              onClick={() => resetScanner()}
-              className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800"
-            >
-              Get New Resume
-      </button> */}
-          </div>
         </div>
       ) : null}
-      <div
-        onClick={async () => {
-          await sendResumeEmail.mutateAsync({
-            qrcode: parseInt(QRCode),
-            email: session?.user?.email ?? "",
-          });
-          setQRCode("NONE");
-          setShouldShowScanner(true);
-        }}
-      >
-        <button>Send Resume To My Email</button>
+      <div className="pb-4 font-semibold text-red-500">
+        {error ? error : null}
+      </div>
+      <div className="flex items-center justify-center">
+        <div className="mt-6 flex flex-wrap items-center gap-10">
+          <div className="mb-5 flex flex-col gap-5 rounded bg-gray-600 p-10">
+            <h1 className="text-white">Lookup using hackerID :</h1>
+            <div className="form-control">
+              <div className="input-group pb-4">
+                <input
+                  type="text"
+                  placeholder="QR CODE"
+                  className="input input-bordered"
+                  maxLength={7}
+                  minLength={7}
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  pattern="[0-9]*"
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setQRCode(value)}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={async () => {
+              if (QRCode === "NONE") {
+                setError("Please scan a QR Code");
+              } else {
+                await sendResumeEmail.mutateAsync({
+                  qrcode: parseInt(QRCode),
+                  email: session?.user?.email ?? "",
+                });
+                setQRCode("NONE");
+                setShouldShowScanner(true);
+              }
+            }}
+          >
+            Send Me This Resume!
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -216,6 +266,7 @@ const HackerView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
+  const [value, setValue] = useState("");
   const { data: socialInfo } = trpc.useQuery(
     ["application.socialInfo", parseInt(QRCode)],
     {
@@ -249,16 +300,25 @@ const HackerView: React.FC = () => {
                   {socialInfo?.firstName}&nbsp;
                   {socialInfo?.lastName}
                 </h1>
-                <h2 className="text-md pt-1 font-normal dark:text-[#737373] sm:py-2 sm:pt-2 sm:text-lg lg:text-2xl lg:leading-tight 2xl:pt-4 2xl:text-3xl">
-                  I am a{" "}
-                  {socialInfo?.currentLevel?.replace(
-                    "High School",
-                    "High Schooler"
-                  )}{" "}
-                  attending {socialInfo?.school} for {socialInfo?.major}{" "}
-                  at&nbsp;
-                  {socialInfo?.degree} level!
-                </h2>
+                {socialInfo?.role?.includes(Role.ADMIN) ? (
+                  <h2 className="text-md pt-1 font-normal dark:text-[#737373] sm:py-2 sm:pt-2 sm:text-lg lg:text-2xl lg:leading-tight 2xl:pt-4 2xl:text-3xl">
+                    I am one of the <span className="text-[#f8d868]">Del</span>
+                    <span className="text-[#eb4b63]">taha</span>
+                    <span className="text-[#52b5c7]">cks</span> organizers. Ask
+                    me whatever you want :)
+                  </h2>
+                ) : (
+                  <h2 className="text-md pt-1 font-normal dark:text-[#737373] sm:py-2 sm:pt-2 sm:text-lg lg:text-2xl lg:leading-tight 2xl:pt-4 2xl:text-3xl">
+                    I am a{" "}
+                    {socialInfo?.currentLevel?.replace(
+                      "High School",
+                      "High Schooler"
+                    )}{" "}
+                    attending {socialInfo?.school} for {socialInfo?.major}{" "}
+                    at&nbsp;
+                    {socialInfo?.degree} level!
+                  </h2>
+                )}
               </div>
               <h1 className="w-full pt-8 text-xl font-semibold leading-tight text-black dark:text-white sm:py-2 sm:pt-6 sm:text-2xl lg:text-3xl 2xl:text-4xl">
                 <div className="font-light">Learn More About Me:</div>
@@ -287,18 +347,46 @@ const HackerView: React.FC = () => {
               ></img>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className="flex items-center justify-center">
+            <div className="mt-6 flex flex-wrap items-center gap-10">
+              <div className="mb-5 flex flex-col gap-5 rounded bg-gray-600 p-10">
+                <h1 className="text-white">Lookup using hackerID :</h1>
+                <div className="form-control">
+                  <div className="input-group pb-4">
+                    <input
+                      type="text"
+                      placeholder="QR CODE"
+                      className="input input-bordered"
+                      maxLength={7}
+                      minLength={7}
+                      value={value}
+                      onChange={(e) => setValue(e.target.value)}
+                      pattern="[0-9]*"
+                    />
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => (
+                        setQRCode(value), setShouldShowScanner(false)
+                      )}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
-};
-const SecurityGuardView: React.FC = () => {
-  return <h1></h1>;
 };
 
 const EventsView: React.FC = () => {
   // const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
+  const [value, setValue] = useState("");
   // const qrDefer = useDeferredValue(QRCode);
 
   const events = [
@@ -382,6 +470,33 @@ const EventsView: React.FC = () => {
         </div>
         <div className="py-8">Currently scanning for: {selected}</div>
       </div>
+      <div className="flex items-center justify-center">
+        <div className="mt-6 flex flex-wrap items-center gap-10">
+          <div className="mb-5 flex flex-col gap-5 rounded bg-gray-600 p-10">
+            <h1 className="text-white">Lookup using hackerID :</h1>
+            <div className="form-control">
+              <div className="input-group pb-4">
+                <input
+                  type="text"
+                  placeholder="QR CODE"
+                  className="input input-bordered"
+                  maxLength={7}
+                  minLength={7}
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  pattern="[0-9]*"
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setQRCode(value)}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -395,8 +510,7 @@ const Scanner: NextPage = () => {
   stateMap.set(Role.HACKER, <HackerView />);
   stateMap.set(Role.REVIEWER, <FoodManagerView />);
   stateMap.set(Role.EVENT_MANAGER, <EventsView />);
-
-  //stateMap.set(Role.SPONSOR, <SponsorView />);
+  stateMap.set(Role.SPONSER, <SponsorView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
 
@@ -412,7 +526,7 @@ const Scanner: NextPage = () => {
           <NavBar />
 
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+            <h1 className="mb-4 text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
               Scanner
             </h1>
 

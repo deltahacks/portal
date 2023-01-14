@@ -286,6 +286,37 @@ const CheckedIn: React.FC = () => {
   );
 };
 
+const WalkIns: React.FC = () => {
+  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+  const { data: session } = useSession();
+  const hoursMinSecs = [1, 30, 20];
+
+  return (
+    <div>
+      <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+        Hey {session ? `${session.user?.name}` : ""}, thanks for filling out
+        your application!
+      </h1>
+      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+        You are almost done! To finish registration go to the check-in page, and
+        link your QR code. Happy hacking!
+      </h2>
+      <div className="flex flex-wrap  gap-6 pt-6 ">
+        <Link href="https://deltahacks.com/#faq">
+          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+            FAQ
+          </button>
+        </Link>
+        <Link href="/checkin">
+          <button className="btn btn-primary w-48 border-none text-base font-medium capitalize">
+            Check-in{" "}
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard: NextPage = () => {
   const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
     "application.status",
@@ -294,10 +325,10 @@ const Dashboard: NextPage = () => {
   const { data: session } = useSession();
 
   const stateMap = {
-    [Status.IN_REVIEW]: <InReview />,
-    [Status.ACCEPTED]: <Accepted />,
-    [Status.WAITLISTED]: <Waitlisted />,
-    [Status.REJECTED]: <Rejected />,
+    [Status.IN_REVIEW]: <WalkIns />,
+    [Status.ACCEPTED]: <WalkIns />,
+    [Status.WAITLISTED]: <WalkIns />,
+    [Status.REJECTED]: <WalkIns />,
     [Status.RSVP]: <RSVPed />,
     [Status.CHECKED_IN]: <CheckedIn />,
   };
