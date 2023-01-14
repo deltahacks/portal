@@ -268,17 +268,24 @@ const CheckedIn: React.FC = () => {
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Here is where you can access your profile, which will contain a backup
-        of your QR code, as well as the event schedule.
+        of your QR code, as well as the event schedule. You can scan the QR code
+        of other attendees to get their profile information through the scanner
+        button.
       </h2>
-      <div className="flex flex-col gap-4 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
+      <div className="flex w-full flex-col gap-4 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
         <Link href="/me">
-          <div className="btn btn-primary w-full border-none text-base font-medium capitalize ">
+          <div className="btn btn-primary w-full border-none text-base font-medium capitalize sm:w-1/2">
             My Profile{" "}
           </div>
         </Link>
         <Link href="/schedule">
-          <div className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 ">
+          <div className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             Schedule
+          </div>
+        </Link>
+        <Link href="/scanner">
+          <div className="btn btn-primary w-full border-none text-base font-medium capitalize sm:w-1/2">
+            Scanner
           </div>
         </Link>
       </div>
