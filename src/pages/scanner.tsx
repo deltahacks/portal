@@ -194,7 +194,6 @@ const SponsorView: React.FC = () => {
             loading="lazy"
             src={getResume.resume || " "}
           ></iframe>
-          <div className=" pt-4"></div>
         </div>
       ) : null}
       <div className="pb-4 font-semibold text-red-500">
