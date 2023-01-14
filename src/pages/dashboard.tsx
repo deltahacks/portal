@@ -298,7 +298,7 @@ const WalkIns: React.FC = () => {
         your application!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        You're almost done! To finish registration go to the check-in page, and
+        You are almost done! To finish registration go to the check-in page, and
         link your QR code. Happy hacking!
       </h2>
       <div className="flex flex-wrap  gap-6 pt-6 ">
