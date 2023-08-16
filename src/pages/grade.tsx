@@ -148,7 +148,7 @@ const GradingPortal: NextPage = () => {
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
               <div>
-                <button className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white">
+                <button className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white">
                   Sign Out
                 </button>
               </div>

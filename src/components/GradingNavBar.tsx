@@ -29,20 +29,20 @@ const GradingNavBar = () => {
           {/* <Link href="/dashboard">
             <strong>Dashboard</strong>
           </Link> */}
-          <button className="mx-2 rounded bg-zinc-700 py-2.5 px-5 font-inter text-sm font-bold text-white hover:bg-zinc-800 md:px-7">
+          <button className="mx-2 rounded bg-zinc-700 px-5 py-2.5 font-inter text-sm font-bold text-white hover:bg-zinc-800 md:px-7">
             Dashboard
           </button>
         </p>
         <button
           onClick={() => signOut()}
-          className="mx-2 rounded bg-primary py-2.5 px-5 font-inter text-sm font-bold text-white md:px-7"
+          className="mx-2 rounded bg-primary px-5 py-2.5 font-inter text-sm font-bold text-white md:px-7"
         >
           Sign out
         </button>
       </div>
       {/* Hamburger Button */}
       <div className="md:hidden">
-        <label htmlFor="my-drawer-3" className="btn btn-ghost btn-square">
+        <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

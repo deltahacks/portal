@@ -35,14 +35,14 @@ const NavBar = () => {
         </p>
         <button
           onClick={() => signOut()}
-          className="mx-2 rounded bg-primary py-2.5 px-5 font-inter text-sm font-bold text-white md:px-7"
+          className="mx-2 rounded bg-primary px-5 py-2.5 font-inter text-sm font-bold text-white md:px-7"
         >
           Sign out
         </button>
       </div>
       {/* Hamburger Button */}
       <div className="md:hidden">
-        <label htmlFor="my-drawer-3" className="btn btn-ghost btn-square">
+        <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -109,7 +109,7 @@ export const Drawer = ({
                 </a>
                 <button
                   onClick={() => signOut()}
-                  className="font-sub rounded bg-[#4F14EE] py-2.5 px-2.5 text-sm font-bold"
+                  className="font-sub rounded bg-[#4F14EE] px-2.5 py-2.5 text-sm font-bold"
                 >
                   Sign Out
                 </button>

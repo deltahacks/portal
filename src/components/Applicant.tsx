@@ -87,7 +87,7 @@ const Applicant = ({
               className={
                 alreadyReviewed
                   ? "hidden"
-                  : "block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                  : "block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
               }
             />
             <div>
@@ -96,7 +96,7 @@ const Applicant = ({
               ) : (
                 <button
                   className={clsx(
-                    "w-full rounded  py-2 px-4 text-white",
+                    "w-full rounded  px-4 py-2 text-white",
                     "bg-primary"
                   )}
                   onClick={async (e) => {
@@ -128,7 +128,7 @@ const Applicant = ({
       </tr>
       {isOpen && (
         <tr>
-          <td colSpan={7} className="bg-[#1F1F1F] py-5 px-10">
+          <td colSpan={7} className="bg-[#1F1F1F] px-10 py-5">
             <div className="text-lg font-bold text-white">
               Application Overview
             </div>
@@ -184,21 +184,21 @@ const Applicant = ({
                   <div className="text-lg">Long Answer Questions</div>
                   <hr className="mt-2 border-t border-slate-100"></hr>
                   <div>
-                    <div className="mt-5 mb-3 font-bold">
+                    <div className="mb-3 mt-5 font-bold">
                       If you had the ability to change anything in the world,
                       what would it be and why?
                     </div>
                     <div>{applicant.longAnswer1}</div>
                   </div>
                   <div>
-                    <div className="mt-5 mb-3 font-bold">
+                    <div className="mb-3 mt-5 font-bold">
                       What is a project you hope to undertake in the future? And
                       why not now?This question is required.
                     </div>
                     <div>{applicant.longAnswer2}</div>
                   </div>
                   <div>
-                    <div className="mt-5 mb-3 font-bold">
+                    <div className="mb-3 mt-5 font-bold">
                       If you could only speak in sentences from the script of
                       one movie, which movie would it be and why?This question
                       is required.
@@ -206,7 +206,7 @@ const Applicant = ({
                     <div>{applicant.longAnswer3}</div>
                   </div>
                   <div>
-                    <div className="mt-5 mb-3 font-bold">Extras</div>
+                    <div className="mb-3 mt-5 font-bold">Extras</div>
                     <div>{applicant.extra}</div>
                   </div>
                 </div>
@@ -279,7 +279,7 @@ const Applicant = ({
                   "The applicant did not submit a resume"
                 )}
                 <button
-                  className="w-8/12 rounded bg-primary py-2 px-4 text-white hover:bg-sky-900"
+                  className="w-8/12 rounded bg-primary px-4 py-2 text-white hover:bg-sky-900"
                   onClick={() => openInNewTab(applicant.resume ?? "")}
                 >
                   Open Resume

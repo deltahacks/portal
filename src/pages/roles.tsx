@@ -61,7 +61,7 @@ const Roles: NextPage = () => {
       {isLoading ? (
         <progress className="progress" />
       ) : (
-        <table className="table-zebra table w-full">
+        <table className="table table-zebra w-full">
           {/* head */}
           <thead>
             <tr>
