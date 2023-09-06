@@ -51,7 +51,7 @@ const NavBar = () => {
           Logged in as <strong className="font-bold"> Username</strong>
         </a>
 
-        <button className="font-sub mx-2 rounded bg-[#4F14EE] py-2.5 px-5 text-sm font-bold md:px-7">
+        <button className="font-sub mx-2 rounded bg-[#4F14EE] px-5 py-2.5 text-sm font-bold md:px-7">
           Sign out
         </button>
       </div>

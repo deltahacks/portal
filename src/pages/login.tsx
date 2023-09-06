@@ -32,12 +32,12 @@ const Login: NextPage = () => {
       </Head>
       <div className={`flex h-full w-full dark:bg-[#1f1f1f]`}>
         <div className="relative h-full w-full overflow-hidden bg-[#eeeeee] dark:bg-[#171717] md:w-1/2">
-          <div className="light-gradient dark:dark-gradient absolute inset-0 -top-[50%] -left-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"></div>
-          <div className="absolute bottom-0 z-10 p-3 md:relative md:top-1/2 md:left-1/2 md:w-fit md:-translate-x-1/2 md:-translate-y-1/2">
+          <div className="light-gradient dark:dark-gradient absolute inset-0 -left-[50%] -top-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"></div>
+          <div className="absolute bottom-0 z-10 p-3 md:relative md:left-1/2 md:top-1/2 md:w-fit md:-translate-x-1/2 md:-translate-y-1/2">
             <DHBranding />
           </div>
         </div>
-        <div className="absolute top-4 right-4">
+        <div className="absolute right-4 top-4">
           <ThemeToggle />
         </div>
         <LoginCard errorMsg={isError ? errorMsg : undefined} />

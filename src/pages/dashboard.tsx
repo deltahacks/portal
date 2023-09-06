@@ -226,7 +226,7 @@ const RSVPed: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="t-6 flex  flex-wrap gap-6 pt-6 pb-24">
+      <div className="t-6 flex  flex-wrap gap-6 pb-24 pt-6">
         <a href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
@@ -289,7 +289,7 @@ const CheckedIn: React.FC = () => {
           </div>
         </Link>
       </div>
-      <div className="flex w-full flex-col gap-4 pt-6 pb-24 sm:w-1/2 sm:flex-row md:gap-8">
+      <div className="flex w-full flex-col gap-4 pb-24 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
         <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             FAQ
@@ -384,7 +384,7 @@ const Dashboard: NextPage = () => {
               stateMap[status as Status]
             )}
           </main>
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
@@ -421,7 +421,7 @@ const Dashboard: NextPage = () => {
                 </a>
                 <button
                   onClick={() => signOut()}
-                  className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white"
+                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
                 >
                   Sign Out
                 </button>

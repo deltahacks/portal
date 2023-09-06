@@ -37,7 +37,7 @@ type SocialIconProps = {
 };
 
 function SocialIcon({ src, alt }: SocialIconProps) {
-  return <Image src={src} alt={alt} width="41px" height="41px" />;
+  return <Image src={src} alt={alt} width="41" height="41" />;
 }
 
 export default SocialButtons;

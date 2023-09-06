@@ -57,7 +57,7 @@ const Me: NextPage = () => {
         <div className="drawer-content h-full">
           <Background />
           <NavBar />
-          <main className="-transform-x-1/2  static top-1/2 left-1/2 flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
+          <main className="-transform-x-1/2  static left-1/2 top-1/2 flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
             {/* <div className="absolute right-52 w-fit">
               <div className="alert alert-info bg-[#570df8] text-white shadow-lg">
                 <div>
@@ -118,13 +118,13 @@ const Me: NextPage = () => {
               <h1 className=" text-3xl font-bold text-black">{qrcode}</h1>
             </div>
             <div
-              className="absolute left-0 bottom-0 rotate-180 text-[8px]"
+              className="absolute bottom-0 left-0 rotate-180 text-[8px]"
               style={{ writingMode: "vertical-rl" }}
             >
               Find the easter egg
             </div>
           </main>
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
@@ -161,7 +161,7 @@ const Me: NextPage = () => {
                 </a>
                 <button
                   onClick={() => signOut()}
-                  className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white"
+                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
                 >
                   Sign Out
                 </button>
