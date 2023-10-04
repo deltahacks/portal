@@ -7,15 +7,23 @@ import { foodRouter } from "./food";
 import { sponsorRouter } from "./sponsors";
 import { eventsRouter } from "./events";
 import { userRouter } from "./users";
+import { mergeRouters, publicProcedure, router } from "./trpc";
 
-export const appRouter = createRouter()
+const legacyRouter = createRouter()
   .transformer(superjson)
   .merge("application.", applicationRouter)
   .merge("reviewer.", reviewerRouter)
   .merge("food.", foodRouter)
   .merge("sponsor.", sponsorRouter)
   .merge("events.", eventsRouter)
-  .merge("user.", userRouter);
+  .merge("user.", userRouter)
+  .interop();
+
+const newRouter = router({
+  ping: publicProcedure.query(() => "pong"),
+});
+
+export const appRouter = mergeRouters(legacyRouter, newRouter);
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
