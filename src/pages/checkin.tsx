@@ -39,7 +39,7 @@ const PreCheckedIn: React.FC = () => {
   return (
     <div>
       <div className="pb-6 pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        Welcome to DeltaHacks 9! This year we are using a QR code system to
+        Welcome to DeltaHacks 10! This year we are using a QR code system to
         check you in to events, meals, and more. To link your account to the QR,
         please scan it with your camera.
       </div>
@@ -176,7 +176,7 @@ const PostCheckedIn: React.FC = () => {
 const NoRSVP: React.FC = () => {
   return (
     <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-      You have not RSVPed to DeltaHacks 9. If you believe there is an issue
+      You have not RSVPed to DeltaHacks 10. If you believe there is an issue
       regarding this, contact us at{" "}
       <a href="mailto: hello@deltahacks.com" className="text-sky-400">
         hello@deltahacks.com
@@ -204,7 +204,7 @@ const Checkin: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks 9</title>
+        <title>Check In - DeltaHacks 10</title>
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />

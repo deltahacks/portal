@@ -13,7 +13,7 @@ const DHBranding = () => {
           Delta<span className="mr-2 font-normal">Hacks</span>IX
         </h1>
         <h2 className="md:text-md font-montserrat text-sm lg:text-lg">
-          January 13-15 | McMaster University
+          January 12-14 | McMaster University
         </h2>
       </div>
     </div>

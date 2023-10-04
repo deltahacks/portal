@@ -20,7 +20,7 @@ const GradingNavBar = () => {
           <h1 className="text-2xl">
             <strong>Delta</strong>Hacks <strong>IX</strong>
           </h1>
-          <p className="text-xs">January 13-15 | McMaster University</p>
+          <p className="text-xs">January 12-14 | McMaster University</p>
         </div>
       </div>
       <div className="hidden items-center md:flex">
