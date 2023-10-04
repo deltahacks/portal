@@ -87,7 +87,7 @@ export const applicationRouter = router({
 
     return qr;
   }),
-  rsvp: protectedProcedure.mutation(async ({ ctx, input }) => {
+  rsvp: protectedProcedure.mutation(async ({ ctx }) => {
     const user = await ctx.prisma?.user.findFirst({
       where: { id: ctx.session.user.id },
     });
