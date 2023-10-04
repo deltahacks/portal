@@ -350,7 +350,8 @@ const WalkIns: React.FC = () => {
 };
 
 const Dashboard: NextPage = () => {
-  const { data: status, isSuccess: isStatusLoading } = trpc.application.status.useQuery();
+  const { data: status, isSuccess: isStatusLoading } =
+    trpc.application.status.useQuery();
 
   const { data: session } = useSession();
 

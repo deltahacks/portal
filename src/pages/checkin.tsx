@@ -188,7 +188,8 @@ const NoRSVP: React.FC = () => {
 const Checkin: NextPage = () => {
   const { data: session } = useSession();
 
-  const { data: status, isSuccess: isStatusLoading } = trpc.application.status.useQuery();
+  const { data: status, isSuccess: isStatusLoading } =
+    trpc.application.status.useQuery();
 
   const stateMap = {
     [Status.IN_REVIEW]: <PreCheckedIn />,
