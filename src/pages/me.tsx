@@ -1,12 +1,10 @@
 import { GetServerSidePropsContext, NextPage } from "next";
-import Image from "next/image";
 import QRCode from "react-qr-code";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { Status } from "@prisma/client";
 import Head from "next/head";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
@@ -15,13 +13,13 @@ import { trpc } from "../utils/trpc";
 import { useEffect, useRef, useState } from "react";
 import auto from "@formkit/auto-animate";
 import clsx from "clsx";
-import { router } from "@trpc/server";
 import { useRouter } from "next/router";
 
 const Me: NextPage = () => {
   const { data: session } = useSession();
 
-  const { data, isLoading, isError, isSuccess } = trpc.application.getUser.useQuery();
+  const { data, isLoading, isError, isSuccess } =
+    trpc.application.getUser.useQuery();
 
   const { data: qrcode } = trpc.application.qr.useQuery();
 
