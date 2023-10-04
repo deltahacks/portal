@@ -13,9 +13,14 @@ import { TypeFormSubmission } from "../server/router/reviewers";
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
 
-  const { data, isLoading } = togglePriotity
-    ? trpc.reviewer.getPriorityApplications.useQuery()
-    : trpc.reviewer.getApplications.useQuery();
+  const priorityQuery = trpc.reviewer.getPriorityApplications.useQuery(undefined, {
+    enabled: togglePriotity,
+  });
+  const appQuery = trpc.reviewer.getApplications.useQuery(undefined, {
+    enabled: !togglePriotity,
+  });
+  const data = priorityQuery.data ?? appQuery.data;
+  const isLoading = priorityQuery.isLoading || appQuery.isLoading;
 
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
