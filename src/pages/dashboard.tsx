@@ -48,7 +48,7 @@ const TimeUntilStart: React.FC<TimeUntilStartInterface> = ({ hms }) => {
 
 const Accepted: React.FC = () => {
   const { data: session } = useSession();
-  const doRsvp = trpc.useMutation("application.rsvp");
+  const doRsvp = trpc.application.rsvp.useMutation();
   const utils = trpc.useContext();
 
   return (
@@ -257,7 +257,7 @@ const RSVPed: React.FC = () => {
 };
 
 const CheckedIn: React.FC = () => {
-  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+  const { data: qrcode, isLoading } = trpc.application.qr.useQuery();
   const { data: session } = useSession();
   const hoursMinSecs = [1, 30, 20];
 
@@ -319,7 +319,7 @@ const CheckedIn: React.FC = () => {
 };
 
 const WalkIns: React.FC = () => {
-  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+  const { data: qrcode, isLoading } = trpc.application.qr.useQuery();
   const { data: session } = useSession();
   const hoursMinSecs = [1, 30, 20];
 
@@ -350,9 +350,7 @@ const WalkIns: React.FC = () => {
 };
 
 const Dashboard: NextPage = () => {
-  const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
-    "application.status",
-  ]);
+  const { data: status, isSuccess: isStatusLoading } = trpc.application.status.useQuery();
 
   const { data: session } = useSession();
 

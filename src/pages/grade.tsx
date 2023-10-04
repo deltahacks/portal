@@ -19,7 +19,7 @@ const GradingPortal: NextPage = () => {
       : "reviewer.getApplications",
   ]);
 
-  const { data: rsvpCount } = trpc.useQuery(["application.rsvpCount"]);
+  const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
   const [mean, setMean] = useState<number>(0);
   const [median, setMedian] = useState<number>(0);

@@ -21,11 +21,9 @@ import { useRouter } from "next/router";
 const Me: NextPage = () => {
   const { data: session } = useSession();
 
-  const { data, isLoading, isError, isSuccess } = trpc.useQuery([
-    "application.getUser",
-  ]);
+  const { data, isLoading, isError, isSuccess } = trpc.application.getUser.useQuery();
 
-  const { data: qrcode } = trpc.useQuery(["application.qr"]);
+  const { data: qrcode } = trpc.application.qr.useQuery();
 
   const [showPrivate, setShowPrivate] = useState<boolean>(false);
 

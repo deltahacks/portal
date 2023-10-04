@@ -31,14 +31,11 @@ const Roles: NextPage = () => {
   const [role, setRole] = useState("");
   const [action, setAction] = useState<Action | undefined>(undefined);
 
-  const { data, isLoading, isError, refetch } = trpc.useQuery([
-    "user.byRole",
-    { role: role ? (role.toUpperCase() as keyof typeof Role) : null },
-  ]);
+  const { data, isLoading, isError, refetch } = trpc.user.byRole.useQuery({ role: role ? (role.toUpperCase() as keyof typeof Role) : null });
 
   const role_options = Object.keys(Role);
-  const addRole = trpc.useMutation(["user.addRole"]);
-  const removeRole = trpc.useMutation(["user.removeRole"]);
+  const addRole = trpc.user.addRole.useMutation();
+  const removeRole = trpc.user.removeRole.useMutation();
 
   return (
     <>

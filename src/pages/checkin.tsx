@@ -30,7 +30,7 @@ const PreCheckedIn: React.FC = () => {
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [error, setError] = useState(null);
 
-  const doCheckIn = trpc.useMutation("application.checkIn");
+  const doCheckIn = trpc.application.checkIn.useMutation();
   const router = useRouter();
   const [value, setValue] = useState("");
 
@@ -188,9 +188,7 @@ const NoRSVP: React.FC = () => {
 const Checkin: NextPage = () => {
   const { data: session } = useSession();
 
-  const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
-    "application.status",
-  ]);
+  const { data: status, isSuccess: isStatusLoading } = trpc.application.status.useQuery();
 
   const stateMap = {
     [Status.IN_REVIEW]: <PreCheckedIn />,
