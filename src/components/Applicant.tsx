@@ -21,7 +21,7 @@ const Applicant = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
-  const submitGrade = trpc.useMutation("reviewer.submit");
+  const submitGrade = trpc.reviewer.submit.useMutation();
 
   const session = useSession();
 

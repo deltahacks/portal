@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 
 const Apply: NextPage = () => {
   const router = useRouter();
-  const submitResponseId = trpc.useMutation("application.submit");
+  const submitResponseId = trpc.application.submit.useMutation();
 
   return (
     <Widget

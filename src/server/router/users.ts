@@ -1,12 +1,13 @@
 import { Role } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createProtectedRouter } from "./context";
 
-export const userRouter = createProtectedRouter()
-  .query("byRole", {
-    input: z.object({ role: z.nullable(z.nativeEnum(Role)) }),
-    async resolve({ ctx, input }) {
+import { protectedProcedure, router } from "./trpc";
+
+export const userRouter = router({
+  byRole: protectedProcedure
+    .input(z.object({ role: z.nullable(z.nativeEnum(Role)) }))
+    .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role["ADMIN"])) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
@@ -21,11 +22,10 @@ export const userRouter = createProtectedRouter()
           },
         },
       });
-    },
-  })
-  .mutation("addRole", {
-    input: z.object({ id: z.string(), role: z.nativeEnum(Role) }),
-    async resolve({ ctx, input }) {
+    }),
+  addRole: protectedProcedure
+    .input(z.object({ id: z.string(), role: z.nativeEnum(Role) }))
+    .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role["ADMIN"])) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
@@ -45,11 +45,10 @@ export const userRouter = createProtectedRouter()
           role: [...user.role, input.role],
         },
       });
-    },
-  })
-  .mutation("removeRole", {
-    input: z.object({ id: z.string(), role: z.nativeEnum(Role) }),
-    async resolve({ ctx, input }) {
+    }),
+  removeRole: protectedProcedure
+    .input(z.object({ id: z.string(), role: z.nativeEnum(Role) }))
+    .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role["ADMIN"])) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
@@ -62,9 +61,9 @@ export const userRouter = createProtectedRouter()
         where: { id: input.id },
         data: {
           role: {
-            set: role?.filter((role: any) => role !== input.role),
+            set: role?.filter((role) => role !== input.role),
           },
         },
       });
-    },
-  });
+    }),
+});
