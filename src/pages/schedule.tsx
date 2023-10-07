@@ -66,9 +66,7 @@ const removeResourceLabel = () => {
 
 const getDefaultCurrentDate = (start: Date, end: Date): Date => {
   const curDate = new Date(Date.now());
-  return curDate < start || new Date("2023-1-15") < curDate
-    ? new Date("2023-1-13")
-    : curDate;
+  return start < curDate && curDate < end ? curDate : start;
 };
 
 const MyScheduler = ({
