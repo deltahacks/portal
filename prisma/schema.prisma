@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "cockroachdb"
+  provider = "postgresql"
   // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.text annotations in model Account below
   // Further reading: 
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -21,16 +21,16 @@ model Account {
   type                     String
   provider                 String
   providerAccountId        String
-  refresh_token            String? //@db.Text
+  refresh_token            String? @db.Text
   refresh_token_expires_in Int?
-  access_token             String? //@db.Text
+  access_token             String? @db.Text
   expires_at               Int?
   ext_expires_in           Int?
-  oauth_token_secret       String? //@db.Text
-  oauth_token              String? //@db.Text
+  oauth_token_secret       String? @db.Text
+  oauth_token              String? @db.Text
   token_type               String?
   scope                    String?
-  id_token                 String? //@db.Text
+  id_token                 String? @db.Text
   session_state            String?
   user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -53,7 +53,7 @@ model User {
   image                String?
   accounts             Account[]
   sessions             Session[]
-  typeform_response_id String? //@db.Text
+  typeform_response_id String?    @db.Text
   role                 Role[]     @default([HACKER])
   hacker               Review[]   @relation("hacker")
   reviewer             Review[]   @relation("reviewer")
