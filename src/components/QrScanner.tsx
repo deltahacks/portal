@@ -22,7 +22,9 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
       }
 
       // choose the environment camera
-      const selectedDeviceId = videoInputDevices[cameraIdx]?.deviceId as string;
+      const selectedDeviceId = videoInputDevices[
+        cameraIdx % videoInputDevices.length
+      ]?.deviceId as string;
 
       console.log(`cameras: ${videoInputDevices.length}`);
       console.log(`Started decode from camera with id ${selectedDeviceId}`);
