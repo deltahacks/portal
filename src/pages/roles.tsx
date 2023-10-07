@@ -208,7 +208,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     ["ADMIN"],
     undefined,
-    output
+    output,
   );
   return output;
 }

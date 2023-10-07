@@ -32,7 +32,7 @@ export const sponsorRouter = router({
       z.object({
         qrcode: z.number(),
         email: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       if (
@@ -75,7 +75,7 @@ export const sponsorRouter = router({
               .get("z8wTMK3lMO00")
               ?.file_url?.replace(
                 "https://api.typeform.com/forms",
-                "/api/resumes"
+                "/api/resumes",
               ) ?? "N/A",
         };
       });
@@ -87,7 +87,7 @@ export const sponsorRouter = router({
       z.object({
         qrcode: z.number(),
         email: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (
@@ -130,7 +130,7 @@ export const sponsorRouter = router({
               .get("z8wTMK3lMO00")
               ?.file_url?.replace(
                 "https://api.typeform.com/forms",
-                "/api/resumes"
+                "/api/resumes",
               ) ?? "N/A",
         };
       });
@@ -141,9 +141,8 @@ export const sponsorRouter = router({
         to: input.email,
         from: "hello@deltahacks.com",
         subject: "Your DeltaHacks IX Scanned Resume",
-        text: `Here is a resume you scanned at DeltaHacks IX:\n<b>Name:</b> ${
-          converted[0]?.firstName
-        } ${converted[0]?.lastName}\n
+        text: `Here is a resume you scanned at DeltaHacks IX:\n<b>Name:</b> ${converted[0]
+          ?.firstName} ${converted[0]?.lastName}\n
       <b>Resume Link:</b> ${
         "https://portal.deltahacks.com" + converted[0]?.resume
       }`,

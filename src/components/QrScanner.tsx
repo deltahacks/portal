@@ -32,7 +32,7 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
       // you can use the controls to stop() the scan or switchTorch() if available
       const result = await codeReader.decodeOnceFromVideoDevice(
         selectedDeviceId,
-        parent!.current!
+        parent!.current!,
       );
       console.log("Scanned", result);
 

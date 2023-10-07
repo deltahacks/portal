@@ -17,7 +17,7 @@ const GradingPortal: NextPage = () => {
     undefined,
     {
       enabled: togglePriotity,
-    }
+    },
   );
   const appQuery = trpc.reviewer.getApplications.useQuery(undefined, {
     enabled: !togglePriotity,
@@ -44,7 +44,7 @@ const GradingPortal: NextPage = () => {
           .filter((score) => !Number.isNaN(score)) || [];
       const sum = scores.reduce(
         (a: number, b: number) => (!Number.isNaN(b) ? a + b : a),
-        0
+        0,
       );
       const avg = sum / scores.length || 0;
       setMean(avg);
@@ -94,7 +94,7 @@ const GradingPortal: NextPage = () => {
                     // count how many applications have been reviewed
                     // an application is considered reviewed if it has 3 or more reviews
                     data?.data.filter(
-                      (application) => application.reviews.length >= 3
+                      (application) => application.reviews.length >= 3,
                     ).length
                   }{" "}
                   / {data?.data.length} Applications Reviewed <br />
@@ -126,7 +126,7 @@ const GradingPortal: NextPage = () => {
                           applicant={application}
                           index={index + 1}
                         />
-                      )
+                      ),
                     )
                   : null}
               </tbody>
@@ -167,7 +167,7 @@ const GradingPortal: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard

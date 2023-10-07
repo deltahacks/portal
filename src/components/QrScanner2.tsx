@@ -57,7 +57,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
             // bad wait condition
             lastFired = new Date(Date.now());
           }
-        }
+        },
       );
       // const result = await codeReader.decodeOnceFromVideoDevice(
       //   selectedDeviceId,

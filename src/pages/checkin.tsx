@@ -269,7 +269,7 @@ const Checkin: NextPage = () => {
 
 // copied from dashboard.tsx
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
 

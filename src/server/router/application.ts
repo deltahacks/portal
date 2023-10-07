@@ -176,7 +176,7 @@ export const applicationRouter = router({
         firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
         lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
         birthday: new Date(
-          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "1000-01-01"
+          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "1000-01-01",
         ),
       };
     });
@@ -215,7 +215,7 @@ export const applicationRouter = router({
         };
       });
       const socialLinks = converted[0]?.socialLinks?.match(
-        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim
+        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim,
       );
 
       return {

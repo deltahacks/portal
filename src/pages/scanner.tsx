@@ -22,7 +22,7 @@ const ConstantQRReaderDynamic = dynamic(
   () => import("../components/QrScanner2"),
   {
     ssr: false,
-  }
+  },
 );
 
 // const RedirectToDashboard: React.FC = () => {
@@ -63,7 +63,7 @@ const FoodManagerView: React.FC = () => {
       setScanDelay(false);
       await utils.food.getFood.invalidate();
     },
-    [utils]
+    [utils],
   );
   return (
     <>
@@ -166,7 +166,7 @@ const SponsorView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
 
   useEffect(() => {
@@ -268,7 +268,7 @@ const HackerView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
 
   return (
@@ -308,7 +308,7 @@ const HackerView: React.FC = () => {
                     I am a{" "}
                     {socialInfo?.currentLevel?.replace(
                       "High School",
-                      "High Schooler"
+                      "High Schooler",
                     )}{" "}
                     attending {socialInfo?.school} for {socialInfo?.major}{" "}
                     at&nbsp;
@@ -603,7 +603,7 @@ const Scanner: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
 

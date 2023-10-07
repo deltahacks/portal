@@ -54,8 +54,8 @@ const Applicant = ({
     setAlreadyReviewed(
       applicant.reviews.length > 2 ||
         applicant.reviews.some(
-          (review) => review.reviewer.id === session.data?.user?.id
-        )
+          (review) => review.reviewer.id === session.data?.user?.id,
+        ),
     );
   }, [applicant.reviews, session.data?.user?.id]);
 
@@ -97,7 +97,7 @@ const Applicant = ({
                 <button
                   className={clsx(
                     "w-full rounded  px-4 py-2 text-white",
-                    "bg-primary"
+                    "bg-primary",
                   )}
                   onClick={async (e) => {
                     e.preventDefault();

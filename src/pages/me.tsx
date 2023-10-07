@@ -171,7 +171,7 @@ const Me: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
 

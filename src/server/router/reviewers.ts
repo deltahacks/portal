@@ -41,7 +41,7 @@ const TypeFormResponseItems = z.array(
       score: z.number(),
     }),
     answers: z.array(TypeFormResponseField),
-  })
+  }),
 );
 
 export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
@@ -109,7 +109,7 @@ const TypeFormSubmission = z.object({
             Role.EVENT_MANAGER,
             Role.GENERAL_SCANNER,
             Role.SPONSER,
-          ])
+          ]),
         ),
         status: z.enum([
           Status.ACCEPTED,
@@ -139,7 +139,7 @@ const TypeFormSubmission = z.object({
             Role.EVENT_MANAGER,
             Role.GENERAL_SCANNER,
             Role.SPONSER,
-          ])
+          ]),
         ),
         status: z.enum([
           Status.ACCEPTED,
@@ -154,7 +154,7 @@ const TypeFormSubmission = z.object({
         lastMealTaken: z.date().nullable(),
       }),
       mark: z.number(),
-    })
+    }),
   ),
   email: z.string().nullable(),
 });
@@ -235,14 +235,14 @@ export const reviewerRouter = router({
         firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
         lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
         birthday: new Date(
-          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01"
+          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01",
         ),
         major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
         school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "N/A",
         willBeEnrolled:
           responsePreprocessing.get("rG4lrpFoXXpL")?.boolean ?? false,
         graduationYear: new Date(
-          responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01"
+          responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01",
         ),
         degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "N/A",
         currentLevel: responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "N/A",
@@ -257,7 +257,7 @@ export const reviewerRouter = router({
             .get("z8wTMK3lMO00")
             ?.file_url?.replace(
               "https://api.typeform.com/forms",
-              "/api/resumes"
+              "/api/resumes",
             ) ?? "N/A",
         extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text ?? "N/A",
         tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc")?.text ?? "N/A",
@@ -286,7 +286,7 @@ export const reviewerRouter = router({
     });
     // filter responses to get the ones that need review
     const output = converted.filter((item) =>
-      mappedUsers.has(item.response_id)
+      mappedUsers.has(item.response_id),
     );
 
     return { data: output };
@@ -346,14 +346,14 @@ export const reviewerRouter = router({
         firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
         lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
         birthday: new Date(
-          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01"
+          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01",
         ),
         major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
         school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "N/A",
         willBeEnrolled:
           responsePreprocessing.get("rG4lrpFoXXpL")?.boolean ?? false,
         graduationYear: new Date(
-          responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01"
+          responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01",
         ),
         degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "N/A",
         currentLevel: responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "N/A",
@@ -368,7 +368,7 @@ export const reviewerRouter = router({
             .get("z8wTMK3lMO00")
             ?.file_url?.replace(
               "https://api.typeform.com/forms",
-              "/api/resumes"
+              "/api/resumes",
             ) ?? "N/A",
         extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text ?? "N/A",
         tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc")?.text ?? "N/A",
@@ -397,7 +397,7 @@ export const reviewerRouter = router({
     });
     // filter responses to get the ones that need review
     const output = converted.filter((item) =>
-      mappedUsers.has(item.response_id)
+      mappedUsers.has(item.response_id),
     );
 
     return { data: output };

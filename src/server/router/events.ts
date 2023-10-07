@@ -9,7 +9,7 @@ export const eventsRouter = router({
       z.object({
         qrcode: z.number(),
         eventName: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (
