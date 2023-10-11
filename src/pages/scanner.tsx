@@ -7,9 +7,8 @@ import SocialButtons from "../components/SocialButtons";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
-import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -51,18 +50,18 @@ const FoodManagerView: React.FC = () => {
     data: foodData,
     isLoading,
     isError,
-  } = trpc.useQuery(["food.getFood", parseInt(QRCode)], {
+  } = trpc.food.getFood.useQuery(parseInt(QRCode), {
     enabled: qrDefer !== "NONE",
     retry: 0,
   });
-  const foodMutationAdd = trpc.useMutation(["food.addFood"]);
-  const foodMutationSub = trpc.useMutation(["food.subFood"]);
+  const foodMutationAdd = trpc.food.addFood.useMutation();
+  const foodMutationSub = trpc.food.subFood.useMutation();
 
   const cb = useCallback(
     async (data: string) => {
       setQRCode(data);
       setScanDelay(false);
-      await utils.invalidateQueries(["food.getFood"]);
+      await utils.food.getFood.invalidate();
     },
     [utils]
   );
@@ -99,7 +98,7 @@ const FoodManagerView: React.FC = () => {
                   className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
                   onClick={async () => {
                     await foodMutationAdd.mutateAsync(parseInt(QRCode));
-                    await utils.invalidateQueries(["food.getFood"]);
+                    await utils.food.getFood.invalidate();
                   }}
                 >
                   Reedem ticket
@@ -109,7 +108,7 @@ const FoodManagerView: React.FC = () => {
                   className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
                   onClick={async () => {
                     await foodMutationSub.mutateAsync(parseInt(QRCode));
-                    await utils.invalidateQueries(["food.getFood"]);
+                    await utils.food.getFood.invalidate();
                   }}
                 >
                   Revert Redemption
@@ -153,7 +152,7 @@ const SponsorView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
-  const sendResumeEmail = trpc.useMutation("sponsor.sendResumeEmail");
+  const sendResumeEmail = trpc.sponsor.sendResumeEmail.useMutation();
   const [error, setError] = useState("");
   const { data: session } = useSession();
   const utils = trpc.useContext();
@@ -162,11 +161,8 @@ const SponsorView: React.FC = () => {
     data: getResume,
     isLoading,
     isError,
-  } = trpc.useQuery(
-    [
-      "sponsor.getResume",
-      { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
-    ],
+  } = trpc.sponsor.getResume.useQuery(
+    { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
@@ -195,7 +191,7 @@ const SponsorView: React.FC = () => {
             callback={async (data) => {
               setQRCode(data);
               setScanDelay(false);
-              await utils.invalidateQueries(["sponsor.getResume"]);
+              await utils.sponsor.getResume.invalidate();
             }}
           />
         ) : null}
@@ -267,8 +263,8 @@ const HackerView: React.FC = () => {
   const qrDefer = useDeferredValue(QRCode);
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const [value, setValue] = useState("");
-  const { data: socialInfo } = trpc.useQuery(
-    ["application.socialInfo", parseInt(QRCode)],
+  const { data: socialInfo } = trpc.application.socialInfo.useQuery(
+    parseInt(QRCode),
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
@@ -411,7 +407,7 @@ const EventsView: React.FC = () => {
 
   const [selected, setSelected] = useState(events[0]);
 
-  const eCheckIn = trpc.useMutation("events.checkin");
+  const eCheckIn = trpc.events.checkin.useMutation();
 
   useEffect(() => {
     const asdf = async () => {

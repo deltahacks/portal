@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { unstable_getServerSession as getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import { authOptions as nextAuthOptions } from "../auth/[...nextauth]";
 import { env } from "../../../env/server.mjs";
 import { Readable } from "stream";

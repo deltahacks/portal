@@ -1,12 +1,10 @@
-import * as trpc from "@trpc/server";
 import * as sgMail from "@sendgrid/mail";
-import * as fs from "fs";
-import { createProtectedRouter } from "./context";
 import { Role } from "@prisma/client";
 import { z } from "zod";
 import type { TypeFormResponse, TypeFormResponseField } from "./reviewers";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
+import { protectedProcedure, router } from "./trpc";
 
 export const options = {
   method: "GET",
@@ -28,20 +26,22 @@ const TypeFormSubmissionResume = z.object({
 
 type TypeFormSubmissionResume = z.infer<typeof TypeFormSubmissionResume>;
 
-export const sponsorRouter = createProtectedRouter()
-  .query("getResume", {
-    input: z.object({
-      qrcode: z.number(),
-      email: z.string(),
-    }),
-    async resolve({ ctx, input }) {
+export const sponsorRouter = router({
+  getResume: protectedProcedure
+    .input(
+      z.object({
+        qrcode: z.number(),
+        email: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
       if (
         !(
           ctx.session.user.role.includes(Role.ADMIN) ||
           ctx.session.user.role.includes(Role.SPONSER)
         )
       ) {
-        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+        throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const user = await ctx.prisma.user.findFirst({
         where: { qrcode: input.qrcode },
@@ -81,21 +81,22 @@ export const sponsorRouter = createProtectedRouter()
       });
 
       return converted[0];
-    },
-  })
-  .mutation("sendResumeEmail", {
-    input: z.object({
-      qrcode: z.number(),
-      email: z.string(),
     }),
-    async resolve({ ctx, input }) {
+  sendResumeEmail: protectedProcedure
+    .input(
+      z.object({
+        qrcode: z.number(),
+        email: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
       if (
         !(
           ctx.session.user.role.includes(Role.ADMIN) ||
           ctx.session.user.role.includes(Role.SPONSER)
         )
       ) {
-        throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
+        throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const user = await ctx.prisma.user.findFirst({
         where: { qrcode: input.qrcode },
@@ -161,5 +162,5 @@ export const sponsorRouter = createProtectedRouter()
         .catch((error) => {
           console.error(error);
         });
-    },
-  });
+    }),
+});

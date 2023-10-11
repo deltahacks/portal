@@ -1,11 +1,8 @@
 import type { NextPage, GetServerSidePropsContext } from "next";
-import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import Background from "../components/Background";
 import { Drawer } from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
-import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 
