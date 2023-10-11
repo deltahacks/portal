@@ -200,10 +200,10 @@ const RSVPed: React.FC = () => {
         you at the hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We are pleased to inform you that your registration for DeltaHacks X
-        has been confirmed. Please look for an Attendee Package in your email
-        with important information about the event in the coming days.
-        Registration will take place at{" "}
+        We are pleased to inform you that your registration for DeltaHacks X has
+        been confirmed. Please look for an Attendee Package in your email with
+        important information about the event in the coming days. Registration
+        will take place at{" "}
         <a
           className="text-sky-400 hover:underline"
           href="https://www.google.com/maps/place/Peter+George+Centre+for+Living+and+Learning/@43.2654,-79.9208391,17z/data=!3m1!4b1!4m5!3m4!1s0x882c9b6596106407:0xf256463687b966a8!8m2!3d43.2654!4d-79.9182642?coh=164777&entry=tt&shorturl=1"
