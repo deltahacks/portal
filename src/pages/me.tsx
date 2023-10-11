@@ -44,7 +44,7 @@ const Me: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks 10</title>
+        <title>Dashboard - DeltaHacks X</title>
       </Head>
 
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">

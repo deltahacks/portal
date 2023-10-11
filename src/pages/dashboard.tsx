@@ -56,11 +56,11 @@ const Accepted: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? session.user?.name : ""}
         {/*, we can{"'"}t wait to see you at
-        Deltahacks 10!*/}
+        Deltahacks X!*/}
       </h1>
       {/*<h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
-        DeltaHacks 10! Come hack for change and build something incredible with
+        DeltaHacks X! Come hack for change and build something incredible with
         hundreds of other hackers from January 12 - 14, 2023! To confirm that
         you will be attending, please RSVP below.
       </h2>*/}
@@ -102,7 +102,7 @@ const Rejected: React.FC = () => {
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? `${session.user?.name}` : ""}, thank you for submitting
-        your application to DeltaHacks 10.
+        your application to DeltaHacks X.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
@@ -200,7 +200,7 @@ const RSVPed: React.FC = () => {
         you at the hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We are pleased to inform you that your registration for DeltaHacks 10
+        We are pleased to inform you that your registration for DeltaHacks X
         has been confirmed. Please look for an Attendee Package in your email
         with important information about the event in the coming days.
         Registration will take place at{" "}
@@ -367,7 +367,7 @@ const Dashboard: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks 10</title>
+        <title>Dashboard - DeltaHacks X</title>
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
