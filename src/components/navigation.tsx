@@ -23,7 +23,7 @@ const NavBar = () => {
 
         <div className="font-sub ml-5 hidden md:flex">
           <a className="mx-2 text-base font-bold" href="#">
-            s Dashboard
+            Dashboard
           </a>
 
           <a className="mx-2 text-base font-bold" href="#">
