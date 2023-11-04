@@ -4,21 +4,32 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { useRouter } from "next/router";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+
+type Inputs = {
+  example: string,
+  exampleRequired: string,
+};
+
 
 const Apply: NextPage = () => {
   const router = useRouter();
   const submitResponseId = trpc.application.submit.useMutation();
 
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = data => {
+    console.log(data);
+  }
+
+  // console.log(watch("example")) // watch input value by passing the name of it
+
   return (
-    <Widget
-      id="MVo09hRB"
-      style={{ borderRadius: "none", width: "100%", height: "100%" }}
-      className="rounded-none"
-      onSubmit={async (event) => {
-        await submitResponseId.mutateAsync({ id: event.responseId });
-        await router.push("/dashboard");
-      }}
-    />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input defaultValue="test" {...register("example")} className="input input-bordered w-full max-w-xs"/>
+      
+      <input type="submit" className="btn btn-primary"/>
+    </form>
   );
 };
 
