@@ -11,14 +11,14 @@ const Content = () => {
     <main className="px-7 py-8 sm:px-14 md:w-10/12 md:py-16 lg:pl-20 2xl:w-8/12 2xl:pt-20">
       <div className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl">
         A weekend worth hacking,
-        <br />@ DeltaHacks 9
+        <br />@ DeltaHacks X
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-2xl lg:leading-tight 2xl:pt-10 2xl:text-2xl">
         At DeltaHacks, we believe change comes from dreaming big. Each year we
         enable over 800 students from across North America, working hard over 36
         hours, to bring their big ideas to life. Unleash your creativity and
         make something great, we{"'"}ll handle the rest! Make big ideas a
-        reality at DeltaHacks 9!
+        reality at DeltaHacks X!
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-2xl lg:leading-tight 2xl:pt-10 2xl:text-2xl">
         If you have any questions, you can <br />
@@ -63,7 +63,7 @@ const Welcome: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks 9</title>
+        <title>Welcome - DeltaHacks X</title>
       </Head>
       <Drawer>
         <Content />

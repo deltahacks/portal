@@ -513,7 +513,7 @@ const Scanner: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks 9</title>
+        <title>Check In - DeltaHacks X</title>
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
