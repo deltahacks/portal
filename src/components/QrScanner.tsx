@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { useState, useEffect } from "react";
-import { QrReader } from "react-qr-reader";
 
 import { BrowserQRCodeReader, BrowserCodeReader } from "@zxing/browser";
 
@@ -21,18 +20,19 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
         console.log("No video input devices found.");
         return;
       }
+
       // choose the environment camera
-      const selectedDeviceId =
-        videoInputDevices[cameraIdx % videoInputDevices.length]!.deviceId;
+      const selectedDeviceId = videoInputDevices[
+        cameraIdx % videoInputDevices.length
+      ]?.deviceId as string;
 
       console.log(`cameras: ${videoInputDevices.length}`);
-
       console.log(`Started decode from camera with id ${selectedDeviceId}`);
 
       // you can use the controls to stop() the scan or switchTorch() if available
       const result = await codeReader.decodeOnceFromVideoDevice(
         selectedDeviceId,
-        parent!.current!
+        parent.current ?? undefined
       );
       console.log("Scanned", result);
 
@@ -58,16 +58,14 @@ const QRScannerScanOnce: React.FC<QRScannerScanOnceProps> = ({ callback }) => {
     return () => {
       BrowserCodeReader.releaseAllStreams();
     };
-  }, [cameraIdx]);
+  }, [cameraIdx, callback]);
 
   return (
     <div>
       <video ref={parent}></video>
       <button
         className="btn btn-primary"
-        onClick={() => (
-          setCameraIdx(cameraIdx + 1), console.log(cameraIdx % 2)
-        )}
+        onClick={() => setCameraIdx(cameraIdx + 1)}
       >
         Flip camera
       </button>
