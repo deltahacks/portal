@@ -6,29 +6,36 @@ import { trpc } from "../utils/trpc";
 import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-
 type Inputs = {
-  example: string,
-  exampleRequired: string,
+  example: string;
+  exampleRequired: string;
 };
-
 
 const Apply: NextPage = () => {
   const router = useRouter();
   const submitResponseId = trpc.application.submit.useMutation();
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = data => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
     console.log(data);
-  }
+  };
 
   // console.log(watch("example")) // watch input value by passing the name of it
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input defaultValue="test" {...register("example")} className="input input-bordered w-full max-w-xs"/>
-      
-      <input type="submit" className="btn btn-primary"/>
+      <input
+        defaultValue="test"
+        {...register("example")}
+        className="input input-bordered w-full max-w-xs"
+      />
+
+      <input type="submit" className="btn btn-primary" />
     </form>
   );
 };
