@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
@@ -38,29 +39,24 @@ const ConstantQRReaderDynamic = dynamic(
 // };
 
 const FoodManagerView: React.FC = () => {
-  //   const [shouldShowScanner, setShouldShowScanner] = useState(true);
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
-  const [email, setEmail] = useState(null);
   const qrDefer = useDeferredValue(QRCode);
   const utils = trpc.useContext();
   const [value, setValue] = useState("");
 
-  const {
-    data: foodData,
-    isLoading,
-    isError,
-  } = trpc.food.getFood.useQuery(parseInt(QRCode), {
-    enabled: qrDefer !== "NONE",
-    retry: 0,
-  });
+  const { data: foodData, isError } = trpc.food.getFood.useQuery(
+    parseInt(QRCode),
+    {
+      enabled: qrDefer !== "NONE",
+      retry: 0,
+    }
+  );
   const foodMutationAdd = trpc.food.addFood.useMutation();
   const foodMutationSub = trpc.food.subFood.useMutation();
 
   const cb = useCallback(
     async (data: string) => {
       setQRCode(data);
-      setScanDelay(false);
       await utils.food.getFood.invalidate();
     },
     [utils]
@@ -70,7 +66,6 @@ const FoodManagerView: React.FC = () => {
       <div>
         {
           <ConstantQRReaderDynamic
-            // scanDelay={scanDelay}
             callback={cb}
             // lastVal={qrDefer}
             delay={1000}
@@ -148,7 +143,6 @@ const FoodManagerView: React.FC = () => {
 };
 
 const SponsorView: React.FC = () => {
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
@@ -157,11 +151,7 @@ const SponsorView: React.FC = () => {
   const { data: session } = useSession();
   const utils = trpc.useContext();
   const [value, setValue] = useState("");
-  const {
-    data: getResume,
-    isLoading,
-    isError,
-  } = trpc.sponsor.getResume.useQuery(
+  const { data: getResume } = trpc.sponsor.getResume.useQuery(
     { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
     {
       enabled: qrDefer !== "NONE",
@@ -190,7 +180,6 @@ const SponsorView: React.FC = () => {
           <QRReaderDynamic
             callback={async (data) => {
               setQRCode(data);
-              setScanDelay(false);
               await utils.sponsor.getResume.invalidate();
             }}
           />
@@ -258,7 +247,6 @@ const SponsorView: React.FC = () => {
 };
 
 const HackerView: React.FC = () => {
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
@@ -276,10 +264,8 @@ const HackerView: React.FC = () => {
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
-            // scanDelay={scanDelay}
             callback={(data) => {
               setQRCode(data);
-              // setScanDelay(false);
               setShouldShowScanner(false);
             }}
             // lastVal={qrDefer}
@@ -337,10 +323,21 @@ const HackerView: React.FC = () => {
               </h3>
             </div>
             <div className="flex w-full justify-center p-8 ">
+              <div className="h-auto w-full max-w-full rounded-xl lg:w-3/4">
+                <Image
+                  alt="social-info"
+                  src={socialInfo?.image || ""}
+                  layout="fill"
+                  objectFit="cover"
+                />
+              </div>
+              {/* TODO below is previous code. I can't check the code on my system rn because logging
+              in doesn't work, so check that it works later
               <img
                 className="h-auto w-full max-w-full rounded-xl lg:w-3/4"
-                src={socialInfo?.image || ""}
-              ></img>
+                alt="social-info"
+                src={}
+              /> */}
             </div>
           </div>
         ) : (
@@ -380,10 +377,8 @@ const HackerView: React.FC = () => {
 };
 
 const EventsView: React.FC = () => {
-  // const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const [value, setValue] = useState("");
-  // const qrDefer = useDeferredValue(QRCode);
 
   const events = [
     "REGISTRATION",
@@ -420,7 +415,7 @@ const EventsView: React.FC = () => {
       }
     };
     asdf();
-  }, [QRCode, selected]);
+  }, [QRCode, selected, eCheckIn]);
 
   return (
     <div>
@@ -513,7 +508,7 @@ const Scanner: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks 9</title>
+        <title>Check In - DeltaHacks X</title>
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
