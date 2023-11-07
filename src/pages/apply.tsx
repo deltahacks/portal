@@ -7,6 +7,9 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import FormTextInput from "../components/FormTextInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Head from "next/head";
+import Link from "next/link";
+import { Drawer } from "../components/NavBar";
 
 // export type Inputs = {
 //   name: string;
@@ -38,29 +41,34 @@ const Apply: NextPage = () => {
   // console.log(watch("example")) // watch input value by passing the name of it
 
   return (
-    <div className="flex items-center justify-center">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FormTextInput
-          register={register}
-          question={"What's your name ?"}
-          inputType={"name"}
-        />
-        <FormTextInput
-          register={register}
-          question={"What's your email ?"}
-          inputType={"email"}
-        />
-        {/*proof of concept components propegating the errors is going to be
+    <>
+      <Head>
+        <title>Welcome - DeltaHacks X</title>
+      </Head>
+      <Drawer>
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-red-500">
+          <FormTextInput
+            register={register}
+            question={"What's your name ?"}
+            inputType={"name"}
+          />
+          <FormTextInput
+            register={register}
+            question={"What's your email ?"}
+            inputType={"email"}
+          />
+          {/*proof of concept components propegating the errors is going to be
         painful because of how react form works */}
-        <input
-          type="number"
-          {...register("age", { valueAsNumber: true })}
-          className="input input-bordered w-full max-w-xs"
-        />
-        {errors.age?.message && <span>{errors.age?.message}</span>}
-        <input type="submit" className="btn btn-primary" />
-      </form>
-    </div>
+          <input
+            type="number"
+            {...register("age", { valueAsNumber: true })}
+            className="input input-bordered w-full max-w-xs"
+          />
+          {errors.age?.message && <span>{errors.age?.message}</span>}
+          <input type="submit" className="btn btn-primary" />
+        </form>
+      </Drawer>
+    </>
   );
 };
 
