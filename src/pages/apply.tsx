@@ -1,15 +1,24 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
-import { Widget } from "@typeform/embed-react";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
+import FormTextInput from "../components/FormTextInput";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type Inputs = {
-  example: string;
-  exampleRequired: string;
-};
+// export type Inputs = {
+//   name: string;
+// };
+
+const schema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  age: z.number().min(15),
+});
+
+export type InputsType = z.infer<typeof schema>;
 
 const Apply: NextPage = () => {
   const router = useRouter();
@@ -18,25 +27,40 @@ const Apply: NextPage = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  } = useForm<InputsType>({
+    resolver: zodResolver(schema),
+  });
+  const onSubmit: SubmitHandler<InputsType> = (data) => {
     console.log(data);
   };
 
   // console.log(watch("example")) // watch input value by passing the name of it
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <input
-        defaultValue="test"
-        {...register("example")}
-        className="input input-bordered w-full max-w-xs"
-      />
-
-      <input type="submit" className="btn btn-primary" />
-    </form>
+    <div className="flex items-center justify-center">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FormTextInput
+          register={register}
+          question={"What's your name ?"}
+          inputType={"name"}
+        />
+        <FormTextInput
+          register={register}
+          question={"What's your email ?"}
+          inputType={"email"}
+        />
+        // proof of concept components propegating the errors is going to be
+        painful because of how react form works
+        <input
+          type="number"
+          {...register("age", { valueAsNumber: true })}
+          className="input input-bordered w-full max-w-xs"
+        />
+        {errors.age?.message && <span>{errors.age?.message}</span>}
+        <input type="submit" className="btn btn-primary" />
+      </form>
+    </div>
   );
 };
 
