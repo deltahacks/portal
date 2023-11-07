@@ -50,8 +50,8 @@ const Apply: NextPage = () => {
           question={"What's your email ?"}
           inputType={"email"}
         />
-        // proof of concept components propegating the errors is going to be
-        painful because of how react form works
+        {/*proof of concept components propegating the errors is going to be
+        painful because of how react form works */}
         <input
           type="number"
           {...register("age", { valueAsNumber: true })}
