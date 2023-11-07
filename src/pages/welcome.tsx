@@ -67,7 +67,7 @@ const Welcome: NextPage = () => {
       </Head>
       <Drawer>
         <Content />
-        <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
+        <footer className="flex justify-end pb-4 pr-4 md:absolute md:bottom-0 md:right-0 md:block">
           <SocialButtons />
         </footer>
       </Drawer>
