@@ -33,7 +33,7 @@ const Content = () => {
             Apply
           </button>
         </Link>
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
