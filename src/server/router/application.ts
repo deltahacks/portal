@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import type { TypeFormResponse, TypeFormResponseField } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
+import { DH10ApplicationCreateInputSchema } from "../../../prisma/generated/zod";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -224,5 +225,10 @@ export const applicationRouter = router({
         image: user?.image,
         role: user?.role,
       };
+    }),
+  submitDh100: protectedProcedure
+    .input(DH10ApplicationCreateInputSchema)
+    .mutation(async ({ ctx }) => {
+      console.log();
     }),
 });

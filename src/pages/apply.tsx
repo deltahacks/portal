@@ -10,16 +10,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import Link from "next/link";
 import { Drawer } from "../components/NavBar";
+import { DH10ApplicationCreateInputSchema } from "../../prisma/generated/zod";
 
 // export type Inputs = {
 //   name: string;
 // };
 
-const schema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  age: z.number().min(15),
-});
+// const schema = z.object({
+//   name: z.string(),
+//   email: z.string().email(),
+//   age: z.number().min(15),
+// });
+
+const schema = DH10ApplicationCreateInputSchema;
 
 export type InputsType = z.infer<typeof schema>;
 
@@ -30,15 +33,21 @@ const Apply: NextPage = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<InputsType>({
     resolver: zodResolver(schema),
   });
   const onSubmit: SubmitHandler<InputsType> = (data) => {
     console.log(data);
+    schema.parse(data);
   };
 
-  // console.log(watch("example")) // watch input value by passing the name of it
+  try {
+    schema.parse(watch()); // watch input value by passing the name of it
+  } catch (err) {
+    console.log(err);
+  }
 
   return (
     <>
