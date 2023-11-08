@@ -52,7 +52,7 @@
     "react-timelines": "^2.6.1",
     "superjson": "^1.10.0",
     "zod": "^3.18.0",
-    "zod-prisma-types": "^2.8.1"
+    "zod-prisma": "^0.5.4"
   },
   "devDependencies": {
     "@types/node": "18.0.0",
