@@ -1,5 +1,5 @@
-import * as z from "zod"
-import { CompleteUser, RelatedUserModel } from "./index"
+import * as z from "zod";
+import { CompleteUser, RelatedUserModel } from "./index";
 
 export const DH10ApplicationModel = z.object({
   id: z.string(),
@@ -35,10 +35,11 @@ export const DH10ApplicationModel = z.object({
   agreeToMLHCodeOfConduct: z.boolean(),
   agreeToMLHPrivacyPolicy: z.boolean(),
   agreeToMLHCommunications: z.boolean(),
-})
+});
 
-export interface CompleteDH10Application extends z.infer<typeof DH10ApplicationModel> {
-  User?: CompleteUser | null
+export interface CompleteDH10Application
+  extends z.infer<typeof DH10ApplicationModel> {
+  User?: CompleteUser | null;
 }
 
 /**
@@ -46,6 +47,9 @@ export interface CompleteDH10Application extends z.infer<typeof DH10ApplicationM
  *
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
-export const RelatedDH10ApplicationModel: z.ZodSchema<CompleteDH10Application> = z.lazy(() => DH10ApplicationModel.extend({
-  User: RelatedUserModel.nullish(),
-}))
+export const RelatedDH10ApplicationModel: z.ZodSchema<CompleteDH10Application> =
+  z.lazy(() =>
+    DH10ApplicationModel.extend({
+      User: RelatedUserModel.nullish(),
+    })
+  );
