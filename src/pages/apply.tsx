@@ -17,35 +17,40 @@ import { useEffect } from "react";
 // };
 
 const schema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
   birthday: z.date(),
   studyEnrolledPostSecondary: z.boolean(),
-  studyLocation: z.string(),
-  studyDegree: z.string(),
-  studyMajor: z.string(),
-  studyYearOfStudy: z.coerce.number().int(),
+  studyLocation: z.string().min(1),
+  studyDegree: z.string().min(1),
+  studyMajor: z.string().min(1),
+  studyYearOfStudy: z.coerce.number().int().min(1),
   studyExpectedGraduation: z.date(),
-  previousHackathonsCount: z.coerce.number().int(),
-  longAnswerChange: z.string(),
-  longAnswerExperience: z.string(),
-  longAnswerTech: z.string(),
-  longAnswerMeaning: z.string(),
-  longAnswerFuture: z.string(),
-  longAnswerMagic: z.string(),
-  socialText: z.string().nullish(),
-  interests: z.string().nullish(),
+  previousHackathonsCount: z.coerce.number().int().min(0),
+  longAnswerChange: z.string().min(1),
+  longAnswerExperience: z.string().min(1),
+  longAnswerTech: z.string().min(1),
+
+  longAnswerMagic: z.string().min(1),
+  socialText: z
+    .string()
+    .transform((string) => string ?? null)
+    .nullable(),
+  interests: z
+    .string()
+    .transform((string) => string ?? null)
+    .nullable(),
   tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
-  hackerKind: z.string(),
+  hackerKind: z.string().min(1),
   alreadyHaveTeam: z.boolean(),
-  workshopChoices: z.string().array(),
+  workshopChoices: z.string().array().min(1),
   considerCoffee: z.boolean(),
-  discoverdFrom: z.string(),
-  gender: z.string(),
-  race: z.string(),
-  emergencyContactName: z.string(),
-  emergencyContactPhone: z.string(),
-  emergencyContactRelation: z.string(),
+  discoverdFrom: z.string().min(1),
+  gender: z.string().min(1),
+  race: z.string().min(1),
+  emergencyContactName: z.string().min(1),
+  emergencyContactPhone: z.string().min(1),
+  emergencyContactRelation: z.string().min(1),
   agreeToMLHCodeOfConduct: z.boolean(),
   agreeToMLHPrivacyPolicy: z.boolean(),
   agreeToMLHCommunications: z.boolean(),
@@ -83,7 +88,7 @@ const Apply: NextPage = () => {
             className="mx-auto flex flex-col pb-8"
           >
             <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
-              Subheading
+              Personal Information
             </span>
             <div className="flex gap-4 w-full">
               <div className="flex flex-col gap-2 pb-4 flex-1">
@@ -199,7 +204,7 @@ const Apply: NextPage = () => {
                 { valueAsDate: true })}
               />
               {errors.studyExpectedGraduation && (
-                <span>This field is required</span>
+                <span className="text-error">This field is required</span>
               )}
             </div>
             <div className="flex flex-col gap-2 pb-4">
@@ -213,14 +218,18 @@ const Apply: NextPage = () => {
                 {...register("previousHackathonsCount")}
               />
               {errors.previousHackathonsCount && (
-                <span>This field is required</span>
+                <span className="text-error">This field is required</span>
               )}
             </div>
             <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
               Long Answer
             </span>
             <div className="flex flex-col gap-2 pb-4">
-              <label htmlFor="longAnswerChangeInput">Long Answer: Change</label>
+              <label htmlFor="longAnswerChangeInput">
+                DeltaHacks is the annual Hackathon for Change. If you had the
+                ability to change anything in the world, what would it be and
+                why?
+              </label>
               <textarea
                 className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
                 id="longAnswerChangeInput"
@@ -232,7 +241,7 @@ const Apply: NextPage = () => {
             </div>
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="longAnswerExperienceInput">
-                Long Answer: Experience
+                How do you hope to make the most out of your experience at DH10?
               </label>
               <textarea
                 className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
@@ -240,11 +249,14 @@ const Apply: NextPage = () => {
                 {...register("longAnswerExperience")}
               />
               {errors.longAnswerExperience && (
-                <span>This field is required</span>
+                <span className="text-error">This field is required</span>
               )}
             </div>
             <div className="flex flex-col gap-2 pb-4">
-              <label htmlFor="longAnswerTechInput">Long Answer: Tech</label>
+              <label htmlFor="longAnswerTechInput">
+                Which piece of future technology excites you most and where do
+                you see it going?
+              </label>
               <textarea
                 className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
                 id="longAnswerTechInput"
@@ -254,32 +266,14 @@ const Apply: NextPage = () => {
                 <span className="text-error">This field is required</span>
               )}
             </div>
+
             <div className="flex flex-col gap-2 pb-4">
-              <label htmlFor="longAnswerMeaningInput">
-                Long Answer: Meaning
+              <label htmlFor="longAnswerMagicInput">
+                You've been transported to an island with no clue of where you
+                are. You are allowed 3 objectsof your choice which will
+                magically appear in front of you. How would you escape the
+                island in time for DeltaHacks 10?
               </label>
-              <textarea
-                className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
-                id="longAnswerMeaningInput"
-                {...register("longAnswerMeaning")}
-              />
-              {errors.longAnswerMeaning && (
-                <span className="text-error">This field is required</span>
-              )}
-            </div>
-            <div className="flex flex-col gap-2 pb-4">
-              <label htmlFor="longAnswerFutureInput">Long Answer: Future</label>
-              <textarea
-                className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
-                id="longAnswerFutureInput"
-                {...register("longAnswerFuture")}
-              />
-              {errors.longAnswerFuture && (
-                <span className="text-error">This field is required</span>
-              )}
-            </div>
-            <div className="flex flex-col gap-2 pb-4">
-              <label htmlFor="longAnswerMagicInput">Long Answer: Magic</label>
               <textarea
                 className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
                 id="longAnswerMagicInput"
@@ -293,7 +287,12 @@ const Apply: NextPage = () => {
               Survey
             </span>
             <div className="flex flex-col gap-2 pb-4">
-              <label htmlFor="socialTextInput">Social Text</label>
+              <label htmlFor="socialTextInput">
+                What are your social media link(s)?{" "}
+                <i>
+                  <span className="text-neutral-400"> (Optional)</span>
+                </i>
+              </label>
               <input
                 className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
                 type="text"
@@ -302,7 +301,12 @@ const Apply: NextPage = () => {
               />
             </div>
             <div className="flex flex-col gap-2 pb-4">
-              <label htmlFor="interestsInput">Interests</label>
+              <label htmlFor="interestsInput">
+                Is there anything else interesting you want us to know or see?
+                <i>
+                  <span className="text-neutral-400"> (Optional)</span>
+                </i>
+              </label>
               <input
                 className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
                 type="text"
@@ -423,7 +427,7 @@ const Apply: NextPage = () => {
                   {...register("emergencyContactName")}
                 />
                 {errors.emergencyContactName && (
-                  <span>This field is required</span>
+                  <span className="text-error">This field is required</span>
                 )}
               </div>
               <div className="flex flex-col gap-2 pb-4 flex-1">
@@ -435,7 +439,7 @@ const Apply: NextPage = () => {
                   {...register("emergencyContactRelation")}
                 />
                 {errors.emergencyContactRelation && (
-                  <span>This field is required</span>
+                  <span className="text-error">This field is required</span>
                 )}
               </div>
             </div>
@@ -448,7 +452,7 @@ const Apply: NextPage = () => {
                 {...register("emergencyContactPhone")}
               />
               {errors.emergencyContactPhone && (
-                <span>This field is required</span>
+                <span className="text-error">This field is required</span>
               )}
             </div>
 
