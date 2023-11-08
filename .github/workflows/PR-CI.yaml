@@ -29,6 +29,6 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - run: npm install prettier
-      - run: npm run format:check
+          node-version: 20
+      - run: pnpm install prettier
+      - run: pnpm run format:check
