@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import Link from "next/link";
 import { Drawer } from "../components/NavBar";
-import { DH10ApplicationCreateInputSchema } from "../../prisma/generated/zod";
+import { DH10ApplicationModel } from "../../prisma/zod/dh10application";
 
 // export type Inputs = {
 //   name: string;
@@ -22,7 +22,7 @@ import { DH10ApplicationCreateInputSchema } from "../../prisma/generated/zod";
 //   age: z.number().min(15),
 // });
 
-const schema = DH10ApplicationCreateInputSchema;
+const schema = DH10ApplicationModel.omit({ id: true });
 
 export type InputsType = z.infer<typeof schema>;
 
@@ -44,7 +44,8 @@ const Apply: NextPage = () => {
   };
 
   try {
-    schema.parse(watch()); // watch input value by passing the name of it
+    const t = watch();
+    schema.parse({ race: t.firstName }); // watch input value by passing the name of it
   } catch (err) {
     console.log(err);
   }
@@ -55,11 +56,14 @@ const Apply: NextPage = () => {
         <title>Welcome - DeltaHacks X</title>
       </Head>
       <Drawer>
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-red-500">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mx-auto flex w-1/2 max-w-4xl flex-col bg-red-500"
+        >
           <FormTextInput
             register={register}
             question={"What's your name ?"}
-            inputType={"name"}
+            inputType={"firstName"}
           />
           <FormTextInput
             register={register}
@@ -68,13 +72,13 @@ const Apply: NextPage = () => {
           />
           {/*proof of concept components propegating the errors is going to be
         painful because of how react form works */}
-          <input
+          {/* <input
             type="number"
             {...register("age", { valueAsNumber: true })}
             className="input input-bordered w-full max-w-xs"
-          />
-          {errors.age?.message && <span>{errors.age?.message}</span>}
-          <input type="submit" className="btn btn-primary" />
+          /> */}
+          {/* {errors.age?.message && <span>{errors.age?.message}</span>} */}
+          {/* <input type="submit" className="btn btn-primary" /> */}
         </form>
       </Drawer>
     </>
