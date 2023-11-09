@@ -74,8 +74,10 @@ const Apply: NextPage = () => {
   });
   const onSubmit: SubmitHandler<InputsType> = (data) => {
     console.log(data);
-    // schema.parse(data);
+    schema.parse(data);
   };
+
+  console.log(errors);
 
   return (
     <>
@@ -501,7 +503,11 @@ const Apply: NextPage = () => {
                 Agree to MLH Communications
               </label>
             </div>
-            <button type="submit" className="mt-4 mb-4 btn btn-primary">
+            <button
+              // type="submit"
+              className="mt-4 mb-4 btn btn-primary"
+              // onClick={() => console.log("AAA")}
+            >
               Submit
             </button>
           </form>
