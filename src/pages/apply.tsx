@@ -3,7 +3,7 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { useRouter } from "next/router";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import FormTextInput from "../components/FormTextInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { Drawer } from "../components/NavBar";
 import { useEffect } from "react";
+import UniversitySelect from "../components/UniversitySelect";
 
 // export type Inputs = {
 //   name: string;
@@ -65,6 +66,7 @@ const Apply: NextPage = () => {
   const {
     register,
     handleSubmit,
+    control,
     watch,
     formState: { errors },
   } = useForm<InputsType>({
@@ -81,20 +83,20 @@ const Apply: NextPage = () => {
         <title>Welcome - DeltaHacks X</title>
       </Head>
       <Drawer>
-        <div className="mx-auto w-1/2 max-w-4xl text-white">
+        <div className="w-1/2 max-w-4xl mx-auto text-white">
           <h1 className="py-8 text-4xl font-bold">Apply to DeltaHacks</h1>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="mx-auto flex flex-col pb-8"
+            className="flex flex-col pb-8 mx-auto"
           >
-            <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
+            <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
               Personal Information
             </span>
-            <div className="flex gap-4 w-full">
-              <div className="flex flex-col gap-2 pb-4 flex-1">
+            <div className="flex w-full gap-4">
+              <div className="flex flex-col flex-1 gap-2 pb-4">
                 <label htmlFor="firstNameInput">First Name</label>
                 <input
-                  className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                  className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                   type="text"
                   id="firstNameInput"
                   placeholder="John"
@@ -104,10 +106,10 @@ const Apply: NextPage = () => {
                   <span className="text-error">This field is required</span>
                 )}
               </div>
-              <div className="flex flex-col gap-2 pb-4 flex-1">
+              <div className="flex flex-col flex-1 gap-2 pb-4">
                 <label htmlFor="lastNameInput">Last Name</label>
                 <input
-                  className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                  className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                   type="text"
                   id="lastNameInput"
                   placeholder="Doe"
@@ -121,7 +123,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="birthdayInput">Birthday</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="date"
                 id="birthdayInput"
                 {...register("birthday", { valueAsDate: true })}
@@ -130,12 +132,12 @@ const Apply: NextPage = () => {
                 <span className="text-error">This field is required</span>
               )}
             </div>
-            <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
+            <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
               Education
             </span>
-            <div className="justify-left flex gap-2 pb-4 pt-4 items-center">
+            <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
               <input
-                className="checkbox rounded-sm p-2 bg-neutral-800 checkbox-lg"
+                className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
                 type="checkbox"
                 id="studyEnrolledPostSecondaryInput"
                 {...register("studyEnrolledPostSecondary")}
@@ -146,11 +148,18 @@ const Apply: NextPage = () => {
             </div>
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="studyLocationInput">Study Location</label>
-              <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+              {/* <input
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="studyLocationInput"
                 {...register("studyLocation")}
+              /> */}
+              <Controller
+                name="studyLocation"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <UniversitySelect {...field} />
+                )}
               />
               {errors.studyLocation && (
                 <span className="text-error">This field is required</span>
@@ -159,7 +168,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="studyDegreeInput">Study Degree</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="studyDegreeInput"
                 {...register("studyDegree")}
@@ -171,7 +180,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="studyMajorInput">Study Major</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="studyMajorInput"
                 {...register("studyMajor")}
@@ -183,7 +192,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="studyYearOfStudyInput">Year of Study</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="number"
                 id="studyYearOfStudyInput"
                 {...register("studyYearOfStudy")}
@@ -197,7 +206,7 @@ const Apply: NextPage = () => {
                 Expected Graduation
               </label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="date"
                 id="studyExpectedGraduationInput"
                 {...(register("studyExpectedGraduation"),
@@ -212,7 +221,7 @@ const Apply: NextPage = () => {
                 Previous Hackathons Count
               </label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="number"
                 id="previousHackathonsCountInput"
                 {...register("previousHackathonsCount")}
@@ -221,7 +230,7 @@ const Apply: NextPage = () => {
                 <span className="text-error">This field is required</span>
               )}
             </div>
-            <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
+            <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
               Long Answer
             </span>
             <div className="flex flex-col gap-2 pb-4">
@@ -231,7 +240,7 @@ const Apply: NextPage = () => {
                 why?
               </label>
               <textarea
-                className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
+                className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
                 id="longAnswerChangeInput"
                 {...register("longAnswerChange")}
               />
@@ -244,7 +253,7 @@ const Apply: NextPage = () => {
                 How do you hope to make the most out of your experience at DH10?
               </label>
               <textarea
-                className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
+                className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
                 id="longAnswerExperienceInput"
                 {...register("longAnswerExperience")}
               />
@@ -258,7 +267,7 @@ const Apply: NextPage = () => {
                 you see it going?
               </label>
               <textarea
-                className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
+                className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
                 id="longAnswerTechInput"
                 {...register("longAnswerTech")}
               />
@@ -275,7 +284,7 @@ const Apply: NextPage = () => {
                 island in time for DeltaHacks 10?
               </label>
               <textarea
-                className="textarea textarea-bordered bg-neutral-800 p-3 placeholder:text-neutral-500"
+                className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
                 id="longAnswerMagicInput"
                 {...register("longAnswerMagic")}
               />
@@ -283,7 +292,7 @@ const Apply: NextPage = () => {
                 <span className="text-error">This field is required</span>
               )}
             </div>
-            <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
+            <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
               Survey
             </span>
             <div className="flex flex-col gap-2 pb-4">
@@ -294,7 +303,7 @@ const Apply: NextPage = () => {
                 </i>
               </label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="socialTextInput"
                 {...register("socialText")}
@@ -308,7 +317,7 @@ const Apply: NextPage = () => {
                 </i>
               </label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="interestsInput"
                 {...register("interests")}
@@ -317,7 +326,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="tshirtSizeInput">T-shirt Size</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="tshirtSizeInput"
                 {...register("tshirtSize")}
@@ -329,7 +338,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="hackerKindInput">Hacker Kind</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="hackerKindInput"
                 {...register("hackerKind")}
@@ -338,9 +347,9 @@ const Apply: NextPage = () => {
                 <span className="text-error">This field is required</span>
               )}
             </div>
-            <div className="justify-left flex gap-2 pb-4 pt-4 items-center">
+            <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
               <input
-                className="checkbox rounded-sm p-2"
+                className="p-2 rounded-sm checkbox"
                 type="checkbox"
                 id="alreadyHaveTeamInput"
                 {...register("alreadyHaveTeam")}
@@ -363,9 +372,9 @@ const Apply: NextPage = () => {
                 <span className="text-error">This field is required</span>
               )}
             </div>
-            <div className="justify-left flex gap-2 pb-4 pt-4 items-center">
+            <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
               <input
-                className="checkbox rounded-sm p-2 bg-neutral-800 checkbox-lg"
+                className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
                 type="checkbox"
                 id="considerCoffeeInput"
                 {...register("considerCoffee")}
@@ -391,7 +400,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="genderInput">Gender</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="genderInput"
                 {...register("gender")}
@@ -403,7 +412,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="raceInput">Race</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="raceInput"
                 {...register("race")}
@@ -412,16 +421,16 @@ const Apply: NextPage = () => {
                 <span className="text-error">This field is required</span>
               )}
             </div>
-            <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
+            <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
               Emergency Contact
             </span>
-            <div className="flex md:gap-4 flex-col md:flex-row md:items-end">
-              <div className="flex flex-col gap-2 pb-4 flex-1">
+            <div className="flex flex-col md:gap-4 md:flex-row md:items-end">
+              <div className="flex flex-col flex-1 gap-2 pb-4">
                 <label htmlFor="emergencyContactNameInput">
                   Name of Emergency Contact
                 </label>
                 <input
-                  className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                  className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                   type="text"
                   id="emergencyContactNameInput"
                   {...register("emergencyContactName")}
@@ -430,10 +439,10 @@ const Apply: NextPage = () => {
                   <span className="text-error">This field is required</span>
                 )}
               </div>
-              <div className="flex flex-col gap-2 pb-4 flex-1">
+              <div className="flex flex-col flex-1 gap-2 pb-4">
                 <label htmlFor="emergencyContactRelationInput">Relation</label>
                 <input
-                  className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                  className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                   type="text"
                   id="emergencyContactRelationInput"
                   {...register("emergencyContactRelation")}
@@ -446,7 +455,7 @@ const Apply: NextPage = () => {
             <div className="flex flex-col gap-2 pb-4">
               <label htmlFor="emergencyContactPhoneInput">Phone</label>
               <input
-                className="input rounded-lg bg-neutral-800 p-3 placeholder:text-neutral-500 "
+                className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
                 type="text"
                 id="emergencyContactPhoneInput"
                 {...register("emergencyContactPhone")}
@@ -456,12 +465,12 @@ const Apply: NextPage = () => {
               )}
             </div>
 
-            <span className="pb-2 border-b-2 mb-2 border-neutral-700 text-neutral-400">
+            <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
               MLH Consent
             </span>
-            <div className="justify-left flex gap-2 pb-4 pt-4 items-center">
+            <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
               <input
-                className="checkbox rounded-sm p-2 bg-neutral-800 checkbox-lg"
+                className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
                 type="checkbox"
                 id="agreeToMLHCodeOfConductInput"
                 {...register("agreeToMLHCodeOfConduct")}
@@ -470,9 +479,9 @@ const Apply: NextPage = () => {
                 Agree to MLH Code of Conduct
               </label>
             </div>
-            <div className="justify-left flex gap-2 pb-4 pt-4 items-center">
+            <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
               <input
-                className="checkbox rounded-sm p-2 bg-neutral-800 checkbox-lg"
+                className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
                 type="checkbox"
                 id="agreeToMLHPrivacyPolicyInput"
                 {...register("agreeToMLHPrivacyPolicy")}
@@ -481,9 +490,9 @@ const Apply: NextPage = () => {
                 Agree to MLH Privacy Policy
               </label>
             </div>
-            <div className="justify-left flex gap-2 pb-4 pt-4 items-center">
+            <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
               <input
-                className="checkbox rounded-sm p-2 bg-neutral-800 checkbox-lg"
+                className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
                 type="checkbox"
                 id="agreeToMLHCommunicationsInput"
                 {...register("agreeToMLHCommunications")}
@@ -492,7 +501,7 @@ const Apply: NextPage = () => {
                 Agree to MLH Communications
               </label>
             </div>
-            <button type="submit" className="btn btn-primary mt-4 mb-4">
+            <button type="submit" className="mt-4 mb-4 btn btn-primary">
               Submit
             </button>
           </form>
