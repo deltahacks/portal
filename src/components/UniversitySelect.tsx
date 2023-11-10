@@ -101,7 +101,7 @@ const UniversitySelect = (props: any) => {
   return (
     <>
       <div className="flex items-center justify-center w-full h-full">
-        <div className="w-full max-w-xl">
+        <div className="w-full max-w-full">
           <AsyncSelect
             {...props}
             cacheOptions={true}
