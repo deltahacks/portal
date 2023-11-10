@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import AsyncSelect from "react-select/async";
 import { StylesConfig } from "react-select";
 import makeAnimated from "react-select/animated";
+import AsyncCreatableSelect from "react-select/async-creatable";
 import { NextPage } from "next";
 import { z } from "zod";
 
@@ -82,6 +82,12 @@ const colourStyles: StylesConfig = {
     },
     boxShadow: "none",
   }),
+  valueContainer: (styles) => ({
+    ...styles,
+    padding: "0.5rem",
+    text: "#ffffff",
+  }),
+  input: (styles) => ({ ...styles, color: "#fff" }),
   menu: (styles) => ({ ...styles, backgroundColor: "#262626" }),
   option: (styles, { data, isDisabled, isFocused, isSelected }) => ({
     ...styles,
@@ -108,6 +114,7 @@ const UniversitySelect = (props: any) => {
             defaultOptions={true}
             loadOptions={getOptions}
             styles={colourStyles}
+            className="w-full"
             components={animatedComponents}
           />
         </div>

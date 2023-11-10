@@ -3,6 +3,13 @@ import * as trpcNext from "@trpc/server/adapters/next";
 import { Session } from "next-auth";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 import { prisma } from "../db/client";
+import { LogSnag } from "@logsnag/node";
+import { env } from "../../env/server.mjs";
+
+const logsnag = new LogSnag({
+  token: env.LOGSNAG_TOKEN,
+  project: "deltahacks-portal",
+});
 
 type CreateContextOptions = {
   session: Session | null;
@@ -16,6 +23,7 @@ export const createContextInner = async (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
+    logsnag,
   };
 };
 

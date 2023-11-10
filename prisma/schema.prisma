@@ -125,8 +125,6 @@ model DH10Application {
   longAnswerChange     String
   longAnswerExperience String
   longAnswerTech       String
-  longAnswerMeaning    String
-  longAnswerFuture     String
   longAnswerMagic      String
 
   socialText String?
