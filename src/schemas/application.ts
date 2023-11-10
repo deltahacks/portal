@@ -8,11 +8,11 @@ const schema = z.object({
     .min(new Date(1900, 1, 1))
     .max(new Date(2009, 1, 12), "You must be at least 15 years old"),
   studyEnrolledPostSecondary: z.boolean(),
-  studyLocation: z.string().min(1).max(255),
-  studyDegree: z.string().min(1).max(255),
-  studyMajor: z.string().min(1).max(255),
-  studyYearOfStudy: z.coerce.number().int().min(1),
-  studyExpectedGraduation: z.date(),
+  studyLocation: z.string().min(1).max(255).nullable(),
+  studyDegree: z.string().min(1).max(255).nullable(),
+  studyMajor: z.string().min(1).max(255).nullable(),
+  studyYearOfStudy: z.coerce.number().int().min(1).nullable(),
+  studyExpectedGraduation: z.date().nullable(),
   previousHackathonsCount: z.coerce.number().int().min(0),
   longAnswerChange: z
     .string()
