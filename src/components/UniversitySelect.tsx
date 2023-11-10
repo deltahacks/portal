@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { StylesConfig } from "react-select";
 import makeAnimated from "react-select/animated";
-import AsyncCreatableSelect from "react-select/async-creatable";
+import AsyncSelect from "react-select/async";
 import { NextPage } from "next";
 import { z } from "zod";
 
@@ -113,9 +113,30 @@ const UniversitySelect = (props: any) => {
             cacheOptions={true}
             defaultOptions={true}
             loadOptions={getOptions}
-            styles={colourStyles}
+            placeholder="Search for a university..."
+            // styles={colourStyles}
             className="w-full"
             components={animatedComponents}
+            unstyled={true}
+            classNames={{
+              control: (state) => {
+                return state.menuIsOpen
+                  ? "dark:bg-neutral-800 bg-neutral-400 border-2 border-transparent rounded-md p-2 dark:border-[#333537] border-[#C5C6C9]"
+                  : "dark:bg-neutral-800 bg-neutral-400 border-2 border-transparent rounded-md p-2";
+              },
+              menu: () => {
+                return "dark:bg-neutral-800 bg-neutral-400 border-2 border-transparent rounded-md mt-2";
+              },
+              option: () => {
+                return "dark:bg-neutral-800 bg-neutral-400 dark:text-white text-neutral-700 border-2 border-transparent dark:hover:bg-[#333537] hover:bg-neutral-500 rounded-md p-2";
+              },
+              valueContainer: () => {
+                return "dark:text-neutral-500 text-neutral-700";
+              },
+              singleValue: () => {
+                return "dark:text-white text-black";
+              },
+            }}
           />
         </div>
       </div>

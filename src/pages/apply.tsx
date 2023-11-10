@@ -10,14 +10,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import Link from "next/link";
 import { Drawer } from "../components/NavBar";
-import { useEffect } from "react";
 import UniversitySelect from "../components/UniversitySelect";
 
 import applicationSchema from "../schemas/application";
+import React from "react";
+import MultiSelect from "../components/MultiSelect";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
+
+interface WorkshopChoice {
+  value: string;
+  label: string;
+}
+
+const workshops: WorkshopChoice[] = [
+  { value: "Workshop A", label: "Workshop A" },
+  { value: "Workshop B", label: "Workshop B" },
+  { value: "Workshop C", label: "Workshop C" },
+];
 
 const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   const {
@@ -30,24 +42,38 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
     resolver: zodResolver(applicationSchema),
     defaultValues: autofillData,
   });
+  const [isSecondary, setIsSecondary] = React.useState(false);
   const onSubmit: SubmitHandler<InputsType> = (data) => {
     console.log(data);
-    applicationSchema.parse(data);
+    const processed = applicationSchema.parse(data);
+    setIsSecondary(processed.studyEnrolledPostSecondary);
+  };
+  const handleChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const target = e.target as HTMLInputElement;
+    if (target.id === "studyEnrolledPostSecondaryInput") {
+      setIsSecondary(target.checked);
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
+      onChange={(e) => handleChange(e)}
       className="flex flex-col pb-8 mx-auto"
     >
-      <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
+      <span className="pb-2 mb-2 border-b-2 border-neutral-700 dark:text-neutral-400 text-neutral-600">
         Personal Information
       </span>
       <div className="flex w-full gap-4">
         <div className="flex flex-col flex-1 gap-2 pb-4">
-          <label htmlFor="firstNameInput">First Name</label>
+          <label
+            className="dark:text-white text-black "
+            htmlFor="firstNameInput"
+          >
+            First Name
+          </label>
           <input
-            className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+            className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
             type="text"
             id="firstNameInput"
             placeholder="John"
@@ -58,9 +84,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           )}
         </div>
         <div className="flex flex-col flex-1 gap-2 pb-4">
-          <label htmlFor="lastNameInput">Last Name</label>
+          <label className="dark:text-white text-black" htmlFor="lastNameInput">
+            Last Name
+          </label>
           <input
-            className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+            className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
             type="text"
             id="lastNameInput"
             placeholder="Doe"
@@ -72,100 +100,141 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         </div>
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="birthdayInput">Birthday</label>
+        <label className="dark:text-white text-black" htmlFor="birthdayInput">
+          Birthday
+        </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:text-white text-neutral-600 "
           type="date"
           id="birthdayInput"
+          placeholder="1/1/1"
           {...register("birthday", { valueAsDate: true })}
         />
         {errors.birthday && (
           <span className="text-error">{errors.birthday.message}</span>
         )}
       </div>
-      <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
+      <span className="pb-2 mb-2 border-b-2 border-neutral-700 dark:text-neutral-400 text-neutral-600">
         Education
       </span>
       <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
         <input
-          className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
+          className="p-2 rounded-sm checkbox dark:bg-neutral-800 bg-neutral-400 checkbox-lg"
           type="checkbox"
           id="studyEnrolledPostSecondaryInput"
           {...register("studyEnrolledPostSecondary")}
         />
-        <label htmlFor="studyEnrolledPostSecondaryInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="studyEnrolledPostSecondaryInput"
+        >
           Are you currently enrolled in post-secondary education?
         </label>
       </div>
+      {isSecondary && (
+        <div>
+          <div className="flex flex-col gap-2 pb-4">
+            <label
+              className="dark:text-white text-black"
+              htmlFor="studyLocationInput"
+            >
+              Study Location
+            </label>
+
+            <Controller
+              name="studyLocation"
+              control={control}
+              render={({ field }) => <UniversitySelect {...field} />}
+            />
+
+            {errors.studyLocation && (
+              <span className="text-error">{errors.studyLocation.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 pb-4">
+            <label
+              className="dark:text-white text-black"
+              htmlFor="studyDegreeInput"
+            >
+              Study Degree
+            </label>
+            <input
+              className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
+              type="text"
+              id="studyDegreeInput"
+              {...register("studyDegree")}
+            />
+            {errors.studyDegree && (
+              <span className="text-error">{errors.studyDegree.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 pb-4">
+            <label
+              className="dark:text-white text-black"
+              htmlFor="studyMajorInput"
+            >
+              Study Major
+            </label>
+            <input
+              className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
+              type="text"
+              id="studyMajorInput"
+              {...register("studyMajor")}
+            />
+            {errors.studyMajor && (
+              <span className="text-error">{errors.studyMajor.message}</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 pb-4">
+            <label
+              className="dark:text-white text-black"
+              htmlFor="studyYearOfStudyInput"
+            >
+              Year of Study
+            </label>
+            <input
+              className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
+              type="number"
+              id="studyYearOfStudyInput"
+              {...register("studyYearOfStudy")}
+            />
+            {errors.studyYearOfStudy && (
+              <span className="text-error">
+                {errors.studyYearOfStudy.message}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 pb-4">
+            <label
+              className="dark:text-white text-black"
+              htmlFor="studyExpectedGraduationInput"
+            >
+              Expected Graduation
+            </label>
+            <input
+              className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
+              type="date"
+              id="studyExpectedGraduationInput"
+              {...(register("studyExpectedGraduation"), { valueAsDate: true })}
+            />
+            {errors.studyExpectedGraduation && (
+              <span className="text-error">
+                {errors.studyExpectedGraduation.message}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="studyLocationInput">Study Location</label>
-        <Controller
-          name="studyLocation"
-          control={control}
-          render={({ field, fieldState }) => <UniversitySelect {...field} />}
-        />
-        {errors.studyLocation && (
-          <span className="text-error">{errors.studyLocation.message}</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="studyDegreeInput">Study Degree</label>
-        <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
-          type="text"
-          id="studyDegreeInput"
-          {...register("studyDegree")}
-        />
-        {errors.studyDegree && (
-          <span className="text-error">{errors.studyDegree.message}</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="studyMajorInput">Study Major</label>
-        <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
-          type="text"
-          id="studyMajorInput"
-          {...register("studyMajor")}
-        />
-        {errors.studyMajor && (
-          <span className="text-error">{errors.studyMajor.message}</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="studyYearOfStudyInput">Year of Study</label>
-        <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
-          type="number"
-          id="studyYearOfStudyInput"
-          {...register("studyYearOfStudy")}
-        />
-        {errors.studyYearOfStudy && (
-          <span className="text-error">{errors.studyYearOfStudy.message}</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="studyExpectedGraduationInput">
-          Expected Graduation
-        </label>
-        <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
-          type="date"
-          id="studyExpectedGraduationInput"
-          {...(register("studyExpectedGraduation"), { valueAsDate: true })}
-        />
-        {errors.studyExpectedGraduation && (
-          <span className="text-error">
-            {errors.studyExpectedGraduation.message}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="previousHackathonsCountInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="previousHackathonsCountInput"
+        >
           Previous Hackathons Count
         </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="number"
           id="previousHackathonsCountInput"
           {...register("previousHackathonsCount")}
@@ -176,16 +245,19 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           </span>
         )}
       </div>
-      <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
+      <span className="pb-2 mb-2 border-b-2 border-neutral-700 dark:text-neutral-400 text-neutral-600">
         Long Answer
       </span>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="longAnswerChangeInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="longAnswerChangeInput"
+        >
           DeltaHacks is the annual Hackathon for Change. If you had the ability
           to change anything in the world, what would it be and why?
         </label>
         <textarea
-          className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
+          className="p-3 textarea textarea-bordered dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black"
           id="longAnswerChangeInput"
           {...register("longAnswerChange")}
         />
@@ -194,11 +266,14 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="longAnswerExperienceInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="longAnswerExperienceInput"
+        >
           How do you hope to make the most out of your experience at DH10?
         </label>
         <textarea
-          className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
+          className="p-3 textarea textarea-bordered dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black"
           id="longAnswerExperienceInput"
           {...register("longAnswerExperience")}
         />
@@ -209,12 +284,15 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="longAnswerTechInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="longAnswerTechInput"
+        >
           Which piece of future technology excites you most and where do you see
           it going?
         </label>
         <textarea
-          className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
+          className="p-3 textarea textarea-bordered dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black"
           id="longAnswerTechInput"
           {...register("longAnswerTech")}
         />
@@ -224,14 +302,17 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       </div>
 
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="longAnswerMagicInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="longAnswerMagicInput"
+        >
           You've been transported to an island with no clue of where you are.
           You are allowed 3 objectsof your choice which will magically appear in
           front of you. How would you escape the island in time for DeltaHacks
           10?
         </label>
         <textarea
-          className="p-3 textarea textarea-bordered bg-neutral-800 placeholder:text-neutral-500"
+          className="p-3 textarea textarea-bordered dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black"
           id="longAnswerMagicInput"
           {...register("longAnswerMagic")}
         />
@@ -239,41 +320,43 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <span className="text-error">{errors.longAnswerMagic.message}</span>
         )}
       </div>
-      <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
+      <span className="pb-2 mb-2 border-b-2 border-neutral-700 dark:text-neutral-400 text-neutral-600">
         Survey
       </span>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="socialTextInput">
+        <label className="dark:text-white text-black" htmlFor="socialTextInput">
           What are your social media link(s)?{" "}
           <i>
             <span className="text-neutral-400"> (Optional)</span>
           </i>
         </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="text"
           id="socialTextInput"
           {...register("socialText")}
         />
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="interestsInput">
+        <label className="dark:text-white text-black" htmlFor="interestsInput">
           Is there anything else interesting you want us to know or see?
           <i>
             <span className="text-neutral-400"> (Optional)</span>
           </i>
         </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="text"
           id="interestsInput"
           {...register("interests")}
         />
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="tshirtSizeInput">T-shirt Size</label>
+        <label className="dark:text-white text-black" htmlFor="tshirtSizeInput">
+          T-shirt Size
+        </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="text"
           id="tshirtSizeInput"
           {...register("tshirtSize")}
@@ -283,9 +366,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="hackerKindInput">Hacker Kind</label>
+        <label className="dark:text-white text-black" htmlFor="hackerKindInput">
+          Hacker Kind
+        </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="text"
           id="hackerKindInput"
           {...register("hackerKind")}
@@ -301,12 +386,22 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           id="alreadyHaveTeamInput"
           {...register("alreadyHaveTeam")}
         />
-        <label htmlFor="alreadyHaveTeamInput">Already Have a Team?</label>
+        <label
+          className="dark:text-white text-black"
+          htmlFor="alreadyHaveTeamInput"
+        >
+          Already Have a Team?
+        </label>
       </div>
 
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="workshopChoicesInput">Workshop Choices</label>
-        <select
+        <label
+          className="dark:text-white text-black"
+          htmlFor="workshopChoicesInput"
+        >
+          Workshop Choices
+        </label>
+        {/* <select
           id="workshopChoicesInput"
           {...register("workshopChoices")}
           multiple
@@ -314,24 +409,32 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <option value="Workshop A">Workshop A</option>
           <option value="Workshop B">Workshop B</option>
           <option value="Workshop C">Workshop C</option>
-        </select>
+        </select> */}
+        <Controller
+          name="workshopChoices"
+          control={control}
+          render={({ field }) => <MultiSelect options={workshops} {...field} />}
+        />
         {errors.workshopChoices && (
           <span className="text-error">{errors.workshopChoices.message}</span>
         )}
       </div>
       <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
         <input
-          className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
+          className="p-2 rounded-sm checkbox dark:bg-neutral-800 bg-neutral-400 checkbox-lg"
           type="checkbox"
           id="considerCoffeeInput"
           {...register("considerCoffee")}
         />
-        <label htmlFor="considerCoffeeInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="considerCoffeeInput"
+        >
           Would you like to be considered for a coffee chat with a sponser?
         </label>
       </div>
       {/* <div className="flex flex-col gap-2 pb-4">
-    <label htmlFor="discoverdFromInput">Discovered From</label>
+    <label className="dark:text-white text-black" htmlFor="discoverdFromInput">Discovered From</label>
     <input
       className=""
       type="text"
@@ -344,9 +447,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   </div> */}
       {/* TODO */}
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="genderInput">Gender</label>
+        <label className="dark:text-white text-black" htmlFor="genderInput">
+          Gender
+        </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="text"
           id="genderInput"
           {...register("gender")}
@@ -356,9 +461,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="raceInput">Race</label>
+        <label className="dark:text-white text-black" htmlFor="raceInput">
+          Race
+        </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="text"
           id="raceInput"
           {...register("race")}
@@ -367,16 +474,19 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <span className="text-error">{errors.race.message}</span>
         )}
       </div>
-      <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
+      <span className="pb-2 mb-2 border-b-2 border-neutral-700 dark:text-neutral-400 text-neutral-600">
         Emergency Contact
       </span>
       <div className="flex flex-col md:gap-4 md:flex-row md:items-end">
         <div className="flex flex-col flex-1 gap-2 pb-4">
-          <label htmlFor="emergencyContactNameInput">
+          <label
+            className="dark:text-white text-black"
+            htmlFor="emergencyContactNameInput"
+          >
             Name of Emergency Contact
           </label>
           <input
-            className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+            className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
             type="text"
             id="emergencyContactNameInput"
             {...register("emergencyContactName")}
@@ -388,9 +498,14 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           )}
         </div>
         <div className="flex flex-col flex-1 gap-2 pb-4">
-          <label htmlFor="emergencyContactRelationInput">Relation</label>
+          <label
+            className="dark:text-white text-black"
+            htmlFor="emergencyContactRelationInput"
+          >
+            Relation
+          </label>
           <input
-            className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+            className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
             type="text"
             id="emergencyContactRelationInput"
             {...register("emergencyContactRelation")}
@@ -403,9 +518,14 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         </div>
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label htmlFor="emergencyContactPhoneInput">Phone</label>
+        <label
+          className="dark:text-white text-black"
+          htmlFor="emergencyContactPhoneInput"
+        >
+          Phone
+        </label>
         <input
-          className="p-3 rounded-lg input bg-neutral-800 placeholder:text-neutral-500 "
+          className="p-3 rounded-lg input dark:bg-neutral-800 bg-neutral-400 dark:placeholder:text-neutral-500 placeholder:text-neutral-600 dark:text-white text-black "
           type="text"
           id="emergencyContactPhoneInput"
           {...register("emergencyContactPhone")}
@@ -417,39 +537,48 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         )}
       </div>
 
-      <span className="pb-2 mb-2 border-b-2 border-neutral-700 text-neutral-400">
+      <span className="pb-2 mb-2 border-b-2 border-neutral-700 dark:text-neutral-400 text-neutral-600">
         MLH Consent
       </span>
       <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
         <input
-          className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
+          className="p-2 rounded-sm checkbox dark:bg-neutral-800 bg-neutral-400 checkbox-lg"
           type="checkbox"
           id="agreeToMLHCodeOfConductInput"
           {...register("agreeToMLHCodeOfConduct")}
         />
-        <label htmlFor="agreeToMLHCodeOfConductInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="agreeToMLHCodeOfConductInput"
+        >
           Agree to MLH Code of Conduct
         </label>
       </div>
       <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
         <input
-          className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
+          className="p-2 rounded-sm checkbox dark:bg-neutral-800 bg-neutral-400 checkbox-lg"
           type="checkbox"
           id="agreeToMLHPrivacyPolicyInput"
           {...register("agreeToMLHPrivacyPolicy")}
         />
-        <label htmlFor="agreeToMLHPrivacyPolicyInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="agreeToMLHPrivacyPolicyInput"
+        >
           Agree to MLH Privacy Policy
         </label>
       </div>
       <div className="flex items-center gap-2 pt-4 pb-4 justify-left">
         <input
-          className="p-2 rounded-sm checkbox bg-neutral-800 checkbox-lg"
+          className="p-2 rounded-sm checkbox dark:bg-neutral-800 bg-neutral-400 checkbox-lg"
           type="checkbox"
           id="agreeToMLHCommunicationsInput"
           {...register("agreeToMLHCommunications")}
         />
-        <label htmlFor="agreeToMLHCommunicationsInput">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="agreeToMLHCommunicationsInput"
+        >
           Agree to MLH Communications
         </label>
       </div>
@@ -481,12 +610,15 @@ const Apply: NextPage = () => {
       </Head>
       <Drawer>
         <div className="w-1/2 max-w-4xl mx-auto text-white">
-          <h1 className="py-8 text-4xl font-bold">Apply to DeltaHacks</h1>
-          {autofillData.isLoading ? (
+          <h1 className="py-8 text-4xl font-bold text-black dark:text-white">
+            Apply to DeltaHacks X
+          </h1>
+          {/* {autofillData.isLoading ? (
             <h1>Loading</h1>
           ) : (
             <ApplyForm autofillData={autofillData.data ?? {}} />
-          )}
+          )} */}
+          <ApplyForm autofillData={autofillData.data ?? {}} />
         </div>
       </Drawer>
     </>
