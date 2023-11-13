@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 
-import { StylesConfig } from "react-select";
 import makeAnimated from "react-select/animated";
 import AsyncSelect from "react-select/async";
-import { NextPage } from "next";
 import { z } from "zod";
 
 const universitiesSchema = z.array(
@@ -68,45 +66,11 @@ function getOptions(query: string) {
       });
   });
 }
-
-const colourStyles: StylesConfig = {
-  control: (styles, { menuIsOpen }) => ({
-    ...styles,
-    backgroundColor: "#262626",
-    // borderColor: menuIsOpen ? "#333537" : "transparent",
-    border: menuIsOpen ? "2px solid #333537" : "1px solid transparent",
-    borderRadius: "0.5rem",
-    ":hover": {
-      // borderColor: menuIsOpen ? "#333537" : "transparent",
-      border: menuIsOpen ? "2px solid #333537" : "1px solid transparent",
-    },
-    boxShadow: "none",
-  }),
-  valueContainer: (styles) => ({
-    ...styles,
-    padding: "0.5rem",
-    text: "#ffffff",
-  }),
-  input: (styles) => ({ ...styles, color: "#fff" }),
-  menu: (styles) => ({ ...styles, backgroundColor: "#262626" }),
-  option: (styles, { data, isDisabled, isFocused, isSelected }) => ({
-    ...styles,
-    backgroundColor: isFocused ? "#333537" : "#262626",
-    color: "#fff",
-    cursor: isDisabled ? "not-allowed" : "default",
-    ":active": {
-      ...styles[":active"],
-      backgroundColor: "#333537",
-    },
-  }),
-  singleValue: (styles) => ({ ...styles, color: "#fff" }),
-};
-
 const UniversitySelect = (props: any) => {
   const [value, setValue] = useState(null);
   return (
     <>
-      <div className="flex items-center justify-center w-full h-full">
+      <div className="flex h-full w-full items-center justify-center">
         <div className="w-full max-w-full">
           <AsyncSelect
             {...props}
