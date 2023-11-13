@@ -1,13 +1,11 @@
 import Select from "react-select";
 
-const MultiSelect = (props: any) => {
+const CustomSelect = (props: any) => {
   return (
     <Select
-      defaultValue={props.options[0]}
-      isMulti
-      name="colors"
       options={props.options}
       unstyled={true}
+      isMulti={props.isMulti}
       classNames={{
         control: (state) => {
           return state.menuIsOpen
@@ -37,4 +35,4 @@ const MultiSelect = (props: any) => {
   );
 };
 
-export default MultiSelect;
+export default CustomSelect;

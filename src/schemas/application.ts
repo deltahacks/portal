@@ -83,7 +83,7 @@ const schema = z.object({
   ]),
   considerCoffee: z.boolean(),
   discoverdFrom: z.string().min(1).max(255),
-  gender: z.string().min(1).max(255),
+  gender: z.enum(["Man","Woman","Non-binary","Transgender","Prefer not to say"]),
   race: z.string().min(1).max(255),
   emergencyContactName: z.string().min(1),
   emergencyContactPhone: z.string().min(1),

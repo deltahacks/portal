@@ -377,6 +377,7 @@ export const applicationRouter = router({
           | "XL";
       }
     }
+    // console.log(autofill)
 
     return autofill;
   }),
