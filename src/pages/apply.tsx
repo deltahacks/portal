@@ -76,6 +76,9 @@ const genderTypes: SelectChoice[] = [
 ];
 
 const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
+  // check if autofill was an empty object
+  const wasAuofilled = !(Object.keys(autofillData).length === 0);
+
   const {
     register,
     handleSubmit,
@@ -106,6 +109,24 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       onSubmit={handleSubmit(onSubmit)}
       className="mx-auto flex flex-col pb-8"
     >
+      {wasAuofilled && (
+        <div className="alert alert-success mb-4 justify-normal text-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-current shrink-0 w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          Some fields were autofilled.
+        </div>
+      )}
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         Personal Information
       </span>
@@ -176,7 +197,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           Are you currently enrolled in post-secondary education?
         </label>
       </div>
-      {!isSecondary && (
+      {isSecondary && (
         <div>
           <div className="flex flex-col gap-2 pb-4">
             <label
@@ -655,12 +676,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
 const Apply: NextPage = () => {
   const router = useRouter();
   const submitResponseId = trpc.application.submit.useMutation();
-  // const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
-  //   // refetchOnWindowFocus: false,
-  //   // refetchOnMount: false,
-  //   // refetchOnReconnect: false,
-  //   // retry: false,
-  // });
   const autofillData = trpc.application.getPrevAutofill.useQuery();
 
   return (
