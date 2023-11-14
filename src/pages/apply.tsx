@@ -89,10 +89,15 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       ...autofillData,
-      birthday: autofillData.birthday?.toISOString().slice(0, 10),
+      // THIS IS VERY VERY BAD
+      // BUT I DONT KNOW HOW TO FIX IT
+      // AND WE ARE RUNNING OUT OF TIME
+      birthday: autofillData.birthday
+        ?.toISOString()
+        .slice(0, 10) as unknown as Date,
       studyExpectedGraduation: autofillData.studyExpectedGraduation
         ?.toISOString()
-        .slice(0, 10),
+        .slice(0, 10) as unknown as Date,
     },
   });
   const onSubmit: SubmitHandler<InputsType> = (data) => {
@@ -286,7 +291,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
               className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
               type="date"
               id="studyExpectedGraduationInput"
-              {...(register("studyExpectedGraduation"), { valueAsDate: true })}
+              {...register("studyExpectedGraduation", { valueAsDate: true })}
             />
             {errors.studyExpectedGraduation && (
               <span className="text-error">
