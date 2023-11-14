@@ -76,6 +76,9 @@ const genderTypes: SelectChoice[] = [
 ];
 
 const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
+  // check if autofill was an empty object
+  const wasAuofilled = !(Object.keys(autofillData).length === 0);
+
   const {
     register,
     handleSubmit,
@@ -86,10 +89,15 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       ...autofillData,
-      birthday: autofillData.birthday?.toISOString().slice(0, 10),
+      // THIS IS VERY VERY BAD
+      // BUT I DONT KNOW HOW TO FIX IT
+      // AND WE ARE RUNNING OUT OF TIME
+      birthday: autofillData.birthday
+        ?.toISOString()
+        .slice(0, 10) as unknown as Date,
       studyExpectedGraduation: autofillData.studyExpectedGraduation
         ?.toISOString()
-        .slice(0, 10),
+        .slice(0, 10) as unknown as Date,
     },
   });
   const onSubmit: SubmitHandler<InputsType> = (data) => {
@@ -103,6 +111,24 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       onSubmit={handleSubmit(onSubmit)}
       className="mx-auto flex flex-col pb-8"
     >
+      {wasAuofilled && (
+        <div className="alert alert-success mb-4 justify-normal text-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-current shrink-0 w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          Some fields were autofilled.
+        </div>
+      )}
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         Personal Information
       </span>
@@ -173,7 +199,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           Are you currently enrolled in post-secondary education?
         </label>
       </div>
-      {!isSecondary && (
+      {isSecondary && (
         <div>
           <div className="flex flex-col gap-2 pb-4">
             <label
@@ -262,7 +288,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
               className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
               type="date"
               id="studyExpectedGraduationInput"
-              {...(register("studyExpectedGraduation"), { valueAsDate: true })}
+              {...register("studyExpectedGraduation", { valueAsDate: true })}
             />
             {errors.studyExpectedGraduation && (
               <span className="text-error">
@@ -353,10 +379,10 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="text-black dark:text-white"
           htmlFor="longAnswerMagicInput"
         >
-          You've been transported to an island with no clue of where you are.
-          You are allowed 3 objectsof your choice which will magically appear in
-          front of you. How would you escape the island in time for DeltaHacks
-          10?
+          You&apos;ve been transported to an island with no clue of where you
+          are. You are allowed 3 objects of your choice which will magically
+          appear in front of you. How would you escape the island in time for
+          DeltaHacks 10?
         </label>
         <textarea
           className="textarea textarea-bordered bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
@@ -421,7 +447,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       </div>
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="hackerKindInput">
-          Hacker Kind
+          What kind of hacker are you?
         </label>
         <Controller
           name="hackerKind"
@@ -445,7 +471,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="text-black dark:text-white"
           htmlFor="alreadyHaveTeamInput"
         >
-          Already Have a Team?
+          Do you already have a team?
         </label>
       </div>
 
@@ -454,7 +480,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="text-black dark:text-white"
           htmlFor="workshopChoicesInput"
         >
-          Workshop Choices
+          What workshops are you interested in?
         </label>
         <Controller
           name="workshopChoices"
@@ -639,7 +665,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         </label>
       </div>
       <button
-        // type="submit"
+        type="submit"
         className="btn btn-primary mb-4 mt-4"
         // onClick={() => console.log("AAA")}
       >
@@ -652,12 +678,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
 const Apply: NextPage = () => {
   const router = useRouter();
   const submitResponseId = trpc.application.submit.useMutation();
-  // const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
-  //   // refetchOnWindowFocus: false,
-  //   // refetchOnMount: false,
-  //   // refetchOnReconnect: false,
-  //   // retry: false,
-  // });
   const autofillData = trpc.application.getPrevAutofill.useQuery();
 
   return (

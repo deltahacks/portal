@@ -36,7 +36,7 @@ const schema = z.object({
   longAnswerMagic: z
     .string()
     .min(1)
-    .refine((value) => value.split(" ").length <= 150, {
+    .refine((value) => value.trim().split(/\s+/).length <= 150, {
       message: "Must be less than 150 words",
     }),
   socialText: z
@@ -67,23 +67,31 @@ const schema = z.object({
     "Other",
   ]),
   alreadyHaveTeam: z.boolean(),
-  workshopChoices: z.enum([
-    "React/Vue.js",
-    "Blockchain",
-    "Machine Learning",
-    "Android Development",
-    "iOS Development",
-    "Web Development",
-    "Intro to AR/VR",
-    "Game Development",
-    "Interview Prep",
-    "Intro to UI/UX Design",
-    "Hardware Hacking",
-    "Computer Vision with OpenCV",
-  ]),
+  workshopChoices: z
+    .enum([
+      "React/Vue.js",
+      "Blockchain",
+      "Machine Learning",
+      "Android Development",
+      "iOS Development",
+      "Web Development",
+      "Intro to AR/VR",
+      "Game Development",
+      "Interview Prep",
+      "Intro to UI/UX Design",
+      "Hardware Hacking",
+      "Computer Vision with OpenCV",
+    ])
+    .array(),
   considerCoffee: z.boolean(),
   discoverdFrom: z.string().min(1).max(255),
-  gender: z.enum(["Man","Woman","Non-binary","Transgender","Prefer not to say"]),
+  gender: z.enum([
+    "Man",
+    "Woman",
+    "Non-binary",
+    "Transgender",
+    "Prefer not to say",
+  ]),
   race: z.string().min(1).max(255),
   emergencyContactName: z.string().min(1),
   emergencyContactPhone: z.string().min(1),
