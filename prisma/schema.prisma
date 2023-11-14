@@ -114,11 +114,11 @@ model DH10Application {
   birthday DateTime
 
   studyEnrolledPostSecondary Boolean
-  studyLocation              String
-  studyDegree                String
-  studyMajor                 String
-  studyYearOfStudy           Int
-  studyExpectedGraduation    DateTime
+  studyLocation              String?
+  studyDegree                String?
+  studyMajor                 String?
+  studyYearOfStudy           Int?
+  studyExpectedGraduation    DateTime?
 
   previousHackathonsCount Int
 
