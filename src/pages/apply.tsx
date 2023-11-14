@@ -106,7 +106,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   };
   const isSecondary = watch("studyEnrolledPostSecondary");
 
-  console.log(watch());
+  console.log("Workshop Choices", watch("workshopChoices"));
 
   return (
     <form
@@ -382,7 +382,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           htmlFor="longAnswerMagicInput"
         >
           You&apos;ve been transported to an island with no clue of where you
-          are. You are allowed 3 objectsof your choice which will magically
+          are. You are allowed 3 objects of your choice which will magically
           appear in front of you. How would you escape the island in time for
           DeltaHacks 10?
         </label>
@@ -449,7 +449,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       </div>
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="hackerKindInput">
-          Hacker Kind
+          What kind of hacker are you?
         </label>
         <Controller
           name="hackerKind"
@@ -473,7 +473,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="text-black dark:text-white"
           htmlFor="alreadyHaveTeamInput"
         >
-          Already Have a Team?
+          Do you already have a team?
         </label>
       </div>
 
@@ -482,7 +482,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="text-black dark:text-white"
           htmlFor="workshopChoicesInput"
         >
-          Workshop Choices
+          What workshops are you interested in?
         </label>
         <Controller
           name="workshopChoices"
