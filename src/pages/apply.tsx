@@ -98,9 +98,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   };
   const isSecondary = watch("studyEnrolledPostSecondary");
 
-  console.log(isSecondary);
-  console.log(autofillData.studyExpectedGraduation?.toISOString().slice(0, 10));
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -430,7 +427,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           name="hackerKind"
           control={control}
           render={({ field }) => (
-            <CustomSelect options={hackerTypes} {...field} isMulti={true} />
+            <CustomSelect options={hackerTypes} {...field} />
           )}
         />
         {errors.hackerKind && (
