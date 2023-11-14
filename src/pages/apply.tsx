@@ -106,8 +106,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   };
   const isSecondary = watch("studyEnrolledPostSecondary");
 
-  console.log(isSecondary);
-  console.log(autofillData.studyExpectedGraduation?.toISOString().slice(0, 10));
+  console.log(watch());
 
   return (
     <form
@@ -382,10 +381,10 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="text-black dark:text-white"
           htmlFor="longAnswerMagicInput"
         >
-          You've been transported to an island with no clue of where you are.
-          You are allowed 3 objectsof your choice which will magically appear in
-          front of you. How would you escape the island in time for DeltaHacks
-          10?
+          You&apos;ve been transported to an island with no clue of where you
+          are. You are allowed 3 objectsof your choice which will magically
+          appear in front of you. How would you escape the island in time for
+          DeltaHacks 10?
         </label>
         <textarea
           className="textarea textarea-bordered bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
