@@ -667,7 +667,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         </label>
       </div>
       <button
-        // type="submit"
+        type="submit"
         className="btn btn-primary mb-4 mt-4"
         // onClick={() => console.log("AAA")}
       >
