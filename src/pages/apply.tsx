@@ -132,7 +132,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         Personal Information
       </span>
-      <div className="flex w-full gap-4">
+      <div className="flex lg:flex-row lg:gap-4 flex-col w-full">
         <div className="flex flex-1 flex-col gap-2 pb-4">
           <label
             className="text-black dark:text-white "
