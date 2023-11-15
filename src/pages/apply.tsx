@@ -688,15 +688,17 @@ const Apply: NextPage = () => {
         <title>Welcome - DeltaHacks X</title>
       </Head>
       <Drawer>
-        <div className="mx-auto w-1/2 max-w-4xl text-white">
-          <h1 className="py-8 text-4xl font-bold text-black dark:text-white">
-            Apply to DeltaHacks X
-          </h1>
-          {autofillData.isLoading ? (
-            <h1>Loading</h1>
-          ) : (
-            <ApplyForm autofillData={autofillData.data ?? {}} />
-          )}
+        <div className="w-full">
+          <div className="mx-auto w-1/2 max-w-4xl text-white">
+            <h1 className="py-8 text-4xl font-bold text-black dark:text-white">
+              Apply to DeltaHacks X
+            </h1>
+            {autofillData.isLoading ? (
+              <h1>Loading</h1>
+            ) : (
+              <ApplyForm autofillData={autofillData.data ?? {}} />
+            )}
+          </div>
         </div>
       </Drawer>
     </>
