@@ -240,7 +240,8 @@ export const applicationRouter = router({
       user?.typeform_response_id === null ||
       user?.typeform_response_id === undefined
     ) {
-      throw new TRPCError({ code: "NOT_FOUND" });
+      // throw new TRPCError({ code: "NOT_FOUND" });
+      return {};
     }
 
     const url = `https://api.typeform.com/forms/MVo09hRB/responses?included_response_ids=${user.typeform_response_id}`;
