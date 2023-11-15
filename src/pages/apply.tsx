@@ -717,12 +717,11 @@ const Apply: NextPage = () => {
             <h1 className="py-8 text-4xl font-bold text-black dark:text-white">
               Apply to DeltaHacks X
             </h1>
-            {/*{autofillData.isLoading ? (
+            {autofillData.isLoading ? (
               <h1>Loading</h1>
             ) : (
               <ApplyForm autofillData={autofillData.data ?? {}} />
-            )}*/}
-            <ApplyForm autofillData={{}} />
+            )}
           </div>
         </div>
       </Drawer>
