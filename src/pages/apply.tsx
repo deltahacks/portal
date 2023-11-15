@@ -75,6 +75,10 @@ const genderTypes: SelectChoice[] = [
   { value: "Prefer not to say", label: "Prefer not to say" },
 ];
 
+const sanitizeDateString = (date: string) => {
+  return new Date(date).toISOString().slice(0, 10);
+};
+
 const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   // check if autofill was an empty object
   const wasAutofilled = !(Object.keys(autofillData).length === 0);
@@ -184,8 +188,10 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="input rounded-lg bg-neutral-400 p-3 text-neutral-600 dark:bg-neutral-800 dark:text-white "
           type="date"
           id="birthdayInput"
-          // placeholder="1/1/1"
-          {...register("birthday", { valueAsDate: true })}
+          max={sanitizeDateString(new Date().toString())}
+          {...register("birthday", {
+            valueAsDate: true,
+          })}
         />
         {errors.birthday && (
           <span className="text-error">{errors.birthday.message}</span>
@@ -297,6 +303,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
               className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
               type="date"
               id="studyExpectedGraduationInput"
+              max={sanitizeDateString(new Date().toString())}
               {...register("studyExpectedGraduation", { valueAsDate: true })}
             />
             {errors.studyExpectedGraduation && (
