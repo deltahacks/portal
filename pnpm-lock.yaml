@@ -113,6 +113,9 @@ dependencies:
   react-hook-form:
     specifier: ^7.47.0
     version: 7.48.2(react@18.2.0)
+  react-hook-form-persist:
+    specifier: ^3.0.0
+    version: 3.0.0(react-hook-form@7.48.2)(react@18.2.0)
   react-icons:
     specifier: ^4.7.1
     version: 4.11.0(react@18.2.0)
@@ -3417,6 +3420,16 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
+    dev: false
+
+  /react-hook-form-persist@3.0.0(react-hook-form@7.48.2)(react@18.2.0):
+    resolution: {integrity: sha512-6nwW65JyFpBem9RjLYAWvIFxOLoCk0E13iB9e5yeF5jeHlwx1ua0M77FvwhPpD8eaCz7hG4ziCdOxRcnJVUSxQ==}
+    peerDependencies:
+      react: '>= 16.3'
+      react-hook-form: '>= 6'
+    dependencies:
+      react: 18.2.0
+      react-hook-form: 7.48.2(react@18.2.0)
     dev: false
 
   /react-hook-form@7.48.2(react@18.2.0):

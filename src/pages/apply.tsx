@@ -1,19 +1,19 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { prisma } from "../server/db/client";
-import { trpc } from "../utils/trpc";
 import { useRouter } from "next/router";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import FormTextInput from "../components/FormTextInput";
 import { z } from "zod";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import Link from "next/link";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import useFormPersist from "react-hook-form-persist";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { prisma } from "../server/db/client";
+import { trpc } from "../utils/trpc";
+import FormTextInput from "../components/FormTextInput";
 import { Drawer } from "../components/NavBar";
 import UniversitySelect from "../components/UniversitySelect";
-
 import applicationSchema from "../schemas/application";
-import React, { useEffect } from "react";
 import CustomSelect from "../components/CustomSelect";
 
 export type InputsType = z.infer<typeof applicationSchema>;
@@ -84,6 +84,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<InputsType>({
     resolver: zodResolver(applicationSchema),
@@ -100,10 +101,18 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         .slice(0, 10) as unknown as Date,
     },
   });
+
+  useFormPersist("applyForm", {
+    watch,
+    setValue,
+    storage: localStorage,
+  });
+
   const onSubmit: SubmitHandler<InputsType> = (data) => {
     console.log(data);
     const processed = applicationSchema.parse(data);
   };
+
   const isSecondary = watch("studyEnrolledPostSecondary");
 
   return (
