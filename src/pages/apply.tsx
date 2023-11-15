@@ -130,7 +130,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            className="stroke-current shrink-0 w-6 h-6"
+            className="h-6 w-6 shrink-0 stroke-current"
           >
             <path
               stroke-linecap="round"
@@ -145,7 +145,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         Personal Information
       </span>
-      <div className="flex lg:flex-row lg:gap-4 flex-col w-full">
+      <div className="flex w-full flex-col lg:flex-row lg:gap-4">
         <div className="flex flex-1 flex-col gap-2 pb-4">
           <label
             className="text-black dark:text-white "
@@ -197,6 +197,18 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         {errors.birthday && (
           <span className="text-error">{errors.birthday.message}</span>
         )}
+      </div>
+      <div className="flex flex-col gap-2 pb-4">
+        <label className="text-black dark:text-white" htmlFor="birthdayInput">
+          Link to Resume
+        </label>
+        <input
+          className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
+          type="text"
+          id="linkToResume"
+          placeholder="https://example.com/resume.pdf"
+          {...register("linkToResume")}
+        />
       </div>
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         Education
@@ -315,7 +327,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           </div>
         </div>
       )}
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -391,7 +402,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <span className="text-error">{errors.longAnswerTech.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -492,7 +502,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           Do you already have a team?
         </label>
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -636,7 +645,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           </span>
         )}
       </div>
-
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         MLH Consent
       </span>
@@ -709,11 +717,12 @@ const Apply: NextPage = () => {
             <h1 className="py-8 text-4xl font-bold text-black dark:text-white">
               Apply to DeltaHacks X
             </h1>
-            {autofillData.isLoading ? (
+            {/*{autofillData.isLoading ? (
               <h1>Loading</h1>
             ) : (
               <ApplyForm autofillData={autofillData.data ?? {}} />
-            )}
+            )}*/}
+            <ApplyForm autofillData={{}} />
           </div>
         </div>
       </Drawer>

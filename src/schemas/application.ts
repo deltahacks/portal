@@ -7,6 +7,7 @@ const schema = z.object({
     .date()
     .min(new Date(1900, 1, 1))
     .max(new Date(2009, 1, 12), "You must be at least 15 years old"),
+  linkToResume: z.string().url().min(1).max(255),
   studyEnrolledPostSecondary: z.boolean(),
   studyLocation: z.string().min(1).max(255).nullable(),
   studyDegree: z.string().min(1).max(255).nullable(),
