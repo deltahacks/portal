@@ -77,7 +77,7 @@ const genderTypes: SelectChoice[] = [
 
 const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   // check if autofill was an empty object
-  const wasAuofilled = !(Object.keys(autofillData).length === 0);
+  const wasAutofilled = !(Object.keys(autofillData).length === 0);
 
   const {
     register,
@@ -111,7 +111,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       onSubmit={handleSubmit(onSubmit)}
       className="mx-auto flex flex-col pb-8"
     >
-      {wasAuofilled && (
+      {wasAutofilled && (
         <div className="alert alert-success mb-4 justify-normal text-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
