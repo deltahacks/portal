@@ -5,7 +5,7 @@ const CustomSelect = (props: any) => {
     <Select
       options={props.options}
       unstyled={true}
-      isMulti={props.isMulti}
+      {...props}
       classNames={{
         control: (state) => {
           return state.menuIsOpen
