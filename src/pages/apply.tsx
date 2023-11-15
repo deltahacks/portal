@@ -309,6 +309,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         <input
           className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
           type="number"
+          min="0"
           id="previousHackathonsCountInput"
           {...register("previousHackathonsCount")}
         />

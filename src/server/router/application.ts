@@ -240,7 +240,6 @@ export const applicationRouter = router({
       user?.typeform_response_id === null ||
       user?.typeform_response_id === undefined
     ) {
-      // throw new TRPCError({ code: "NOT_FOUND" });
       return {};
     }
 
