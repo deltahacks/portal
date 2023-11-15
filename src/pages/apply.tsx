@@ -191,6 +191,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           max={sanitizeDateString(new Date().toString())}
           {...register("birthday", {
             valueAsDate: true,
+            // onChange: onDateChange,
           })}
         />
         {errors.birthday && (
