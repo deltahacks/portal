@@ -1,4 +1,8 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import { getSession, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -86,7 +90,7 @@ const Accepted: React.FC = () => {
           RSVP
         </button>*/}
 
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -349,11 +353,11 @@ const WalkIns: React.FC = () => {
   );
 };
 
-const Dashboard: NextPage = () => {
+const Dashboard: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = (props) => {
   const { data: status, isSuccess: isStatusLoading } =
     trpc.application.status.useQuery();
-
-  console.log("STATUS IS", status);
 
   const { data: session } = useSession();
 
@@ -377,13 +381,7 @@ const Dashboard: NextPage = () => {
           <Background />
           <NavBar />
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            {!isStatusLoading ? (
-              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                Loading...
-              </h1>
-            ) : (
-              stateMap[status as Status]
-            )}
+            {stateMap[props.status]}
           </main>
           <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
@@ -451,7 +449,11 @@ export const getServerSideProps = async (
 
   // If submitted then do nothing
   if (userEntry && userEntry.dh10application !== null) {
-    return { props: {} };
+    return {
+      props: {
+        status: userEntry.status,
+      },
+    };
   }
 
   return { redirect: { destination: "/welcome", permanent: false } };
