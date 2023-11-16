@@ -1,4 +1,4 @@
-import { Status } from "@prisma/client";
+import { Prisma, Status } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import type {
@@ -388,27 +388,27 @@ export const applicationRouter = router({
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
       // make sure there is no existing application
-      const existing = await ctx.prisma.dH10Application.findFirst({
-        where: { User: { id: ctx.session.user.id } },
-      });
 
-      if (existing) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You have already submitted an application.",
+      try {
+        await ctx.prisma.dH10Application.create({
+          data: {
+            ...input,
+            birthday: new Date(input.birthday),
+            studyExpectedGraduation:
+              input.studyExpectedGraduation &&
+              new Date(input.studyExpectedGraduation),
+            User: { connect: { id: ctx.session.user.id } },
+          },
         });
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === "P2002")
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "You have already submitted an application.",
+            });
+        }
       }
-
-      await ctx.prisma.dH10Application.create({
-        data: {
-          ...input,
-          birthday: new Date(input.birthday),
-          studyExpectedGraduation:
-            input.studyExpectedGraduation &&
-            new Date(input.studyExpectedGraduation),
-          User: { connect: { id: ctx.session.user.id } },
-        },
-      });
 
       const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
