@@ -31,14 +31,14 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       classNames={{
         control: (state) => {
           return state.menuIsOpen
-            ? "dark:bg-neutral-800 bg-neutral-400 border-2 border-transparent rounded-md dark:border-[#333537] p-2 border-[#C5C6C9]"
-            : "dark:bg-neutral-800 bg-neutral-400 border-2 border-transparent rounded-md p-2";
+            ? "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border"
+            : "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border";
         },
         menu: () => {
-          return "dark:bg-neutral-800 bg-neutral-400 border-2 border-transparent rounded-md mt-2";
+          return "dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border -mt-1 rounded-b-lg overflow-hidden";
         },
         option: () => {
-          return "dark:bg-neutral-800 bg-neutral-400 dark:text-white text-neutral-700 border-2 border-transparent dark:hover:bg-[#333537] hover:bg-neutral-500 rounded-md p-2";
+          return "p-2 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:hover:bg-neutral-900";
         },
         valueContainer: () => {
           return "dark:text-neutral-500 text-neutral-700";
