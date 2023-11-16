@@ -27,26 +27,26 @@ const schema = z.object({
   previousHackathonsCount: z.coerce.number().int().min(0),
   longAnswerChange: z
     .string()
-    .min(1)
+    .min(1, "An answer is required for this question")
     .refine((value) => value.split(" ").length <= 150, {
       message: "Must be less than 150 words",
     }),
   longAnswerExperience: z
     .string()
-    .min(1)
+    .min(1, "An answer is required for this question")
     .refine((value) => value.split(" ").length <= 150, {
       message: "Must be less than 150 words",
     }),
   longAnswerTech: z
     .string()
-    .min(1)
+    .min(1, "An answer is required for this question")
     .refine((value) => value.split(" ").length <= 150, {
       message: "Must be less than 150 words",
     }),
 
   longAnswerMagic: z
     .string()
-    .min(1)
+    .min(1, "An answer is required for this question")
     .refine((value) => value.trim().split(/\s+/).length <= 150, {
       message: "Must be less than 150 words",
     }),
