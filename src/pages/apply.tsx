@@ -696,26 +696,26 @@ const Apply: NextPage = () => {
   );
 };
 
-// export const getServerSideProps = async (
-//   context: GetServerSidePropsContext
-// ) => {
-//   const session = await getServerAuthSession(context);
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await getServerAuthSession(context);
 
-//   if (!session || !session.user) {
-//     return { redirect: { destination: "/login", permanent: false } };
-//   }
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
 
-//   const userEntry = await prisma.user.findFirst({
-//     where: { id: session.user.id },
-//     include: { dh10application: true },
-//   });
+  const userEntry = await prisma.user.findFirst({
+    where: { id: session.user.id },
+    include: { dh10application: true },
+  });
 
-//   // If submitted then go dashboard
-//   if (userEntry && userEntry.dh10application !== null) {
-//     return { redirect: { destination: "/dashboard", permanent: false } };
-//   }
+  // If submitted then go dashboard
+  if (userEntry && userEntry.dh10application !== null) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
+  }
 
-//   return { props: {} };
-// };
+  return { props: {} };
+};
 
 export default Apply;
