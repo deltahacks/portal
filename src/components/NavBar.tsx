@@ -71,11 +71,11 @@ export const Drawer = ({
 
   return (
     <>
+      <Background />
       <div className="drawer drawer-end relative h-full w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
         <div className="drawer-content flex flex-col">
-          <Background />
           <NavBar />
           {children}
         </div>

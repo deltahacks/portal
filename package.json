@@ -32,7 +32,7 @@
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "clsx": "^1.2.1",
-    "daisyui": "^2.46.1",
+    "daisyui": "^4.0.9",
     "devextreme": "22.2.3",
     "devextreme-react": "22.2.3",
     "fork-react-qr-reader": "^3.0.1-beta-1",

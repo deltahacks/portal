@@ -143,10 +143,8 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           type="date"
           id="birthdayInput"
           max={sanitizeDateString(new Date().toString())}
-          {...register("birthday", {
-            // valueAsDate: true,
-            // onChange: onDateChange,
-          })}
+          {...register("birthday", {})}
+          placeholder="YYYY-MM-DD"
         />
         {errors.birthday && (
           <span className="text-error">{errors.birthday.message}</span>
@@ -730,7 +728,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
 };
 
 const Apply: NextPage = () => {
-  const autofillData = trpc.application.getPrevAutofill.useQuery();
+  // check if there is local storage data for autofill
+
+  const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
+    retry: false,
+  });
 
   return (
     <>
@@ -739,14 +741,15 @@ const Apply: NextPage = () => {
       </Head>
       <Drawer>
         <div className="w-full">
-          <div className="mx-auto w-1/2 max-w-4xl text-white">
-            <h1 className="py-8 text-4xl font-bold text-black dark:text-white">
+          <div className="mx-auto p-4 md:p-0 md:w-1/2 max-w-4xl text-black dark:text-white">
+            <h1 className="py-8 text-4xl font-bold text-black dark:text-white text-center md:text-left">
               Apply to DeltaHacks X
             </h1>
-            {true ? (
-              <div>
-                Loading
-                <div className="loading loading-lg w-12 h-12 "></div>
+
+            {autofillData.isLoading ? (
+              <div className="h-full py-4 flex flex-col items-center justify-center text-center">
+                Loading your application...
+                <div className="loading loading-infinity loading-lg"></div>
               </div>
             ) : (
               <ApplyForm autofillData={autofillData.data ?? {}} />
