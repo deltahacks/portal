@@ -28,19 +28,19 @@ const schema = z.object({
   longAnswerChange: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(" ").length <= 150, {
+    .refine((value) => value.split(/\s/g).length <= 150, {
       message: "Must be less than 150 words",
     }),
   longAnswerExperience: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(" ").length <= 150, {
+    .refine((value) => value.split(/\s/g).length <= 150, {
       message: "Must be less than 150 words",
     }),
   longAnswerTech: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(" ").length <= 150, {
+    .refine((value) => value.split(/\s/g).length <= 150, {
       message: "Must be less than 150 words",
     }),
 
@@ -56,7 +56,7 @@ const schema = z.object({
     .nullish(),
   interests: z
     .string()
-    .refine((value) => value.split(" ").length <= 100, {
+    .refine((value) => value.split(/\s/g).length <= 150, {
       message: "Must be less than 150 words",
     })
     .transform((string) => string ?? null)

@@ -97,8 +97,9 @@ const FormCheckbox: React.FC<
 };
 
 const FormTextArea: React.FC<
-  FormInputProps & React.HTMLProps<HTMLTextAreaElement>
-> = ({ label, id, errors, optional, register, ...props }) => {
+  FormInputProps &
+    React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
+> = ({ label, id, errors, optional, currentLength, register, ...props }) => {
   return (
     <div className="flex flex-1 flex-col gap-2 pb-4">
       <label className="text-black dark:text-white" htmlFor={id}>
@@ -108,8 +109,17 @@ const FormTextArea: React.FC<
             (Optional)
           </span>
         )}
+        <div
+          className={
+            "pt-4 " +
+            (currentLength > 150
+              ? "text-red-500"
+              : "dark:text-neutral-400 text-neutral-500")
+          }
+        >
+          {150 - currentLength} words left
+        </div>
       </label>
-      {/* border-1 border-bl p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 */}
       <textarea
         className="textarea textarea-bordered rounded-lg border-neutral-300 dark:border-neutral-700 text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         id={id}
@@ -399,6 +409,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
         errors={errors.longAnswerChange}
         register={register}
+        currentLength={watch("longAnswerChange")?.split(/\s/g).length ?? 0}
       />
 
       <FormTextArea
@@ -406,6 +417,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         label="How do you hope to make the most out of your experience at DH10?"
         errors={errors.longAnswerChange}
         register={register}
+        currentLength={watch("longAnswerExperience")?.split(/\s/g).length ?? 0}
       />
 
       <FormTextArea
@@ -413,6 +425,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         label="Which piece of future technology excites you most and where do you see it going?"
         errors={errors.longAnswerTech}
         register={register}
+        currentLength={watch("longAnswerTech")?.split(/\s/g).length ?? 0}
       />
 
       <FormTextArea
@@ -420,6 +433,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
         errors={errors.longAnswerMagic}
         register={register}
+        currentLength={watch("longAnswerMagic")?.split(/\s/g).length ?? 0}
       />
 
       <FormDivider label="Survey" />
@@ -432,11 +446,12 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         optional
       />
 
-      <FormInput
+      <FormTextArea
         label="Is there anything else interesting you want us to know or see?"
         id={"interests"}
         errors={errors.interests}
         register={register}
+        currentLength={watch("interests")?.split(/\s/g).length ?? 0}
         optional
       />
 
