@@ -1,7 +1,6 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { useRouter } from "next/router";
 import { z } from "zod";
-import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import {
@@ -9,9 +8,7 @@ import {
   SubmitHandler,
   Controller,
   FieldError,
-  FieldErrors,
   UseFormRegister,
-  Form,
 } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -38,10 +35,6 @@ import {
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
-
-const sanitizeDateString = (date: string) => {
-  return new Date(date).toISOString().slice(0, 10);
-};
 
 interface FormInputProps {
   label: string;
@@ -229,7 +222,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="input rounded-lg border-neutral-300 dark:border-neutral-700 text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
           id="birthdayInput"
-          max={sanitizeDateString(new Date().toString())}
           {...register("birthday", {})}
           placeholder="YYYY-MM-DD"
         />
@@ -663,7 +655,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
 };
 
 const Apply: NextPage = () => {
-  // check if there is local storage data for autofill
+  // TODO: check if there is local storage data for autofill
 
   const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
     retry: false,
