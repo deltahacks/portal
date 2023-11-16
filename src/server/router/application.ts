@@ -71,13 +71,14 @@ export const applicationRouter = router({
   status: protectedProcedure.output(z.string()).query(async ({ ctx }) => {
     const user = await ctx.prisma?.user.findFirst({
       where: { id: ctx.session.user.id },
+      include: { dh10application: true },
     });
     if (!user) {
       return "NULL";
     }
     if (
-      user.typeform_response_id === undefined ||
-      user.typeform_response_id === null
+      user.dH10ApplicationId === null ||
+      user.dH10ApplicationId === undefined
     ) {
       return "NULL";
     }
@@ -322,7 +323,7 @@ export const applicationRouter = router({
       autofill["lastName"] = converted.lastName;
     }
     if (converted.birthday !== undefined) {
-      autofill["birthday"] = converted.birthday;
+      autofill["birthday"] = converted.birthday.toISOString();
     }
 
     if (converted.major !== "N/A") {
@@ -335,7 +336,8 @@ export const applicationRouter = router({
       autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
     }
     if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = converted.graduationYear;
+      autofill["studyExpectedGraduation"] =
+        converted.graduationYear.toISOString();
     }
     if (converted.degree !== "N/A") {
       autofill["studyDegree"] = converted.degree;
@@ -381,7 +383,7 @@ export const applicationRouter = router({
 
     return autofill;
   }),
-  submitDh100: protectedProcedure
+  submitDh10: protectedProcedure
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
       // make sure there is no existing application
@@ -399,6 +401,10 @@ export const applicationRouter = router({
       await ctx.prisma.dH10Application.create({
         data: {
           ...input,
+          birthday: new Date(input.birthday),
+          studyExpectedGraduation:
+            input.studyExpectedGraduation &&
+            new Date(input.studyExpectedGraduation),
           User: { connect: { id: ctx.session.user.id } },
         },
       });

@@ -25,10 +25,11 @@ const universitySchema = z.object({
 });
 
 const schema = z.object({
-  value: z.object({
-    name: z.string(),
-    location: z.string(),
-  }),
+  // value: z.object({
+  //   name: z.string(),
+  //   location: z.string(),
+  // }),
+  value: z.string(),
   label: z.string(),
 });
 
@@ -48,13 +49,14 @@ function getOptions(query: string) {
         const parsedData = universitiesSchema.parse(data);
         const universities: ApplicantUniversity[] = parsedData.map(
           (university: University) => ({
-            value: university["state-province"]
-              ? {
-                  name: university.name,
-                  location:
-                    university["state-province"] + ", " + university.country,
-                }
-              : { name: university.name, location: university.country },
+            // value: university["state-province"]
+            //   ? {
+            //       name: university.name,
+            //       location:
+            //         university["state-province"] + ", " + university.country,
+            //     }
+            //   : { name: university.name, location: university.country },
+            value: university.name,
             label: university.name,
           })
         );
@@ -77,7 +79,6 @@ const UniversitySelect = (props: any) => {
             defaultOptions={true}
             loadOptions={getOptions}
             placeholder="Search for a university..."
-            // styles={colourStyles}
             className="w-full"
             components={animatedComponents}
             unstyled={true}

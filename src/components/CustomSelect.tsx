@@ -1,11 +1,32 @@
-import Select from "react-select";
+import Select, { MultiValue, SingleValue, ActionMeta } from "react-select";
 
-const CustomSelect = (props: any) => {
+interface SelectChoice {
+  value: string;
+  label: string;
+}
+interface CustomSelectProps {
+  options: SelectChoice[];
+  onChange: (...events: any[]) => void;
+  value?: SelectChoice[] | SelectChoice;
+  isMulti?: boolean;
+  defaultInputValue?: string;
+}
+
+// '((newValue: MultiValue<SelectChoice> | SingleValue<SelectChoice>, actionMeta: ActionMeta<SelectChoice>) => void) | undefined'.
+
+const CustomSelect: React.FC<CustomSelectProps> = ({
+  options,
+  onChange,
+  value,
+  isMulti,
+}) => {
   return (
     <Select
-      options={props.options}
+      options={options}
       unstyled={true}
-      {...props}
+      onChange={onChange}
+      value={value}
+      isMulti={isMulti}
       classNames={{
         control: (state) => {
           return state.menuIsOpen

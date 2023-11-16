@@ -353,13 +353,15 @@ const Dashboard: NextPage = () => {
   const { data: status, isSuccess: isStatusLoading } =
     trpc.application.status.useQuery();
 
+  console.log("STATUS IS", status);
+
   const { data: session } = useSession();
 
   const stateMap = {
-    [Status.IN_REVIEW]: <WalkIns />,
-    [Status.ACCEPTED]: <WalkIns />,
-    [Status.WAITLISTED]: <WalkIns />,
-    [Status.REJECTED]: <WalkIns />,
+    [Status.IN_REVIEW]: <InReview />,
+    [Status.ACCEPTED]: <Accepted />,
+    [Status.WAITLISTED]: <Waitlisted />,
+    [Status.REJECTED]: <Rejected />,
     [Status.RSVP]: <RSVPed />,
     [Status.CHECKED_IN]: <CheckedIn />,
   };
@@ -444,17 +446,15 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
+    include: { dh10application: true },
   });
 
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { redirect: { destination: "/welcome", permanent: false } };
+  // If submitted then do nothing
+  if (userEntry && userEntry.dh10application !== null) {
+    return { props: {} };
   }
 
-  return { props: {} };
+  return { redirect: { destination: "/welcome", permanent: false } };
 };
 
 export default Dashboard;

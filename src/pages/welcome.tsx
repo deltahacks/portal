@@ -74,6 +74,7 @@ const Welcome: NextPage = () => {
     </>
   );
 };
+
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -85,16 +86,15 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
+    include: { dh10application: true },
   });
 
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { props: {} };
+  // If submitted then go to dashboard
+  if (userEntry && userEntry.dh10application !== null) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
   }
-  return { redirect: { destination: "/dashboard", permanent: false } };
+
+  return { props: {} };
 };
 
 export default Welcome;

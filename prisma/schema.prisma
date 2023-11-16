@@ -117,7 +117,7 @@ model DH10Application {
   studyLocation              String?
   studyDegree                String?
   studyMajor                 String?
-  studyYearOfStudy           Int?
+  studyYearOfStudy           String?
   studyExpectedGraduation    DateTime?
 
   previousHackathonsCount Int
@@ -130,14 +130,14 @@ model DH10Application {
   socialText String?
   interests  String?
 
-  // resume????
+  linkToResume String?
 
   tshirtSize      String
   hackerKind      String
   alreadyHaveTeam Boolean
   workshopChoices String[]
+  discoverdFrom   String[]
   considerCoffee  Boolean
-  discoverdFrom   String
   gender          String
   race            String
 

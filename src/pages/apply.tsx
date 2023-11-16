@@ -1,79 +1,35 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { useRouter } from "next/router";
 import { z } from "zod";
-import React from "react";
+import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
-import Link from "next/link";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
-import FormTextInput from "../components/FormTextInput";
 import { Drawer } from "../components/NavBar";
-import UniversitySelect from "../components/UniversitySelect";
 import applicationSchema from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
+import {
+  workshops,
+  tshirtSizes,
+  hackerTypes,
+  genderTypes,
+  universities,
+  majors,
+  ethnicities,
+  degrees,
+  studyYears,
+  heardFrom,
+  SelectChoice,
+  workshopType,
+} from "../data/applicationSelectData";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
-
-interface SelectChoice {
-  value: string;
-  label: string;
-}
-
-const workshops: SelectChoice[] = [
-  { value: "React/Vue.js", label: "React/Vue.js" },
-  { value: "Blockchain", label: "Blockchain" },
-  { value: "Machine Learning", label: "Machine Learning" },
-  { value: "Android Development", label: "Android Development" },
-  { value: "iOS Development", label: "iOS Development" },
-  { value: "Web Development", label: "Web Development" },
-  { value: "Intro to AR/VR", label: "Intro to AR/VR" },
-  { value: "Game Development", label: "Game Development" },
-  { value: "Interview Prep", label: "Interview Prep" },
-  { value: "Intro to UI/UX Design", label: "Intro to UI/UX Design" },
-  { value: "Hardware Hacking", label: "Hardware Hacking" },
-  {
-    value: "Computer Vision with OpenCV",
-    label: "Computer Vision with OpenCV",
-  },
-];
-
-const tshirtSizes: SelectChoice[] = [
-  { value: "XS", label: "XS" },
-  { value: "S", label: "S" },
-  { value: "M", label: "M" },
-  { value: "L", label: "L" },
-  { value: "XL", label: "XL" },
-];
-
-const hackerTypes: SelectChoice[] = [
-  { value: "Front-end", label: "Front-end" },
-  { value: "Back-end", label: "Back-end" },
-  { value: "Design", label: "Design" },
-  { value: "iOS Development", label: "iOS Development" },
-  { value: "Android Development", label: "Android Development" },
-  { value: "Hardware", label: "Hardware" },
-  { value: "Machine Learning", label: "Machine Learning" },
-  { value: "Graphics Programming", label: "Graphics Programming" },
-  { value: "Data Analysis", label: "Data Analysis" },
-  { value: "Game Development", label: "Game Development" },
-  { value: "Writer", label: "Writer" },
-  { value: "Product Manager", label: "Product Manager" },
-  { value: "Other", label: "Other" },
-];
-
-const genderTypes: SelectChoice[] = [
-  { value: "Man", label: "Man" },
-  { value: "Woman", label: "Woman" },
-  { value: "Non-binary", label: "Non-binary" },
-  { value: "Transgender", label: "Transgender" },
-  { value: "Prefer not to say", label: "Prefer not to say" },
-];
 
 const sanitizeDateString = (date: string) => {
   return new Date(date).toISOString().slice(0, 10);
@@ -97,27 +53,60 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       // THIS IS VERY VERY BAD
       // BUT I DONT KNOW HOW TO FIX IT
       // AND WE ARE RUNNING OUT OF TIME
-      birthday: autofillData.birthday
-        ?.toISOString()
-        .slice(0, 10) as unknown as Date,
+      birthday: autofillData.birthday?.toISOString().slice(0, 10),
       studyExpectedGraduation: autofillData.studyExpectedGraduation
         ?.toISOString()
-        .slice(0, 10) as unknown as Date,
+        .slice(0, 10),
     },
   });
+
+  const router = useRouter();
+
+  const { mutateAsync: submitAppAsync } =
+    trpc.application.submitDh10.useMutation();
 
   useFormPersist("applyForm", {
     watch,
     setValue,
     storage: localStorage,
+    // exclude: ["birthday", "studyExpectedGraduation"],
   });
 
-  const onSubmit: SubmitHandler<InputsType> = (data) => {
-    console.log(data);
+  // we have to manually store date values in local storage
+  // since react-hook-form-persist doesn't support it
+
+  // // loader
+  // useEffect(() => {
+  //   // first, check if applyForm:birthday exists
+
+  //   if (localStorage.getItem("applyForm:birthday") === null) {
+  //     return;
+  //   }
+
+  //   const birthday = localStorage.getItem("applyForm:birthday");
+  //   if (birthday !== null) {
+  //     setValue("birthday", new Date(birthday));
+  //   }
+
+  //   const gradDate = localStorage.getItem("applyForm:studyExpectedGraduation");
+  //   if (gradDate !== null) {
+  //     setValue("studyExpectedGraduation", new Date(gradDate));
+  //   }
+  // }, []);
+
+  const onSubmit: SubmitHandler<InputsType> = async (data) => {
     const processed = applicationSchema.parse(data);
+
+    console.log("DATA", processed);
+
+    await submitAppAsync(processed);
+    await router.push("/dashboard");
   };
 
   const isSecondary = watch("studyEnrolledPostSecondary");
+  const blob = watch(["tshirtSize", "hackerKind", "workshopChoices"]);
+
+  console.log(blob);
 
   return (
     <form
@@ -190,7 +179,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           id="birthdayInput"
           max={sanitizeDateString(new Date().toString())}
           {...register("birthday", {
-            valueAsDate: true,
+            // valueAsDate: true,
             // onChange: onDateChange,
           })}
         />
@@ -201,6 +190,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="birthdayInput">
           Link to Resume
+          <span className="text-neutral-400"> (Optional)</span>
         </label>
         <input
           className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
@@ -209,6 +199,9 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           placeholder="https://example.com/resume.pdf"
           {...register("linkToResume")}
         />
+        {errors.linkToResume && (
+          <span className="text-error">{errors.linkToResume.message}</span>
+        )}
       </div>
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         Education
@@ -240,10 +233,12 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
             <Controller
               name="studyLocation"
               control={control}
-              render={({ field }) => (
-                <UniversitySelect
-                  {...field}
-                  defaultInputValue={autofillData.studyLocation}
+              render={({ field: { onChange, value } }) => (
+                <CustomSelect
+                  options={universities}
+                  onChange={(val: SelectChoice | null) => onChange(val?.value)}
+                  value={universities.find((val) => val.value === value)}
+                  defaultInputValue={autofillData.studyLocation ?? undefined}
                 />
               )}
             />
@@ -259,11 +254,17 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
             >
               Study Degree
             </label>
-            <input
-              className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
-              type="text"
-              id="studyDegreeInput"
-              {...register("studyDegree")}
+            <Controller
+              name="studyDegree"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <CustomSelect
+                  options={degrees}
+                  onChange={(val: SelectChoice | null) => onChange(val?.value)}
+                  value={degrees.find((val) => val.value === value)}
+                  defaultInputValue={autofillData.studyDegree ?? undefined}
+                />
+              )}
             />
             {errors.studyDegree && (
               <span className="text-error">{errors.studyDegree.message}</span>
@@ -276,11 +277,18 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
             >
               Study Major
             </label>
-            <input
-              className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
-              type="text"
-              id="studyMajorInput"
-              {...register("studyMajor")}
+            <Controller
+              name="studyMajor"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <CustomSelect
+                  options={majors}
+                  onChange={(val: SelectChoice | null) => onChange(val?.value)}
+                  value={majors.find((val) => val.value === value)}
+                  isMulti={false}
+                  defaultInputValue={autofillData.studyMajor ?? undefined}
+                />
+              )}
             />
             {errors.studyMajor && (
               <span className="text-error">{errors.studyMajor.message}</span>
@@ -293,11 +301,17 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
             >
               Year of Study
             </label>
-            <input
-              className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
-              type="number"
-              id="studyYearOfStudyInput"
-              {...register("studyYearOfStudy")}
+            <Controller
+              name="studyYearOfStudy"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <CustomSelect
+                  options={studyYears}
+                  onChange={(val: SelectChoice | null) => onChange(val?.value)}
+                  value={studyYears.find((val) => val.value === value)}
+                  isMulti={false}
+                />
+              )}
             />
             {errors.studyYearOfStudy && (
               <span className="text-error">
@@ -317,7 +331,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
               type="date"
               id="studyExpectedGraduationInput"
               max={sanitizeDateString(new Date().toString())}
-              {...register("studyExpectedGraduation", { valueAsDate: true })}
+              {...register("studyExpectedGraduation")}
             />
             {errors.studyExpectedGraduation && (
               <span className="text-error">
@@ -340,6 +354,9 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           min="0"
           id="previousHackathonsCountInput"
           {...register("previousHackathonsCount")}
+          onWheel={(e) => {
+            e.preventDefault();
+          }}
         />
         {errors.previousHackathonsCount && (
           <span className="text-error">
@@ -456,17 +473,17 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         <label className="text-black dark:text-white" htmlFor="tshirtSizeInput">
           T-shirt Size
         </label>
-        {/* <input
-          className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
-          type="text"
-          id="tshirtSizeInput"
-          {...register("tshirtSize")}
-        /> */}
         <Controller
           name="tshirtSize"
           control={control}
-          render={({ field }) => (
-            <CustomSelect options={tshirtSizes} {...field} />
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={tshirtSizes}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={tshirtSizes.find((val) => val.value === value)}
+              isMulti={false}
+              defaultInputValue={autofillData.tshirtSize ?? undefined}
+            />
           )}
         />
         {errors.tshirtSize && (
@@ -480,8 +497,14 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         <Controller
           name="hackerKind"
           control={control}
-          render={({ field }) => (
-            <CustomSelect options={hackerTypes} {...field} />
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={hackerTypes}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={hackerTypes.find((val) => val.value === value)}
+              isMulti={false}
+              defaultInputValue={autofillData.hackerKind ?? undefined}
+            />
           )}
         />
         {errors.hackerKind && (
@@ -490,7 +513,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       </div>
       <div className="justify-left flex items-center gap-2 pb-4 pt-4">
         <input
-          className="checkbox rounded-sm p-2"
+          className="checkbox checkbox-lg rounded-sm bg-neutral-400 p-2 dark:bg-neutral-800"
           type="checkbox"
           id="alreadyHaveTeamInput"
           {...register("alreadyHaveTeam")}
@@ -512,10 +535,20 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         <Controller
           name="workshopChoices"
           control={control}
-          render={({ field }) => (
-            <CustomSelect options={workshops} {...field} isMulti={true} />
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={workshops}
+              onChange={(val: SelectChoice[] | null) =>
+                onChange(val?.map((v: SelectChoice) => v.value))
+              }
+              value={workshops.filter((val) =>
+                value?.includes(val.value as workshopType)
+              )}
+              isMulti={true}
+            />
           )}
         />
+
         {errors.workshopChoices && (
           <span className="text-error">{errors.workshopChoices.message}</span>
         )}
@@ -534,34 +567,47 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           Would you like to be considered for a coffee chat with a sponser?
         </label>
       </div>
-      {/* <div className="flex flex-col gap-2 pb-4">
-    <label className="dark:text-white text-black" htmlFor="discoverdFromInput">Discovered From</label>
-    <input
-      className=""
-      type="text"
-      id="discoverdFromInput"
-      {...register("discoverdFrom")}
-    />
-    {errors.discoverdFrom && (
-      <span className="text-error">{errors.discoverdFrom.message}</span>
-    )}
-  </div> */}
+      <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="dark:text-white text-black"
+          htmlFor="discoverdFromInput"
+        >
+          Discovered From
+        </label>
+        <Controller
+          name="discoverdFrom"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={heardFrom}
+              onChange={(val: SelectChoice[] | null) =>
+                onChange(val?.map((v: SelectChoice) => v.value))
+              }
+              value={heardFrom.filter((val) => value?.includes(val.value))}
+              isMulti={true}
+            />
+          )}
+        />
+        {errors.discoverdFrom && (
+          <span className="text-error">{errors.discoverdFrom.message}</span>
+        )}
+      </div>
       {/* TODO */}
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="genderInput">
           Gender
         </label>
-        {/* <input
-          className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
-          type="text"
-          id="genderInput"
-          {...register("gender")}
-        /> */}
+
         <Controller
           name="gender"
           control={control}
-          render={({ field }) => (
-            <CustomSelect options={genderTypes} {...field} />
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={genderTypes}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={genderTypes.find((val) => val.value === value)}
+            />
           )}
         />
 
@@ -573,11 +619,23 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         <label className="text-black dark:text-white" htmlFor="raceInput">
           Race
         </label>
-        <input
+        {/* <input
           className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
           type="text"
           id="raceInput"
           {...register("race")}
+        /> */}
+        <Controller
+          name="race"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={ethnicities}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={ethnicities.find((val) => val.value === value)}
+              defaultInputValue={autofillData.race ?? undefined}
+            />
+          )}
         />
         {errors.race && (
           <span className="text-error">{errors.race.message}</span>
@@ -702,8 +760,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
 };
 
 const Apply: NextPage = () => {
-  const router = useRouter();
-  const submitResponseId = trpc.application.submit.useMutation();
   const autofillData = trpc.application.getPrevAutofill.useQuery();
 
   return (
@@ -729,11 +785,6 @@ const Apply: NextPage = () => {
   );
 };
 
-import superjson from "superjson";
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import { appRouter } from "../server/router";
-import { createContext } from "../server/router/context";
-
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -745,24 +796,15 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
+    include: { dh10application: true },
   });
 
-  // await helpers.application.getPrevAutofill.fetch();
-
-  return {
-    props: {
-      // trpcState: helpers.dehydrate(),
-    },
-  };
   // If submitted then go dashboard
-  // if (
-  //   userEntry &&
-  //   (userEntry.typeform_response_id === null ||
-  //     userEntry.typeform_response_id === undefined)
-  // ) {
-  //   return { props: {} };
-  // }
-  // return { redirect: { destination: "/dashboard", permanent: false } };
+  if (userEntry && userEntry.dh10application !== null) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
+  }
+
+  return { props: {} };
 };
 
 export default Apply;
