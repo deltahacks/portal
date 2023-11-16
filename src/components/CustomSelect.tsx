@@ -27,6 +27,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       onChange={onChange}
       value={value}
       isMulti={isMulti}
+      // placeholder="Please select one"
       classNames={{
         control: (state) => {
           return state.menuIsOpen

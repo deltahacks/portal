@@ -50,13 +50,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       ...autofillData,
-      // THIS IS VERY VERY BAD
-      // BUT I DONT KNOW HOW TO FIX IT
-      // AND WE ARE RUNNING OUT OF TIME
-      birthday: autofillData.birthday?.toISOString().slice(0, 10),
-      studyExpectedGraduation: autofillData.studyExpectedGraduation
-        ?.toISOString()
-        .slice(0, 10),
     },
   });
 
@@ -69,44 +62,16 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
     watch,
     setValue,
     storage: localStorage,
-    // exclude: ["birthday", "studyExpectedGraduation"],
   });
-
-  // we have to manually store date values in local storage
-  // since react-hook-form-persist doesn't support it
-
-  // // loader
-  // useEffect(() => {
-  //   // first, check if applyForm:birthday exists
-
-  //   if (localStorage.getItem("applyForm:birthday") === null) {
-  //     return;
-  //   }
-
-  //   const birthday = localStorage.getItem("applyForm:birthday");
-  //   if (birthday !== null) {
-  //     setValue("birthday", new Date(birthday));
-  //   }
-
-  //   const gradDate = localStorage.getItem("applyForm:studyExpectedGraduation");
-  //   if (gradDate !== null) {
-  //     setValue("studyExpectedGraduation", new Date(gradDate));
-  //   }
-  // }, []);
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
     const processed = applicationSchema.parse(data);
-
-    console.log("DATA", processed);
 
     await submitAppAsync(processed);
     await router.push("/dashboard");
   };
 
   const isSecondary = watch("studyEnrolledPostSecondary");
-  const blob = watch(["tshirtSize", "hackerKind", "workshopChoices"]);
-
-  console.log(blob);
 
   return (
     <form
@@ -330,7 +295,6 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
               className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
               type="date"
               id="studyExpectedGraduationInput"
-              max={sanitizeDateString(new Date().toString())}
               {...register("studyExpectedGraduation")}
             />
             {errors.studyExpectedGraduation && (
@@ -511,20 +475,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <span className="text-error">{errors.hackerKind.message}</span>
         )}
       </div>
-      <div className="justify-left flex items-center gap-2 pb-4 pt-4">
-        <input
-          className="checkbox checkbox-lg rounded-sm bg-neutral-400 p-2 dark:bg-neutral-800"
-          type="checkbox"
-          id="alreadyHaveTeamInput"
-          {...register("alreadyHaveTeam")}
-        />
-        <label
-          className="text-black dark:text-white"
-          htmlFor="alreadyHaveTeamInput"
-        >
-          Do you already have a team?
-        </label>
-      </div>
+
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -553,26 +504,13 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <span className="text-error">{errors.workshopChoices.message}</span>
         )}
       </div>
-      <div className="justify-left flex items-center gap-2 pb-4 pt-4">
-        <input
-          className="checkbox checkbox-lg rounded-sm bg-neutral-400 p-2 dark:bg-neutral-800"
-          type="checkbox"
-          id="considerCoffeeInput"
-          {...register("considerCoffee")}
-        />
-        <label
-          className="text-black dark:text-white"
-          htmlFor="considerCoffeeInput"
-        >
-          Would you like to be considered for a coffee chat with a sponser?
-        </label>
-      </div>
+
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="dark:text-white text-black"
           htmlFor="discoverdFromInput"
         >
-          Discovered From
+          How did you hear about DeltaHacks?
         </label>
         <Controller
           name="discoverdFrom"
@@ -592,7 +530,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <span className="text-error">{errors.discoverdFrom.message}</span>
         )}
       </div>
-      {/* TODO */}
+
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="genderInput">
           Gender
@@ -615,16 +553,12 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           <span className="text-error">{errors.gender.message}</span>
         )}
       </div>
+
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="raceInput">
           Race
         </label>
-        {/* <input
-          className="input rounded-lg bg-neutral-400 p-3 text-black placeholder:text-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 "
-          type="text"
-          id="raceInput"
-          {...register("race")}
-        /> */}
+
         <Controller
           name="race"
           control={control}
@@ -640,6 +574,35 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         {errors.race && (
           <span className="text-error">{errors.race.message}</span>
         )}
+      </div>
+
+      <div className="justify-left flex items-center gap-2 pb-4 pt-4">
+        <input
+          className="checkbox checkbox-lg rounded-sm bg-neutral-400 p-2 dark:bg-neutral-800"
+          type="checkbox"
+          id="alreadyHaveTeamInput"
+          {...register("alreadyHaveTeam")}
+        />
+        <label
+          className="text-black dark:text-white"
+          htmlFor="alreadyHaveTeamInput"
+        >
+          Do you already have a team?
+        </label>
+      </div>
+      <div className="justify-left flex items-center gap-2 pb-4 pt-4">
+        <input
+          className="checkbox checkbox-lg rounded-sm bg-neutral-400 p-2 dark:bg-neutral-800"
+          type="checkbox"
+          id="considerCoffeeInput"
+          {...register("considerCoffee")}
+        />
+        <label
+          className="text-black dark:text-white"
+          htmlFor="considerCoffeeInput"
+        >
+          Would you like to be considered for a coffee chat with a sponser?
+        </label>
       </div>
       <span className="mb-2 border-b-2 border-neutral-700 pb-2 text-neutral-600 dark:text-neutral-400">
         Emergency Contact
@@ -719,6 +682,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         >
           Agree to MLH Code of Conduct
         </label>
+        {errors.agreeToMLHCodeOfConduct && (
+          <span className="text-error">
+            {errors.agreeToMLHCodeOfConduct.message}
+          </span>
+        )}
       </div>
       <div className="justify-left flex items-center gap-2 pb-4 pt-4">
         <input
@@ -733,6 +701,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
         >
           Agree to MLH Privacy Policy
         </label>
+        {errors.agreeToMLHPrivacyPolicy && (
+          <span className="text-error">
+            {errors.agreeToMLHPrivacyPolicy.message}
+          </span>
+        )}
       </div>
       <div className="justify-left flex items-center gap-2 pb-4 pt-4">
         <input
@@ -745,14 +718,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
           className="text-black dark:text-white"
           htmlFor="agreeToMLHCommunicationsInput"
         >
-          Agree to MLH Communications
+          Agree to MLH Communications{" "}
+          <span className="text-neutral-400">(Optional)</span>
         </label>
       </div>
-      <button
-        type="submit"
-        className="btn btn-primary mb-4 mt-4"
-        // onClick={() => console.log("AAA")}
-      >
+      <button type="submit" className="btn btn-primary mb-4 mt-4">
         Submit
       </button>
     </form>
@@ -773,8 +743,11 @@ const Apply: NextPage = () => {
             <h1 className="py-8 text-4xl font-bold text-black dark:text-white">
               Apply to DeltaHacks X
             </h1>
-            {autofillData.isLoading ? (
-              <h1>Loading</h1>
+            {true ? (
+              <div>
+                Loading
+                <div className="loading loading-lg w-12 h-12 "></div>
+              </div>
             ) : (
               <ApplyForm autofillData={autofillData.data ?? {}} />
             )}
