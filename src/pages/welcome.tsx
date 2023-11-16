@@ -33,7 +33,7 @@ const Content = () => {
             Apply
           </button>
         </Link>
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -67,13 +67,14 @@ const Welcome: NextPage = () => {
       </Head>
       <Drawer>
         <Content />
-        <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
+        <footer className="flex justify-end pb-4 pr-4 md:absolute md:bottom-0 md:right-0 md:block">
           <SocialButtons />
         </footer>
       </Drawer>
     </>
   );
 };
+
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -85,16 +86,15 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
+    include: { dh10application: true },
   });
 
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { props: {} };
+  // If submitted then go to dashboard
+  if (userEntry && userEntry.dh10application !== null) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
   }
-  return { redirect: { destination: "/dashboard", permanent: false } };
+
+  return { props: {} };
 };
 
 export default Welcome;

@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
 import { TypeFormSubmission } from "../server/router/reviewers";
 
+import { Review } from "@prisma/client";
+
 interface IReview {
   id: string;
   mark: number;
@@ -59,6 +61,8 @@ const Applicant = ({
     );
   }, [applicant.reviews, session.data?.user?.id]);
 
+  return <>THIS PAGE IS UNDER CONSTRUCTION</>;
+
   return (
     <>
       <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
@@ -70,7 +74,7 @@ const Applicant = ({
           {applicant.reviews.length} / 3
         </td>
         <td className="border border-slate-800 p-3">
-          {getScore(applicant.reviews)}
+          {/* {getScore(applicant.reviews)} */}
         </td>
         <td
           className="border border-slate-800 p-3"

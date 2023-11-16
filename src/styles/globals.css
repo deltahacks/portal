@@ -25,11 +25,11 @@ body,
   }
   .light-gradient {
     background: linear-gradient(
-      #e0e0e0 0%,
-      #e0e0e0 40%,
-      #bbbbbb 50%,
-      #e0e0e0 60%,
-      #e0e0e0 100%
+      #f0f0f0 0%,
+      #f0f0f0 40%,
+      #f5f5f5 50%,
+      #f0f0f0 60%,
+      #f0f0f0 100%
     );
     mask-image: url("/images/bg.png");
     background-size: 200% 200%;
