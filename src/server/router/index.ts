@@ -6,6 +6,7 @@ import { sponsorRouter } from "./sponsors";
 import { eventsRouter } from "./events";
 import { userRouter } from "./users";
 import { publicProcedure, router } from "./trpc";
+import { adminRouter } from "./admin";
 
 export const appRouter = router({
   ping: publicProcedure.query(() => "pong"),
@@ -15,6 +16,7 @@ export const appRouter = router({
   sponsor: sponsorRouter,
   events: eventsRouter,
   user: userRouter,
+  admin: adminRouter,
 });
 
 // export type definition of API

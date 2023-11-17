@@ -718,7 +718,7 @@ const ApplyForm = ({
 
 const Apply: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ email }) => {
+> = ({ email, killed }) => {
   // delete all local storage applyForm keys
   // that are not the current user's
   useEffect(() => {
@@ -748,16 +748,30 @@ const Apply: NextPage<
               Apply to DeltaHacks X
             </h1>
 
-            {autofillData.isLoading ? (
+            {!killed &&
+              (autofillData.isLoading ? (
+                <div className="h-full py-4 flex flex-col items-center justify-center text-center">
+                  Loading your application...
+                  <div className="loading loading-infinity loading-lg"></div>
+                </div>
+              ) : (
+                <ApplyForm
+                  persistId={email ?? "default"}
+                  autofillData={autofillData.data ?? {}}
+                />
+              ))}
+
+            {killed && (
               <div className="h-full py-4 flex flex-col items-center justify-center text-center">
-                Loading your application...
-                <div className="loading loading-infinity loading-lg"></div>
+                <div className="text-2xl  text-black dark:text-white text-center md:text-left alert bg-red-600">
+                  <span>
+                    Applications are currently closed due to technical
+                    difficulties. Please check back later. If this error
+                    persists, please contact us at{" "}
+                    <span className="font-bold">hello@deltahacks.com</span>
+                  </span>
+                </div>
               </div>
-            ) : (
-              <ApplyForm
-                persistId={email ?? "default"}
-                autofillData={autofillData.data ?? {}}
-              />
             )}
           </div>
         </div>
@@ -780,14 +794,28 @@ export const getServerSideProps = async (
     include: { dh10application: true },
   });
 
+  const killedStr = await prisma.config.findFirst({
+    where: { name: "killApplications" },
+    select: { value: true },
+  });
+
+  // they are killed in all cases unless the value is "false"
+  let killed = true;
+
+  if (killedStr && JSON.parse(killedStr.value) === false) {
+    killed = false;
+  }
+
   // If submitted then go dashboard
   if (userEntry && userEntry.dh10application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
+  console.log(killedStr, killed);
   return {
     props: {
       email: session.user.email,
+      killed: killed,
     },
   };
 };
