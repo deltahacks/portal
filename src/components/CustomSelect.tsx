@@ -41,7 +41,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           return "p-2 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:hover:bg-neutral-900";
         },
         valueContainer: () => {
-          return "dark:text-neutral-500 text-neutral-700";
+          return "dark:text-neutral-500 text-neutral-700 gap-2";
         },
         singleValue: () => {
           return "dark:text-white text-black";
