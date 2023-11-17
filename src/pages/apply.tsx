@@ -266,6 +266,15 @@ const ApplyForm = ({
         optional
       />
 
+      {persistId.endsWith("mcmaster.ca") && (
+        <FormCheckbox
+          label="Are you a first year student part of the McMaster Experience Venture Program?"
+          id="macEv"
+          errors={errors.macEv}
+          register={register}
+        />
+      )}
+
       <FormDivider label="Education" />
 
       <FormCheckbox

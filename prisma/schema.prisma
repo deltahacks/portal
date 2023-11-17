@@ -110,8 +110,7 @@ model DH10Application {
 
   firstName String
   lastName  String
-
-  birthday DateTime
+  birthday  DateTime
 
   studyEnrolledPostSecondary Boolean
   studyLocation              String?
@@ -140,6 +139,7 @@ model DH10Application {
   considerCoffee  Boolean
   gender          String
   race            String
+  macEv           Boolean
 
   emergencyContactName     String
   emergencyContactPhone    String
