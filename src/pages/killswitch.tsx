@@ -1,10 +1,13 @@
 import type {
   GetServerSidePropsContext,
+  GetServerSidePropsResult,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
 import Head from "next/head";
 import { Drawer } from "../components/NavBar";
+import { rbac } from "../components/RBACWrapper";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 const KillSwitch: NextPage = () => {
   return (
@@ -109,5 +112,16 @@ const KillSwitch: NextPage = () => {
     </>
   );
 };
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
+  output = rbac(
+    await getServerAuthSession(context),
+    ["ADMIN"],
+    undefined,
+    output
+  );
+  return output;
+}
 
 export default KillSwitch;
