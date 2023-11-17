@@ -14,7 +14,11 @@ import { useEffect } from "react";
 
 const isDev = process.env.NODE_ENV === "development";
 
-const LogIdentifier = () => {
+const LogIdentifierDev = () => {
+  return null;
+};
+
+const LogIdentifierProd = () => {
   const { data: session } = useSession();
   useEffect(() => {
     if (
@@ -34,6 +38,8 @@ const LogIdentifier = () => {
   }, [session]);
   return null;
 };
+
+const LogIdentifier = isDev ? LogIdentifierDev : LogIdentifierProd;
 
 const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   Component,
