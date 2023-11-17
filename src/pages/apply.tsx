@@ -694,7 +694,7 @@ const ApplyForm = ({
 
 const Apply: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ email }: { email: string | null | undefined }) => {
+> = ({ email }) => {
   // delete all local storage applyForm keys
   // that are not the current user's
   useEffect(() => {
