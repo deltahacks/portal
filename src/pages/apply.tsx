@@ -1,4 +1,8 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import { useRouter } from "next/router";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +35,7 @@ import {
   SelectChoice,
   workshopType,
 } from "../data/applicationSelectData";
+import { useEffect } from "react";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -144,7 +149,13 @@ const FormDivider: React.FC<FormDividerProps> = ({ label }) => {
   );
 };
 
-const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
+const ApplyForm = ({
+  autofillData,
+  persistId,
+}: {
+  autofillData: ApplyFormAutofill;
+  persistId: string;
+}) => {
   // check if autofill was an empty object
   const wasAutofilled = !(Object.keys(autofillData).length === 0);
 
@@ -164,10 +175,13 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
 
   const router = useRouter();
 
-  const { mutateAsync: submitAppAsync } =
-    trpc.application.submitDh10.useMutation();
+  const {
+    mutateAsync: submitAppAsync,
+    isSuccess,
+    isError,
+  } = trpc.application.submitDh10.useMutation();
 
-  useFormPersist("applyForm", {
+  useFormPersist(`applyForm:${persistId}`, {
     watch,
     setValue,
     storage: localStorage,
@@ -177,8 +191,11 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
     const processed = applicationSchema.parse(data);
 
     await submitAppAsync(processed);
-    await router.push("/dashboard");
   };
+
+  if (isSuccess) {
+    router.push("/dashboard");
+  }
 
   const isSecondary = watch("studyEnrolledPostSecondary");
 
@@ -665,12 +682,31 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
       <button type="submit" className="btn btn-primary mb-4 mt-4">
         Submit
       </button>
+      {isError && (
+        <div className="alert alert-error mb-4 justify-normal text-center">
+          There was an error submitting your application. Please try again. If
+          this error persists, please contact us at hello@deltahacks.com
+        </div>
+      )}
     </form>
   );
 };
 
-const Apply: NextPage = () => {
-  // TODO: check if there is local storage data for autofill
+const Apply: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ email }) => {
+  // delete all local storage applyForm keys
+  // that are not the current user's
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("applyForm:") && key !== `applyForm:${email}`) {
+          localStorage.removeItem(key);
+        }
+      }
+    }
+  }, [email]);
 
   const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
     retry: false,
@@ -694,7 +730,10 @@ const Apply: NextPage = () => {
                 <div className="loading loading-infinity loading-lg"></div>
               </div>
             ) : (
-              <ApplyForm autofillData={autofillData.data ?? {}} />
+              <ApplyForm
+                persistId={email ?? "default"}
+                autofillData={autofillData.data ?? {}}
+              />
             )}
           </div>
         </div>
@@ -722,7 +761,11 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
-  return { props: {} };
+  return {
+    props: {
+      email: session.user.email,
+    },
+  };
 };
 
 export default Apply;

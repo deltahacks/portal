@@ -134,6 +134,9 @@ dependencies:
   superjson:
     specifier: ^1.10.0
     version: 1.13.3
+  validator:
+    specifier: ^13.11.0
+    version: 13.11.0
   zod:
     specifier: ^3.18.0
     version: 3.22.4
@@ -148,6 +151,9 @@ devDependencies:
   '@types/react-dom':
     specifier: 18.0.5
     version: 18.0.5
+  '@types/validator':
+    specifier: ^13.11.6
+    version: 13.11.6
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.33.0
     version: 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.22.0)(typescript@4.7.4)
@@ -972,6 +978,10 @@ packages:
 
   /@types/semver@7.5.5:
     resolution: {integrity: sha512-+d+WYC1BxJ6yVOgUgzK8gWvp5qF8ssV5r4nsDcZWKRWcDQLQ619tvWAxJQYGgBrO1MnLJC7a5GtiYsAoQ47dJg==}
+    dev: true
+
+  /@types/validator@13.11.6:
+    resolution: {integrity: sha512-HUgHujPhKuNzgNXBRZKYexwoG+gHKU+tnfPqjWXFghZAnn73JElicMkuSKJyLGr9JgyA8IgK7fj88IyA9rwYeQ==}
     dev: true
 
   /@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.22.0)(typescript@4.7.4):
@@ -4186,6 +4196,11 @@ packages:
   /v8-compile-cache@2.4.0:
     resolution: {integrity: sha512-ocyWc3bAHBB/guyqJQVI5o4BZkPhznPYUG2ea80Gond/BgNWpap8TOmLSeeQG7bnh2KMISxskdADG59j7zruhw==}
     dev: true
+
+  /validator@13.11.0:
+    resolution: {integrity: sha512-Ii+sehpSfZy+At5nPdnyMhx78fEoPDkR2XW/zimHEL3MyGJQOCQ7WeP20jPYRz7ZCpcKLB21NxuXHF3bxjStBQ==}
+    engines: {node: '>= 0.10'}
+    dev: false
 
   /watchpack@2.4.0:
     resolution: {integrity: sha512-Lcvm7MGST/4fup+ifyKi2hjyIAwcdI4HRgtvTpIUxBRhB+RFtUh8XtDOxUfctVCnhVi+QQj49i91OyvzkJl6cg==}
