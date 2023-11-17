@@ -175,8 +175,11 @@ const ApplyForm = ({
 
   const router = useRouter();
 
-  const { mutateAsync: submitAppAsync } =
-    trpc.application.submitDh10.useMutation();
+  const {
+    mutateAsync: submitAppAsync,
+    isSuccess,
+    isError,
+  } = trpc.application.submitDh10.useMutation();
 
   useFormPersist(`applyForm:${persistId}`, {
     watch,
@@ -188,8 +191,11 @@ const ApplyForm = ({
     const processed = applicationSchema.parse(data);
 
     await submitAppAsync(processed);
-    await router.push("/dashboard");
   };
+
+  if (isSuccess) {
+    router.push("/dashboard");
+  }
 
   const isSecondary = watch("studyEnrolledPostSecondary");
 
@@ -676,6 +682,12 @@ const ApplyForm = ({
       <button type="submit" className="btn btn-primary mb-4 mt-4">
         Submit
       </button>
+      {isError && (
+        <div className="alert alert-error mb-4 justify-normal text-center">
+          There was an error submitting your application. Please try again. If
+          this error persists, please contact us at hello@deltahacks.com
+        </div>
+      )}
     </form>
   );
 };
