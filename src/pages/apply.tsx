@@ -1,4 +1,8 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import { useRouter } from "next/router";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -144,7 +148,13 @@ const FormDivider: React.FC<FormDividerProps> = ({ label }) => {
   );
 };
 
-const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
+const ApplyForm = ({
+  autofillData,
+  persistId,
+}: {
+  autofillData: ApplyFormAutofill;
+  persistId: string;
+}) => {
   // check if autofill was an empty object
   const wasAutofilled = !(Object.keys(autofillData).length === 0);
 
@@ -167,7 +177,7 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   const { mutateAsync: submitAppAsync } =
     trpc.application.submitDh10.useMutation();
 
-  useFormPersist("applyForm", {
+  useFormPersist(`applyForm:${persistId}`, {
     watch,
     setValue,
     storage: localStorage,
@@ -669,8 +679,17 @@ const ApplyForm = ({ autofillData }: { autofillData: ApplyFormAutofill }) => {
   );
 };
 
-const Apply: NextPage = () => {
-  // TODO: check if there is local storage data for autofill
+const Apply: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ email }) => {
+  // delete all local storage applyForm keys
+  // that are not the current user's
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith("applyForm:") && key !== `applyForm:${email}`) {
+      localStorage.removeItem(key);
+    }
+  }
 
   const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
     retry: false,
@@ -694,7 +713,10 @@ const Apply: NextPage = () => {
                 <div className="loading loading-infinity loading-lg"></div>
               </div>
             ) : (
-              <ApplyForm autofillData={autofillData.data ?? {}} />
+              <ApplyForm
+                persistId={email ?? "default"}
+                autofillData={autofillData.data ?? {}}
+              />
             )}
           </div>
         </div>
@@ -722,7 +744,11 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
-  return { props: {} };
+  return {
+    props: {
+      email: session.user.email,
+    },
+  };
 };
 
 export default Apply;
