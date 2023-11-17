@@ -16,7 +16,7 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   pageProps: { session, ogImage, ...pageProps },
 }) => {
   if (typeof window !== "undefined") {
-    LogRocket.init("deltahacks/deltahacks-x");
+    LogRocket.init("qhayjx/deltahacks-portal");
     setupLogRocketReact(LogRocket);
   }
 
