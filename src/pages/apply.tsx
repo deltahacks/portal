@@ -269,7 +269,7 @@ const ApplyForm = ({
 
       {persistId.endsWith("mcmaster.ca") && (
         <FormCheckbox
-          label="Would you like to be a part of the McMaster Experience Venture Program?"
+          label="Would you like to be a part of the McMaster Experience Ventures Program?"
           id="macEv"
           errors={errors.macEv}
           register={register}
