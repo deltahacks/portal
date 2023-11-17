@@ -35,6 +35,7 @@ import {
   SelectChoice,
   workshopType,
 } from "../data/applicationSelectData";
+import { useEffect } from "react";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -681,15 +682,19 @@ const ApplyForm = ({
 
 const Apply: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ email }) => {
+> = ({ email }: { email: string | null | undefined }) => {
   // delete all local storage applyForm keys
   // that are not the current user's
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith("applyForm:") && key !== `applyForm:${email}`) {
-      localStorage.removeItem(key);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("applyForm:") && key !== `applyForm:${email}`) {
+          localStorage.removeItem(key);
+        }
+      }
     }
-  }
+  }, [email]);
 
   const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
     retry: false,
