@@ -54,12 +54,14 @@
     "react-select": "^5.8.0",
     "react-timelines": "^2.6.1",
     "superjson": "^1.10.0",
+    "validator": "^13.11.0",
     "zod": "^3.18.0"
   },
   "devDependencies": {
     "@types/node": "18.0.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
+    "@types/validator": "^13.11.6",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "autoprefixer": "^10.4.8",
