@@ -18,6 +18,7 @@ const schema = z.object({
       message: "You must be at least 15 years old",
     }
   ),
+  macEv: z.boolean().default(false),
   linkToResume: z.nullable(z.string()),
   studyEnrolledPostSecondary: z.boolean(),
   studyLocation: z.string().min(1).max(255).nullish(),

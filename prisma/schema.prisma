@@ -140,6 +140,7 @@ model DH10Application {
   considerCoffee  Boolean
   gender          String
   race            String
+  macEv           Boolean  @default(false)
 
   emergencyContactName     String
   emergencyContactPhone    String
