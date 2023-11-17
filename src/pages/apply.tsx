@@ -198,6 +198,7 @@ const ApplyForm = ({
   }
 
   const isSecondary = watch("studyEnrolledPostSecondary");
+  const isMacEv = watch("macEv");
 
   return (
     <form
@@ -273,6 +274,20 @@ const ApplyForm = ({
           errors={errors.macEv}
           register={register}
         />
+      )}
+
+      {isMacEv && (
+        <div>
+          Please be sure to fill out this form for your application to be
+          considered:{" "}
+          <a
+            href="https://forms.office.com/r/Vf8wYec5JW"
+            className="text-blue-500"
+            target="_blank"
+          >
+            https://forms.office.com/r/Vf8wYec5JW
+          </a>
+        </div>
       )}
 
       <FormDivider label="Education" />
