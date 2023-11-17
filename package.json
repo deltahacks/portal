@@ -11,6 +11,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\""
   },
   "dependencies": {
+    "@babel/plugin-transform-react-display-name": "^7.23.3",
     "@formkit/auto-animate": "^0.8.1",
     "@fullcalendar/bootstrap5": "^6.0.2",
     "@fullcalendar/core": "^6.0.2",
@@ -38,6 +39,8 @@
     "fork-react-qr-reader": "^3.0.1-beta-1",
     "ical-js-parser": "^0.6.12",
     "ical.js": "^1.5.0",
+    "logrocket": "^7.0.0",
+    "logrocket-react": "^6.0.1",
     "next": "^13.4.8",
     "next-auth": "^4.15.1",
     "next-themes": "^0.2.1",
@@ -58,6 +61,7 @@
     "zod": "^3.18.0"
   },
   "devDependencies": {
+    "@types/logrocket-react": "^3.0.3",
     "@types/node": "18.0.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
