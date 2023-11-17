@@ -59,6 +59,13 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             name="twitter:image"
             content="https://beta.portal.deltahacks.com/og.png"
           />
+
+          <meta name="theme-color" content="#6419E6" />
+          <meta name="msapplication-navbutton-color" content="#6419E6" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#6419E6"
+          />
         </Head>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-419VDPBPXK"
