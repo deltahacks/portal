@@ -1,4 +1,5 @@
 import z from "zod";
+import isMobilePhone from "validator/lib/isMobilePhone";
 
 const schema = z.object({
   firstName: z.string().min(1).max(255),
@@ -105,7 +106,9 @@ const schema = z.object({
   ]),
   race: z.string().min(1).max(255),
   emergencyContactName: z.string().min(1),
-  emergencyContactPhone: z.string().min(1),
+  emergencyContactPhone: z
+    .string()
+    .refine(isMobilePhone, "Invalid phone number"),
   emergencyContactRelation: z.string().min(1),
   agreeToMLHCodeOfConduct: z.boolean().refine((value) => value === true, {
     message: "You must agree to the MLH Code of Conduct",
