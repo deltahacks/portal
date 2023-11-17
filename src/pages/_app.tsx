@@ -18,6 +18,12 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   if (typeof window !== "undefined") {
     LogRocket.init("qhayjx/deltahacks-portal");
     setupLogRocketReact(LogRocket);
+    if (session && session.user && session.user.email) {
+      LogRocket.identify(session.user.email, {
+        name: session.user.name ?? "Unknown name",
+        email: session.user.email,
+      });
+    }
   }
 
   return (
