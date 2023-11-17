@@ -390,13 +390,19 @@ export const applicationRouter = router({
       // make sure there is no existing application
 
       try {
+        let gradDate = null;
+        if (input.studyExpectedGraduation) {
+          let possible = new Date(input.studyExpectedGraduation);
+          if (!isNaN(possible.getTime())) {
+            gradDate = possible;
+          }
+        }
+
         await ctx.prisma.dH10Application.create({
           data: {
             ...input,
             birthday: new Date(input.birthday),
-            studyExpectedGraduation:
-              input.studyExpectedGraduation &&
-              new Date(input.studyExpectedGraduation),
+            studyExpectedGraduation: gradDate,
             User: { connect: { id: ctx.session.user.id } },
           },
         });
