@@ -20,6 +20,10 @@ export const serverSchema = z.object({
   LINKEDIN_CLIENT_SECRET: z.string(),
   TYPEFORM_API_KEY: z.string(),
   SENDGRID_API_KEY: z.string(),
+  AZURE_AD_CLIENT_ID: z.string(),
+  AZURE_AD_CLIENT_SECRET: z.string(),
+  AZURE_AD_TENANT_ID: z.string(),
+  LOGSNAG_TOKEN: z.string(),
 });
 
 /**
@@ -30,6 +34,7 @@ export const serverSchema = z.object({
 export const clientSchema = z.object({
   // NEXT_PUBLIC_BAR: z.string(),
   // NEXT_PUBLIC_SYNCFUSION_KEY: z.string(),
+  NEXT_PUBLIC_URL: z.string().url(),
 });
 
 /**
@@ -39,6 +44,7 @@ export const clientSchema = z.object({
  * @type {{ [k in keyof z.infer<typeof clientSchema>]: z.infer<typeof clientSchema>[k] | undefined }}
  */
 export const clientEnv = {
+  NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
   // NEXT_PUBLIC_BAR: process.env.NEXT_PUBLIC_BAR,
   // NEXT_PUBLIC_SYNCFUSION_KEY: process.env.NEXT_PUBLIC_SYNCFUSION_KEY,
 };

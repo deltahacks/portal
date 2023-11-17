@@ -1,16 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.text annotations in model Account below
-  // Further reading: 
-  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  provider = "cockroachdb"
   url      = env("DATABASE_URL")
 }
 
@@ -21,15 +14,16 @@ model Account {
   type                     String
   provider                 String
   providerAccountId        String
-  refresh_token            String? @db.Text
+  refresh_token            String?
   refresh_token_expires_in Int?
-  access_token             String? @db.Text
+  access_token             String?
   expires_at               Int?
-  oauth_token_secret       String? @db.Text
-  oauth_token              String? @db.Text
+  ext_expires_in           Int?
+  oauth_token_secret       String?
+  oauth_token              String?
   token_type               String?
   scope                    String?
-  id_token                 String? @db.Text
+  id_token                 String?
   session_state            String?
   user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -52,7 +46,7 @@ model User {
   image                String?
   accounts             Account[]
   sessions             Session[]
-  typeform_response_id String?    @db.Text
+  typeform_response_id String?
   role                 Role[]     @default([HACKER])
   hacker               Review[]   @relation("hacker")
   reviewer             Review[]   @relation("reviewer")
@@ -61,15 +55,19 @@ model User {
   mealsTaken           Int        @default(0)
   lastMealTaken        DateTime?
   EventLog             EventLog[]
+
+  dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id])
+  dH10ApplicationId String?          @unique
 }
 
 model Review {
   id         String @id @default(cuid())
   hackerId   String
-  hacker     User   @relation("hacker", fields: [hackerId], references: [id], onDelete: Cascade)
   reviewerId String
-  reviewer   User   @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
   mark       Float  @default(0)
+
+  hacker   User @relation("hacker", fields: [hackerId], references: [id], onDelete: Cascade)
+  reviewer User @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
 }
 
 model EventLog {
@@ -78,6 +76,14 @@ model EventLog {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   timestamp DateTime @default(now())
   event     String
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 enum Role {
@@ -99,10 +105,57 @@ enum Status {
   CHECKED_IN
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model DH10Application {
+  id String @id @default(cuid())
 
-  @@unique([identifier, token])
+  firstName String
+  lastName  String
+
+  birthday DateTime
+
+  studyEnrolledPostSecondary Boolean
+  studyLocation              String?
+  studyDegree                String?
+  studyMajor                 String?
+  studyYearOfStudy           String?
+  studyExpectedGraduation    DateTime?
+
+  previousHackathonsCount Int
+
+  longAnswerChange     String
+  longAnswerExperience String
+  longAnswerTech       String
+  longAnswerMagic      String
+
+  socialText String?
+  interests  String?
+
+  linkToResume String?
+
+  tshirtSize      String
+  hackerKind      String
+  alreadyHaveTeam Boolean
+  workshopChoices String[]
+  discoverdFrom   String[]
+  considerCoffee  Boolean
+  gender          String
+  race            String
+  macEv           Boolean  @default(false)
+
+  emergencyContactName     String
+  emergencyContactPhone    String
+  emergencyContactRelation String
+
+  agreeToMLHCodeOfConduct  Boolean
+  agreeToMLHPrivacyPolicy  Boolean
+  agreeToMLHCommunications Boolean
+
+  User User?
+}
+
+model Config {
+  id String @id @default(cuid())
+
+  name  String @unique
+  value String
 }

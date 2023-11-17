@@ -1,15 +1,15 @@
 import { Role } from "@prisma/client";
 import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import Link from "next/link";
 import ThemeToggle from "../components/ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
-import QrScanner from "../components/QrScanner";
 import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -39,30 +39,25 @@ const ConstantQRReaderDynamic = dynamic(
 // };
 
 const FoodManagerView: React.FC = () => {
-  //   const [shouldShowScanner, setShouldShowScanner] = useState(true);
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
-  const [email, setEmail] = useState(null);
   const qrDefer = useDeferredValue(QRCode);
   const utils = trpc.useContext();
   const [value, setValue] = useState("");
 
-  const {
-    data: foodData,
-    isLoading,
-    isError,
-  } = trpc.useQuery(["food.getFood", parseInt(QRCode)], {
-    enabled: qrDefer !== "NONE",
-    retry: 0,
-  });
-  const foodMutationAdd = trpc.useMutation(["food.addFood"]);
-  const foodMutationSub = trpc.useMutation(["food.subFood"]);
+  const { data: foodData, isError } = trpc.food.getFood.useQuery(
+    parseInt(QRCode),
+    {
+      enabled: qrDefer !== "NONE",
+      retry: 0,
+    }
+  );
+  const foodMutationAdd = trpc.food.addFood.useMutation();
+  const foodMutationSub = trpc.food.subFood.useMutation();
 
   const cb = useCallback(
     async (data: string) => {
       setQRCode(data);
-      setScanDelay(false);
-      await utils.invalidateQueries(["food.getFood"]);
+      await utils.food.getFood.invalidate();
     },
     [utils]
   );
@@ -71,7 +66,6 @@ const FoodManagerView: React.FC = () => {
       <div>
         {
           <ConstantQRReaderDynamic
-            // scanDelay={scanDelay}
             callback={cb}
             // lastVal={qrDefer}
             delay={1000}
@@ -99,7 +93,7 @@ const FoodManagerView: React.FC = () => {
                   className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
                   onClick={async () => {
                     await foodMutationAdd.mutateAsync(parseInt(QRCode));
-                    await utils.invalidateQueries(["food.getFood"]);
+                    await utils.food.getFood.invalidate();
                   }}
                 >
                   Reedem ticket
@@ -109,7 +103,7 @@ const FoodManagerView: React.FC = () => {
                   className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
                   onClick={async () => {
                     await foodMutationSub.mutateAsync(parseInt(QRCode));
-                    await utils.invalidateQueries(["food.getFood"]);
+                    await utils.food.getFood.invalidate();
                   }}
                 >
                   Revert Redemption
@@ -149,24 +143,16 @@ const FoodManagerView: React.FC = () => {
 };
 
 const SponsorView: React.FC = () => {
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const qrDefer = useDeferredValue(QRCode);
-  const sendResumeEmail = trpc.useMutation("sponsor.sendResumeEmail");
+  const sendResumeEmail = trpc.sponsor.sendResumeEmail.useMutation();
   const [error, setError] = useState("");
   const { data: session } = useSession();
   const utils = trpc.useContext();
   const [value, setValue] = useState("");
-  const {
-    data: getResume,
-    isLoading,
-    isError,
-  } = trpc.useQuery(
-    [
-      "sponsor.getResume",
-      { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
-    ],
+  const { data: getResume } = trpc.sponsor.getResume.useQuery(
+    { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
@@ -194,8 +180,7 @@ const SponsorView: React.FC = () => {
           <QRReaderDynamic
             callback={async (data) => {
               setQRCode(data);
-              setScanDelay(false);
-              await utils.invalidateQueries(["sponsor.getResume"]);
+              await utils.sponsor.getResume.invalidate();
             }}
           />
         ) : null}
@@ -262,13 +247,12 @@ const SponsorView: React.FC = () => {
 };
 
 const HackerView: React.FC = () => {
-  const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
   const [shouldShowScanner, setShouldShowScanner] = useState(true);
   const [value, setValue] = useState("");
-  const { data: socialInfo } = trpc.useQuery(
-    ["application.socialInfo", parseInt(QRCode)],
+  const { data: socialInfo } = trpc.application.socialInfo.useQuery(
+    parseInt(QRCode),
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
@@ -280,10 +264,8 @@ const HackerView: React.FC = () => {
       <div>
         {shouldShowScanner ? (
           <QRReaderDynamic
-            // scanDelay={scanDelay}
             callback={(data) => {
               setQRCode(data);
-              // setScanDelay(false);
               setShouldShowScanner(false);
             }}
             // lastVal={qrDefer}
@@ -341,10 +323,21 @@ const HackerView: React.FC = () => {
               </h3>
             </div>
             <div className="flex w-full justify-center p-8 ">
+              <div className="h-auto w-full max-w-full rounded-xl lg:w-3/4">
+                <Image
+                  alt="social-info"
+                  src={socialInfo?.image || ""}
+                  layout="fill"
+                  objectFit="cover"
+                />
+              </div>
+              {/* TODO below is previous code. I can't check the code on my system rn because logging
+              in doesn't work, so check that it works later
               <img
                 className="h-auto w-full max-w-full rounded-xl lg:w-3/4"
-                src={socialInfo?.image || ""}
-              ></img>
+                alt="social-info"
+                src={}
+              /> */}
             </div>
           </div>
         ) : (
@@ -384,10 +377,8 @@ const HackerView: React.FC = () => {
 };
 
 const EventsView: React.FC = () => {
-  // const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [QRCode, setQRCode] = useState("NONE");
   const [value, setValue] = useState("");
-  // const qrDefer = useDeferredValue(QRCode);
 
   const events = [
     "REGISTRATION",
@@ -411,7 +402,7 @@ const EventsView: React.FC = () => {
 
   const [selected, setSelected] = useState(events[0]);
 
-  const eCheckIn = trpc.useMutation("events.checkin");
+  const eCheckIn = trpc.events.checkin.useMutation();
 
   useEffect(() => {
     const asdf = async () => {
@@ -424,7 +415,7 @@ const EventsView: React.FC = () => {
       }
     };
     asdf();
-  }, [QRCode, selected]);
+  }, [QRCode, selected, eCheckIn]);
 
   return (
     <div>
@@ -517,7 +508,7 @@ const Scanner: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks 9</title>
+        <title>Check In - DeltaHacks X</title>
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -558,7 +549,7 @@ const Scanner: NextPage = () => {
             )}
           </main>
 
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
@@ -593,7 +584,7 @@ const Scanner: NextPage = () => {
                 </a>
                 <button
                   onClick={() => signOut()}
-                  className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white"
+                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
                 >
                   Sign Out
                 </button>

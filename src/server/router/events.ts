@@ -1,38 +1,39 @@
-import { createProtectedRouter } from "./context";
-import * as trpc from "@trpc/server";
-import { Role, Status, User } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { resolve } from "path";
+import { protectedProcedure, router } from "./trpc";
 
-export const eventsRouter = createProtectedRouter().mutation("checkin", {
-  input: z.object({
-    qrcode: z.number(),
-    eventName: z.string(),
-  }),
-  async resolve({ ctx, input }) {
-    if (
-      !(
-        ctx.session.user.role.includes(Role.ADMIN) ||
-        ctx.session.user.role.includes(Role.EVENT_MANAGER)
-      )
-    ) {
-      throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
-    }
-    const user = await ctx.prisma.user.findFirst({
-      where: { qrcode: input.qrcode },
-    });
+export const eventsRouter = router({
+  checkin: protectedProcedure
+    .input(
+      z.object({
+        qrcode: z.number(),
+        eventName: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.EVENT_MANAGER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      const user = await ctx.prisma.user.findFirst({
+        where: { qrcode: input.qrcode },
+      });
 
-    if (user === null || user === undefined) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
-    const currentTime = new Date();
-    await ctx.prisma.eventLog.create({
-      data: {
-        userId: user.id,
-        timestamp: currentTime,
-        event: input.eventName,
-      },
-    });
-  },
+      if (user === null || user === undefined) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      const currentTime = new Date();
+      await ctx.prisma.eventLog.create({
+        data: {
+          userId: user.id,
+          timestamp: currentTime,
+          event: input.eventName,
+        },
+      });
+    }),
 });

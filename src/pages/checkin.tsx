@@ -30,7 +30,7 @@ const PreCheckedIn: React.FC = () => {
   const [scanDelay, setScanDelay] = useState<boolean | number>(10);
   const [error, setError] = useState(null);
 
-  const doCheckIn = trpc.useMutation("application.checkIn");
+  const doCheckIn = trpc.application.checkIn.useMutation();
   const router = useRouter();
   const [value, setValue] = useState("");
 
@@ -38,8 +38,8 @@ const PreCheckedIn: React.FC = () => {
 
   return (
     <div>
-      <div className="pt-6 pb-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        Welcome to DeltaHacks 9! This year we are using a QR code system to
+      <div className="pb-6 pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+        Welcome to DeltaHacks X! This year we are using a QR code system to
         check you in to events, meals, and more. To link your account to the QR,
         please scan it with your camera.
       </div>
@@ -176,7 +176,7 @@ const PostCheckedIn: React.FC = () => {
 const NoRSVP: React.FC = () => {
   return (
     <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-      You have not RSVPed to DeltaHacks 9. If you believe there is an issue
+      You have not RSVPed to DeltaHacks X. If you believe there is an issue
       regarding this, contact us at{" "}
       <a href="mailto: hello@deltahacks.com" className="text-sky-400">
         hello@deltahacks.com
@@ -188,9 +188,8 @@ const NoRSVP: React.FC = () => {
 const Checkin: NextPage = () => {
   const { data: session } = useSession();
 
-  const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
-    "application.status",
-  ]);
+  const { data: status, isSuccess: isStatusLoading } =
+    trpc.application.status.useQuery();
 
   const stateMap = {
     [Status.IN_REVIEW]: <PreCheckedIn />,
@@ -204,7 +203,7 @@ const Checkin: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks 9</title>
+        <title>Check In - DeltaHacks X</title>
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -224,7 +223,7 @@ const Checkin: NextPage = () => {
             )}
           </main>
 
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
@@ -255,7 +254,7 @@ const Checkin: NextPage = () => {
                 </a>
                 <button
                   onClick={() => signOut()}
-                  className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white"
+                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
                 >
                   Sign Out
                 </button>

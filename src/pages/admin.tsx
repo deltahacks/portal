@@ -4,13 +4,14 @@ import {
   NextPage,
 } from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { trpc } from "../utils/trpc";
 
 // TODO
 const Admin: NextPage = () => {
-  const router = useRouter();
+  const { mutateAsync } = trpc.admin.setKillSwitch.useMutation();
+
   return (
     <>
       Tempor tempor ea ad consectetur consequat pariatur et officia est mollit
@@ -19,6 +20,25 @@ const Admin: NextPage = () => {
       <Link href="roles">
         <span className="link">Roles</span>
       </Link>
+      <div>
+        Application Kill Switch
+        <button
+          className="btn btn-primary"
+          onClick={async () => {
+            await mutateAsync(true);
+          }}
+        >
+          Kill
+        </button>
+        <button
+          className="btn btn-error"
+          onClick={async () => {
+            await mutateAsync(false);
+          }}
+        >
+          Revive
+        </button>
+      </div>
     </>
   );
 };

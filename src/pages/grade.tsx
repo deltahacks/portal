@@ -13,13 +13,19 @@ import { TypeFormSubmission } from "../server/router/reviewers";
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
 
-  const { data, isLoading } = trpc.useQuery([
-    togglePriotity
-      ? "reviewer.getPriorityApplications"
-      : "reviewer.getApplications",
-  ]);
+  const priorityQuery = trpc.reviewer.getPriorityApplications.useQuery(
+    undefined,
+    {
+      enabled: togglePriotity,
+    }
+  );
+  const appQuery = trpc.reviewer.getApplications.useQuery(undefined, {
+    enabled: !togglePriotity,
+  });
+  const data = priorityQuery.data ?? appQuery.data;
+  const isLoading = priorityQuery.isLoading || appQuery.isLoading;
 
-  const { data: rsvpCount } = trpc.useQuery(["application.rsvpCount"]);
+  const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
   const [mean, setMean] = useState<number>(0);
   const [median, setMedian] = useState<number>(0);
@@ -148,7 +154,7 @@ const GradingPortal: NextPage = () => {
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
               <div>
-                <button className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white">
+                <button className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white">
                   Sign Out
                 </button>
               </div>

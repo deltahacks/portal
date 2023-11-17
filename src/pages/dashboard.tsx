@@ -1,4 +1,8 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import { getSession, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -48,7 +52,7 @@ const TimeUntilStart: React.FC<TimeUntilStartInterface> = ({ hms }) => {
 
 const Accepted: React.FC = () => {
   const { data: session } = useSession();
-  const doRsvp = trpc.useMutation("application.rsvp");
+  const doRsvp = trpc.application.rsvp.useMutation();
   const utils = trpc.useContext();
 
   return (
@@ -56,12 +60,12 @@ const Accepted: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? session.user?.name : ""}
         {/*, we can{"'"}t wait to see you at
-        Deltahacks 9!*/}
+        Deltahacks X!*/}
       </h1>
       {/*<h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
-        DeltaHacks 9! Come hack for change and build something incredible with
-        hundreds of other hackers from January 13 - 15, 2023! To confirm that
+        DeltaHacks X! Come hack for change and build something incredible with
+        hundreds of other hackers from January 12 - 14, 2023! To confirm that
         you will be attending, please RSVP below.
       </h2>*/}
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
@@ -86,7 +90,7 @@ const Accepted: React.FC = () => {
           RSVP
         </button>*/}
 
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -102,7 +106,7 @@ const Rejected: React.FC = () => {
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? `${session.user?.name}` : ""}, thank you for submitting
-        your application to DeltaHacks 9.
+        your application to DeltaHacks X.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
@@ -118,7 +122,7 @@ const Rejected: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -151,7 +155,7 @@ const Waitlisted: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -181,7 +185,7 @@ const InReview: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -200,7 +204,7 @@ const RSVPed: React.FC = () => {
         you at the hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We are pleased to inform you that your registration for DeltaHacks 9 has
+        We are pleased to inform you that your registration for DeltaHacks X has
         been confirmed. Please look for an Attendee Package in your email with
         important information about the event in the coming days. Registration
         will take place at{" "}
@@ -211,7 +215,7 @@ const RSVPed: React.FC = () => {
           Peter George Centre for Living and Learning building at McMaster
           University{" "}
         </a>
-        from January 13-15{" "}
+        from January 12-14{" "}
         <span className="font-bold">
           (Reminder: Friday is NOT in-person and will be taking place on
           Discord).
@@ -226,8 +230,8 @@ const RSVPed: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="t-6 flex  flex-wrap gap-6 pt-6 pb-24">
-        <a href="https://deltahacks.com/#faq">
+      <div className="t-6 flex  flex-wrap gap-6 pb-24 pt-6">
+        <a href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -257,7 +261,7 @@ const RSVPed: React.FC = () => {
 };
 
 const CheckedIn: React.FC = () => {
-  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+  const { data: qrcode, isLoading } = trpc.application.qr.useQuery();
   const { data: session } = useSession();
   const hoursMinSecs = [1, 30, 20];
 
@@ -289,8 +293,8 @@ const CheckedIn: React.FC = () => {
           </div>
         </Link>
       </div>
-      <div className="flex w-full flex-col gap-4 pt-6 pb-24 sm:w-1/2 sm:flex-row md:gap-8">
-        <Link href="https://deltahacks.com/#faq">
+      <div className="flex w-full flex-col gap-4 pb-24 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             FAQ
           </button>
@@ -319,7 +323,7 @@ const CheckedIn: React.FC = () => {
 };
 
 const WalkIns: React.FC = () => {
-  const { data: qrcode, isLoading } = trpc.useQuery(["application.qr"]);
+  const { data: qrcode, isLoading } = trpc.application.qr.useQuery();
   const { data: session } = useSession();
   const hoursMinSecs = [1, 30, 20];
 
@@ -334,7 +338,7 @@ const WalkIns: React.FC = () => {
         link your QR code. Happy hacking!
       </h2>
       <div className="flex flex-wrap  gap-6 pt-6 ">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -349,18 +353,19 @@ const WalkIns: React.FC = () => {
   );
 };
 
-const Dashboard: NextPage = () => {
-  const { data: status, isSuccess: isStatusLoading } = trpc.useQuery([
-    "application.status",
-  ]);
+const Dashboard: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = (props) => {
+  const { data: status, isSuccess: isStatusLoading } =
+    trpc.application.status.useQuery();
 
   const { data: session } = useSession();
 
   const stateMap = {
-    [Status.IN_REVIEW]: <WalkIns />,
-    [Status.ACCEPTED]: <WalkIns />,
-    [Status.WAITLISTED]: <WalkIns />,
-    [Status.REJECTED]: <WalkIns />,
+    [Status.IN_REVIEW]: <InReview />,
+    [Status.ACCEPTED]: <Accepted />,
+    [Status.WAITLISTED]: <Waitlisted />,
+    [Status.REJECTED]: <Rejected />,
     [Status.RSVP]: <RSVPed />,
     [Status.CHECKED_IN]: <CheckedIn />,
   };
@@ -368,7 +373,7 @@ const Dashboard: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks 9</title>
+        <title>Dashboard - DeltaHacks X</title>
       </Head>
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -376,15 +381,9 @@ const Dashboard: NextPage = () => {
           <Background />
           <NavBar />
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            {!isStatusLoading ? (
-              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                Loading...
-              </h1>
-            ) : (
-              stateMap[status as Status]
-            )}
+            {stateMap[props.status]}
           </main>
-          <footer className="absolute right-0 bottom-0 p-5 md:absolute md:bottom-0">
+          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
           </footer>
         </div>
@@ -421,7 +420,7 @@ const Dashboard: NextPage = () => {
                 </a>
                 <button
                   onClick={() => signOut()}
-                  className="font-sub rounded bg-primary py-2.5 px-2.5 text-sm font-bold text-white"
+                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
                 >
                   Sign Out
                 </button>
@@ -445,17 +444,19 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
+    include: { dh10application: true },
   });
 
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { redirect: { destination: "/welcome", permanent: false } };
+  // If submitted then do nothing
+  if (userEntry && userEntry.dh10application !== null) {
+    return {
+      props: {
+        status: userEntry.status,
+      },
+    };
   }
 
-  return { props: {} };
+  return { redirect: { destination: "/welcome", permanent: false } };
 };
 
 export default Dashboard;

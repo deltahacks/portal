@@ -1,21 +1,55 @@
 // src/pages/_app.tsx
-import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
-import { loggerLink } from "@trpc/client/links/loggerLink";
-import { withTRPC } from "@trpc/next";
-import { SessionProvider } from "next-auth/react";
-import superjson from "superjson";
+import { SessionProvider, useSession } from "next-auth/react";
 import type { AppType } from "next/app";
-import type { AppRouter } from "../server/router";
 import type { Session } from "next-auth";
 import "../styles/globals.css";
 import Head from "next/head";
 import Script from "next/script";
 import { ThemeProvider } from "next-themes";
+import { trpc } from "../utils/trpc";
+import { env } from "../env/client.mjs";
+import LogRocket from "logrocket";
+import setupLogRocketReact from "logrocket-react";
+import { useEffect } from "react";
 
-const MyApp: AppType<{ session: Session | null }> = ({
+const isDev = process.env.NODE_ENV === "development";
+
+const LogIdentifierDev = () => {
+  return null;
+};
+
+const LogIdentifierProd = () => {
+  const { data: session } = useSession();
+  useEffect(() => {
+    if (
+      session &&
+      session.user &&
+      session.user.id &&
+      typeof window !== "undefined" &&
+      LogRocket &&
+      session.user.name &&
+      session.user.email
+    ) {
+      LogRocket.identify(session.user.id, {
+        name: session.user.name,
+        email: session.user.email,
+      });
+    }
+  }, [session]);
+  return null;
+};
+
+const LogIdentifier = isDev ? LogIdentifierDev : LogIdentifierProd;
+
+const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   Component,
-  pageProps: { session, ...pageProps },
+  pageProps: { session, ogImage, ...pageProps },
 }) => {
+  if (typeof window !== "undefined") {
+    LogRocket.init("qhayjx/deltahacks-portal");
+    setupLogRocketReact(LogRocket);
+  }
+
   return (
     <SessionProvider session={session}>
       <ThemeProvider>
@@ -31,7 +65,46 @@ const MyApp: AppType<{ session: Session | null }> = ({
             name="apple-mobile-web-app-status-bar-style"
             content="#181818" // TODO: add light/dark mode
           />
+          {/* open graph image */}
+          <meta property="og:image" content={env.NEXT_PUBLIC_URL + "/og.png"} />
+
+          {/* <!-- HTML Meta Tags --> */}
+          <title>DeltaHacks X</title>
+          <meta name="description" content="Hackathon for Change" />
+
+          <meta property="og:url" content="https://portal.deltahacks.com" />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="DeltaHacks X" />
+          <meta property="og:description" content="Hackathon for Change" />
+          <meta
+            property="og:image"
+            content="https://beta.portal.deltahacks.com/og.png"
+          />
+
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta
+            property="twitter:domain"
+            content="https://portal.deltahacks.com"
+          />
+          <meta
+            property="twitter:url"
+            content="https://portal.deltahacks.com"
+          />
+          <meta name="twitter:title" content="DeltaHacks X" />
+          <meta name="twitter:description" content="Hackathon for Change" />
+          <meta
+            name="twitter:image"
+            content="https://beta.portal.deltahacks.com/og.png"
+          />
+
+          <meta name="theme-color" content="#6419E6" />
+          <meta name="msapplication-navbutton-color" content="#6419E6" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#6419E6"
+          />
         </Head>
+        <LogIdentifier />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-419VDPBPXK"
           strategy="afterInteractive"
@@ -51,52 +124,4 @@ const MyApp: AppType<{ session: Session | null }> = ({
   );
 };
 
-const getBaseUrl = () => {
-  if (typeof window !== "undefined") return ""; // browser should use relative url
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
-  return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
-};
-
-export default withTRPC<AppRouter>({
-  config({}) {
-    /**
-     * If you want to use SSR, you need to use the server's full URL
-     * @link https://trpc.io/docs/ssr
-     */
-    const url = `${getBaseUrl()}/api/trpc`;
-
-    return {
-      links: [
-        loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === "development" ||
-            (opts.direction === "down" && opts.result instanceof Error),
-        }),
-        httpBatchLink({ url }),
-      ],
-      url,
-      transformer: superjson,
-      /**
-       * @link https://react-query.tanstack.com/reference/QueryClient
-       */
-      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
-
-      // To use SSR properly you need to forward the client's headers to the server
-      // headers: () => {
-      //   if (ctx?.req) {
-      //     const headers = ctx?.req?.headers;
-      //     delete headers?.connection;
-      //     return {
-      //       ...headers,
-      //       "x-ssr": "1",
-      //     };
-      //   }
-      //   return {};
-      // }
-    };
-  },
-  /**
-   * @link https://trpc.io/docs/ssr
-   */
-  ssr: false,
-})(MyApp);
+export default trpc.withTRPC(MyApp);

@@ -16,9 +16,9 @@ const NavBar = () => {
 
         <div className="font-main hidden md:inline-block">
           <h1 className="text-2xl">
-            <strong>Delta</strong>Hacks <strong>IX</strong>
+            <strong>Delta</strong>Hacks <strong>X</strong>
           </h1>
-          <p className="text-xs">January 13-15 | McMaster University</p>
+          <p className="text-xs">January 12-14 | McMaster University</p>
         </div>
 
         <div className="font-sub ml-5 hidden md:flex">
@@ -51,7 +51,7 @@ const NavBar = () => {
           Logged in as <strong className="font-bold"> Username</strong>
         </a>
 
-        <button className="font-sub mx-2 rounded bg-[#4F14EE] py-2.5 px-5 text-sm font-bold md:px-7">
+        <button className="font-sub mx-2 rounded bg-[#4F14EE] px-5 py-2.5 text-sm font-bold md:px-7">
           Sign out
         </button>
       </div>
