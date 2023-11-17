@@ -12,10 +12,10 @@ const schema = z.object({
       const now = new Date();
       const diff = now.getTime() - date.getTime();
       const age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-      return age >= 15;
+      return age >= 13;
     },
     {
-      message: "You must be at least 15 years old",
+      message: "You must be at least 13 years old",
     }
   ),
   macEv: z.boolean().default(false),
