@@ -32,12 +32,12 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
           <meta property="og:image" content={env.NEXT_PUBLIC_URL + "/og.png"} />
 
           {/* <!-- HTML Meta Tags --> */}
-          <title>Login - DeltaHacks X</title>
+          <title>DeltaHacks X</title>
           <meta name="description" content="Hackathon for Change" />
 
           <meta property="og:url" content="https://portal.deltahacks.com" />
           <meta property="og:type" content="website" />
-          <meta property="og:title" content="Login - DeltaHacks X" />
+          <meta property="og:title" content="DeltaHacks X" />
           <meta property="og:description" content="Hackathon for Change" />
           <meta
             property="og:image"
@@ -53,7 +53,7 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             property="twitter:url"
             content="https://portal.deltahacks.com"
           />
-          <meta name="twitter:title" content="Login - DeltaHacks X" />
+          <meta name="twitter:title" content="DeltaHacks X" />
           <meta name="twitter:description" content="Hackathon for Change" />
           <meta
             name="twitter:image"
