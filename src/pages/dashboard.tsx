@@ -122,7 +122,7 @@ const Rejected: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -155,7 +155,7 @@ const Waitlisted: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -185,7 +185,7 @@ const InReview: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -231,7 +231,7 @@ const RSVPed: React.FC = () => {
         </a>
       </div>
       <div className="t-6 flex  flex-wrap gap-6 pb-24 pt-6">
-        <a href="https://deltahacks.com/#faq">
+        <a href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -294,7 +294,7 @@ const CheckedIn: React.FC = () => {
         </Link>
       </div>
       <div className="flex w-full flex-col gap-4 pb-24 pt-6 sm:w-1/2 sm:flex-row md:gap-8">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-full border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800 sm:w-1/2">
             FAQ
           </button>
@@ -338,7 +338,7 @@ const WalkIns: React.FC = () => {
         link your QR code. Happy hacking!
       </h2>
       <div className="flex flex-wrap  gap-6 pt-6 ">
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
