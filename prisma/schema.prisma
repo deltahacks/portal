@@ -152,3 +152,10 @@ model DH10Application {
 
   User User?
 }
+
+model Config {
+  id String @id @default(cuid())
+
+  name  String @unique
+  value String
+}
