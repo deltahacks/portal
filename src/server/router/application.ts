@@ -392,7 +392,7 @@ export const applicationRouter = router({
       try {
         let gradDate = null;
         if (input.studyExpectedGraduation) {
-          let possible = new Date(input.studyExpectedGraduation);
+          const possible = new Date(input.studyExpectedGraduation);
           if (!isNaN(possible.getTime())) {
             gradDate = possible;
           }
