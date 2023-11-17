@@ -8,11 +8,18 @@ import Script from "next/script";
 import { ThemeProvider } from "next-themes";
 import { trpc } from "../utils/trpc";
 import { env } from "../env/client.mjs";
+import LogRocket from "logrocket";
+import setupLogRocketReact from "logrocket-react";
 
 const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   Component,
   pageProps: { session, ogImage, ...pageProps },
 }) => {
+  if (typeof window !== "undefined") {
+    LogRocket.init("deltahacks/deltahacks-x");
+    setupLogRocketReact(LogRocket);
+  }
+
   return (
     <SessionProvider session={session}>
       <ThemeProvider>
