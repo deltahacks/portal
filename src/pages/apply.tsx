@@ -47,6 +47,7 @@ interface FormInputProps {
   errors: FieldError | undefined;
   optional?: boolean;
   register: UseFormRegister<InputsType>;
+  link?: string | undefined;
 }
 
 const FormInput: React.FC<
@@ -76,12 +77,18 @@ const FormInput: React.FC<
 
 const FormCheckbox: React.FC<
   FormInputProps & React.HTMLProps<HTMLInputElement>
-> = ({ label, id, errors, optional, register, ...props }) => {
+> = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
     <>
       <div className="w-full justify-between md:justify-end flex items-center gap-2 pb-4 pt-4 md:flex-row-reverse">
         <label className="text-black dark:text-white" htmlFor={id}>
-          {label}{" "}
+          {link ? (
+            <a className="underline" href={link}>
+              {label}
+            </a>
+          ) : (
+            label
+          )}{" "}
           {optional && (
             <span className="text-neutral-500 dark:text-neutral-400">
               (Optional)
@@ -686,6 +693,7 @@ const ApplyForm = ({
         id="agreeToMLHCodeOfConduct"
         errors={errors.agreeToMLHCodeOfConduct}
         register={register}
+        link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
       />
 
       <FormCheckbox
@@ -693,6 +701,7 @@ const ApplyForm = ({
         id="agreeToMLHPrivacyPolicy"
         errors={errors.agreeToMLHPrivacyPolicy}
         register={register}
+        link="https://mlh.io/privacy"
       />
 
       <FormCheckbox
