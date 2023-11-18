@@ -21,7 +21,7 @@
     "@hookform/resolvers": "^3.3.2",
     "@logsnag/node": "^1.0.1",
     "@next-auth/prisma-adapter": "^1.0.4",
-    "@prisma/client": "^5.5.2",
+    "@prisma/client": "^5.6",
     "@sendgrid/mail": "^7.7.0",
     "@syncfusion/ej2-react-schedule": "^20.4.43",
     "@tanstack/react-query": "^4.35.7",
@@ -74,7 +74,7 @@
     "postcss": "^8.4.16",
     "prettier": "^2.8.2",
     "prettier-plugin-tailwindcss": "^0.1.13",
-    "prisma": "^5.5.2",
+    "prisma": "^5.6",
     "tailwindcss": "^3.1.8",
     "typescript": "4.7.4"
   },
