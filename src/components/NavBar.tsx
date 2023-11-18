@@ -2,6 +2,7 @@ import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import Background from "./Background";
+import { useRef } from "react";
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -69,11 +70,18 @@ export const Drawer = ({
 }) => {
   const { data: session } = useSession();
 
+  const drawer = useRef<HTMLInputElement>(null);
+
   return (
     <>
       <Background />
       <div className="drawer drawer-end relative h-full w-full overflow-x-hidden font-montserrat">
-        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
+        <input
+          id="my-drawer-3"
+          type="checkbox"
+          className="drawer-toggle"
+          ref={drawer}
+        />
 
         <div className="drawer-content flex flex-col">
           <NavBar />
@@ -85,19 +93,29 @@ export const Drawer = ({
             className="drawer-overlay md:hidden"
           ></label>
           <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
+            <button
+              className="btn btn-square btn-ghost drawer-button"
+              onClick={() => {
+                if (drawer.current) {
+                  drawer.current.checked = false;
+                }
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  fill-rule="evenodd"
+                  d="m6.5 17.5l8.25-5.5L6.5 6.5l1-1.5L18 12L7.5 19z"
+                />
+              </svg>
+            </button>
             <ul className="w-full">
               <li>Your application has not been received.</li>
-              {/* <!-- Sidebar content here --> */}
-              {/* <li>
-                <a className="mx-2 my-2 text-base font-bold" href="#">
-                  Dashboard
-                </a>
-              </li>
-              <li>
-                <a className="mx-2 my-2 text-base font-bold" href="#">
-                  Calendar
-                </a>
-              </li> */}
             </ul>
 
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
@@ -109,7 +127,7 @@ export const Drawer = ({
                 </a>
                 <button
                   onClick={() => signOut()}
-                  className="font-sub rounded bg-[#4F14EE] px-2.5 py-2.5 text-sm font-bold"
+                  className="font-sub rounded bg-[#4F14EE] px-2.5 py-2.5 text-sm font-bold text-white dark:text-gray-300"
                 >
                   Sign Out
                 </button>
