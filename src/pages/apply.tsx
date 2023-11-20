@@ -177,6 +177,7 @@ const ApplyForm = ({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       ...autofillData,
+      studyEnrolledPostSecondary: true,
     },
   });
 
