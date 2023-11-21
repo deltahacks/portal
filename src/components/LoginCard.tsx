@@ -154,12 +154,6 @@ const buttons: ButtonData[] = [
     provider: "linkedin",
     Icon: LinkedinIcon,
   },
-  {
-    title: "MacID",
-    main: false,
-    provider: "azure-ad",
-    Icon: McMasterIcon,
-  },
 ];
 
 const LoginButton = (prop: LoginProps) => {
