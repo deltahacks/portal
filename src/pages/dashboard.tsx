@@ -168,7 +168,7 @@ const Waitlisted: React.FC = () => {
 
 const InReview: React.FC = () => {
   const { data: session } = useSession();
-  const dialougRef = useRef<HTMLDialogElement | null>(null);
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
   const router = useRouter();
   // call deleteApplication endpoint
   const deleteApplication = trpc.application.deleteApplication.useMutation({
@@ -197,12 +197,12 @@ const InReview: React.FC = () => {
       <div className="flex gap-5 pt-6">
         <button
           className="btn btn-primary w-48 border-none  text-base font-medium capitalize"
-          onClick={() => dialougRef.current?.showModal()}
+          onClick={() => dialogRef.current?.showModal()}
         >
           Redo Application
         </button>
 
-        <dialog className="modal modal-bottom sm:modal-middle" ref={dialougRef}>
+        <dialog className="modal modal-bottom sm:modal-middle" ref={dialogRef}>
           <div className="modal-box">
             <h3 className="text-lg font-bold">Are you sure ?</h3>
             <p className="py-4">

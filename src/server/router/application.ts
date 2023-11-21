@@ -438,7 +438,10 @@ export const applicationRouter = router({
     if (!user) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
-    if (user.dH10ApplicationId === null || user.dH10ApplicationId === undefined) {
+    if (
+      user.dH10ApplicationId === null ||
+      user.dH10ApplicationId === undefined
+    ) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
     try {
