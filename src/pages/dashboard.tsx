@@ -170,10 +170,9 @@ const InReview: React.FC = () => {
   const { data: session } = useSession();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const router = useRouter();
-  // call deleteApplication endpoint
   const deleteApplication = trpc.application.deleteApplication.useMutation({
-    onSuccess: () => {
-      router.push("/apply");
+    onSuccess: async () => {
+      await router.push("/apply");
     },
   });
   return (
@@ -214,7 +213,7 @@ const InReview: React.FC = () => {
                 <div className="flex gap-5">
                   <button
                     className="btn btn-outline btn-error"
-                    onClick={() => deleteApplication.mutate()}
+                    onClick={() => deleteApplication.mutateAsync()}
                   >
                     Proceed
                   </button>
