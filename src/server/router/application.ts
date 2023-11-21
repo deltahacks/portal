@@ -429,4 +429,34 @@ export const applicationRouter = router({
         icon: "📝",
       });
     }),
+  // create an endpoint that deletes the user's application
+
+  deleteApplication: protectedProcedure.mutation(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findFirst({
+      where: { id: ctx.session.user.id },
+    });
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+    if (
+      user.dH10ApplicationId === null ||
+      user.dH10ApplicationId === undefined
+    ) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+    try {
+      await ctx.prisma.dH10Application.delete({
+        where: { id: user.dH10ApplicationId },
+      });
+      await ctx.prisma.user.update({
+        where: { id: ctx.session.user.id },
+        data: { status: Status.IN_REVIEW }, // Replace with the correct status
+      });
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to delete the application.",
+      });
+    }
+  }),
 });
