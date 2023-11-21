@@ -110,7 +110,7 @@ const FormCheckbox: React.FC<
 
 const FormTextArea: React.FC<
   FormInputProps &
-    React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
+  React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
 > = ({ label, id, errors, optional, currentLength, register, ...props }) => {
   return (
     <div className="flex flex-1 flex-col gap-2 pb-4">
@@ -189,7 +189,6 @@ const ApplyForm = ({
     isError,
   } = trpc.application.submitDh10.useMutation({
     onSuccess: async () => {
-      // remove the local storage key
       await router.push("/dashboard");
     },
   });

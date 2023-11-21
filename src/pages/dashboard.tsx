@@ -170,9 +170,10 @@ const InReview: React.FC = () => {
   const { data: session } = useSession();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const router = useRouter();
+  // call deleteApplication endpoint
   const deleteApplication = trpc.application.deleteApplication.useMutation({
-    onSuccess: async () => {
-      await router.push("/apply");
+    onSuccess: () => {
+      router.push("/apply");
     },
   });
   return (
