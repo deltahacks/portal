@@ -14,7 +14,8 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
 import { Status } from "@prisma/client";
-import React from "react";
+import React, { useRef } from "react";
+import { useRouter } from "next/router";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -167,6 +168,13 @@ const Waitlisted: React.FC = () => {
 
 const InReview: React.FC = () => {
   const { data: session } = useSession();
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const router = useRouter();
+  const deleteApplication = trpc.application.deleteApplication.useMutation({
+    onSuccess: async () => {
+      await router.push("/apply");
+    },
+  });
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
@@ -177,6 +185,7 @@ const InReview: React.FC = () => {
         email. While you wait for DeltaHacks, lookout for other prep events by
         DeltaHacks on our social accounts.
       </h2>
+
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
@@ -184,7 +193,38 @@ const InReview: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="pt-6">
+      <div className="flex gap-5 pt-6">
+        <button
+          className="btn btn-primary w-48 border-none  text-base font-medium capitalize"
+          onClick={() => dialogRef.current?.showModal()}
+        >
+          Redo Application
+        </button>
+
+        <dialog className="modal modal-bottom sm:modal-middle" ref={dialogRef}>
+          <div className="modal-box">
+            <h3 className="text-lg font-bold">Are you sure ?</h3>
+            <p className="py-4">
+              You will lose all and have to start from scratch.
+            </p>
+            <div className="modal-action">
+              <form method="dialog">
+                {/* if there is a button in form, it will close the modal */}
+                <div className="flex gap-5">
+                  <button
+                    className="btn btn-outline btn-error"
+                    onClick={() => deleteApplication.mutateAsync()}
+                  >
+                    Proceed
+                  </button>
+                  <button className="btn btn-primary border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </dialog>
         <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ

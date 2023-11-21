@@ -64,7 +64,7 @@ const FormInput: React.FC<
         )}
       </label>
       <input
-        className="input rounded-lg  border-neutral-300 dark:border-neutral-700 text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+        className="input rounded-lg  border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         type="text"
         id={id}
         {...register(id)}
@@ -80,7 +80,7 @@ const FormCheckbox: React.FC<
 > = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
     <>
-      <div className="w-full justify-between md:justify-end flex items-center gap-2 pb-4 pt-4 md:flex-row-reverse">
+      <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
         <label className="text-black dark:text-white" htmlFor={id}>
           {link ? (
             <a className="underline" href={link}>
@@ -96,7 +96,7 @@ const FormCheckbox: React.FC<
           )}
         </label>
         <input
-          className="checkbox checkbox-lg checkbox-primary rounded-sm bg-white p-2 dark:bg-neutral-800"
+          className="checkbox-primary checkbox checkbox-lg rounded-sm bg-white p-2 dark:bg-neutral-800"
           type="checkbox"
           id={id}
           {...register(id)}
@@ -126,14 +126,14 @@ const FormTextArea: React.FC<
             "pt-4 " +
             (currentLength > 150
               ? "text-red-500"
-              : "dark:text-neutral-400 text-neutral-500")
+              : "text-neutral-500 dark:text-neutral-400")
           }
         >
           {150 - currentLength} words left
         </div>
       </label>
       <textarea
-        className="textarea textarea-bordered rounded-lg border-neutral-300 dark:border-neutral-700 text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+        className="textarea textarea-bordered rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         id={id}
         placeholder="Type here..."
         {...register(id)}
@@ -150,7 +150,7 @@ interface FormDividerProps {
 
 const FormDivider: React.FC<FormDividerProps> = ({ label }) => {
   return (
-    <span className="my-4 border-b-2 border-neutral-700  text-neutral-900 dark:text-neutral-400 font-semibold text-xl pb-2">
+    <span className="my-4 border-b-2 border-neutral-700  pb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-400">
       {label}
     </span>
   );
@@ -187,7 +187,12 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh10.useMutation();
+  } = trpc.application.submitDh10.useMutation({
+    onSuccess: async () => {
+      // remove the local storage key
+      await router.push("/dashboard");
+    },
+  });
 
   useFormPersist(`applyForm:${persistId}`, {
     watch,
@@ -200,10 +205,6 @@ const ApplyForm = ({
 
     await submitAppAsync(processed);
   };
-
-  if (isSuccess) {
-    router.push("/dashboard");
-  }
 
   const isSecondary = watch("studyEnrolledPostSecondary");
   const isMacEv = watch("macEv");
@@ -255,7 +256,7 @@ const ApplyForm = ({
           Birthday
         </label>
         <input
-          className="input rounded-lg border-neutral-300 dark:border-neutral-700 text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+          className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
           id="birthdayInput"
           {...register("birthday", {})}
@@ -289,7 +290,7 @@ const ApplyForm = ({
           Please be sure to fill out this form for your application to be
           considered:{" "}
           <a
-            href="https://forms.office.com/r/Vf8wYec5JW"
+            href="https://forms.office.com/r/59eVyQ2W4T"
             className="text-blue-500"
             target="_blank"
           >
@@ -414,7 +415,7 @@ const ApplyForm = ({
               Expected Graduation
             </label>
             <input
-              className="input rounded-lg border-neutral-300 dark:border-neutral-700 text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+              className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
               type="date"
               id="studyExpectedGraduationInput"
               {...register("studyExpectedGraduation")}
@@ -435,7 +436,7 @@ const ApplyForm = ({
           Previous Hackathons Count
         </label>
         <input
-          className="input rounded-lg border-neutral-300 dark:border-neutral-700 text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+          className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="number"
           min="0"
           id="previousHackathonsCountInput"
@@ -578,7 +579,7 @@ const ApplyForm = ({
 
       <div className="flex flex-col gap-2 pb-4">
         <label
-          className="dark:text-white text-black"
+          className="text-black dark:text-white"
           htmlFor="discoverdFromInput"
         >
           How did you hear about DeltaHacks?
@@ -753,14 +754,14 @@ const Apply: NextPage<
       </Head>
       <Drawer>
         <div className="w-full">
-          <div className="mx-auto p-4 md:p-0 md:w-1/2 max-w-4xl text-black dark:text-white">
-            <h1 className="py-8 text-4xl font-bold text-black dark:text-white text-center md:text-left">
+          <div className="mx-auto max-w-4xl p-4 text-black dark:text-white md:w-1/2 md:p-0">
+            <h1 className="py-8 text-center text-4xl font-bold text-black dark:text-white md:text-left">
               Apply to DeltaHacks X
             </h1>
 
             {!killed &&
               (autofillData.isLoading ? (
-                <div className="h-full py-4 flex flex-col items-center justify-center text-center">
+                <div className="flex h-full flex-col items-center justify-center py-4 text-center">
                   Loading your application...
                   <div className="loading loading-infinity loading-lg"></div>
                 </div>
@@ -772,8 +773,8 @@ const Apply: NextPage<
               ))}
 
             {killed && (
-              <div className="h-full py-4 flex flex-col items-center justify-center text-center">
-                <div className="text-2xl  text-black dark:text-white text-center md:text-left alert bg-red-600">
+              <div className="flex h-full flex-col items-center justify-center py-4 text-center">
+                <div className="alert  bg-red-600 text-center text-2xl text-black dark:text-white md:text-left">
                   <span>
                     Applications are currently closed due to technical
                     difficulties. Please check back later. If this error
