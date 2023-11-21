@@ -429,7 +429,6 @@ export const applicationRouter = router({
         icon: "📝",
       });
     }),
-  // create an endpoint that deletes the user's application
 
   deleteApplication: protectedProcedure.mutation(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
@@ -451,6 +450,14 @@ export const applicationRouter = router({
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
         data: { status: Status.IN_REVIEW }, // Replace with the correct status
+      });
+      // create logsnag log
+      await ctx.logsnag.track({
+        channel: "applications",
+        event: "Application Deleted",
+        user_id: `${user.name} - ${user.email}`,
+        description: "A user has deleted their application.",
+        icon: "🗑️",
       });
     } catch (error) {
       throw new TRPCError({
