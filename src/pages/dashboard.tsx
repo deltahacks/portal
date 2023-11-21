@@ -177,6 +177,7 @@ const InReview: React.FC = () => {
         email. While you wait for DeltaHacks, lookout for other prep events by
         DeltaHacks on our social accounts.
       </h2>
+      <button className="btn btn-primary">Redo</button>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
