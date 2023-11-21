@@ -17,11 +17,11 @@ const KillSwitch: NextPage = () => {
       </Head>
       <Drawer>
         <div className="w-full">
-          <button className="btn btn-error mx-auto p-4 md:p-0 md:w-1/2 max-w-4xl text-black dark:text-white">
+          <button className="btn btn-error mx-auto max-w-4xl p-4 text-black dark:text-white md:w-1/2 md:p-0">
             {/* <h1 className="py-8 text-4xl font-bold text-black dark:text-white text-center md:text-left">
               Apply to DeltaHacks X
             </h1> */}
-            <div className="text-[#747FFF] h-full w-full">
+            <div className="h-full w-full text-[#747FFF]">
               <svg
                 width="full"
                 height="full"
@@ -103,7 +103,7 @@ const KillSwitch: NextPage = () => {
                 />
               </svg>
             </div>
-            <h3 className="py-8 text-4xl font-bold text-black dark:text-white text-center md:text-left">
+            <h3 className="py-8 text-center text-4xl font-bold text-black dark:text-white md:text-left">
               DeltaHacks has passed away peacefully.🪦
             </h3>
           </button>

@@ -429,7 +429,7 @@ export const applicationRouter = router({
         icon: "📝",
       });
     }),
-    // create an endpoint that deletes the user's application
+  // create an endpoint that deletes the user's application
 
   deleteApplication: protectedProcedure.mutation(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
@@ -440,7 +440,10 @@ export const applicationRouter = router({
       throw new TRPCError({ code: "NOT_FOUND" });
     }
 
-    if (user.dH10ApplicationId === null || user.dH10ApplicationId === undefined) {
+    if (
+      user.dH10ApplicationId === null ||
+      user.dH10ApplicationId === undefined
+    ) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
 

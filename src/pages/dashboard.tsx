@@ -194,7 +194,7 @@ const InReview: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="pt-6 flex gap-5">
+      <div className="flex gap-5 pt-6">
         <button
           className="btn btn-primary w-48 border-none  text-base font-medium capitalize"
           onClick={() => dialougRef.current?.showModal()}
@@ -204,7 +204,7 @@ const InReview: React.FC = () => {
 
         <dialog className="modal modal-bottom sm:modal-middle" ref={dialougRef}>
           <div className="modal-box">
-            <h3 className="font-bold text-lg">Are you sure ?</h3>
+            <h3 className="text-lg font-bold">Are you sure ?</h3>
             <p className="py-4">
               You will lose all and have to start from scratch.
             </p>
@@ -213,7 +213,7 @@ const InReview: React.FC = () => {
                 {/* if there is a button in form, it will close the modal */}
                 <div className="flex gap-5">
                   <button
-                    className="btn btn-error btn-outline"
+                    className="btn btn-outline btn-error"
                     onClick={() => deleteApplication.mutate()}
                   >
                     Proceed
