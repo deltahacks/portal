@@ -289,7 +289,7 @@ const ApplyForm = ({
           Please be sure to fill out this form for your application to be
           considered:{" "}
           <a
-            href="https://forms.office.com/r/Vf8wYec5JW"
+            href="https://forms.office.com/r/59eVyQ2W4T"
             className="text-blue-500"
             target="_blank"
           >
