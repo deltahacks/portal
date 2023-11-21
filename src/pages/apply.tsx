@@ -187,7 +187,12 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh10.useMutation();
+  } = trpc.application.submitDh10.useMutation({
+    onSuccess: async () => {
+      // remove the local storage key
+      await router.push("/dashboard");
+    },
+  });
 
   useFormPersist(`applyForm:${persistId}`, {
     watch,
@@ -200,10 +205,6 @@ const ApplyForm = ({
 
     await submitAppAsync(processed);
   };
-
-  if (isSuccess) {
-    router.push("/dashboard");
-  }
 
   const isSecondary = watch("studyEnrolledPostSecondary");
   const isMacEv = watch("macEv");
