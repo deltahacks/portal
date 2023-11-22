@@ -527,7 +527,7 @@ const Scanner: NextPage = () => {
               </h1>
             ) : (
               <>
-                <div className="tabs tabs-boxed">
+                <div className="tabs-boxed tabs">
                   {session?.user?.role.map((e) => {
                     return (
                       <a

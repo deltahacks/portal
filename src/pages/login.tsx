@@ -22,7 +22,7 @@ const Login: NextPage = () => {
     isError = true;
     errorMsg =
       errorMsgs.find((e) => e.name === router.query.error)?.msg ||
-      "Error logging in. If this error persists, please contact us at hello@deltahacks.com for help.";
+      "Error logging in. If this error persists, please contact us at tech@deltahacks.com for help.";
   }
 
   return (

@@ -142,7 +142,7 @@ const Roles: NextPage = () => {
                         </label>
                         <ul
                           tabIndex={0}
-                          className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
+                          className="menu dropdown-content w-52 rounded-box bg-base-100 p-2 shadow"
                         >
                           {role_options.map((role, idx) => {
                             return (
