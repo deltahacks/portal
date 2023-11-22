@@ -139,7 +139,7 @@ export const sponsorRouter = router({
 
       const msg: sgMail.MailDataRequired = {
         to: input.email,
-        from: "hello@deltahacks.com",
+        from: "tech@deltahacks.com",
         subject: "Your DeltaHacks IX Scanned Resume",
         text: `Here is a resume you scanned at DeltaHacks IX:\n<b>Name:</b> ${
           converted[0]?.firstName

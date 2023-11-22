@@ -76,8 +76,8 @@ const Accepted: React.FC = () => {
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
-        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-          hello@deltahacks.com
+        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+          tech@deltahacks.com
         </a>
       </div>
       <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
@@ -118,8 +118,8 @@ const Rejected: React.FC = () => {
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
-        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-          hello@deltahacks.com
+        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+          tech@deltahacks.com
         </a>
       </div>
       <div className="pt-6">
@@ -151,8 +151,8 @@ const Waitlisted: React.FC = () => {
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
-        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-          hello@deltahacks.com
+        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+          tech@deltahacks.com
         </a>
       </div>
       <div className="pt-6">
@@ -190,8 +190,8 @@ const InReview: React.FC = () => {
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
-        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-          hello@deltahacks.com
+        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+          tech@deltahacks.com
         </a>
       </div>
       <div className="flex gap-5 pt-6">
@@ -267,8 +267,8 @@ const RSVPed: React.FC = () => {
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
-        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-          hello@deltahacks.com
+        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+          tech@deltahacks.com
         </a>
       </div>
       <div className="t-6 flex  flex-wrap gap-6 pb-24 pt-6">

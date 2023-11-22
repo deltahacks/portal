@@ -178,8 +178,8 @@ const NoRSVP: React.FC = () => {
     <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
       You have not RSVPed to DeltaHacks X. If you believe there is an issue
       regarding this, contact us at{" "}
-      <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-        hello@deltahacks.com
+      <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+        tech@deltahacks.com
       </a>
       .
     </div>
