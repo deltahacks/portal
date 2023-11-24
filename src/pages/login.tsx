@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import DHBranding from "../components/DHBranding";
 import LoginCard from "../components/LoginCard";
 import ThemeToggle from "../components/ThemeToggle";
-import { match } from "assert";
 import { useEffect, useState } from "react";
 
 const errorMsgs = [
