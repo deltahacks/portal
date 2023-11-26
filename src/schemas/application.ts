@@ -1,7 +1,7 @@
 import z from "zod";
 import isMobilePhone from "validator/lib/isMobilePhone";
 
-const schema = z.object({
+export const ApplicationSchema = z.object({
   firstName: z.string().min(1).max(255),
   lastName: z.string().min(1).max(255),
   birthday: z.string().refine(
@@ -119,5 +119,3 @@ const schema = z.object({
   }),
   agreeToMLHCommunications: z.boolean(),
 });
-
-export default schema;

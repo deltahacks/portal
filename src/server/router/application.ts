@@ -8,7 +8,7 @@ import type {
 } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
-import applicationSchema from "../../schemas/application";
+import { ApplicationSchema } from "../../schemas/application";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -310,7 +310,7 @@ export const applicationRouter = router({
       return {};
     }
 
-    const pt = applicationSchema.partial();
+    const pt = ApplicationSchema.partial();
 
     type AutofillType = z.infer<typeof pt>;
 
@@ -385,7 +385,7 @@ export const applicationRouter = router({
     return autofill;
   }),
   submitDh10: protectedProcedure
-    .input(applicationSchema)
+    .input(ApplicationSchema)
     .mutation(async ({ ctx, input }) => {
       // make sure there is no existing application
 
