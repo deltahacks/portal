@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { env } from "../../env/server.mjs";
-import { Role, Status, User } from "@prisma/client";
+import { Role, Status, User, Review, DH10Application } from "@prisma/client";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 const TypeFormResponseField = z.object({
@@ -161,25 +161,6 @@ const TypeFormSubmission = z.object({
 
 export type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
 
-interface Item {
-  typeform_response_id: string | null;
-  reviewer: {
-    id: string;
-    reviewer: User;
-    hacker: User;
-    mark: number;
-  }[];
-  id: string;
-  email: string | null;
-}
-
-export const options = {
-  method: "GET",
-  headers: {
-    Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
-  },
-};
-
 export const reviewerRouter = router({
   getApplications: protectedProcedure.query(async ({ ctx }) => {
     if (
@@ -191,20 +172,6 @@ export const reviewerRouter = router({
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
-    // select all user and their review details joining user on review
-    // const dbdata = await ctx.prisma.user.findMany({
-    //   include: {
-    //     hacker: {
-    //       select: {
-    //         id: true,
-    //         hacker: true,
-    //         mark: true,
-    //         reviewer: true,
-    //       },
-    //     },
-    //     dh10application: true,
-    //   }
-    // });
     const dbdata = await ctx.prisma.user.findMany({
       where: {
         dH10ApplicationId: {
@@ -223,7 +190,6 @@ export const reviewerRouter = router({
         dh10application: true,
       },
     });
-    // console.log(dbdata);
 
     const applicants = dbdata.map((item) => {
       return {
@@ -233,7 +199,6 @@ export const reviewerRouter = router({
         dh10application: { ...item.dh10application },
       };
     });
-    console.log(applicants);
 
     return { data: applicants };
   }),

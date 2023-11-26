@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { GetServerSidePropsContext, NextPage } from "next";
+import { Review } from "@prisma/client";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
@@ -10,20 +11,23 @@ import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
 import { TypeFormSubmission } from "../server/router/reviewers";
 
+const getReviewedApplications = (applications: any) => {
+  return applications.filter(
+    (application: any) => application.reviewer.length >= 3
+  );
+};
+
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
 
-  // const priorityQuery = trpc.reviewer.getPriorityApplications.useQuery(
-  //   undefined,
-  //   {
-  //     enabled: togglePriotity,
-  //   }
-  // );
-  const appQuery = trpc.reviewer.getApplications.useQuery(undefined, {
-    enabled: !togglePriotity,
-  });
-  const data = appQuery.data;
-  const isLoading = appQuery.isLoading;
+  // const appQuery = trpc.reviewer.getApplications.useQuery(undefined, {
+  //   enabled: !togglePriotity,
+  // });
+
+  // const data = appQuery.data;
+  // const isLoading = appQuery.isLoading;
+
+  const { data, isLoading } = trpc.reviewer.getApplications.useQuery();
 
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
@@ -31,33 +35,36 @@ const GradingPortal: NextPage = () => {
   const [median, setMedian] = useState<number>(0);
 
   useEffect(() => {
-    if (!isLoading) {
-      const scores: number[] =
-        data?.data
-          .map((application) => {
-            return (
-              application.reviews.reduce((a: number, b: { mark: number }) => {
-                return a + b.mark;
-              }, 0) / application.reviews.length
-            );
-          })
-          .filter((score) => !Number.isNaN(score)) || [];
-      const sum = scores.reduce(
-        (a: number, b: number) => (!Number.isNaN(b) ? a + b : a),
-        0
-      );
-      const avg = sum / scores.length || 0;
-      setMean(avg);
-
-      const mid = Math.floor(scores.length / 2);
-      const nums: number[] = [...scores].sort((a, b) => a - b);
-
-      const median: number =
-        (scores.length % 2 !== 0
-          ? nums[mid]
-          : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
-      setMedian(median);
+    if (isLoading) {
+      return;
     }
+
+    console.log(data);
+    const scores: number[] =
+      data?.data
+        .map((application) => {
+          return (
+            application.reviewer.reduce((a: number, b: { mark: number }) => {
+              return a + b.mark;
+            }, 0) / application.reviewer.length
+          );
+        })
+        .filter((score) => !Number.isNaN(score)) || [];
+    const sum = scores.reduce(
+      (a: number, b: number) => (!Number.isNaN(b) ? a + b : a),
+      0
+    );
+    const avg = sum / scores.length || 0;
+    setMean(avg);
+
+    const mid = Math.floor(scores.length / 2);
+    const nums: number[] = [...scores].sort((a, b) => a - b);
+
+    const median: number =
+      (scores.length % 2 !== 0
+        ? nums[mid]
+        : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
+    setMedian(median);
   }, [data, isLoading]);
 
   return (
@@ -92,9 +99,9 @@ const GradingPortal: NextPage = () => {
                 <div className="py-4">
                   {
                     // count how many applications have been reviewed
-                    // an application is considered reviewed if it has 3 or more reviews
+                    // an application is considered reviewed if it has 3 or more reviewers
                     data?.data.filter(
-                      (application) => application.reviews.length >= 3
+                      (application) => application.reviewer.length >= 3
                     ).length
                   }{" "}
                   / {data?.data.length} Applications Reviewed <br />
@@ -119,15 +126,13 @@ const GradingPortal: NextPage = () => {
               </thead>
               <tbody className="text-white">
                 {!isLoading
-                  ? data?.data.map(
-                      (application: TypeFormSubmission, index: number) => (
-                        <Applicant
-                          key={application.response_id}
-                          applicant={application}
-                          index={index + 1}
-                        />
-                      )
-                    )
+                  ? data?.data.map((application, index: number) => (
+                      <Applicant
+                        key={application.id}
+                        applicant={application}
+                        index={index + 1}
+                      />
+                    ))
                   : null}
               </tbody>
             </table>

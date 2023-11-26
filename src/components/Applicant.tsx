@@ -52,16 +52,22 @@ const Applicant = ({
 
   const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
-  useEffect(() => {
-    setAlreadyReviewed(
-      applicant.reviews.length > 2 ||
-        applicant.reviews.some(
-          (review) => review.reviewer.id === session.data?.user?.id
-        )
-    );
-  }, [applicant.reviews, session.data?.user?.id]);
+  // useEffect(() => {
+  //   setAlreadyReviewed(
+  //     applicant.reviews.length > 2 ||
+  //       applicant.reviews.some(
+  //         (review) => review.reviewer.id === session.data?.user?.id
+  //       )
+  //   );
+  // }, [applicant.reviews, session.data?.user?.id]);
 
-  return <>THIS PAGE IS UNDER CONSTRUCTION</>;
+  return (
+    <tr className="bg-black text-left">
+      <td className="border border-slate-800 p-3">
+        THIS PAGE IS UNDER CONSTRUCTION
+      </td>
+    </tr>
+  );
 
   return (
     <>
