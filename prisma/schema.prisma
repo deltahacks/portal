@@ -2,6 +2,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider                  = "zod-prisma-types"
+  output                    = "./zod"
+  useMultipleFiles          = true
+  createInputTypes          = false
+  createRelationValuesTypes = true
+  coerceDate                = true
+}
+
 datasource db {
   provider = "cockroachdb"
   url      = env("DATABASE_URL")
@@ -105,30 +114,31 @@ enum Status {
   CHECKED_IN
 }
 
+/// @zod.import(["import isMobilePhone from 'validator/lib/isMobilePhone'", "import { validateAgeRange, validateWordLength, validateIsTrue, transformString } from '../../../src/utils/zodValidators'"])
 model DH10Application {
   id String @id @default(cuid())
 
-  firstName String
-  lastName  String
+  firstName String /// @zod.string.min(1).max(255)
+  lastName  String /// @zod.string.min(1).max(255)
 
-  birthday DateTime
+  birthday DateTime /// @zod.custom.use(z.coerce.date().refine((date) => validateAgeRange(date, 13), { message: "You must be at least 13 years old" }))
 
   studyEnrolledPostSecondary Boolean
-  studyLocation              String?
-  studyDegree                String?
-  studyMajor                 String?
+  studyLocation              String? /// @zod.string.min(1).max(255)
+  studyDegree                String? /// @zod.string.min(1).max(255)
+  studyMajor                 String? /// @zod.string.min(1).max(255)
   studyYearOfStudy           String?
   studyExpectedGraduation    DateTime?
 
-  previousHackathonsCount Int
+  previousHackathonsCount Int /// @zod.number.int().min(0)
 
-  longAnswerChange     String
-  longAnswerExperience String
-  longAnswerTech       String
-  longAnswerMagic      String
+  longAnswerChange     String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerExperience String /// @zod.string.min(1, { message: "An answer is required for this question" })
+  longAnswerTech       String /// @zod.string.min(1, { message: "An answer is required for this question" })
+  longAnswerMagic      String /// @zod.string.min(1, { message: "An answer is required for this question" })
 
-  socialText String?
-  interests  String?
+  socialText String? /// @zod.custom.use(z.string().transform(transformString))
+  interests  String? /// @zod.custom.use(z.string().refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformString))
 
   linkToResume String?
 
@@ -136,18 +146,18 @@ model DH10Application {
   hackerKind      String
   alreadyHaveTeam Boolean
   workshopChoices String[]
-  discoverdFrom   String[]
+  discoverdFrom   String[] /// @zod.string.min(1).max(255).array
   considerCoffee  Boolean
   gender          String
-  race            String
+  race            String /// @zod.string.min(1).max(255)
   macEv           Boolean  @default(false)
 
-  emergencyContactName     String
-  emergencyContactPhone    String
-  emergencyContactRelation String
+  emergencyContactName     String /// @zod.string.min(1)
+  emergencyContactPhone    String /// @zod.custom.use(z.string().refine(isMobilePhone, { message: "Invalid phone number" }))
+  emergencyContactRelation String /// @zod.string.min(1)
 
-  agreeToMLHCodeOfConduct  Boolean
-  agreeToMLHPrivacyPolicy  Boolean
+  agreeToMLHCodeOfConduct  Boolean /// @zod.custom.use(z.boolean().refine(validateIsTrue, { message: "You must agree to the MLG Code of Conduct"}))
+  agreeToMLHPrivacyPolicy  Boolean /// @zod.custom.use(z.boolean().refine(validateIsTrue, { message: "You must agree to the MLG Privacy Policy"}))
   agreeToMLHCommunications Boolean
 
   User User?
