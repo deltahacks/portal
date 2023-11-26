@@ -64,4 +64,4 @@ We recommend using [VSCode](https://code.visualstudio.com/) with the [Tailwind C
 
 ## Get In Touch
 
-To get in touch, please open an issue or contact us at [hello@deltahacks.com](mailto:hello@deltahacks.com)
+To get in touch, please open an issue or contact us at [tech@deltahacks.com](mailto:tech@deltahacks.com)

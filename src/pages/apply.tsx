@@ -189,7 +189,6 @@ const ApplyForm = ({
     isError,
   } = trpc.application.submitDh10.useMutation({
     onSuccess: async () => {
-      // remove the local storage key
       await router.push("/dashboard");
     },
   });
@@ -720,7 +719,7 @@ const ApplyForm = ({
       {isError && (
         <div className="alert alert-error mb-4 justify-normal text-center">
           There was an error submitting your application. Please try again. If
-          this error persists, please contact us at hello@deltahacks.com
+          this error persists, please contact us at tech@deltahacks.com
         </div>
       )}
     </form>
@@ -779,7 +778,7 @@ const Apply: NextPage<
                     Applications are currently closed due to technical
                     difficulties. Please check back later. If this error
                     persists, please contact us at{" "}
-                    <span className="font-bold">hello@deltahacks.com</span>
+                    <span className="font-bold">tech@deltahacks.com</span>
                   </span>
                 </div>
               </div>

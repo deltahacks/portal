@@ -23,8 +23,8 @@ const Content = () => {
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-2xl lg:leading-tight 2xl:pt-10 2xl:text-2xl">
         If you have any questions, you can <br />
         reach us at{" "}
-        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-          hello@deltahacks.com
+        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+          tech@deltahacks.com
         </a>
       </div>
       <div className="flex flex-col gap-3 pt-6 md:flex-row lg:pt-8 2xl:pt-10">
