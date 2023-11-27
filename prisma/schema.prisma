@@ -56,12 +56,12 @@ model User {
   accounts             Account[]
   sessions             Session[]
   typeform_response_id String?
-  role                 Role[]     @default([HACKER])
+  role                 Role[]     @default([HACKER]) /// @zod.cusom.use(RoleSchema.array().default(["HACKER"]))
   hacker               Review[]   @relation("hacker")
   reviewer             Review[]   @relation("reviewer")
-  status               Status     @default(IN_REVIEW)
+  status               Status     @default(IN_REVIEW) /// @zod.custom.use(StatusSchema.default("IN_REVIEW"))
   qrcode               Int?       @unique
-  mealsTaken           Int        @default(0)
+  mealsTaken           Int        @default(0) /// @zod.custom.use(z.number().int().default(0))
   lastMealTaken        DateTime?
   EventLog             EventLog[]
 
@@ -73,7 +73,7 @@ model Review {
   id         String @id @default(cuid())
   hackerId   String
   reviewerId String
-  mark       Float  @default(0)
+  mark       Float  @default(0) /// @zod.custom.use(z.number().default(0))
 
   hacker   User @relation("hacker", fields: [hackerId], references: [id], onDelete: Cascade)
   reviewer User @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
@@ -83,7 +83,7 @@ model EventLog {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  timestamp DateTime @default(now())
+  timestamp DateTime @default(now()) /// @zod.custom.use(z.coerce.date().default(new Date()))
   event     String
 }
 
@@ -150,7 +150,7 @@ model DH10Application {
   considerCoffee  Boolean
   gender          String
   race            String /// @zod.string.min(1).max(255)
-  macEv           Boolean  @default(false)
+  macEv           Boolean  @default(false) /// @zod.custom.use(z.boolean().default(false))
 
   emergencyContactName     String /// @zod.string.min(1)
   emergencyContactPhone    String /// @zod.custom.use(z.string().refine(isMobilePhone, { message: "Invalid phone number" }))
