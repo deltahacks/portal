@@ -114,14 +114,14 @@ enum Status {
   CHECKED_IN
 }
 
-/// @zod.import(["import isMobilePhone from 'validator/lib/isMobilePhone'", "import { validateAgeRange, validateWordLength, validateIsTrue, transformStringToNullIfEmpty } from '../../../src/utils/zodValidators'"])
+/// @zod.import(["import isMobilePhone from 'validator/lib/isMobilePhone'", "import { refineAgeRange, refineWordLength, refineIsTrue, transformStringToNullIfEmpty } from '../../../src/utils/zodValidators'"])
 model DH10Application {
   id String @id @default(cuid())
 
   firstName String /// @zod.string.min(1).max(255)
   lastName  String /// @zod.string.min(1).max(255)
 
-  birthday DateTime /// @zod.custom.use(z.coerce.date().refine((date) => validateAgeRange(date, 13), { message: "You must be at least 13 years old" }))
+  birthday DateTime /// @zod.custom.use(z.coerce.date().refine((date) => refineAgeRange(date, 13), { message: "You must be at least 13 years old" }))
 
   studyEnrolledPostSecondary Boolean
   studyLocation              String? /// @zod.string.min(1).max(255)
@@ -132,13 +132,13 @@ model DH10Application {
 
   previousHackathonsCount Int /// @zod.custom.use(z.coerce.number().int().min(0))
 
-  longAnswerChange     String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
-  longAnswerExperience String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
-  longAnswerTech       String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
-  longAnswerMagic      String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerChange     String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerExperience String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerTech       String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerMagic      String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
 
   socialText String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
-  interests  String? /// @zod.custom.use(z.string().refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformStringToNullIfEmpty))
+  interests  String? /// @zod.custom.use(z.string().refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformStringToNullIfEmpty))
 
   linkToResume String?
 
@@ -156,8 +156,8 @@ model DH10Application {
   emergencyContactPhone    String /// @zod.custom.use(z.string().refine(isMobilePhone, { message: "Invalid phone number" }))
   emergencyContactRelation String /// @zod.string.min(1)
 
-  agreeToMLHCodeOfConduct  Boolean /// @zod.custom.use(z.boolean().refine(validateIsTrue, { message: "You must agree to the MLG Code of Conduct"}))
-  agreeToMLHPrivacyPolicy  Boolean /// @zod.custom.use(z.boolean().refine(validateIsTrue, { message: "You must agree to the MLG Privacy Policy"}))
+  agreeToMLHCodeOfConduct  Boolean /// @zod.custom.use(z.boolean().refine(refineIsTrue, { message: "You must agree to the MLG Code of Conduct"}))
+  agreeToMLHPrivacyPolicy  Boolean /// @zod.custom.use(z.boolean().refine(refineIsTrue, { message: "You must agree to the MLG Privacy Policy"}))
   agreeToMLHCommunications Boolean
 
   User User?

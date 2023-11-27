@@ -1,4 +1,4 @@
-export const validateAgeRange = (date: Date, min: number, max = -1) => {
+export const refineAgeRange = (date: Date, min: number, max = -1) => {
   // parse date
   // make sure over 15
   const now = new Date();
@@ -10,11 +10,11 @@ export const validateAgeRange = (date: Date, min: number, max = -1) => {
   return min <= age && age <= max;
 };
 
-export const validateWordLength = (sentence: string, limit: number) => {
+export const refineWordLength = (sentence: string, limit: number) => {
   return sentence.split(/\s/g).length <= limit;
 };
 
-export const validateIsTrue = (isTrue: boolean) => {
+export const refineIsTrue = (isTrue: boolean) => {
   return isTrue === true;
 };
 
