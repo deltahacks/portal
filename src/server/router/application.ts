@@ -8,7 +8,7 @@ import type {
 } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
-import applicationSchema from "../../schemas/application";
+import { DH10ApplicationSchema } from "../../../prisma/zod";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -310,7 +310,7 @@ export const applicationRouter = router({
       return {};
     }
 
-    const pt = applicationSchema.partial();
+    const pt = DH10ApplicationSchema.partial();
 
     type AutofillType = z.infer<typeof pt>;
 
@@ -323,7 +323,9 @@ export const applicationRouter = router({
       autofill["lastName"] = converted.lastName;
     }
     if (converted.birthday !== undefined) {
-      autofill["birthday"] = converted.birthday.toISOString().slice(0, 10);
+      autofill["birthday"] = new Date(
+        converted.birthday.toISOString().slice(0, 10)
+      );
     }
 
     if (converted.major !== "N/A") {
@@ -336,9 +338,9 @@ export const applicationRouter = router({
       autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
     }
     if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = converted.graduationYear
-        .toISOString()
-        .slice(0, 10);
+      autofill["studyExpectedGraduation"] = new Date(
+        converted.graduationYear.toISOString().slice(0, 10)
+      );
     }
     if (converted.degree !== "N/A") {
       autofill["studyDegree"] = converted.degree;
@@ -385,7 +387,7 @@ export const applicationRouter = router({
     return autofill;
   }),
   submitDh10: protectedProcedure
-    .input(applicationSchema)
+    .input(DH10ApplicationSchema)
     .mutation(async ({ ctx, input }) => {
       // make sure there is no existing application
 
