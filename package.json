@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\"",
+    "prisma:generate-and-format": "prisma generate && prettier --write prisma/zod/* "
   },
   "dependencies": {
     "@babel/plugin-transform-react-display-name": "^7.23.3",

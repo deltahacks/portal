@@ -130,12 +130,12 @@ model DH10Application {
   studyYearOfStudy           String?
   studyExpectedGraduation    DateTime?
 
-  previousHackathonsCount Int /// @zod.number.int().min(0)
+  previousHackathonsCount Int /// @zod.custom.use(z.coerce.number().int().min(0))
 
   longAnswerChange     String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
-  longAnswerExperience String /// @zod.string.min(1, { message: "An answer is required for this question" })
-  longAnswerTech       String /// @zod.string.min(1, { message: "An answer is required for this question" })
-  longAnswerMagic      String /// @zod.string.min(1, { message: "An answer is required for this question" })
+  longAnswerExperience String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerTech       String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerMagic      String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
 
   socialText String? /// @zod.custom.use(z.string().transform(transformString))
   interests  String? /// @zod.custom.use(z.string().refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformString))
