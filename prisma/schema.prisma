@@ -114,7 +114,7 @@ enum Status {
   CHECKED_IN
 }
 
-/// @zod.import(["import isMobilePhone from 'validator/lib/isMobilePhone'", "import { validateAgeRange, validateWordLength, validateIsTrue, transformString } from '../../../src/utils/zodValidators'"])
+/// @zod.import(["import isMobilePhone from 'validator/lib/isMobilePhone'", "import { validateAgeRange, validateWordLength, validateIsTrue, transformStringToNullIfEmpty } from '../../../src/utils/zodValidators'"])
 model DH10Application {
   id String @id @default(cuid())
 
@@ -137,8 +137,8 @@ model DH10Application {
   longAnswerTech       String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
   longAnswerMagic      String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }))
 
-  socialText String? /// @zod.custom.use(z.string().transform(transformString))
-  interests  String? /// @zod.custom.use(z.string().refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformString))
+  socialText String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
+  interests  String? /// @zod.custom.use(z.string().refine((val) => validateWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformStringToNullIfEmpty))
 
   linkToResume String?
 
