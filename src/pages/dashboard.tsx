@@ -13,7 +13,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
-import { Status } from "@prisma/client";
+import { StatusType } from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
 
@@ -402,14 +402,13 @@ const Dashboard: NextPage<
 
   const { data: session } = useSession();
 
-  const stateMap = {
-    [Status.IN_REVIEW]: <InReview />,
-    [Status.ACCEPTED]: <Accepted />,
-    [Status.WAITLISTED]: <Waitlisted />,
-    [Status.REJECTED]: <Rejected />,
-    [Status.RSVP]: <RSVPed />,
-    [Status.CHECKED_IN]: <CheckedIn />,
-  };
+  const stateMap = new Map<StatusType, JSX.Element>();
+  stateMap.set("IN_REVIEW", <InReview />);
+  stateMap.set("ACCEPTED", <Accepted />);
+  stateMap.set("WAITLISTED", <Waitlisted />);
+  stateMap.set("REJECTED", <Rejected />);
+  stateMap.set("RSVP", <RSVPed />);
+  stateMap.set("CHECKED_IN", <CheckedIn />);
 
   return (
     <>
@@ -422,7 +421,7 @@ const Dashboard: NextPage<
           <Background />
           <NavBar />
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            {stateMap[props.status]}
+            {stateMap.get(props.status)}
           </main>
           <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />

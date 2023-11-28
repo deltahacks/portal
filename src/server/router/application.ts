@@ -1,4 +1,4 @@
-import { Prisma, Status } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import type {
@@ -9,6 +9,7 @@ import type {
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
 import { DH10ApplicationSchema } from "../../../prisma/zod";
+import { StatusType } from "../../../prisma/zod/inputTypeSchemas/StatusSchema";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -62,7 +63,7 @@ export const applicationRouter = router({
     const rsvp_count =
       (await ctx.prisma.user.count({
         where: {
-          status: Status.RSVP,
+          status: "Status" as StatusType,
         },
       })) || 0;
 
@@ -98,13 +99,13 @@ export const applicationRouter = router({
       where: { id: ctx.session.user.id },
     });
 
-    if (user?.status != Status.ACCEPTED) {
+    if (user?.status != ("ACCEPTED" as StatusType)) {
       throw new Error("Unauthorized call");
     }
 
     await ctx.prisma?.user.update({
       where: { id: ctx.session.user.id },
-      data: { status: Status.RSVP },
+      data: { status: "RSVP" as StatusType },
     });
   }),
   submit: protectedProcedure
@@ -150,7 +151,7 @@ export const applicationRouter = router({
         where: { id: ctx.session.user.id },
         data: {
           qrcode: input,
-          status: Status.CHECKED_IN,
+          status: "CHECKED_IN" as StatusType,
         },
       });
     }),
@@ -420,7 +421,7 @@ export const applicationRouter = router({
 
       const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW },
+        data: { status: "IN_REVIEW" as StatusType },
       });
 
       await ctx.logsnag.track({
@@ -451,7 +452,7 @@ export const applicationRouter = router({
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW }, // Replace with the correct status
+        data: { status: "IN_REVIEW" as StatusType }, // Replace with the correct status
       });
       // create logsnag log
       await ctx.logsnag.track({
