@@ -56,10 +56,10 @@ model User {
   accounts             Account[]
   sessions             Session[]
   typeform_response_id String?
-  role                 Role[]     @default([HACKER]) /// @zod.cusom.use(RoleSchema.array().default(["HACKER"]))
+  role                 Role[]     @default([HACKER])
   hacker               Review[]   @relation("hacker")
   reviewer             Review[]   @relation("reviewer")
-  status               Status     @default(IN_REVIEW) /// @zod.custom.use(StatusSchema.default("IN_REVIEW"))
+  status               Status     @default(IN_REVIEW)
   qrcode               Int?       @unique
   mealsTaken           Int        @default(0) /// @zod.custom.use(z.number().int().default(0))
   lastMealTaken        DateTime?
