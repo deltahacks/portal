@@ -13,7 +13,9 @@ import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
-import { StatusType } from "../../prisma/zod/inputTypeSchemas/StatusSchema";
+import StatusSchema, {
+  StatusType,
+} from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
 
@@ -403,12 +405,12 @@ const Dashboard: NextPage<
   const { data: session } = useSession();
 
   const stateMap = new Map<StatusType, JSX.Element>();
-  stateMap.set("IN_REVIEW", <InReview />);
-  stateMap.set("ACCEPTED", <Accepted />);
-  stateMap.set("WAITLISTED", <Waitlisted />);
-  stateMap.set("REJECTED", <Rejected />);
-  stateMap.set("RSVP", <RSVPed />);
-  stateMap.set("CHECKED_IN", <CheckedIn />);
+  stateMap.set(StatusSchema.Enum.IN_REVIEW, <InReview />);
+  stateMap.set(StatusSchema.Enum.ACCEPTED, <Accepted />);
+  stateMap.set(StatusSchema.Enum.WAITLISTED, <Waitlisted />);
+  stateMap.set(StatusSchema.Enum.REJECTED, <Rejected />);
+  stateMap.set(StatusSchema.Enum.RSVP, <RSVPed />);
+  stateMap.set(StatusSchema.Enum.CHECKED_IN, <CheckedIn />);
 
   return (
     <>

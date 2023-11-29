@@ -11,7 +11,9 @@ import Link from "next/link";
 import Background from "../components/Background";
 import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
-import { StatusType } from "../../prisma/zod/inputTypeSchemas/StatusSchema";
+import StatusSchema, {
+  StatusType,
+} from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 import dynamic from "next/dynamic";
 import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
@@ -192,12 +194,12 @@ const Checkin: NextPage = () => {
     trpc.application.status.useQuery();
 
   const stateMap = new Map<StatusType, JSX.Element>();
-  stateMap.set("IN_REVIEW", <PreCheckedIn />);
-  stateMap.set("ACCEPTED", <PreCheckedIn />);
-  stateMap.set("WAITLISTED", <PreCheckedIn />);
-  stateMap.set("REJECTED", <PreCheckedIn />);
-  stateMap.set("RSVP", <PreCheckedIn />);
-  stateMap.set("CHECKED_IN", <PostCheckedIn />);
+  stateMap.set(StatusSchema.Enum.IN_REVIEW, <PreCheckedIn />);
+  stateMap.set(StatusSchema.Enum.ACCEPTED, <PreCheckedIn />);
+  stateMap.set(StatusSchema.Enum.WAITLISTED, <PreCheckedIn />);
+  stateMap.set(StatusSchema.Enum.REJECTED, <PreCheckedIn />);
+  stateMap.set(StatusSchema.Enum.RSVP, <PreCheckedIn />);
+  stateMap.set(StatusSchema.Enum.CHECKED_IN, <PostCheckedIn />);
 
   return (
     <>

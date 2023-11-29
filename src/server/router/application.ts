@@ -9,7 +9,7 @@ import type {
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
 import { DH10ApplicationSchema } from "../../../prisma/zod";
-import { StatusType } from "../../../prisma/zod/inputTypeSchemas/StatusSchema";
+import { StatusSchema } from "../../../prisma/zod";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -63,7 +63,7 @@ export const applicationRouter = router({
     const rsvp_count =
       (await ctx.prisma.user.count({
         where: {
-          status: "Status" as StatusType,
+          status: StatusSchema.Enum.RSVP,
         },
       })) || 0;
 
@@ -99,13 +99,13 @@ export const applicationRouter = router({
       where: { id: ctx.session.user.id },
     });
 
-    if (user?.status != ("ACCEPTED" as StatusType)) {
+    if (user?.status != StatusSchema.Enum.ACCEPTED) {
       throw new Error("Unauthorized call");
     }
 
     await ctx.prisma?.user.update({
       where: { id: ctx.session.user.id },
-      data: { status: "RSVP" as StatusType },
+      data: { status: StatusSchema.Enum.RSVP },
     });
   }),
   submit: protectedProcedure
@@ -151,7 +151,7 @@ export const applicationRouter = router({
         where: { id: ctx.session.user.id },
         data: {
           qrcode: input,
-          status: "CHECKED_IN" as StatusType,
+          status: StatusSchema.Enum.CHECKED_IN,
         },
       });
     }),
@@ -421,7 +421,7 @@ export const applicationRouter = router({
 
       const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: "IN_REVIEW" as StatusType },
+        data: { status: StatusSchema.Enum.IN_REVIEW },
       });
 
       await ctx.logsnag.track({
@@ -452,7 +452,7 @@ export const applicationRouter = router({
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: "IN_REVIEW" as StatusType }, // Replace with the correct status
+        data: { status: StatusSchema.Enum.IN_REVIEW }, // Replace with the correct status
       });
       // create logsnag log
       await ctx.logsnag.track({
