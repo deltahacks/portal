@@ -1,7 +1,7 @@
-import { Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
+import { RoleSchema } from "../../../prisma/zod";
 
 export const eventsRouter = router({
   checkin: protectedProcedure
@@ -14,8 +14,8 @@ export const eventsRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.EVENT_MANAGER)
+          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+          ctx.session.user.role.includes(RoleSchema.Enum.EVENT_MANAGER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
