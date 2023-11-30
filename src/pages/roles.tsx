@@ -1,16 +1,14 @@
-import { User } from "@prisma/client";
 import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
   NextPage,
 } from "next";
 import { useState } from "react";
+import { User, RoleSchema } from "../../prisma/zod";
+import { RoleType } from "../../prisma/zod/inputTypeSchemas/RoleSchema";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
-import RoleSchema, {
-  RoleType,
-} from "../../prisma/zod/inputTypeSchemas/RoleSchema";
 import {
   FiPlusCircle,
   FiMinusCircle,
@@ -209,7 +207,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
-    ["ADMIN"],
+    [RoleSchema.Enum.ADMIN],
     undefined,
     output
   );

@@ -4,6 +4,7 @@ import {
   NextPage,
 } from "next";
 import Link from "next/link";
+import { RoleSchema } from "../../prisma/zod";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
@@ -47,7 +48,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
-    ["ADMIN"],
+    [RoleSchema.Enum.ADMIN],
     undefined,
     output
   );

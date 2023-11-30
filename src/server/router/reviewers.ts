@@ -186,8 +186,8 @@ export const reviewerRouter = router({
   getApplications: protectedProcedure.query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes("ADMIN") ||
-        ctx.session.user.role.includes("REVIEWER")
+        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -296,8 +296,8 @@ export const reviewerRouter = router({
   getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes("ADMIN") ||
-        ctx.session.user.role.includes("REVIEWER")
+        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -409,8 +409,8 @@ export const reviewerRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes("ADMIN") ||
-          ctx.session.user.role.includes("REVIEWER")
+          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+          ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });

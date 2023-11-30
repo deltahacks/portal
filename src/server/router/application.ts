@@ -8,8 +8,11 @@ import type {
 } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
-import { DH10ApplicationSchema } from "../../../prisma/zod";
-import { StatusSchema } from "../../../prisma/zod";
+import {
+  DH10ApplicationSchema,
+  StatusSchema,
+  RoleSchema,
+} from "../../../prisma/zod";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -54,8 +57,8 @@ export const applicationRouter = router({
   rsvpCount: protectedProcedure.output(z.number()).query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes("ADMIN") ||
-        ctx.session.user.role.includes("REVIEWER")
+        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });

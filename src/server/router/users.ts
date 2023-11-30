@@ -24,7 +24,7 @@ export const userRouter = router({
       });
     }),
   addRole: protectedProcedure
-    .input(z.object({ id: z.string(), role: RoleSchema }))
+    .input(z.object({ id: z.string().cuid().optional(), role: RoleSchema }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(RoleSchema.Enum.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -47,7 +47,7 @@ export const userRouter = router({
       });
     }),
   removeRole: protectedProcedure
-    .input(z.object({ id: z.string(), role: RoleSchema }))
+    .input(z.object({ id: z.string().cuid().optional(), role: RoleSchema }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(RoleSchema.Enum.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
