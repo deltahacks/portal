@@ -13,7 +13,9 @@ import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
-import { Status } from "@prisma/client";
+import StatusSchema, {
+  StatusType,
+} from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
 
@@ -402,14 +404,13 @@ const Dashboard: NextPage<
 
   const { data: session } = useSession();
 
-  const stateMap = {
-    [Status.IN_REVIEW]: <InReview />,
-    [Status.ACCEPTED]: <Accepted />,
-    [Status.WAITLISTED]: <Waitlisted />,
-    [Status.REJECTED]: <Rejected />,
-    [Status.RSVP]: <RSVPed />,
-    [Status.CHECKED_IN]: <CheckedIn />,
-  };
+  const stateMap = new Map<StatusType, JSX.Element>();
+  stateMap.set(StatusSchema.Enum.IN_REVIEW, <InReview />);
+  stateMap.set(StatusSchema.Enum.ACCEPTED, <Accepted />);
+  stateMap.set(StatusSchema.Enum.WAITLISTED, <Waitlisted />);
+  stateMap.set(StatusSchema.Enum.REJECTED, <Rejected />);
+  stateMap.set(StatusSchema.Enum.RSVP, <RSVPed />);
+  stateMap.set(StatusSchema.Enum.CHECKED_IN, <CheckedIn />);
 
   return (
     <>
@@ -422,7 +423,7 @@ const Dashboard: NextPage<
           <Background />
           <NavBar />
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            {stateMap[props.status]}
+            {stateMap.get(props.status)}
           </main>
           <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />

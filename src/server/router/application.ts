@@ -1,4 +1,4 @@
-import { Prisma, Status } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import type {
@@ -8,7 +8,11 @@ import type {
 } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
-import { ApplicationSchema } from "../../schemas/application";
+import {
+  DH10ApplicationSchema,
+  StatusSchema,
+  RoleSchema,
+} from "../../../prisma/zod";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -53,8 +57,8 @@ export const applicationRouter = router({
   rsvpCount: protectedProcedure.output(z.number()).query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes("ADMIN") ||
-        ctx.session.user.role.includes("REVIEWER")
+        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -62,7 +66,7 @@ export const applicationRouter = router({
     const rsvp_count =
       (await ctx.prisma.user.count({
         where: {
-          status: Status.RSVP,
+          status: StatusSchema.Enum.RSVP,
         },
       })) || 0;
 
@@ -98,13 +102,13 @@ export const applicationRouter = router({
       where: { id: ctx.session.user.id },
     });
 
-    if (user?.status != Status.ACCEPTED) {
+    if (user?.status != StatusSchema.Enum.ACCEPTED) {
       throw new Error("Unauthorized call");
     }
 
     await ctx.prisma?.user.update({
       where: { id: ctx.session.user.id },
-      data: { status: Status.RSVP },
+      data: { status: StatusSchema.Enum.RSVP },
     });
   }),
   submit: protectedProcedure
@@ -150,7 +154,7 @@ export const applicationRouter = router({
         where: { id: ctx.session.user.id },
         data: {
           qrcode: input,
-          status: Status.CHECKED_IN,
+          status: StatusSchema.Enum.CHECKED_IN,
         },
       });
     }),
@@ -310,7 +314,7 @@ export const applicationRouter = router({
       return {};
     }
 
-    const pt = ApplicationSchema.partial();
+    const pt = DH10ApplicationSchema.partial();
 
     type AutofillType = z.infer<typeof pt>;
 
@@ -323,7 +327,9 @@ export const applicationRouter = router({
       autofill["lastName"] = converted.lastName;
     }
     if (converted.birthday !== undefined) {
-      autofill["birthday"] = converted.birthday.toISOString().slice(0, 10);
+      autofill["birthday"] = new Date(
+        converted.birthday.toISOString().slice(0, 10)
+      );
     }
 
     if (converted.major !== "N/A") {
@@ -336,9 +342,9 @@ export const applicationRouter = router({
       autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
     }
     if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = converted.graduationYear
-        .toISOString()
-        .slice(0, 10);
+      autofill["studyExpectedGraduation"] = new Date(
+        converted.graduationYear.toISOString().slice(0, 10)
+      );
     }
     if (converted.degree !== "N/A") {
       autofill["studyDegree"] = converted.degree;
@@ -385,7 +391,7 @@ export const applicationRouter = router({
     return autofill;
   }),
   submitDh10: protectedProcedure
-    .input(ApplicationSchema)
+    .input(DH10ApplicationSchema)
     .mutation(async ({ ctx, input }) => {
       // make sure there is no existing application
 
@@ -418,7 +424,7 @@ export const applicationRouter = router({
 
       const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW },
+        data: { status: StatusSchema.Enum.IN_REVIEW },
       });
 
       await ctx.logsnag.track({
@@ -449,7 +455,7 @@ export const applicationRouter = router({
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW }, // Replace with the correct status
+        data: { status: StatusSchema.Enum.IN_REVIEW }, // Replace with the correct status
       });
       // create logsnag log
       await ctx.logsnag.track({

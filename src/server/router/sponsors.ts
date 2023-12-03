@@ -1,10 +1,10 @@
 import * as sgMail from "@sendgrid/mail";
-import { Role } from "@prisma/client";
 import { z } from "zod";
 import type { TypeFormResponse, TypeFormResponseField } from "./reviewers";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
+import { RoleSchema } from "../../../prisma/zod";
 
 export const options = {
   method: "GET",
@@ -37,8 +37,8 @@ export const sponsorRouter = router({
     .query(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.SPONSER)
+          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+          ctx.session.user.role.includes(RoleSchema.Enum.SPONSER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -92,8 +92,8 @@ export const sponsorRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.SPONSER)
+          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+          ctx.session.user.role.includes(RoleSchema.Enum.SPONSER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });

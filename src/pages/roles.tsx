@@ -1,10 +1,11 @@
-import { Role, User } from "@prisma/client";
 import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
   NextPage,
 } from "next";
 import { useState } from "react";
+import { User, RoleSchema } from "../../prisma/zod";
+import { RoleType } from "../../prisma/zod/inputTypeSchemas/RoleSchema";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
@@ -23,7 +24,7 @@ enum ActionType {
 type Action = {
   actionType: ActionType;
   user: User;
-  role: Role | undefined;
+  role: RoleType | undefined;
 };
 
 const Roles: NextPage = () => {
@@ -32,10 +33,10 @@ const Roles: NextPage = () => {
   const [action, setAction] = useState<Action | undefined>(undefined);
 
   const { data, isLoading, isError, refetch } = trpc.user.byRole.useQuery({
-    role: role ? (role.toUpperCase() as keyof typeof Role) : null,
+    role: role ? (role.toUpperCase() as RoleType) : null,
   });
 
-  const role_options = Object.keys(Role);
+  const roleOptions = Object.keys(RoleSchema.Enum);
   const addRole = trpc.user.addRole.useMutation();
   const removeRole = trpc.user.removeRole.useMutation();
 
@@ -144,14 +145,14 @@ const Roles: NextPage = () => {
                           tabIndex={0}
                           className="menu dropdown-content w-52 rounded-box bg-base-100 p-2 shadow"
                         >
-                          {role_options.map((role, idx) => {
+                          {roleOptions.map((role, idx) => {
                             return (
                               <li key={idx}>
                                 <option
                                   onClick={async (e) => {
                                     await addRole.mutateAsync({
                                       id: user.id,
-                                      role: e.currentTarget.value.toUpperCase() as keyof typeof Role,
+                                      role: e.currentTarget.value.toUpperCase() as RoleType,
                                     });
                                     setAction(undefined);
                                     await refetch();
@@ -206,7 +207,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
-    ["ADMIN"],
+    [RoleSchema.Enum.ADMIN],
     undefined,
     output
   );

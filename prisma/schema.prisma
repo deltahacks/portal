@@ -2,6 +2,16 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider                  = "zod-prisma-types"
+  output                    = "./zod"
+  useMultipleFiles          = true
+  createInputTypes          = false
+  createRelationValuesTypes = true
+  coerceDate                = true
+  writeNullishInModelTypes  = true
+}
+
 datasource db {
   provider = "cockroachdb"
   url      = env("DATABASE_URL")
@@ -9,7 +19,8 @@ datasource db {
 
 // Necessary for Next auth
 model Account {
-  id                       String  @id @default(cuid())
+  // Make id optional so that frontend need not provide the id
+  id                       String  @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
   userId                   String
   type                     String
   provider                 String
@@ -31,7 +42,8 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  // Make id optional so that frontend need not provide the id
+  id           String   @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -39,7 +51,8 @@ model Session {
 }
 
 model User {
-  id                   String     @id @default(cuid())
+  // Make id optional so that frontend need not provide the id
+  id                   String     @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
   name                 String?
   email                String?    @unique
   emailVerified        DateTime?
@@ -52,7 +65,7 @@ model User {
   reviewer             Review[]   @relation("reviewer")
   status               Status     @default(IN_REVIEW)
   qrcode               Int?       @unique
-  mealsTaken           Int        @default(0)
+  mealsTaken           Int        @default(0) /// @zod.custom.use(z.number().int().default(0).optional())
   lastMealTaken        DateTime?
   EventLog             EventLog[]
 
@@ -61,20 +74,22 @@ model User {
 }
 
 model Review {
-  id         String @id @default(cuid())
+  // Make id optional so that frontend need not provide the id
+  id         String @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
   hackerId   String
   reviewerId String
-  mark       Float  @default(0)
+  mark       Float  @default(0) /// @zod.custom.use(z.number().default(0).optional())
 
   hacker   User @relation("hacker", fields: [hackerId], references: [id], onDelete: Cascade)
   reviewer User @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
 }
 
 model EventLog {
-  id        String   @id @default(cuid())
+  // Make id optional so that frontend need not provide the id
+  id        String   @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  timestamp DateTime @default(now())
+  timestamp DateTime @default(now()) /// @zod.custom.use(z.coerce.date().default(new Date()).optional())
   event     String
 }
 
@@ -105,56 +120,59 @@ enum Status {
   CHECKED_IN
 }
 
+/// @zod.import(["import isMobilePhone from 'validator/lib/isMobilePhone'", "import { refineAgeRange, refineWordLength, refineIsTrue, transformStringToNullIfEmpty } from '../../../src/utils/zodValidators'"])
 model DH10Application {
-  id String @id @default(cuid())
+  // Make id optional so that frontend need not provide the id
+  id String @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
 
-  firstName String
-  lastName  String
+  firstName String /// @zod.string.min(1).max(255)
+  lastName  String /// @zod.string.min(1).max(255)
 
-  birthday DateTime
+  birthday DateTime /// @zod.custom.use(z.coerce.date().refine((date) => refineAgeRange(date, 13), { message: "You must be at least 13 years old" }))
 
   studyEnrolledPostSecondary Boolean
-  studyLocation              String?
-  studyDegree                String?
-  studyMajor                 String?
-  studyYearOfStudy           String?
+  studyLocation              String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
+  studyDegree                String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
+  studyMajor                 String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
+  studyYearOfStudy           String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
   studyExpectedGraduation    DateTime?
 
-  previousHackathonsCount Int
+  previousHackathonsCount Int /// @zod.custom.use(z.coerce.number().int().min(0))
 
-  longAnswerChange     String
-  longAnswerExperience String
-  longAnswerTech       String
-  longAnswerMagic      String
+  longAnswerChange     String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerExperience String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerTech       String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
+  longAnswerMagic      String /// @zod.custom.use(z.string().min(1, { message: "An answer is required for this question" }).refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }))
 
-  socialText String?
-  interests  String?
+  socialText String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
+  interests  String? /// @zod.custom.use(z.string().refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformStringToNullIfEmpty))
 
-  linkToResume String?
+  linkToResume String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
 
   tshirtSize      String
   hackerKind      String
   alreadyHaveTeam Boolean
   workshopChoices String[]
-  discoverdFrom   String[]
+  discoverdFrom   String[] /// @zod.string.min(1).max(255).array
   considerCoffee  Boolean
   gender          String
-  race            String
-  macEv           Boolean  @default(false)
+  race            String /// @zod.string.min(1).max(255)
+  macEv           Boolean  @default(false) /// @zod.custom.use(z.boolean().default(false).optional())
 
-  emergencyContactName     String
-  emergencyContactPhone    String
-  emergencyContactRelation String
+  emergencyContactName     String /// @zod.string.min(1)
+  emergencyContactPhone    String /// @zod.custom.use(z.string().refine(isMobilePhone, { message: "Invalid phone number" }))
+  emergencyContactRelation String /// @zod.string.min(1)
 
-  agreeToMLHCodeOfConduct  Boolean
-  agreeToMLHPrivacyPolicy  Boolean
+  agreeToMLHCodeOfConduct  Boolean /// @zod.custom.use(z.boolean().refine(refineIsTrue, { message: "You must agree to the MLG Code of Conduct"}))
+  agreeToMLHPrivacyPolicy  Boolean /// @zod.custom.use(z.boolean().refine(refineIsTrue, { message: "You must agree to the MLG Privacy Policy"}))
   agreeToMLHCommunications Boolean
 
   User User?
 }
 
 model Config {
-  id String @id @default(cuid())
+  // Make id optional so that frontend need not provide the id
+  id String @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
 
   name  String @unique
   value String

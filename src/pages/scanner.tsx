@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
@@ -14,6 +13,9 @@ import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import clsx from "clsx";
+import RoleSchema, {
+  RoleType,
+} from "../../prisma/zod/inputTypeSchemas/RoleSchema";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -282,7 +284,7 @@ const HackerView: React.FC = () => {
                   {socialInfo?.firstName}&nbsp;
                   {socialInfo?.lastName}
                 </h1>
-                {socialInfo?.role?.includes(Role.ADMIN) ? (
+                {socialInfo?.role?.includes(RoleSchema.Enum.ADMIN) ? (
                   <h2 className="text-md pt-1 font-normal dark:text-[#737373] sm:py-2 sm:pt-2 sm:text-lg lg:text-2xl lg:leading-tight 2xl:pt-4 2xl:text-3xl">
                     I am one of the <span className="text-[#f8d868]">Del</span>
                     <span className="text-[#eb4b63]">taha</span>
@@ -495,13 +497,13 @@ const EventsView: React.FC = () => {
 const Scanner: NextPage = () => {
   const { data: session, status } = useSession();
   // Add security guard and events people
-  const stateMap = new Map<string, React.ReactElement>();
-  stateMap.set(Role.ADMIN, <SponsorView />);
-  stateMap.set(Role.FOOD_MANAGER, <FoodManagerView />);
-  stateMap.set(Role.HACKER, <HackerView />);
-  stateMap.set(Role.REVIEWER, <FoodManagerView />);
-  stateMap.set(Role.EVENT_MANAGER, <EventsView />);
-  stateMap.set(Role.SPONSER, <SponsorView />);
+  const stateMap = new Map<RoleType, React.ReactElement>();
+  stateMap.set(RoleSchema.Enum.ADMIN, <SponsorView />);
+  stateMap.set(RoleSchema.Enum.FOOD_MANAGER, <FoodManagerView />);
+  stateMap.set(RoleSchema.Enum.HACKER, <HackerView />);
+  stateMap.set(RoleSchema.Enum.REVIEWER, <FoodManagerView />);
+  stateMap.set(RoleSchema.Enum.EVENT_MANAGER, <EventsView />);
+  stateMap.set(RoleSchema.Enum.SPONSER, <SponsorView />);
 
   const [selectedTab, setSelectedTab] = useState("HACKER");
 
@@ -536,7 +538,7 @@ const Scanner: NextPage = () => {
                         }
                         key={e}
                         onClick={() => {
-                          setSelectedTab(e as Role);
+                          setSelectedTab(e as RoleType);
                         }}
                       >
                         {e}
@@ -544,7 +546,7 @@ const Scanner: NextPage = () => {
                     );
                   })}
                 </div>
-                {stateMap.get(selectedTab) ?? <h1>Not Found</h1>}
+                {stateMap.get(selectedTab as RoleType) ?? <h1>Not Found</h1>}
               </>
             )}
           </main>

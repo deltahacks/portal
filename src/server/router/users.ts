@@ -1,14 +1,14 @@
-import { Role } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { RoleSchema } from "../../../prisma/zod";
 
 import { protectedProcedure, router } from "./trpc";
 
 export const userRouter = router({
   byRole: protectedProcedure
-    .input(z.object({ role: z.nullable(z.nativeEnum(Role)) }))
+    .input(z.object({ role: RoleSchema.nullable() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.session.user.role.includes(Role["ADMIN"])) {
+      if (!ctx.session.user.role.includes(RoleSchema.Enum.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -24,9 +24,9 @@ export const userRouter = router({
       });
     }),
   addRole: protectedProcedure
-    .input(z.object({ id: z.string(), role: z.nativeEnum(Role) }))
+    .input(z.object({ id: z.string().cuid().optional(), role: RoleSchema }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session.user.role.includes(Role["ADMIN"])) {
+      if (!ctx.session.user.role.includes(RoleSchema.Enum.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -47,9 +47,9 @@ export const userRouter = router({
       });
     }),
   removeRole: protectedProcedure
-    .input(z.object({ id: z.string(), role: z.nativeEnum(Role) }))
+    .input(z.object({ id: z.string().cuid().optional(), role: RoleSchema }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session.user.role.includes(Role["ADMIN"])) {
+      if (!ctx.session.user.role.includes(RoleSchema.Enum.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 

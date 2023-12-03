@@ -19,7 +19,7 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { Drawer } from "../components/NavBar";
-import applicationSchema from "../schemas/application";
+import { DH10ApplicationSchema } from "../../prisma/zod";
 import CustomSelect from "../components/CustomSelect";
 import {
   workshops,
@@ -37,8 +37,8 @@ import {
 } from "../data/applicationSelectData";
 import { useEffect } from "react";
 
-export type InputsType = z.infer<typeof applicationSchema>;
-const pt = applicationSchema.partial();
+export type InputsType = z.infer<typeof DH10ApplicationSchema>;
+const pt = DH10ApplicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
 
 interface FormInputProps {
@@ -174,7 +174,7 @@ const ApplyForm = ({
     setValue,
     formState: { errors },
   } = useForm<InputsType>({
-    resolver: zodResolver(applicationSchema),
+    resolver: zodResolver(DH10ApplicationSchema),
     defaultValues: {
       ...autofillData,
       studyEnrolledPostSecondary: true,
@@ -200,7 +200,7 @@ const ApplyForm = ({
   });
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
-    const processed = applicationSchema.parse(data);
+    const processed = DH10ApplicationSchema.parse(data);
 
     await submitAppAsync(processed);
   };

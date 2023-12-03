@@ -1,11 +1,9 @@
-import { User } from "@prisma/client";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { User } from "../../prisma/zod";
 import { trpc } from "../utils/trpc";
 import { TypeFormSubmission } from "../server/router/reviewers";
-
-import { Review } from "@prisma/client";
 
 interface IReview {
   id: string;
