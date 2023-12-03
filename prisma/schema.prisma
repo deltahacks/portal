@@ -9,6 +9,7 @@ generator zod {
   createInputTypes          = false
   createRelationValuesTypes = true
   coerceDate                = true
+  writeNullishInModelTypes  = true
 }
 
 datasource db {
@@ -130,10 +131,10 @@ model DH10Application {
   birthday DateTime /// @zod.custom.use(z.coerce.date().refine((date) => refineAgeRange(date, 13), { message: "You must be at least 13 years old" }))
 
   studyEnrolledPostSecondary Boolean
-  studyLocation              String? /// @zod.string.min(1).max(255)
-  studyDegree                String? /// @zod.string.min(1).max(255)
-  studyMajor                 String? /// @zod.string.min(1).max(255)
-  studyYearOfStudy           String?
+  studyLocation              String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
+  studyDegree                String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
+  studyMajor                 String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
+  studyYearOfStudy           String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
   studyExpectedGraduation    DateTime?
 
   previousHackathonsCount Int /// @zod.custom.use(z.coerce.number().int().min(0))
@@ -146,7 +147,7 @@ model DH10Application {
   socialText String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
   interests  String? /// @zod.custom.use(z.string().refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformStringToNullIfEmpty))
 
-  linkToResume String?
+  linkToResume String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
 
   tshirtSize      String
   hackerKind      String

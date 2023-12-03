@@ -18,6 +18,6 @@ export const refineIsTrue = (isTrue: boolean) => {
   return isTrue === true;
 };
 
-export const transformStringToNullIfEmpty = (value: string) => {
-  return value ?? null;
+export const transformStringToNullIfEmpty = (value: string | null) => {
+  return value === "" ? null : value;
 };
