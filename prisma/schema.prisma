@@ -54,7 +54,7 @@ model User {
   // Make id optional so that frontend need not provide the id
   id                   String     @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
   name                 String?
-  email                String?    @unique
+  email                String?    @unique /// @zod.string.email()
   emailVerified        DateTime?
   image                String?
   accounts             Account[]
