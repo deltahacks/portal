@@ -49,7 +49,6 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
     LogRocket.init("qhayjx/deltahacks-portal");
     setupLogRocketReact(LogRocket);
   }
-  console.log(env.NEXT_PUBLIC_URL);
 
   return (
     <SessionProvider session={session}>
@@ -68,9 +67,11 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
           />
           {/* open graph image */}
           <meta property="og:image" content={env.NEXT_PUBLIC_URL + "/og.png"} />
+
           {/* <!-- HTML Meta Tags --> */}
           <title>DeltaHacks X</title>
           <meta name="description" content="Hackathon for Change" />
+
           <meta property="og:url" content="https://portal.deltahacks.com" />
           <meta property="og:type" content="website" />
           <meta property="og:title" content="DeltaHacks X" />
@@ -79,6 +80,7 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             property="og:image"
             content="https://beta.portal.deltahacks.com/og.png"
           />
+
           <meta name="twitter:card" content="summary_large_image" />
           <meta
             property="twitter:domain"
@@ -94,16 +96,13 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             name="twitter:image"
             content="https://beta.portal.deltahacks.com/og.png"
           />
+
           <meta name="theme-color" content="#6419E6" />
           <meta name="msapplication-navbutton-color" content="#6419E6" />
           <meta
             name="apple-mobile-web-app-status-bar-style"
             content="#6419E6"
           />
-
-          {env.NEXT_PUBLIC_URL == "https://beta.portal.deltahacks.com" ? (
-            <meta name="robots" content="noindex" />
-          ) : null}
         </Head>
         <LogIdentifier />
         <Script
