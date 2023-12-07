@@ -1,9 +1,13 @@
 import { z } from "zod";
-import { env } from "../../env/server.mjs";
-import { User } from "@prisma/client";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
-import { RoleSchema, StatusSchema } from "../../../prisma/zod";
+import {
+  RoleSchema,
+  StatusSchema,
+  UserSchema,
+  DH10ApplicationSchema,
+} from "../../../prisma/zod";
+// import { DH10Application } from "@prisma/client";
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -163,47 +167,45 @@ const TypeFormSubmission = z.object({
 
 export type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
 
-export const reviewerRouter = router({
-  getApplications: protectedProcedure.query(async ({ ctx }) => {
-    if (
-      !(
-        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
-      )
-    ) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
+const UserWithApplication = UserSchema.merge(
+  z.object({
+    dh10application: DH10ApplicationSchema,
+  })
+);
 
-    const dbdata = await ctx.prisma.user.findMany({
-      where: {
-        dH10ApplicationId: {
-          not: null, // Ensures that users have a dhapplicationId
-        },
-      },
-      include: {
-        hacker: {
-          select: {
-            id: true,
-            hacker: true,
-            mark: true,
-            reviewer: true,
+export type UserWithApplication = z.infer<typeof UserWithApplication>;
+
+export const reviewerRouter = router({
+  getUsers: protectedProcedure.query(
+    async ({ ctx }): Promise<{ data: UserWithApplication[] }> => {
+      // async ({ ctx }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
+          ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const users = await ctx.prisma.user.findMany({
+        where: {
+          dH10ApplicationId: {
+            not: null,
           },
         },
-        dh10application: true,
-      },
-    });
+        include: {
+          dh10application: true,
+        },
+      });
 
-    const applicants = dbdata.map((item) => {
-      return {
-        id: item.id,
-        email: item.email,
-        reviewer: item.hacker,
-        dh10application: { ...item.dh10application },
-      };
-    });
+      const usersOutput: UserWithApplication[] = users.map((user) => {
+        return user as UserWithApplication;
+      });
 
-    return { data: applicants };
-  }),
+      return { data: usersOutput };
+    }
+  ),
   // getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
   //   if (
   //     !(

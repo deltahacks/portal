@@ -10,7 +10,6 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
-import { TypeFormSubmission } from "../server/router/reviewers";
 
 const getReviewedApplications = (applications: any) => {
   return applications.filter(
@@ -21,14 +20,7 @@ const getReviewedApplications = (applications: any) => {
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
 
-  // const appQuery = trpc.reviewer.getApplications.useQuery(undefined, {
-  //   enabled: !togglePriotity,
-  // });
-
-  // const data = appQuery.data;
-  // const isLoading = appQuery.isLoading;
-
-  const { data, isLoading } = trpc.reviewer.getApplications.useQuery();
+  const { data, isLoading } = trpc.reviewer.getUsers.useQuery();
 
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
@@ -36,37 +28,42 @@ const GradingPortal: NextPage = () => {
   const [median, setMedian] = useState<number>(0);
 
   useEffect(() => {
-    if (isLoading) {
-      return;
-    }
-
     console.log(data);
-    const scores: number[] =
-      data?.data
-        .map((application) => {
-          return (
-            application.reviewer.reduce((a: number, b: { mark: number }) => {
-              return a + b.mark;
-            }, 0) / application.reviewer.length
-          );
-        })
-        .filter((score) => !Number.isNaN(score)) || [];
-    const sum = scores.reduce(
-      (a: number, b: number) => (!Number.isNaN(b) ? a + b : a),
-      0
-    );
-    const avg = sum / scores.length || 0;
-    setMean(avg);
-
-    const mid = Math.floor(scores.length / 2);
-    const nums: number[] = [...scores].sort((a, b) => a - b);
-
-    const median: number =
-      (scores.length % 2 !== 0
-        ? nums[mid]
-        : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
-    setMedian(median);
   }, [data, isLoading]);
+
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     return;
+  //   }
+
+  //   const scores: number[] =
+  //     data?.data
+  //       .map((application) => {
+  //         return (
+  //           application.reviewer.reduce((a: number, b: { mark: number }) => {
+  //             return a + b.mark;
+  //           }, 0) / application.reviewer.length
+  //         );
+  //       })
+  //       .filter((score) => !Number.isNaN(score)) || [];
+  //   const sum = scores.reduce(
+  //     (a: number, b: number) => (!Number.isNaN(b) ? a + b : a),
+  //     0
+  //   );
+  //   const avg = sum / scores.length || 0;
+  //   setMean(avg);
+
+  //   const mid = Math.floor(scores.length / 2);
+  //   const nums: number[] = [...scores].sort((a, b) => a - b);
+
+  //   const median: number =
+  //     (scores.length % 2 !== 0
+  //       ? nums[mid]
+  //       : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
+  //   setMedian(median);
+  // }, [data, isLoading]);
+
+  return <>Under construction</>;
 
   return (
     <>
