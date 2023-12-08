@@ -13,166 +13,169 @@ import {
   assertWithTRPCError,
 } from "../../utils/assertions";
 
-const TypeFormResponseField = z.object({
-  field: z.object({
-    id: z.string(),
-    type: z.string(),
-    ref: z.string(),
-  }),
-  type: z.string(),
-  text: z.string().nullish(),
-  date: z.date().nullish(),
-  file_url: z.string().nullish(),
-  boolean: z.boolean().nullish(),
-  phone_number: z.string().nullish(),
-  email: z.string().email().nullish(),
-});
+// const TypeFormResponseField = z.object({
+//   field: z.object({
+//     id: z.string(),
+//     type: z.string(),
+//     ref: z.string(),
+//   }),
+//   type: z.string(),
+//   text: z.string().nullish(),
+//   date: z.date().nullish(),
+//   file_url: z.string().nullish(),
+//   boolean: z.boolean().nullish(),
+//   phone_number: z.string().nullish(),
+//   email: z.string().email().nullish(),
+// });
 
-export type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
+// export type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
 
-const TypeFormResponseItems = z.array(
-  z.object({
-    landing_id: z.string(),
-    token: z.string(),
-    response_id: z.string(),
-    landed_at: z.date(),
-    submitted_at: z.date(),
-    metadata: z.object({
-      user_agent: z.string(),
-      platform: z.string(),
-      referer: z.string(),
-      network_id: z.string(),
-      browser: z.string(),
-    }),
-    hidden: z.object({
-      bobthebuilder: z.string(),
-    }),
-    calculated: z.object({
-      score: z.number(),
-    }),
-    answers: z.array(TypeFormResponseField),
-  })
-);
+// const TypeFormResponseItems = z.array(
+//   z.object({
+//     landing_id: z.string(),
+//     token: z.string(),
+//     response_id: z.string(),
+//     landed_at: z.date(),
+//     submitted_at: z.date(),
+//     metadata: z.object({
+//       user_agent: z.string(),
+//       platform: z.string(),
+//       referer: z.string(),
+//       network_id: z.string(),
+//       browser: z.string(),
+//     }),
+//     hidden: z.object({
+//       bobthebuilder: z.string(),
+//     }),
+//     calculated: z.object({
+//       score: z.number(),
+//     }),
+//     answers: z.array(TypeFormResponseField),
+//   })
+// );
 
-export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
+// export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
 
-const TypeFormResponse = z.object({
-  total_items: z.number(),
-  page_count: z.number(),
-  items: TypeFormResponseItems,
-});
+// const TypeFormResponse = z.object({
+//   total_items: z.number(),
+//   page_count: z.number(),
+//   items: TypeFormResponseItems,
+// });
 
-export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
+// export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
 
 // TODO: Double check this type
-const TypeFormSubmission = z.object({
-  response_id: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  birthday: z.date(),
-  major: z.string(),
-  school: z.string(),
-  willBeEnrolled: z.boolean(),
-  graduationYear: z.date(),
-  degree: z.string(),
-  currentLevel: z.string(),
-  hackathonCount: z.string(),
-  longAnswer1: z.string(),
-  longAnswer2: z.string(),
-  longAnswer3: z.string(),
-  socialLinks: z.string().nullish(),
-  resume: z.string().nullish(),
-  extra: z.string().nullish(),
-  tshirtSize: z.string(),
-  hackerType: z.string(),
-  hasTeam: z.boolean(),
-  workShop: z.string().nullish(),
-  gender: z.string(),
-  considerSponserChat: z.boolean().nullish(),
-  howDidYouHear: z.string(),
-  background: z.string(),
-  emergencyContactInfo: z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    phoneNumber: z.string(),
-    email: z.string().email().nullish(),
-  }),
-  mlhAgreement: z.boolean(),
-  mlhCoc: z.boolean(),
-  hackerId: z.string(),
-  reviews: z.array(
-    z.object({
-      id: z.string(),
-      reviewer: z.object({
-        id: z.string(),
-        name: z.string().nullable(),
-        email: z.string().email().nullable(),
-        emailVerified: z.date().nullable(),
-        image: z.string().nullable(),
-        typeform_response_id: z.string().nullable(),
-        role: z.array(
-          z.enum([
-            RoleSchema.Enum.HACKER,
-            RoleSchema.Enum.REVIEWER,
-            RoleSchema.Enum.ADMIN,
-            RoleSchema.Enum.FOOD_MANAGER,
-            RoleSchema.Enum.EVENT_MANAGER,
-            RoleSchema.Enum.GENERAL_SCANNER,
-            RoleSchema.Enum.SPONSER,
-          ])
-        ),
-        status: z.enum([
-          StatusSchema.Enum.ACCEPTED,
-          StatusSchema.Enum.CHECKED_IN,
-          StatusSchema.Enum.IN_REVIEW,
-          StatusSchema.Enum.REJECTED,
-          StatusSchema.Enum.RSVP,
-          StatusSchema.Enum.WAITLISTED,
-        ]),
-        qrcode: z.number().nullable(),
-        mealsTaken: z.number(),
-        lastMealTaken: z.date().nullable(),
-      }),
-      hacker: z.object({
-        id: z.string(),
-        name: z.string().nullable(),
-        email: z.string().email().nullable(),
-        emailVerified: z.date().nullable(),
-        image: z.string().nullable(),
-        typeform_response_id: z.string().nullable(),
-        role: z.array(
-          z.enum([
-            RoleSchema.Enum.HACKER,
-            RoleSchema.Enum.REVIEWER,
-            RoleSchema.Enum.ADMIN,
-            RoleSchema.Enum.FOOD_MANAGER,
-            RoleSchema.Enum.EVENT_MANAGER,
-            RoleSchema.Enum.GENERAL_SCANNER,
-            RoleSchema.Enum.SPONSER,
-          ])
-        ),
-        status: z.enum([
-          StatusSchema.Enum.ACCEPTED,
-          StatusSchema.Enum.CHECKED_IN,
-          StatusSchema.Enum.IN_REVIEW,
-          StatusSchema.Enum.REJECTED,
-          StatusSchema.Enum.RSVP,
-          StatusSchema.Enum.WAITLISTED,
-        ]),
-        qrcode: z.number().nullable(),
-        mealsTaken: z.number(),
-        lastMealTaken: z.date().nullable(),
-      }),
-      mark: z.number(),
-    })
-  ),
-  email: z.string().nullable(),
-});
+// const TypeFormSubmission = z.object({
+//   response_id: z.string(),
+//   firstName: z.string(),
+//   lastName: z.string(),
+//   birthday: z.date(),
+//   major: z.string(),
+//   school: z.string(),
+//   willBeEnrolled: z.boolean(),
+//   graduationYear: z.date(),
+//   degree: z.string(),
+//   currentLevel: z.string(),
+//   hackathonCount: z.string(),
+//   longAnswer1: z.string(),
+//   longAnswer2: z.string(),
+//   longAnswer3: z.string(),
+//   socialLinks: z.string().nullish(),
+//   resume: z.string().nullish(),
+//   extra: z.string().nullish(),
+//   tshirtSize: z.string(),
+//   hackerType: z.string(),
+//   hasTeam: z.boolean(),
+//   workShop: z.string().nullish(),
+//   gender: z.string(),
+//   considerSponserChat: z.boolean().nullish(),
+//   howDidYouHear: z.string(),
+//   background: z.string(),
+//   emergencyContactInfo: z.object({
+//     firstName: z.string(),
+//     lastName: z.string(),
+//     phoneNumber: z.string(),
+//     email: z.string().email().nullish(),
+//   }),
+//   mlhAgreement: z.boolean(),
+//   mlhCoc: z.boolean(),
+//   hackerId: z.string(),
+//   reviews: z.array(
+//     z.object({
+//       id: z.string(),
+//       reviewer: z.object({
+//         id: z.string(),
+//         name: z.string().nullable(),
+//         email: z.string().email().nullable(),
+//         emailVerified: z.date().nullable(),
+//         image: z.string().nullable(),
+//         typeform_response_id: z.string().nullable(),
+//         role: z.array(
+//           z.enum([
+//             RoleSchema.Enum.HACKER,
+//             RoleSchema.Enum.REVIEWER,
+//             RoleSchema.Enum.ADMIN,
+//             RoleSchema.Enum.FOOD_MANAGER,
+//             RoleSchema.Enum.EVENT_MANAGER,
+//             RoleSchema.Enum.GENERAL_SCANNER,
+//             RoleSchema.Enum.SPONSER,
+//           ])
+//         ),
+//         status: z.enum([
+//           StatusSchema.Enum.ACCEPTED,
+//           StatusSchema.Enum.CHECKED_IN,
+//           StatusSchema.Enum.IN_REVIEW,
+//           StatusSchema.Enum.REJECTED,
+//           StatusSchema.Enum.RSVP,
+//           StatusSchema.Enum.WAITLISTED,
+//         ]),
+//         qrcode: z.number().nullable(),
+//         mealsTaken: z.number(),
+//         lastMealTaken: z.date().nullable(),
+//       }),
+//       hacker: z.object({
+//         id: z.string(),
+//         name: z.string().nullable(),
+//         email: z.string().email().nullable(),
+//         emailVerified: z.date().nullable(),
+//         image: z.string().nullable(),
+//         typeform_response_id: z.string().nullable(),
+//         role: z.array(
+//           z.enum([
+//             RoleSchema.Enum.HACKER,
+//             RoleSchema.Enum.REVIEWER,
+//             RoleSchema.Enum.ADMIN,
+//             RoleSchema.Enum.FOOD_MANAGER,
+//             RoleSchema.Enum.EVENT_MANAGER,
+//             RoleSchema.Enum.GENERAL_SCANNER,
+//             RoleSchema.Enum.SPONSER,
+//           ])
+//         ),
+//         status: z.enum([
+//           StatusSchema.Enum.ACCEPTED,
+//           StatusSchema.Enum.CHECKED_IN,
+//           StatusSchema.Enum.IN_REVIEW,
+//           StatusSchema.Enum.REJECTED,
+//           StatusSchema.Enum.RSVP,
+//           StatusSchema.Enum.WAITLISTED,
+//         ]),
+//         qrcode: z.number().nullable(),
+//         mealsTaken: z.number(),
+//         lastMealTaken: z.date().nullable(),
+//       }),
+//       mark: z.number(),
+//     })
+//   ),
+//   email: z.string().nullable(),
+// });
 
-export type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
+// export type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
 
 const UserWithApplication = UserSchema.merge(
   z.object({
+    name: z.string(),
+    email: z.string().email(),
+    status: StatusSchema,
     dh10application: DH10ApplicationSchema,
   })
 );
@@ -193,7 +196,10 @@ export const reviewerRouter = router({
             not: null,
           },
         },
-        include: {
+        select: {
+          name: true,
+          email: true,
+          status: true,
           dh10application: true,
         },
       });
