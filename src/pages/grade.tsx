@@ -20,7 +20,7 @@ const getReviewedApplications = (applications: any) => {
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
 
-  const { data, isLoading } = trpc.reviewer.getUsers.useQuery();
+  const { data, isLoading } = trpc.reviewer.getApplications.useQuery();
 
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 

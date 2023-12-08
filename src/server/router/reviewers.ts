@@ -1,10 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
-import { TRPCError } from "@trpc/server";
 import {
   RoleSchema,
   StatusSchema,
-  UserSchema,
   DH10ApplicationSchema,
 } from "../../../prisma/zod";
 import {
@@ -171,20 +169,18 @@ import {
 
 // export type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
 
-const UserWithApplication = UserSchema.merge(
-  z.object({
-    name: z.string(),
-    email: z.string().email(),
-    status: StatusSchema,
-    dh10application: DH10ApplicationSchema,
-  })
-);
+const Application = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  status: StatusSchema,
+  dh10application: DH10ApplicationSchema,
+});
 
-export type UserWithApplication = z.infer<typeof UserWithApplication>;
+export type Application = z.infer<typeof Application>;
 
 export const reviewerRouter = router({
-  getUsers: protectedProcedure.query(
-    async ({ ctx }): Promise<{ data: UserWithApplication[] }> => {
+  getApplications: protectedProcedure.query(
+    async ({ ctx }): Promise<{ data: Application[] }> => {
       assertHasRequiredRoles(ctx.session.user.role, [
         RoleSchema.Enum.ADMIN,
         RoleSchema.Enum.REVIEWER,
@@ -204,7 +200,7 @@ export const reviewerRouter = router({
         },
       });
 
-      return { data: UserWithApplication.array().parse(users) };
+      return { data: Application.array().parse(users) };
     }
   ),
   // getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
