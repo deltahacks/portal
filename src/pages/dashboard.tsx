@@ -15,7 +15,7 @@ import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
 import StatusSchema, {
   StatusType,
-} from "prisma/zod/inputTypeSchemas/StatusSchema";
+} from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
 

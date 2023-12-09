@@ -15,11 +15,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "paths": {
-      "prisma/zod/*": ["./prisma/zod/*"]
-    }
+    "noUncheckedIndexedAccess": true
   },
   "include": [
     "next-env.d.ts",

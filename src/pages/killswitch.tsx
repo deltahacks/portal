@@ -5,7 +5,7 @@ import type {
   NextPage,
 } from "next";
 import Head from "next/head";
-import { RoleSchema } from "prisma/zod";
+import { RoleSchema } from "../../prisma/zod";
 import { Drawer } from "../components/NavBar";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";

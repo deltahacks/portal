@@ -13,7 +13,7 @@ import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import StatusSchema, {
   StatusType,
-} from "prisma/zod/inputTypeSchemas/StatusSchema";
+} from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 import dynamic from "next/dynamic";
 import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
