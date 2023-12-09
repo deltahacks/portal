@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { RoleSchema } from "../../../../prisma/zod";
+import { RoleSchema } from "prisma/zod";
 import { authOptions as nextAuthOptions } from "../auth/[...nextauth]";
 import { env } from "../../../env/server.mjs";
 import { Readable } from "stream";

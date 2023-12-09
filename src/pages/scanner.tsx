@@ -13,9 +13,7 @@ import dynamic from "next/dynamic";
 import { trpc } from "../utils/trpc";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import clsx from "clsx";
-import RoleSchema, {
-  RoleType,
-} from "../../prisma/zod/inputTypeSchemas/RoleSchema";
+import RoleSchema, { RoleType } from "prisma/zod/inputTypeSchemas/RoleSchema";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,

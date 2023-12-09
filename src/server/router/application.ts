@@ -8,11 +8,7 @@ import type {
 } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
-import {
-  DH10ApplicationSchema,
-  StatusSchema,
-  RoleSchema,
-} from "../../../prisma/zod";
+import { DH10ApplicationSchema, StatusSchema, RoleSchema } from "prisma/zod";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),

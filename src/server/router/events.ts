@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
-import { RoleSchema } from "../../../prisma/zod";
+import { RoleSchema } from "prisma/zod";
 
 export const eventsRouter = router({
   checkin: protectedProcedure

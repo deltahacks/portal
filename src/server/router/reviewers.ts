@@ -3,7 +3,7 @@ import { env } from "../../env/server.mjs";
 import { User } from "@prisma/client";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
-import { RoleSchema, StatusSchema } from "../../../prisma/zod";
+import { RoleSchema, StatusSchema } from "prisma/zod";
 
 const TypeFormResponseField = z.object({
   field: z.object({

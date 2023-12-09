@@ -20,7 +20,7 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { Drawer } from "../components/NavBar";
-import { DH10ApplicationSchema } from "../../prisma/zod";
+import { DH10ApplicationSchema } from "prisma/zod";
 import CustomSelect from "../components/CustomSelect";
 import {
   workshops,

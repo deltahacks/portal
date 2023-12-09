@@ -4,7 +4,7 @@ import {
   NextPage,
 } from "next";
 import Link from "next/link";
-import { RoleSchema } from "../../prisma/zod";
+import { RoleSchema } from "prisma/zod";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
