@@ -103,6 +103,9 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             name="apple-mobile-web-app-status-bar-style"
             content="#6419E6"
           />
+          {env.NEXT_PUBLIC_URL == "https://beta.portal.deltahacks.com" ? (
+            <meta name="robots" content="noindex" />
+          ) : null}
         </Head>
         <LogIdentifier />
         <Script
