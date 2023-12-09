@@ -1,8 +1,4 @@
-export const refineAgeRange = (
-  date: Date,
-  min: number,
-  max: number | undefined = undefined
-) => {
+export const refineAgeRange = (date: Date, min: number, max?: number) => {
   // parse date
   // make sure over 15
   const now = new Date();
