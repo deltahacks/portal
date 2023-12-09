@@ -11,6 +11,8 @@ import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
 import { hasRequiredRoles } from "../utils/assertions";
 import { Application } from "../server/router/reviewers";
+import { DataTableDemo } from "../components/DataTable";
+import { ColumnDef } from "@tanstack/react-table";
 
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
@@ -48,26 +50,9 @@ const GradingPortal: NextPage = () => {
                 </div>
               </div>
             </div>
-            <table className="my-8 w-full text-left">
-              <thead className=" bg-black text-white">
-                <tr>
-                  <th className="border-2 border-slate-800 p-3">Index</th>
-                  <th className="border-2 border-slate-800 p-3">Email</th>
-                  <th className="border-2 border-slate-800 p-3">Name</th>
-                  <th className="border-2 border-slate-800 p-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="text-white">
-                {!isLoading &&
-                  data?.data.map((application: Application, index: number) => (
-                    <Applicant
-                      key={application.id}
-                      applicant={application}
-                      index={index + 1}
-                    />
-                  ))}
-              </tbody>
-            </table>
+            <div className="bg-white dark:border-zinc-700 dark:bg-zinc-900 p-10 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border">
+              <DataTableDemo />
+            </div>
           </main>
         </div>
         <div className="drawer-side md:hidden">
