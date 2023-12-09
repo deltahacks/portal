@@ -1,12 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import type {
-  TypeFormResponse,
-  TypeFormResponseField,
-  TypeFormSubmission,
-} from "./reviewers";
-import { options } from "./reviewers";
+import { env } from "process";
 import { protectedProcedure, router } from "./trpc";
 import {
   DH10ApplicationSchema,
@@ -35,6 +30,64 @@ const TypeFormSubmissionSocial = z.object({
 });
 
 type TypeFormSubmissionSocial = z.infer<typeof TypeFormSubmissionSocial>;
+
+const TypeFormResponseField = z.object({
+  field: z.object({
+    id: z.string(),
+    type: z.string(),
+    ref: z.string(),
+  }),
+  type: z.string(),
+  text: z.string().nullish(),
+  date: z.date().nullish(),
+  file_url: z.string().nullish(),
+  boolean: z.boolean().nullish(),
+  phone_number: z.string().nullish(),
+  email: z.string().email().nullish(),
+});
+
+type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
+
+const TypeFormResponseItems = z.array(
+  z.object({
+    landing_id: z.string(),
+    token: z.string(),
+    response_id: z.string(),
+    landed_at: z.date(),
+    submitted_at: z.date(),
+    metadata: z.object({
+      user_agent: z.string(),
+      platform: z.string(),
+      referer: z.string(),
+      network_id: z.string(),
+      browser: z.string(),
+    }),
+    hidden: z.object({
+      bobthebuilder: z.string(),
+    }),
+    calculated: z.object({
+      score: z.number(),
+    }),
+    answers: z.array(TypeFormResponseField),
+  })
+);
+
+type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
+
+const TypeFormResponse = z.object({
+  total_items: z.number(),
+  page_count: z.number(),
+  items: TypeFormResponseItems,
+});
+
+type TypeFormResponse = z.infer<typeof TypeFormResponse>;
+
+const options = {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
+  },
+};
 
 // Example router with queries that can only be hit if the user requesting is signed in
 export const applicationRouter = router({
