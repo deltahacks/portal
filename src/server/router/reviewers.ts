@@ -170,6 +170,7 @@ import {
 // export type TypeFormSubmission = z.infer<typeof TypeFormSubmission>;
 
 const Application = z.object({
+  id: z.string().cuid(),
   name: z.string(),
   email: z.string().email(),
   status: StatusSchema,
@@ -193,6 +194,7 @@ export const reviewerRouter = router({
           },
         },
         select: {
+          id: true,
           name: true,
           email: true,
           status: true,

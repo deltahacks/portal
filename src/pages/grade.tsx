@@ -10,6 +10,8 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
+import { hasRequiredRoles } from "../utils/assertions";
+import { Application } from "../server/router/reviewers";
 
 const getReviewedApplications = (applications: any) => {
   return applications.filter(
@@ -24,47 +26,6 @@ const GradingPortal: NextPage = () => {
 
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
-  const [mean, setMean] = useState<number>(0);
-  const [median, setMedian] = useState<number>(0);
-
-  useEffect(() => {
-    console.log(data);
-  }, [data, isLoading]);
-
-  // useEffect(() => {
-  //   if (isLoading) {
-  //     return;
-  //   }
-
-  //   const scores: number[] =
-  //     data?.data
-  //       .map((application) => {
-  //         return (
-  //           application.reviewer.reduce((a: number, b: { mark: number }) => {
-  //             return a + b.mark;
-  //           }, 0) / application.reviewer.length
-  //         );
-  //       })
-  //       .filter((score) => !Number.isNaN(score)) || [];
-  //   const sum = scores.reduce(
-  //     (a: number, b: number) => (!Number.isNaN(b) ? a + b : a),
-  //     0
-  //   );
-  //   const avg = sum / scores.length || 0;
-  //   setMean(avg);
-
-  //   const mid = Math.floor(scores.length / 2);
-  //   const nums: number[] = [...scores].sort((a, b) => a - b);
-
-  //   const median: number =
-  //     (scores.length % 2 !== 0
-  //       ? nums[mid]
-  //       : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
-  //   setMedian(median);
-  // }, [data, isLoading]);
-
-  return <>Under construction</>;
-
   return (
     <>
       <Head>
@@ -78,15 +39,9 @@ const GradingPortal: NextPage = () => {
 
           <main className="mx-auto px-14 py-16">
             <div className="flex justify-between">
-              <div>
-                <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                  Applications
-                </h1>
-                <div className="py-2">
-                  <p>Mean: {mean}</p>
-                  <p>Median: {median}</p>
-                </div>
-              </div>
+              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+                Applications
+              </h1>
               <div className="text-right">
                 <button
                   className="btn btn-primary"
@@ -95,13 +50,6 @@ const GradingPortal: NextPage = () => {
                   {togglePriotity ? "Showing Priority" : "Showing All"}
                 </button>
                 <div className="py-4">
-                  {
-                    // count how many applications have been reviewed
-                    // an application is considered reviewed if it has 3 or more reviewers
-                    data?.data.filter(
-                      (application) => application.reviewer.length >= 3
-                    ).length
-                  }{" "}
                   / {data?.data.length} Applications Reviewed <br />
                   {rsvpCount} RSVPs
                 </div>
@@ -112,26 +60,19 @@ const GradingPortal: NextPage = () => {
                 <tr>
                   <th className="border-2 border-slate-800 p-3">Index</th>
                   <th className="border-2 border-slate-800 p-3">Email</th>
-                  <th className="border-2 border-slate-800 p-3">First Name</th>
-                  <th className="border-2 border-slate-800 p-3">Last Name</th>
-                  <th className="border-2 border-slate-800 p-3">Judged By</th>
-                  <th className="border-2 border-slate-800 p-3">Score</th>
-                  <th className="border-2 border-slate-800 p-3">
-                    Submit Score
-                  </th>
-                  {/* <th className="border-2 border-slate-800 p-3">Accepted</th> */}
+                  <th className="border-2 border-slate-800 p-3">Name</th>
+                  <th className="border-2 border-slate-800 p-3">Status</th>
                 </tr>
               </thead>
               <tbody className="text-white">
-                {!isLoading
-                  ? data?.data.map((application, index: number) => (
-                      <Applicant
-                        key={application.id}
-                        applicant={application}
-                        index={index + 1}
-                      />
-                    ))
-                  : null}
+                {!isLoading &&
+                  data?.data.map((application: Application, index: number) => (
+                    <Applicant
+                      key={application.id}
+                      applicant={application}
+                      index={index + 1}
+                    />
+                  ))}
               </tbody>
             </table>
           </main>
@@ -175,15 +116,16 @@ export const getServerSideProps = async (
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
   if (
-    !(
-      session?.user?.role?.includes(RoleSchema.Enum.ADMIN) ||
-      session?.user?.role?.includes(RoleSchema.Enum.REVIEWER)
-    )
+    !hasRequiredRoles(session?.user?.role, [
+      RoleSchema.Enum.ADMIN,
+      RoleSchema.Enum.REVIEWER,
+    ])
   ) {
     return {
       redirect: { destination: "/dashboard", permanent: false },
     };
   }
+
   // Otherwise, continue.
   return { props: {} };
 };
