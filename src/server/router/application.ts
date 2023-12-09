@@ -16,7 +16,9 @@ const TypeFormSubmissionTruncated = z.object({
   birthday: z.date(),
 });
 
-type TypeFormSubmissionTruncated = z.infer<typeof TypeFormSubmissionTruncated>;
+export type TypeFormSubmissionTruncated = z.infer<
+  typeof TypeFormSubmissionTruncated
+>;
 
 const TypeFormSubmissionSocial = z.object({
   response_id: z.string(),
@@ -29,7 +31,7 @@ const TypeFormSubmissionSocial = z.object({
   socialLinks: z.string().nullish(),
 });
 
-type TypeFormSubmissionSocial = z.infer<typeof TypeFormSubmissionSocial>;
+export type TypeFormSubmissionSocial = z.infer<typeof TypeFormSubmissionSocial>;
 
 const TypeFormResponseField = z.object({
   field: z.object({
@@ -46,7 +48,7 @@ const TypeFormResponseField = z.object({
   email: z.string().email().nullish(),
 });
 
-type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
+export type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
 
 const TypeFormResponseItems = z.array(
   z.object({
@@ -72,7 +74,7 @@ const TypeFormResponseItems = z.array(
   })
 );
 
-type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
+export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
 
 const TypeFormResponse = z.object({
   total_items: z.number(),
@@ -80,7 +82,7 @@ const TypeFormResponse = z.object({
   items: TypeFormResponseItems,
 });
 
-type TypeFormResponse = z.infer<typeof TypeFormResponse>;
+export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
 
 const options = {
   method: "GET",

@@ -12,12 +12,6 @@ import { trpc } from "../utils/trpc";
 import { hasRequiredRoles } from "../utils/assertions";
 import { Application } from "../server/router/reviewers";
 
-const getReviewedApplications = (applications: any) => {
-  return applications.filter(
-    (application: any) => application.reviewer.length >= 3
-  );
-};
-
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
 

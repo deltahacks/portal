@@ -1,6 +1,6 @@
 import * as sgMail from "@sendgrid/mail";
 import { z } from "zod";
-import type { TypeFormResponse, TypeFormResponseField } from "./reviewers";
+import type { TypeFormResponse, TypeFormResponseField } from "./application";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
