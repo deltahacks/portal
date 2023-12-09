@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import type { GetServerSidePropsContext, NextPage } from "next";
-import { Review } from "@prisma/client";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
