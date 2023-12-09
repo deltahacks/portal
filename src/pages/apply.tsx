@@ -13,6 +13,7 @@ import {
   Controller,
   FieldError,
   UseFormRegister,
+  SubmitErrorHandler,
 } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -178,6 +179,7 @@ const ApplyForm = ({
     defaultValues: {
       ...autofillData,
       studyEnrolledPostSecondary: true,
+      studyExpectedGraduation: null,
     },
   });
 
@@ -201,8 +203,11 @@ const ApplyForm = ({
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
     const processed = DH10ApplicationSchema.parse(data);
-
     await submitAppAsync(processed);
+  };
+
+  const onError: SubmitErrorHandler<InputsType> = async (data) => {
+    console.log(data);
   };
 
   const isSecondary = watch("studyEnrolledPostSecondary");
@@ -210,7 +215,7 @@ const ApplyForm = ({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onError)}
       className="mx-auto flex flex-col pb-8"
     >
       {wasAutofilled && (
