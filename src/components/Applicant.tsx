@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { User } from "../../prisma/zod";
 import { trpc } from "../utils/trpc";
-import { Application } from "../server/router/reviewers";
+import { TypeFormSubmission } from "../server/router/reviewers";
 
 interface IReview {
   id: string;
@@ -17,7 +17,7 @@ const Applicant = ({
   index,
 }: {
   index: number;
-  applicant: Application;
+  applicant: TypeFormSubmission;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
@@ -27,6 +27,19 @@ const Applicant = ({
 
   const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener");
+  };
+
+  const getScore = (reviewers: IReview[]) => {
+    let average = 0;
+    for (const review of reviewers) {
+      average += review.mark;
+    }
+    if (reviewers.length != 0) {
+      // round to 2 decimal places
+      const s = average / reviewers.length;
+      return s.toFixed(2);
+    }
+    return 0;
   };
 
   const preventMinus = (e: React.KeyboardEvent<HTMLInputElement>) => {
