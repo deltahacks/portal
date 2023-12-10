@@ -2,14 +2,14 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
-import { Application } from "../server/router/reviewers";
+import { ApplicationForReview } from "../server/router/reviewers";
 
 const Applicant = ({
   applicant,
   index,
 }: {
   index: number;
-  applicant: Application;
+  applicant: ApplicationForReview;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");
@@ -117,7 +117,7 @@ const Applicant = ({
   //       <tr>
   //         <td colSpan={7} className="bg-[#1F1F1F] px-10 py-5">
   //           <div className="text-lg font-bold text-white">
-  //             Application Overview
+  //             ApplicationForReview Overview
   //           </div>
 
   //           <div className="flex h-auto flex-row gap-3 py-3">

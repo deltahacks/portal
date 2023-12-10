@@ -16,7 +16,7 @@ import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "./Button";
 import { Checkbox } from "../components/Checkbox";
-import { Application } from "../server/router/reviewers";
+import { ApplicationForReview } from "../server/router/reviewers";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -181,7 +181,7 @@ const SearchBarFilter = <TData,>({ column }: { column?: Column<TData> }) => {
 export const DataTable = ({
   applications,
 }: {
-  applications?: Application[];
+  applications?: ApplicationForReview[];
 }) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(

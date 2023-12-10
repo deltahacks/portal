@@ -4,6 +4,7 @@ import {
   RoleSchema,
   StatusSchema,
   DH10ApplicationSchema,
+  DH10Application,
 } from "../../../prisma/zod";
 import {
   assert,
@@ -11,19 +12,19 @@ import {
   assertWithTRPCError,
 } from "../../utils/assertions";
 
-const Application = z.object({
+const ApplicationForReview = z.object({
   id: z.string().cuid(),
   name: z.string(),
   email: z.string().email(),
   status: StatusSchema,
-  dh10application: DH10ApplicationSchema,
+  dH10ApplicationId: z.string(),
 });
 
-export type Application = z.infer<typeof Application>;
+export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
 export const reviewerRouter = router({
   getApplications: protectedProcedure.query(
-    async ({ ctx }): Promise<{ data: Application[] }> => {
+    async ({ ctx }): Promise<{ data: ApplicationForReview[] }> => {
       assertHasRequiredRoles(ctx.session.user.role, [
         RoleSchema.Enum.ADMIN,
         RoleSchema.Enum.REVIEWER,
@@ -40,13 +41,35 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           status: true,
-          dh10application: true,
+          dH10ApplicationId: true,
         },
       });
 
-      return { data: Application.array().parse(users) };
+      return { data: ApplicationForReview.array().parse(users) };
     }
   ),
+  getApplication: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }): Promise<{ data: DH10Application }> => {
+      assertHasRequiredRoles(ctx.session.user.role, [
+        RoleSchema.Enum.ADMIN,
+        RoleSchema.Enum.REVIEWER,
+      ]);
+
+      const application = await ctx.prisma.dH10Application.findFirst({
+        where: {
+          id: {
+            equals: input.id,
+          },
+        },
+      });
+
+      return { data: DH10ApplicationSchema.parse(application) };
+    }),
   // getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
   //   if (
   //     !(
