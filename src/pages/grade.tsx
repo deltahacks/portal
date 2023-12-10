@@ -7,12 +7,9 @@ import { RoleSchema } from "../../prisma/zod";
 import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
-import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
 import { hasRequiredRoles } from "../utils/assertions";
-import { Application } from "../server/router/reviewers";
-import { DataTableDemo } from "../components/DataTable";
-import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "../components/DataTable";
 
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
@@ -50,9 +47,7 @@ const GradingPortal: NextPage = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white dark:border-zinc-700 dark:bg-zinc-900 p-10 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border">
-              <DataTableDemo />
-            </div>
+            <DataTable applications={data?.data} />
           </main>
         </div>
         <div className="drawer-side md:hidden">
