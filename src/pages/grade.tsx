@@ -47,7 +47,7 @@ const GradingPortal: NextPage = () => {
                 </div>
               </div>
             </div>
-            <DataTable applications={data?.data} />
+            <DataTable applications={data?.data ?? []} />
           </main>
         </div>
         <div className="drawer-side md:hidden">
