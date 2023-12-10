@@ -38,26 +38,22 @@ import { StatusSchema } from "../../prisma/zod";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => <div>{row.getValue("id")}</div>,
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
     accessorKey: "name",
     header: ({ column }) => {
       return (
         <Button
+          className="text-left"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Name
-          <ArrowUpDown className="pl-2 h-4 w-4" />
+          <ArrowUpDown className="pl-2 h-4 w-6" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="Capitalize">{row.getValue("name")}</div>,
+    cell: ({ row }) => (
+      <div className="pl-4 py-2 capitalize">{row.getValue("name")}</div>
+    ),
   },
   {
     accessorKey: "email",
@@ -68,11 +64,13 @@ const columns: ColumnDef<ApplicationForReview>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Email
-          <ArrowUpDown className="pl-2 h-4 w-4" />
+          <ArrowUpDown className="pl-2 h-4 w-6" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="pl-4 py-2 lowercase">{row.getValue("email")}</div>
+    ),
     enableSorting: false,
     enableHiding: true,
   },
@@ -90,11 +88,12 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     header: ({ column }) => {
       return (
         <Button
+          className="float-right"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Status
-          <ArrowUpDown className="pl-2 h-4 w-4" />
+          <ArrowUpDown className="pl-2 h-4 w-6" />
         </Button>
       );
     },
@@ -102,22 +101,26 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       const srcStatus = row.original.status;
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              {srcStatus}
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {Object.keys(StatusSchema.Enum).map((status) => (
-              <DropdownMenuItem key={status} className="capitalize">
-                {status}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="float-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <span className="sr-only">Open menu</span>
+                {srcStatus}
+                <ChevronDown className="pl-2 h-4 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Select</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {Object.keys(StatusSchema.Enum).map((status) => (
+                <DropdownMenuItem key={status} className="capitalize">
+                  {status}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
     enableSorting: true,
