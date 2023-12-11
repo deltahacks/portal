@@ -35,6 +35,8 @@ import {
   TableRow,
 } from "./Table";
 import { StatusSchema } from "../../prisma/zod";
+import { trpc } from "../utils/trpc";
+import { StatusType } from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -98,34 +100,133 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const srcStatus = row.original.status;
-
-      return (
-        <div className="float-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <span className="sr-only">Open menu</span>
-                {srcStatus}
-                <ChevronDown className="pl-2 h-4 w-6" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Select</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {Object.keys(StatusSchema.Enum).map((status) => (
-                <DropdownMenuItem key={status} className="capitalize">
-                  {status}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
+      const { id, status } = row.original;
+      return <StatusDropdown id={id} status={status} />;
     },
     enableSorting: true,
   },
 ];
+
+const StatusDropdown = ({
+  id,
+  status: srcStatus,
+}: {
+  id: string;
+  status: StatusType;
+}) => {
+  const [displayedStatus, setDisplayedStatus] = React.useState(srcStatus);
+  const updateStatus = trpc.reviewer.updateStatus.useMutation();
+
+  const statusTypes = Object.keys(StatusSchema.Enum) as StatusType[];
+
+  return (
+    <div className="float-right">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="justify-between w-36" variant="outline">
+            <span className="sr-only">Open menu</span>
+            <div>{displayedStatus}</div>
+            <ChevronDown className="pl-2 h-4 w-6 float-right" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {statusTypes
+            .filter((status) => status !== displayedStatus)
+            .map((status) => (
+              <DropdownMenuItem
+                key={status}
+                className="capitalize"
+                onClick={async () => {
+                  setDisplayedStatus(status);
+                  updateStatus.mutateAsync({
+                    id,
+                    status: status,
+                  });
+                }}
+              >
+                {status}
+              </DropdownMenuItem>
+            ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
+const StatusFilterDropdown = <TData,>({
+  column,
+}: {
+  column?: Column<TData>;
+}) => {
+  const [displayedStatus, setDisplayedStatus] = React.useState("NONE");
+  const statusFilterTypes = ["NONE", ...Object.keys(StatusSchema.Enum)];
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className="inline-flex flex-row justify-center"
+        asChild
+      >
+        <Button variant="outline" className="justify-between w-36">
+          <span className="sr-only">Open menu</span>
+          {displayedStatus} <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {statusFilterTypes
+          .filter((status) => status !== displayedStatus)
+          .map((status) => {
+            return (
+              <DropdownMenuItem
+                key={status}
+                className="capitalize"
+                onClick={() => {
+                  setDisplayedStatus(status);
+                  column?.setFilterValue(
+                    status === "NONE" ? undefined : status
+                  );
+                }}
+              >
+                {status}
+              </DropdownMenuItem>
+            );
+          })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+const ColumnFilterDropdown = <TDef,>({
+  columns,
+}: {
+  columns: Column<TDef>[];
+}) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">
+          Columns <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {columns
+          .filter((column) => column.getCanHide())
+          .map((column) => {
+            return (
+              <DropdownMenuCheckboxItem
+                key={column.id}
+                className="capitalize"
+                checked={column.getIsVisible()}
+                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+              >
+                {column.id}
+              </DropdownMenuCheckboxItem>
+            );
+          })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 const SearchBarFilter = <TData,>({ column }: { column?: Column<TData> }) => {
   return (
@@ -173,34 +274,14 @@ export const DataTable = ({
   return (
     <div className="bg-white dark:border-zinc-700 dark:bg-zinc-950 p-10 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border">
       <div className="w-full">
-        <div className="flex items-center py-4">
-          <SearchBarFilter column={table.getColumn("email")} />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex items-center justify-between py-4">
+          <div className="flex items-center flex-row">
+            <SearchBarFilter column={table.getColumn("email")} />
+            <div className="text-right w-72 pr-4">Status Filter:</div>
+            <StatusFilterDropdown column={table.getColumn("status")} />
+          </div>
+
+          <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>
         <div className="rounded-md border dark:border-zinc-700">
           <Table>
@@ -254,8 +335,7 @@ export const DataTable = ({
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            Displaying {table.getFilteredRowModel().rows.length} row(s).
           </div>
           <div className="space-x-2">
             <Button

@@ -70,6 +70,21 @@ export const reviewerRouter = router({
 
       return { data: DH10ApplicationSchema.parse(application) };
     }),
+  updateStatus: protectedProcedure
+    .input(z.object({ id: z.string().cuid().optional(), status: StatusSchema }))
+    .mutation(async ({ ctx, input }) => {
+      assertHasRequiredRoles(ctx.session.user.role, [
+        RoleSchema.Enum.ADMIN,
+        RoleSchema.Enum.REVIEWER,
+      ]);
+
+      await ctx.prisma.user.update({
+        where: { id: input.id },
+        data: {
+          status: input.status,
+        },
+      });
+    }),
   // getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
   //   if (
   //     !(

@@ -13,9 +13,7 @@ import { DataTable } from "../components/DataTable";
 
 const GradingPortal: NextPage = () => {
   const [togglePriotity, setTogglePriority] = useState(true);
-
   const { data, isLoading } = trpc.reviewer.getApplications.useQuery();
-
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
   return (
