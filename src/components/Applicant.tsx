@@ -5,11 +5,9 @@ import { trpc } from "../utils/trpc";
 import { ApplicationForReview } from "../server/router/reviewers";
 
 const Applicant = ({
-  applicant,
-  index,
+  applicantionForReview,
 }: {
-  index: number;
-  applicant: ApplicationForReview;
+  applicationForReview: ApplicationForReview;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [grade, setGrade] = useState("");

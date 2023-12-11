@@ -37,6 +37,7 @@ import {
 import { StatusSchema } from "../../prisma/zod";
 import { trpc } from "../utils/trpc";
 import { StatusType } from "../../prisma/zod/inputTypeSchemas/StatusSchema";
+import Applicant from "./Applicant";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -79,8 +80,8 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   {
     accessorKey: "dH10ApplicationId",
     header: "DeltaHacks X Application",
-    cell: () => {
-      return <Button variant="outline">View Application</Button>;
+    cell: ({ row }) => {
+      return <ApplicationButton applicationForReview={row.original} />;
     },
     enableSorting: false,
     enableHiding: true,
@@ -106,6 +107,25 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableSorting: true,
   },
 ];
+
+const ApplicationButton = ({
+  applicationForReview,
+}: {
+  applicationForReview: ApplicationForReview;
+}) => {
+  const [canDisplayApplication, setCanDisplayApplication] =
+    React.useState(false);
+  return (
+    <>
+      <Button variant="outline" onClick={() => setCanDisplayApplication(true)}>
+        View Application
+      </Button>
+      {canDisplayApplication && (
+        <Applicant applicationForReview={applicationForReview} />
+      )}
+    </>
+  );
+};
 
 const StatusDropdown = ({
   id,
