@@ -1,47 +1,25 @@
-import clsx from "clsx";
-import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
 import { ApplicationForReview } from "../server/router/reviewers";
 
+// TODO make sexy opening animation
 const Applicant = ({
-  applicantionForReview,
+  applicationForReview: { status, dH10ApplicationId },
 }: {
   applicationForReview: ApplicationForReview;
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [grade, setGrade] = useState("");
-  const submitGrade = trpc.reviewer.submit.useMutation();
+  const { data, isLoading } = trpc.reviewer.getApplication.useQuery({
+    dH10ApplicationId,
+  });
 
-  const session = useSession();
-
-  const openInNewTab = (url: string) => {
-    window.open(url, "_blank", "noopener");
-  };
-
-  const preventMinus = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.code === "Minus") {
-      e.preventDefault();
-    }
-  };
-
-  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
-
-  // useEffect(() => {
-  //   setAlreadyReviewed(
-  //     applicant.reviews.length > 2 ||
-  //       applicant.reviews.some(
-  //         (review) => review.reviewer.id === session.data?.user?.id
-  //       )
-  //   );
-  // }, [applicant.reviews, session.data?.user?.id]);
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
 
   return (
-    <tr className="bg-black text-left">
-      <td className="border border-slate-800 p-3">
-        THIS PAGE IS UNDER CONSTRUCTION
-      </td>
-    </tr>
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-zinc-950">
+      <div className="">THIS PAGE IS UNDER CONSTRUCTION</div>
+    </div>
   );
 
   // return (

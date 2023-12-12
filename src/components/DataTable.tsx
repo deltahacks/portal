@@ -183,13 +183,11 @@ const StatusFilterDropdown = <TData,>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        className="inline-flex flex-row justify-center"
-        asChild
-      >
-        <Button variant="outline" className="justify-between w-36">
+      <DropdownMenuTrigger asChild>
+        <Button className="justify-between w-60" variant="outline">
           <span className="sr-only">Open menu</span>
-          {displayedStatus} <ChevronDown className="ml-2 h-4 w-4" />
+          <div>{displayedStatus}</div>
+          <ChevronDown className="pl-2 h-4 w-6 float-right" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

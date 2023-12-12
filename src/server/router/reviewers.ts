@@ -51,7 +51,7 @@ export const reviewerRouter = router({
   getApplication: protectedProcedure
     .input(
       z.object({
-        id: z.string().optional(),
+        dH10ApplicationId: z.string().optional(),
       })
     )
     .query(async ({ ctx, input }): Promise<{ data: DH10Application }> => {
@@ -63,7 +63,7 @@ export const reviewerRouter = router({
       const application = await ctx.prisma.dH10Application.findFirst({
         where: {
           id: {
-            equals: input.id,
+            equals: input.dH10ApplicationId,
           },
         },
       });
