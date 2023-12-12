@@ -37,7 +37,7 @@ import {
 import { StatusSchema } from "../../prisma/zod";
 import { trpc } from "../utils/trpc";
 import { StatusType } from "../../prisma/zod/inputTypeSchemas/StatusSchema";
-import Applicant from "./Applicant";
+import ApplicationPopupButton from "./Applicant";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -81,7 +81,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     accessorKey: "dH10ApplicationId",
     header: "DeltaHacks X Application",
     cell: ({ row }) => {
-      return <ApplicationButton applicationForReview={row.original} />;
+      return <ApplicationPopupButton applicationForReview={row.original} />;
     },
     enableSorting: false,
     enableHiding: true,
@@ -107,25 +107,6 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableSorting: true,
   },
 ];
-
-const ApplicationButton = ({
-  applicationForReview,
-}: {
-  applicationForReview: ApplicationForReview;
-}) => {
-  const [canDisplayApplication, setCanDisplayApplication] =
-    React.useState(false);
-  return (
-    <>
-      <Button variant="outline" onClick={() => setCanDisplayApplication(true)}>
-        View Application
-      </Button>
-      {canDisplayApplication && (
-        <Applicant applicationForReview={applicationForReview} />
-      )}
-    </>
-  );
-};
 
 const StatusDropdown = ({
   id,
@@ -355,8 +336,9 @@ export const DataTable = ({
           <div className="flex-1 text-sm text-muted-foreground">
             Displaying {table.getFilteredRowModel().rows.length} row(s).
           </div>
-          <div className="space-x-2">
+          <div className="space-x-2 -z-1">
             <Button
+              className="z-0"
               variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
@@ -365,6 +347,7 @@ export const DataTable = ({
               Previous
             </Button>
             <Button
+              className="z-0"
               variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
