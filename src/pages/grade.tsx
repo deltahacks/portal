@@ -40,12 +40,12 @@ const GradingPortal: NextPage = () => {
                   {togglePriotity ? "Showing Priority" : "Showing All"}
                 </button>
                 <div className="py-4">
-                  / {data?.data.length} Applications Reviewed <br />
+                  / {data?.length} Applications Reviewed <br />
                   {rsvpCount} RSVPs
                 </div>
               </div>
             </div>
-            <DataTable applications={data?.data ?? []} />
+            <DataTable applications={data ?? []} />
           </main>
         </div>
         <div className="drawer-side md:hidden">

@@ -24,7 +24,7 @@ export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
 export const reviewerRouter = router({
   getApplications: protectedProcedure.query(
-    async ({ ctx }): Promise<{ data: ApplicationForReview[] }> => {
+    async ({ ctx }): Promise<ApplicationForReview[]> => {
       assertHasRequiredRoles(ctx.session.user.role, [
         RoleSchema.Enum.ADMIN,
         RoleSchema.Enum.REVIEWER,
@@ -45,7 +45,7 @@ export const reviewerRouter = router({
         },
       });
 
-      return { data: ApplicationForReview.array().parse(users) };
+      return ApplicationForReview.array().parse(users);
     }
   ),
   getApplication: protectedProcedure
@@ -54,7 +54,7 @@ export const reviewerRouter = router({
         dH10ApplicationId: z.string().optional(),
       })
     )
-    .query(async ({ ctx, input }): Promise<{ data: DH10Application }> => {
+    .query(async ({ ctx, input }): Promise<DH10Application> => {
       assertHasRequiredRoles(ctx.session.user.role, [
         RoleSchema.Enum.ADMIN,
         RoleSchema.Enum.REVIEWER,
@@ -68,7 +68,7 @@ export const reviewerRouter = router({
         },
       });
 
-      return { data: DH10ApplicationSchema.parse(application) };
+      return DH10ApplicationSchema.parse(application);
     }),
   updateStatus: protectedProcedure
     .input(z.object({ id: z.string().cuid().optional(), status: StatusSchema }))
