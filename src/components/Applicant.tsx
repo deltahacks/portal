@@ -3,6 +3,315 @@ import { trpc } from "../utils/trpc";
 import { ApplicationForReview } from "../server/router/reviewers";
 import Background from "./Background";
 import { Button } from "./Button";
+import FormDivider from "./FormDivider";
+
+interface FormInputProps {
+  label: string;
+  text?: string | null;
+  id?: string;
+  optional?: boolean;
+  link?: string;
+}
+
+const FormInput: React.FC<
+  FormInputProps & React.HTMLProps<HTMLInputElement>
+> = ({ label, text, optional }) => {
+  return (
+    <div className="flex flex-1 flex-col gap-2 pb-4">
+      <label className="text-black dark:text-white">
+        {label}{" "}
+        {optional && (
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        )}
+      </label>
+      <div className="min-h-[3rem] p-3 border align-middle rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
+        {text}
+      </div>
+    </div>
+  );
+};
+
+const FormCheckbox: React.FC<
+  FormInputProps & React.HTMLProps<HTMLInputElement>
+> = ({ label, checked, optional, link, readOnly }) => {
+  return (
+    <>
+      <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
+        <label className="text-black dark:text-white">
+          {link ? (
+            <a className="underline" href={link}>
+              {label}
+            </a>
+          ) : (
+            label
+          )}{" "}
+          {optional && (
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          )}
+        </label>
+        <input
+          className="checkbox-primary checkbox checkbox-lg rounded-sm bg-white p-2 dark:bg-neutral-800"
+          type="checkbox"
+          checked={checked}
+          readOnly={readOnly}
+        />
+      </div>
+    </>
+  );
+};
+
+const FormTextArea: React.FC<
+  FormInputProps &
+    React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
+> = ({ label, text, optional, currentLength, readOnly }) => {
+  return (
+    <div className="flex flex-1 flex-col gap-2 pb-4">
+      <label className="text-black dark:text-white">
+        {label}{" "}
+        {optional && (
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        )}
+        <div
+          className={
+            "pt-4 " +
+            (currentLength > 150
+              ? "text-red-500"
+              : "text-neutral-500 dark:text-neutral-400")
+          }
+        >
+          {150 - currentLength} words left
+        </div>
+      </label>
+      <textarea
+        className="textarea textarea-bordered rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+        placeholder="Type here..."
+        readOnly={readOnly}
+        value={text ?? ""}
+      />
+    </div>
+  );
+};
+
+const ApplicationContent = ({
+  applicationForReview,
+}: {
+  applicationForReview: ApplicationForReview;
+}) => {
+  const { dH10ApplicationId, status } = applicationForReview;
+  const { data } = trpc.reviewer.getApplication.useQuery({ dH10ApplicationId });
+
+  return (
+    <div className="fixed z-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700">
+      <Background className="z-0 rounded-md" />
+      <div className="relative z-1 w-full h-full flex flex-col p-8 overflow-y-scroll">
+        <FormDivider label="Personal Information" />
+        <div className="flex w-full flex-col lg:flex-row lg:gap-4">
+          <FormInput
+            label="First Name"
+            text={data?.lastName}
+            placeholder="John"
+          />
+          <FormInput
+            label="Last Name"
+            text={data?.firstName}
+            placeholder="Doe"
+          />
+        </div>
+        <FormInput
+          id="birthday"
+          label="Birthday"
+          text={data?.birthday.toISOString().substring(0, 10)}
+        />
+        <FormInput
+          label="Link to Resume"
+          text={data?.linkToResume}
+          placeholder="https://example.com/resume.pdf"
+          optional
+        />
+        {applicationForReview.email.endsWith("mcmaster.ca") && (
+          <FormCheckbox
+            label="Would you like to be a part of the McMaster Experience Ventures Program?"
+            checked={data?.macEv}
+            readOnly={true}
+          />
+        )}
+        <FormDivider label="Education" />
+        <FormCheckbox
+          label="Are you currently enrolled in post-secondary education?"
+          checked={data?.studyEnrolledPostSecondary}
+          readOnly={true}
+        />
+        {data?.studyEnrolledPostSecondary && (
+          <div>
+            <FormInput
+              label="Study Location"
+              text={data?.studyLocation}
+              placeholder="School..."
+              optional
+            />
+            <FormInput
+              label="Study Degree"
+              text={data?.studyDegree}
+              placeholder="Degree..."
+              optional
+            />
+            <FormInput
+              label="Study Major"
+              text={data?.studyMajor}
+              placeholder="Major..."
+              optional
+            />
+            <FormInput
+              label="Year of Study"
+              text={data?.studyYearOfStudy}
+              placeholder="Study Year..."
+              optional
+            />
+            <FormInput
+              id="studyExpectedGraducation"
+              label="Expected Graduation"
+              text={data?.studyExpectedGraduation
+                ?.toISOString()
+                .substring(0, 10)}
+            />
+          </div>
+        )}
+        optional
+        <FormInput
+          label="Previous Hackathons Count"
+          text={data?.previousHackathonsCount.toString()}
+        />
+        <FormDivider label="Long Answer" />
+        <FormTextArea
+          id="longAnswerChange"
+          label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
+          text={data?.longAnswerChange}
+          currentLength={data?.longAnswerChange.split(/\s/g).length ?? 0}
+        />
+        <FormTextArea
+          id="longAnswerExperience"
+          label="How do you hope to make the most out of your experience at DH10?"
+          text={data?.longAnswerExperience}
+          currentLength={data?.longAnswerExperience.split(/\s/g).length ?? 0}
+        />
+        <FormTextArea
+          id="longAnswerTech"
+          label="Which piece of future technology excites you most and where do you see it going?"
+          text={data?.longAnswerTech}
+          currentLength={data?.longAnswerTech.split(/\s/g).length ?? 0}
+        />
+        <FormTextArea
+          id="longAnswerMagic"
+          label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
+          text={data?.longAnswerMagic}
+          currentLength={data?.longAnswerMagic.split(/\s/g).length ?? 0}
+        />
+        <FormDivider label="Survey" />
+        <FormInput
+          id="socialText"
+          label="What are your social media links?"
+          text={data?.socialText ?? ""}
+          optional
+        />
+        <FormTextArea
+          id="interests"
+          label="Is there anything else interesting you want us to know or see?"
+          text={data?.interests ?? ""}
+          currentLength={data?.interests?.split(/\s/g).length ?? 0}
+          optional
+        />
+        <FormInput
+          id="tshirtSize"
+          label="T-shirt Size"
+          text={data?.tshirtSize}
+        />
+        <FormInput
+          id="hackerKind"
+          label="What kind of hacker are you?"
+          text={data?.hackerKind}
+        />
+        <FormInput
+          id="hackerKind"
+          label="What kind of hacker are you?"
+          text={data?.hackerKind}
+        />
+        <FormInput
+          id="workshopChoices"
+          label="What workshops are you interested in?"
+          text={data?.workshopChoices.join(", ")}
+        />
+        <FormInput
+          id="discoveredFrom"
+          label="How did you hear about DeltaHacks?"
+          text={data?.discoverdFrom.join(", ")}
+        />
+        <FormInput id="gender" label="Gender" text={data?.gender} />
+        <FormInput id="race" label="Race" text={data?.race} />
+        <FormCheckbox
+          id="alreadyHaveTeam"
+          label="Do you already have a team?"
+          checked={data?.alreadyHaveTeam}
+          readOnly={true}
+        />
+        <FormCheckbox
+          id="considerCoffee"
+          label="Would you like to be considered for a coffee chat with a sponser?"
+          checked={data?.considerCoffee}
+          readOnly={true}
+        />
+        <FormDivider label="Emergency Contact" />
+        <div className="flex flex-col md:flex-row md:items-end md:gap-4">
+          <FormInput
+            id="emergencyContactName"
+            label="Name of Emergency Contact"
+            placeholder="James Doe"
+            text={data?.emergencyContactName}
+          />
+          <FormInput
+            id="emergencyContactRelation"
+            label="Relation to Emergency Contact"
+            placeholder="Parent / Guardian / Friend / Spouse"
+            text={data?.emergencyContactRelation}
+          />
+        </div>
+        <FormInput
+          id="emergencyContactPhone"
+          label="Emergency Contact Phone Number"
+          placeholder="000-000-0000"
+          text={data?.emergencyContactPhone}
+        />
+        <FormDivider label="MLH Consent" />
+        <FormCheckbox
+          id="agreeToMLHCodeOfConduct"
+          label="Agree to MLH Code of Conduct"
+          link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
+          checked={data?.agreeToMLHCodeOfConduct}
+          readOnly={true}
+        />
+        <FormCheckbox
+          id="agreeToMLHPrivacyPolicy"
+          label="Agree to MLH Privacy Policy"
+          link="https://mlh.io/privacy"
+          checked={data?.agreeToMLHPrivacyPolicy}
+          readOnly={true}
+        />
+        <FormCheckbox
+          id="agreeToMLHCommunications"
+          label="Agree to MLH Communications"
+          checked={data?.agreeToMLHCommunications}
+          optional
+          readOnly={true}
+        />
+      </div>
+    </div>
+  );
+};
 
 // TODO make sexy opening animation
 const ApplicationPopupButton = ({
@@ -19,249 +328,14 @@ const ApplicationPopupButton = ({
       {isVisible && (
         <>
           <div
-            className="fixed z-1 top-0 left-0 w-screen h-screen bg-black/50"
+            className="fixed z-0 top-0 left-0 w-screen h-screen bg-black/50"
             onClick={() => setVisibility(false)}
           />
-          <div className="fixed z-6 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:w-3/5 h-5/6 rounded-md border dark:border-zinc-700">
-            <Background className="block z-6 rounded-md" />
-          </div>
+          <ApplicationContent applicationForReview={applicationForReview} />
         </>
       )}
     </>
   );
 };
-
-// return (
-//   <>
-//     <tr className="bg-black text-left" onClick={() => setIsOpen(!isOpen)}>
-//       <td className="border border-slate-800 p-3">{index}</td>
-//       <td className="border border-slate-800 p-3">{applicant.email}</td>
-//       <td className="border border-slate-800 p-3">{applicant.firstName}</td>
-//       <td className="border border-slate-800 p-3">{applicant.lastName}</td>
-//       <td className="border border-slate-800 p-3">
-//         {applicant.reviews.length} / 3
-//       </td>
-//       <td className="border border-slate-800 p-3">
-//         {/* {getScore(applicant.reviews)} */}
-//       </td>
-//       <td
-//         className="border border-slate-800 p-3"
-//         onClick={(e) => e.stopPropagation()}
-//       >
-//         <form className="flex flex-row gap-2">
-//           <input
-//             type="number"
-//             min="1"
-//             max="5"
-//             onKeyDown={preventMinus}
-//             onChange={(e) => setGrade(e.target.value)}
-//             value={grade}
-//             className={
-//               alreadyReviewed
-//                 ? "hidden"
-//                 : "block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-//             }
-//           />
-//           <div>
-//             {alreadyReviewed ? (
-//               <p>Reviewed</p>
-//             ) : (
-//               <button
-//                 className={clsx(
-//                   "w-full rounded  px-4 py-2 text-white",
-//                   "bg-primary"
-//                 )}
-//                 onClick={async (e) => {
-//                   e.preventDefault();
-//                   const gradeInt = parseInt(grade);
-//                   if (gradeInt <= 0 || 6 <= gradeInt) {
-//                     return;
-//                   }
-//                   await submitGrade.mutateAsync({
-//                     mark: gradeInt,
-//                     hackerId: applicant.hackerId,
-//                   });
-//                   setAlreadyReviewed(true);
-//                 }}
-//               >
-//                 Submit
-//               </button>
-//             )}
-//           </div>
-//         </form>
-//       </td>
-//       {/* <td className="border border-slate-800 p-4">
-//         <input
-//           onClick={(e) => e.stopPropagation()}
-//           type="checkbox"
-//           className="checkbox checkbox-primary"
-//         />
-//       </td> */}
-//     </tr>
-//     {isOpen && (
-//       <tr>
-//         <td colSpan={7} className="bg-[#1F1F1F] px-10 py-5">
-//           <div className="text-lg font-bold text-white">
-//             ApplicationForReview Overview
-//           </div>
-
-//           <div className="flex h-auto flex-row gap-3 py-3">
-//             <div className="flex w-7/12 flex-col gap-3">
-//               <div className="break-words rounded border border-slate-300 p-6">
-//                 <div className="text-lg">Basic Information</div>
-//                 <hr className="mt-2 border-t border-slate-100"></hr>
-//                 <div className="mt-2">
-//                   <strong>Name: </strong> {applicant.firstName}{" "}
-//                   {applicant.lastName}
-//                 </div>
-//                 <div>
-//                   <strong>Birthday: </strong>{" "}
-//                   {
-//                     new Date(applicant.birthday)
-//                       .toLocaleString()
-//                       .split(",")[0]
-//                   }
-//                 </div>
-//                 <div>
-//                   <strong>Major: </strong> {applicant.major}
-//                 </div>
-//                 <div>
-//                   <strong>Enrolled: </strong>{" "}
-//                   {applicant.willBeEnrolled ? "Yes" : "No"}
-//                 </div>
-//                 <div>
-//                   <strong>Graduation Year: </strong>{" "}
-//                   {
-//                     new Date(applicant.graduationYear)
-//                       .toLocaleString()
-//                       .split(",")[0]
-//                   }
-//                 </div>
-//                 <div>
-//                   <strong>Degree: </strong> {applicant.degree}
-//                 </div>
-//                 <div>
-//                   <strong>Current Level: </strong> {applicant.currentLevel}
-//                 </div>
-//                 <div>
-//                   <strong>Hackathon Count: </strong>{" "}
-//                   {applicant.hackathonCount}
-//                 </div>
-//                 <div>
-//                   <strong>Social Links: </strong> {applicant.socialLinks}
-//                 </div>
-//               </div>
-
-//               <div className="h-64 overflow-y-scroll break-words rounded border border-slate-300 p-6">
-//                 <div className="text-lg">Long Answer Questions</div>
-//                 <hr className="mt-2 border-t border-slate-100"></hr>
-//                 <div>
-//                   <div className="mb-3 mt-5 font-bold">
-//                     If you had the ability to change anything in the world,
-//                     what would it be and why?
-//                   </div>
-//                   <div>{applicant.longAnswer1}</div>
-//                 </div>
-//                 <div>
-//                   <div className="mb-3 mt-5 font-bold">
-//                     What is a project you hope to undertake in the future? And
-//                     why not now?This question is required.
-//                   </div>
-//                   <div>{applicant.longAnswer2}</div>
-//                 </div>
-//                 <div>
-//                   <div className="mb-3 mt-5 font-bold">
-//                     If you could only speak in sentences from the script of
-//                     one movie, which movie would it be and why?This question
-//                     is required.
-//                   </div>
-//                   <div>{applicant.longAnswer3}</div>
-//                 </div>
-//                 <div>
-//                   <div className="mb-3 mt-5 font-bold">Extras</div>
-//                   <div>{applicant.extra}</div>
-//                 </div>
-//               </div>
-
-//               <div className="h-40 overflow-y-scroll break-words rounded border border-slate-300 p-6">
-//                 <div className="text-lg">Additional Information</div>
-//                 <hr className="mt-2 border-t border-slate-100"></hr>
-//                 <div className="mt-5">
-//                   <strong>T-Shirt Size: </strong> {applicant.tshirtSize}
-//                 </div>
-//                 <div>
-//                   <strong>Hacker Type: </strong> {applicant.hackerType}
-//                 </div>
-//                 <div>
-//                   <strong>Has Team: </strong>{" "}
-//                   {applicant.hasTeam ? "Yes" : "No"}
-//                 </div>
-//                 <div>
-//                   <strong>Workshop: </strong> {applicant.workShop}
-//                 </div>
-//                 <div>
-//                   <strong>Gender: </strong> {applicant.gender}
-//                 </div>
-//                 <div>
-//                   <strong>Consider Sponser Chat: </strong>{" "}
-//                   {applicant.considerSponserChat}
-//                 </div>
-//                 <div>
-//                   <strong>How Did They hear: </strong>{" "}
-//                   {applicant.howDidYouHear}
-//                 </div>
-//                 <div>
-//                   <strong>Background: </strong> {applicant.background}
-//                 </div>
-//                 <div>
-//                   <strong>Emergency Contact Info: </strong>
-//                   <p>
-//                     &emsp;<b>Name:</b>{" "}
-//                     {applicant.emergencyContactInfo.firstName || "N/A"}
-//                     {applicant.emergencyContactInfo.lastName || "N/A"}
-//                   </p>
-//                   <p>
-//                     &emsp;<b>Phone Number:</b>{" "}
-//                     {applicant.emergencyContactInfo.phoneNumber || "N/A"}
-//                   </p>
-//                   <p>
-//                     &emsp;<b>Email:</b>{" "}
-//                     {applicant.emergencyContactInfo.email || "N/A"}
-//                   </p>
-//                 </div>
-//                 <div>
-//                   <strong>MLH Agreement: </strong>{" "}
-//                   {applicant.mlhAgreement ? "Yes" : "No"}
-//                 </div>
-//                 <div>
-//                   <strong>MLH Consent: </strong>{" "}
-//                   {applicant.mlhCoc ? "Yes" : "No"}
-//                 </div>
-//               </div>
-//             </div>
-//             <div className="flex w-5/12 flex-col items-center gap-3">
-//               {applicant.resume ? (
-//                 <iframe
-//                   width="100%"
-//                   height="100%"
-//                   loading="lazy"
-//                   src={applicant.resume || " "}
-//                 ></iframe>
-//               ) : (
-//                 "The applicant did not submit a resume"
-//               )}
-//               <button
-//                 className="w-8/12 rounded bg-primary px-4 py-2 text-white hover:bg-sky-900"
-//                 onClick={() => openInNewTab(applicant.resume ?? "")}
-//               >
-//                 Open Resume
-//               </button>
-//             </div>
-//           </div>
-//         </td>
-//       </tr>
-//     )}
-//   </>
-// );
 
 export default ApplicationPopupButton;
