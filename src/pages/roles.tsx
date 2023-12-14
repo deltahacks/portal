@@ -1,11 +1,10 @@
+import { Role, User } from "@prisma/client";
 import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
   NextPage,
 } from "next";
 import { useState } from "react";
-import { User, RoleSchema } from "../../prisma/zod";
-import { RoleType } from "../../prisma/zod/inputTypeSchemas/RoleSchema";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
@@ -24,7 +23,7 @@ enum ActionType {
 type Action = {
   actionType: ActionType;
   user: User;
-  role: RoleType | undefined;
+  role?: Role;
 };
 
 const Roles: NextPage = () => {
@@ -33,10 +32,10 @@ const Roles: NextPage = () => {
   const [action, setAction] = useState<Action | undefined>(undefined);
 
   const { data, isLoading, isError, refetch } = trpc.user.byRole.useQuery({
-    role: role ? (role.toUpperCase() as RoleType) : null,
+    role: role ? (role.toUpperCase() as keyof typeof Role) : null,
   });
 
-  const roleOptions = Object.keys(RoleSchema.Enum);
+  const roleOptions = Object.keys(Role);
   const addRole = trpc.user.addRole.useMutation();
   const removeRole = trpc.user.removeRole.useMutation();
 
@@ -152,7 +151,7 @@ const Roles: NextPage = () => {
                                   onClick={async (e) => {
                                     await addRole.mutateAsync({
                                       id: user.id,
-                                      role: e.currentTarget.value.toUpperCase() as RoleType,
+                                      role: e.currentTarget.value.toUpperCase() as keyof typeof Role,
                                     });
                                     setAction(undefined);
                                     await refetch();
@@ -207,7 +206,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
-    [RoleSchema.Enum.ADMIN],
+    [Role.ADMIN],
     undefined,
     output
   );

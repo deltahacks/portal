@@ -3,13 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm i && prisma generate && prettier --write prisma/zod/* && next dev",
-    "build": "pnpm dlx prisma generate && prettier --write prisma/zod/* && next build",
+    "dev": "pnpm i && prisma generate && next dev",
+    "build": "pnpm dlx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\"",
-    "prisma:generate-and-format": "prisma generate && prettier --write prisma/zod/* "
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\""
   },
   "dependencies": {
     "@babel/plugin-transform-react-display-name": "^7.23.3",
@@ -59,8 +58,7 @@
     "react-timelines": "^2.6.1",
     "superjson": "^1.10.0",
     "validator": "^13.11.0",
-    "zod": "^3.18.0",
-    "zod-prisma-types": "^3.1.6"
+    "zod": "^3.18.0"
   },
   "devDependencies": {
     "@types/logrocket-react": "^3.0.3",

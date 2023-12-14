@@ -1,15 +1,13 @@
-import RoleSchema, {
-  RoleType,
-} from "../../prisma/zod/inputTypeSchemas/RoleSchema";
+import { Role } from "@prisma/client";
 
 import { TRPCError } from "@trpc/server";
 import { TRPC_ERROR_CODE_KEY } from "@trpc/server/rpc";
 
-const roleTypes = Object.keys(RoleSchema.Enum);
+const roleTypes = Object.keys(Role);
 
 export const hasRequiredRoles = (
   srcRoles?: string[],
-  requiredRoles?: RoleType[]
+  requiredRoles?: Role[]
 ) => {
   if (!srcRoles) {
     return false;
@@ -21,7 +19,7 @@ export const hasRequiredRoles = (
   let hasAtLeastOneRequiredRole = false;
   srcRoles.forEach((role) => {
     hasAtLeastOneRequiredRole ||=
-      roleTypes.includes(role) && requiredRoles.includes(role as RoleType);
+      roleTypes.includes(role) && requiredRoles.includes(role as Role);
   });
   return hasAtLeastOneRequiredRole;
 };
@@ -43,7 +41,7 @@ export const assertWithTRPCError = (
 
 export const assertHasRequiredRoles = (
   srcRoles?: string[],
-  requiredRoles?: RoleType[]
+  requiredRoles?: Role[]
 ) => {
   assertWithTRPCError(
     hasRequiredRoles(srcRoles, requiredRoles),

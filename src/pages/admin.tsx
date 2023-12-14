@@ -4,11 +4,11 @@ import {
   NextPage,
 } from "next";
 import Link from "next/link";
-import { RoleSchema } from "../../prisma/zod";
+import { Role } from "@prisma/client";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
-
+``;
 // TODO
 const Admin: NextPage = () => {
   const { mutateAsync } = trpc.admin.setKillSwitch.useMutation();
@@ -48,7 +48,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
-    [RoleSchema.Enum.ADMIN],
+    [Role.ADMIN],
     undefined,
     output
   );

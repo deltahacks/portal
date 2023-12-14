@@ -1,13 +1,9 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, Status, Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { env } from "process";
 import { protectedProcedure, router } from "./trpc";
-import {
-  DH10ApplicationSchema,
-  StatusSchema,
-  RoleSchema,
-} from "../../../prisma/zod";
+import applicationSchema from "../../schemas/application";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -112,8 +108,8 @@ export const applicationRouter = router({
   rsvpCount: protectedProcedure.output(z.number()).query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -121,7 +117,7 @@ export const applicationRouter = router({
     const rsvp_count =
       (await ctx.prisma.user.count({
         where: {
-          status: StatusSchema.Enum.RSVP,
+          status: Status.RSVP,
         },
       })) || 0;
 
@@ -157,13 +153,13 @@ export const applicationRouter = router({
       where: { id: ctx.session.user.id },
     });
 
-    if (user?.status != StatusSchema.Enum.ACCEPTED) {
+    if (user?.status != Status.ACCEPTED) {
       throw new Error("Unauthorized call");
     }
 
     await ctx.prisma?.user.update({
       where: { id: ctx.session.user.id },
-      data: { status: StatusSchema.Enum.RSVP },
+      data: { status: Status.RSVP },
     });
   }),
   submit: protectedProcedure
@@ -209,7 +205,7 @@ export const applicationRouter = router({
         where: { id: ctx.session.user.id },
         data: {
           qrcode: input,
-          status: StatusSchema.Enum.CHECKED_IN,
+          status: Status.CHECKED_IN,
         },
       });
     }),
@@ -369,7 +365,7 @@ export const applicationRouter = router({
       return {};
     }
 
-    const pt = DH10ApplicationSchema.partial();
+    const pt = applicationSchema.partial();
 
     type AutofillType = z.infer<typeof pt>;
 
@@ -382,9 +378,7 @@ export const applicationRouter = router({
       autofill["lastName"] = converted.lastName;
     }
     if (converted.birthday !== undefined) {
-      autofill["birthday"] = new Date(
-        converted.birthday.toISOString().slice(0, 10)
-      );
+      autofill["birthday"] = converted.birthday.toISOString().slice(0, 10);
     }
 
     if (converted.major !== "N/A") {
@@ -397,9 +391,9 @@ export const applicationRouter = router({
       autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
     }
     if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = new Date(
-        converted.graduationYear.toISOString().slice(0, 10)
-      );
+      autofill["studyExpectedGraduation"] = converted.graduationYear
+        .toISOString()
+        .slice(0, 10);
     }
     if (converted.degree !== "N/A") {
       autofill["studyDegree"] = converted.degree;
@@ -446,7 +440,7 @@ export const applicationRouter = router({
     return autofill;
   }),
   submitDh10: protectedProcedure
-    .input(DH10ApplicationSchema)
+    .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
       // make sure there is no existing application
 
@@ -479,7 +473,7 @@ export const applicationRouter = router({
 
       const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: StatusSchema.Enum.IN_REVIEW },
+        data: { status: Status.IN_REVIEW },
       });
 
       await ctx.logsnag.track({
@@ -510,7 +504,7 @@ export const applicationRouter = router({
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: StatusSchema.Enum.IN_REVIEW }, // Replace with the correct status
+        data: { status: Status.IN_REVIEW }, // Replace with the correct status
       });
       // create logsnag log
       await ctx.logsnag.track({

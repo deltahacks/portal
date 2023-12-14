@@ -1,10 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
-import {
-  RoleSchema,
-  StatusSchema,
-  DH10ApplicationSchema,
-} from "../../../prisma/zod";
+import { TRPCError } from "@trpc/server";
+import { Role, Status } from "@prisma/client";
+import ApplicationSchema from "../../schemas/application";
 import {
   assert,
   assertHasRequiredRoles,
@@ -15,18 +13,19 @@ const Application = z.object({
   id: z.string().cuid(),
   name: z.string(),
   email: z.string().email(),
-  status: StatusSchema,
-  dh10application: DH10ApplicationSchema,
+  status: z.nativeEnum(Status),
+  dh10application: ApplicationSchema,
 });
 
 export type Application = z.infer<typeof Application>;
 
 export const reviewerRouter = router({
-  getApplications: protectedProcedure.query(
-    async ({ ctx }): Promise<{ data: Application[] }> => {
+  getApplications: protectedProcedure
+    .output(Application.array())
+    .query(async ({ ctx }) => {
       assertHasRequiredRoles(ctx.session.user.role, [
-        RoleSchema.Enum.ADMIN,
-        RoleSchema.Enum.REVIEWER,
+        Role.ADMIN,
+        Role.REVIEWER,
       ]);
 
       const users = await ctx.prisma.user.findMany({
@@ -44,9 +43,8 @@ export const reviewerRouter = router({
         },
       });
 
-      return { data: Application.array().parse(users) };
-    }
-  ),
+      return Application.array().parse(users);
+    }),
   // getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
   //   if (
   //     !(
@@ -161,10 +159,14 @@ export const reviewerRouter = router({
   submit: protectedProcedure
     .input(z.object({ mark: z.number(), hackerId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      assertHasRequiredRoles(ctx.session.user.role, [
-        RoleSchema.Enum.ADMIN,
-        RoleSchema.Enum.REVIEWER,
-      ]);
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
       // count reviews for a hacker.
       // if we have 3 already, deny making any more reviews
