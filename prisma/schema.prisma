@@ -18,8 +18,7 @@ datasource db {
 
 // Necessary for Next auth
 model Account {
-  // Make id optional so that frontend need not provide the id
-  id                       String  @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
+  id                       String  @id @default(cuid())
   userId                   String
   type                     String
   provider                 String
@@ -41,8 +40,7 @@ model Account {
 }
 
 model Session {
-  // Make id optional so that frontend need not provide the id
-  id           String   @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
+  id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -50,8 +48,7 @@ model Session {
 }
 
 model User {
-  // Make id optional so that frontend need not provide the id
-  id                   String     @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
+  id                   String     @id @default(cuid())
   name                 String?
   email                String?    @unique
   emailVerified        DateTime?
@@ -73,8 +70,7 @@ model User {
 }
 
 model Review {
-  // Make id optional so that frontend need not provide the id
-  id         String @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
+  id         String @id @default(cuid())
   hackerId   String
   reviewerId String
   mark       Float  @default(0) /// @zod.custom.use(z.number().default(0))
@@ -84,8 +80,7 @@ model Review {
 }
 
 model EventLog {
-  // Make id optional so that frontend need not provide the id
-  id        String   @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
+  id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   timestamp DateTime @default(now()) /// @zod.custom.use(z.coerce.date().default(new Date()))
@@ -121,8 +116,7 @@ enum Status {
 
 /// @zod.import(["import isMobilePhone from 'validator/lib/isMobilePhone'", "import { refineAgeRange, refineWordLength, refineIsTrue, transformStringToNullIfEmpty } from '../../../src/utils/zodValidators'"])
 model DH10Application {
-  // Make id optional so that frontend need not provide the id
-  id String @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
+  id String @id @default(cuid())
 
   firstName String /// @zod.string.min(1).max(255)
   lastName  String /// @zod.string.min(1).max(255)
@@ -170,8 +164,7 @@ model DH10Application {
 }
 
 model Config {
-  // Make id optional so that frontend need not provide the id
-  id String @id @default(cuid()) /// @zod.custom.use(z.string().cuid().optional())
+  id String @id @default(cuid())
 
   name  String @unique
   value String
