@@ -26,7 +26,7 @@ const FormInput: React.FC<
           </span>
         )}
       </label>
-      <div className="min-h-[3rem] p-3 border align-middle rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
+      <div className="min-h-[3rem] p-3 border align-middle rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
         {text}
       </div>
     </div>
@@ -67,7 +67,7 @@ const FormCheckbox: React.FC<
 const FormTextArea: React.FC<
   FormInputProps &
     React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
-> = ({ label, text, optional, currentLength, readOnly }) => {
+> = ({ label, text, optional, currentLength }) => {
   return (
     <div className="flex flex-1 flex-col gap-2 pb-4">
       <label className="text-black dark:text-white">
@@ -88,12 +88,12 @@ const FormTextArea: React.FC<
           {150 - currentLength} words left
         </div>
       </label>
-      <textarea
-        className="textarea textarea-bordered rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+      <div
+        className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         placeholder="Type here..."
-        readOnly={readOnly}
-        value={text ?? ""}
-      />
+      >
+        {text}
+      </div>
     </div>
   );
 };
@@ -107,8 +107,8 @@ const ApplicationContent = ({
   const { data } = trpc.reviewer.getApplication.useQuery({ dH10ApplicationId });
 
   return (
-    <div className="fixed z-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700">
-      <Background className="z-0 rounded-md" />
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700">
+      <Background className="rounded-md" />
       <div className="relative z-1 w-full h-full flex flex-col p-8 overflow-y-scroll">
         <FormDivider label="Personal Information" />
         <div className="flex w-full flex-col lg:flex-row lg:gap-4">
@@ -138,14 +138,14 @@ const ApplicationContent = ({
           <FormCheckbox
             label="Would you like to be a part of the McMaster Experience Ventures Program?"
             checked={data?.macEv}
-            readOnly={true}
+            readOnly
           />
         )}
         <FormDivider label="Education" />
         <FormCheckbox
           label="Are you currently enrolled in post-secondary education?"
           checked={data?.studyEnrolledPostSecondary}
-          readOnly={true}
+          readOnly
         />
         {data?.studyEnrolledPostSecondary && (
           <div>
@@ -257,13 +257,13 @@ const ApplicationContent = ({
           id="alreadyHaveTeam"
           label="Do you already have a team?"
           checked={data?.alreadyHaveTeam}
-          readOnly={true}
+          readOnly
         />
         <FormCheckbox
           id="considerCoffee"
           label="Would you like to be considered for a coffee chat with a sponser?"
           checked={data?.considerCoffee}
-          readOnly={true}
+          readOnly
         />
         <FormDivider label="Emergency Contact" />
         <div className="flex flex-col md:flex-row md:items-end md:gap-4">
@@ -292,21 +292,21 @@ const ApplicationContent = ({
           label="Agree to MLH Code of Conduct"
           link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
           checked={data?.agreeToMLHCodeOfConduct}
-          readOnly={true}
+          readOnly
         />
         <FormCheckbox
           id="agreeToMLHPrivacyPolicy"
           label="Agree to MLH Privacy Policy"
           link="https://mlh.io/privacy"
           checked={data?.agreeToMLHPrivacyPolicy}
-          readOnly={true}
+          readOnly
         />
         <FormCheckbox
           id="agreeToMLHCommunications"
           label="Agree to MLH Communications"
           checked={data?.agreeToMLHCommunications}
           optional
-          readOnly={true}
+          readOnly
         />
       </div>
     </div>

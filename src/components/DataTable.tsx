@@ -336,9 +336,8 @@ export const DataTable = ({
           <div className="flex-1 text-sm text-muted-foreground">
             Displaying {table.getFilteredRowModel().rows.length} row(s).
           </div>
-          <div className="space-x-2 -z-1">
+          <div className="space-x-2">
             <Button
-              className="z-0"
               variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
@@ -347,7 +346,6 @@ export const DataTable = ({
               Previous
             </Button>
             <Button
-              className="z-0"
               variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
