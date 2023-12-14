@@ -3,12 +3,12 @@ generator client {
 }
 
 generator zod {
-  provider                 = "zod-prisma-types"
-  output                   = "./zod"
-  useMultipleFiles         = true
-  createInputTypes         = false
-  coerceDate               = true
-  writeNullishInModelTypes = true
+  provider                  = "zod-prisma-types"
+  output                    = "./zod"
+  useMultipleFiles          = true
+  createInputTypes          = false
+  createRelationValuesTypes = true
+  coerceDate                = true
 }
 
 datasource db {
@@ -130,10 +130,10 @@ model DH10Application {
   birthday DateTime /// @zod.custom.use(z.coerce.date().refine((date) => refineAgeRange(date, 13), { message: "You must be at least 13 years old" }))
 
   studyEnrolledPostSecondary Boolean
-  studyLocation              String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
-  studyDegree                String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
-  studyMajor                 String? /// @zod.custom.use(z.string().min(1).max(255).transform(transformStringToNullIfEmpty))
-  studyYearOfStudy           String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
+  studyLocation              String? /// @zod.string.min(1).max(255)
+  studyDegree                String? /// @zod.string.min(1).max(255)
+  studyMajor                 String? /// @zod.string.min(1).max(255)
+  studyYearOfStudy           String?
   studyExpectedGraduation    DateTime?
 
   previousHackathonsCount Int /// @zod.custom.use(z.coerce.number().int().min(0))
@@ -146,7 +146,7 @@ model DH10Application {
   socialText String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
   interests  String? /// @zod.custom.use(z.string().refine((val) => refineWordLength(val, 150), { message: "Must be less than 150 words" }).transform(transformStringToNullIfEmpty))
 
-  linkToResume String? /// @zod.custom.use(z.string().transform(transformStringToNullIfEmpty))
+  linkToResume String?
 
   tshirtSize      String
   hackerKind      String
