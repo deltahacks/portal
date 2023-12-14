@@ -18,6 +18,6 @@ export const validateIsTrue = (isTrue: boolean) => {
   return isTrue === true;
 };
 
-export const transformStringToNullIfEmpty = (value: string) => {
+export const transformString = (value: string) => {
   return value ?? null;
 };
