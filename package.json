@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm i && prisma generate && prettier --write prisma/zod/* && next dev",
-    "build": "pnpm dlx prisma generate && prettier --write prisma/zod/* && next build",
+    "dev": "pnpm i && prisma generate && next dev",
+    "build": "pnpm dlx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\"",
