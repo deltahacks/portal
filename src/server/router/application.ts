@@ -8,11 +8,8 @@ import type {
 } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
-import {
-  DH10ApplicationSchema,
-  StatusSchema,
-  RoleSchema,
-} from "../../../prisma/zod";
+import { StatusSchema, RoleSchema } from "../../../prisma/zod";
+import applicationSchema from "../../schemas/application";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -314,7 +311,7 @@ export const applicationRouter = router({
       return {};
     }
 
-    const pt = DH10ApplicationSchema.partial();
+    const pt = applicationSchema.partial();
 
     type AutofillType = z.infer<typeof pt>;
 
@@ -327,9 +324,7 @@ export const applicationRouter = router({
       autofill["lastName"] = converted.lastName;
     }
     if (converted.birthday !== undefined) {
-      autofill["birthday"] = new Date(
-        converted.birthday.toISOString().slice(0, 10)
-      );
+      autofill["birthday"] = converted.birthday.toISOString().slice(0, 10);
     }
 
     if (converted.major !== "N/A") {
@@ -342,9 +337,9 @@ export const applicationRouter = router({
       autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
     }
     if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = new Date(
-        converted.graduationYear.toISOString().slice(0, 10)
-      );
+      autofill["studyExpectedGraduation"] = converted.graduationYear
+        .toISOString()
+        .slice(0, 10);
     }
     if (converted.degree !== "N/A") {
       autofill["studyDegree"] = converted.degree;
@@ -391,7 +386,7 @@ export const applicationRouter = router({
     return autofill;
   }),
   submitDh10: protectedProcedure
-    .input(DH10ApplicationSchema)
+    .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
       // make sure there is no existing application
 
