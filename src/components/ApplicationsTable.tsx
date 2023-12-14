@@ -1,11 +1,11 @@
 import * as React from "react";
+import { Status } from "@prisma/client";
 import {
   Column,
   ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -25,9 +25,8 @@ import {
 } from "./DropdownMenu";
 import { Input } from "./Input";
 import { DataTable } from "./Table";
-import { Status } from "@prisma/client";
-import { trpc } from "../utils/trpc";
 import ApplicationPopupButton from "./Applicant";
+import StatusDropdown from "./StatusDropdown";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -92,57 +91,11 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     },
     cell: ({ row }) => {
       const { id, status } = row.original;
-      return <StatusDropdown id={id} status={status} />;
+      return <StatusDropdown id={id} status={status} position="float-right" />;
     },
     enableSorting: true,
   },
 ];
-
-const StatusDropdown = ({
-  id,
-  status: srcStatus,
-}: {
-  id: string;
-  status: Status;
-}) => {
-  const [displayedStatus, setDisplayedStatus] = React.useState(srcStatus);
-  const updateStatus = trpc.reviewer.updateStatus.useMutation();
-
-  const statusTypes = Object.keys(Status) as Status[];
-
-  return (
-    <div className="float-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="justify-between w-36" variant="outline">
-            <span className="sr-only">Open menu</span>
-            <div>{displayedStatus}</div>
-            <ChevronDown className="pl-2 h-4 w-6 float-right" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {statusTypes
-            .filter((status) => status !== displayedStatus)
-            .map((status) => (
-              <DropdownMenuItem
-                key={status}
-                className="capitalize"
-                onClick={async () => {
-                  setDisplayedStatus(status);
-                  updateStatus.mutateAsync({
-                    id,
-                    status: status,
-                  });
-                }}
-              >
-                {status}
-              </DropdownMenuItem>
-            ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-};
 
 const StatusFilterDropdown = <TData,>({
   column,

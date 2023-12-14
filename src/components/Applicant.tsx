@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { trpc } from "../utils/trpc";
 import { ApplicationForReview } from "../server/router/reviewers";
 import Background from "./Background";
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
+import StatusDropdown from "./StatusDropdown";
 
 interface FormInputProps {
   label: string;
@@ -102,209 +103,196 @@ const ApplicationContent = ({
   const { data } = trpc.reviewer.getApplication.useQuery({ dH10ApplicationId });
 
   return (
-    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700">
-      <Background className="rounded-md" />
-      <div className="relative z-1 w-full h-full flex flex-col p-8 overflow-y-scroll">
-        <FormDivider label="Personal Information" />
-        <div className="flex w-full flex-col lg:flex-row lg:gap-4">
-          <FormInput
-            label="First Name"
-            text={data?.lastName}
-            placeholder="John"
-          />
-          <FormInput
-            label="Last Name"
-            text={data?.firstName}
-            placeholder="Doe"
-          />
-        </div>
+    <>
+      <FormDivider label="Personal Information" />
+      <div className="flex w-full flex-col lg:flex-row lg:gap-4">
         <FormInput
-          id="birthday"
-          label="Birthday"
-          text={data?.birthday.toISOString().substring(0, 10)}
+          label="First Name"
+          text={data?.lastName}
+          placeholder="John"
         />
-        <FormInput
-          label="Link to Resume"
-          text={data?.linkToResume}
-          placeholder="https://example.com/resume.pdf"
-          optional
-        />
-        {applicationForReview.email.endsWith("mcmaster.ca") && (
-          <FormCheckbox
-            label="Would you like to be a part of the McMaster Experience Ventures Program?"
-            checked={data?.macEv}
-            readOnly
-          />
-        )}
-        <FormDivider label="Education" />
-        <FormCheckbox
-          label="Are you currently enrolled in post-secondary education?"
-          checked={data?.studyEnrolledPostSecondary}
-          readOnly
-        />
-        {data?.studyEnrolledPostSecondary && (
-          <div>
-            <FormInput
-              label="Study Location"
-              text={data?.studyLocation}
-              placeholder="School..."
-              optional
-            />
-            <FormInput
-              label="Study Degree"
-              text={data?.studyDegree}
-              placeholder="Degree..."
-              optional
-            />
-            <FormInput
-              label="Study Major"
-              text={data?.studyMajor}
-              placeholder="Major..."
-              optional
-            />
-            <FormInput
-              label="Year of Study"
-              text={data?.studyYearOfStudy}
-              placeholder="Study Year..."
-              optional
-            />
-            <FormInput
-              id="studyExpectedGraducation"
-              label="Expected Graduation"
-              text={data?.studyExpectedGraduation
-                ?.toISOString()
-                .substring(0, 10)}
-            />
-          </div>
-        )}
+        <FormInput label="Last Name" text={data?.firstName} placeholder="Doe" />
+      </div>
+      <FormInput
+        id="birthday"
+        label="Birthday"
+        text={data?.birthday.toISOString().substring(0, 10)}
+      />
+      <FormInput
+        label="Link to Resume"
+        text={data?.linkToResume}
+        placeholder="https://example.com/resume.pdf"
         optional
-        <FormInput
-          label="Previous Hackathons Count"
-          text={data?.previousHackathonsCount.toString()}
-        />
-        <FormDivider label="Long Answer" />
-        <FormTextArea
-          id="longAnswerChange"
-          label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
-          text={data?.longAnswerChange}
-          currentLength={data?.longAnswerChange.split(/\s/g).length ?? 0}
-        />
-        <FormTextArea
-          id="longAnswerExperience"
-          label="How do you hope to make the most out of your experience at DH10?"
-          text={data?.longAnswerExperience}
-          currentLength={data?.longAnswerExperience.split(/\s/g).length ?? 0}
-        />
-        <FormTextArea
-          id="longAnswerTech"
-          label="Which piece of future technology excites you most and where do you see it going?"
-          text={data?.longAnswerTech}
-          currentLength={data?.longAnswerTech.split(/\s/g).length ?? 0}
-        />
-        <FormTextArea
-          id="longAnswerMagic"
-          label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
-          text={data?.longAnswerMagic}
-          currentLength={data?.longAnswerMagic.split(/\s/g).length ?? 0}
-        />
-        <FormDivider label="Survey" />
-        <FormInput
-          id="socialText"
-          label="What are your social media links?"
-          text={data?.socialText ?? ""}
-          optional
-        />
-        <FormTextArea
-          id="interests"
-          label="Is there anything else interesting you want us to know or see?"
-          text={data?.interests ?? ""}
-          currentLength={data?.interests?.split(/\s/g).length ?? 0}
-          optional
-        />
-        <FormInput
-          id="tshirtSize"
-          label="T-shirt Size"
-          text={data?.tshirtSize}
-        />
-        <FormInput
-          id="hackerKind"
-          label="What kind of hacker are you?"
-          text={data?.hackerKind}
-        />
-        <FormInput
-          id="hackerKind"
-          label="What kind of hacker are you?"
-          text={data?.hackerKind}
-        />
-        <FormInput
-          id="workshopChoices"
-          label="What workshops are you interested in?"
-          text={data?.workshopChoices.join(", ")}
-        />
-        <FormInput
-          id="discoveredFrom"
-          label="How did you hear about DeltaHacks?"
-          text={data?.discoverdFrom.join(", ")}
-        />
-        <FormInput id="gender" label="Gender" text={data?.gender} />
-        <FormInput id="race" label="Race" text={data?.race} />
+      />
+      {applicationForReview.email.endsWith("mcmaster.ca") && (
         <FormCheckbox
-          id="alreadyHaveTeam"
-          label="Do you already have a team?"
-          checked={data?.alreadyHaveTeam}
+          label="Would you like to be a part of the McMaster Experience Ventures Program?"
+          checked={data?.macEv}
           readOnly
         />
-        <FormCheckbox
-          id="considerCoffee"
-          label="Would you like to be considered for a coffee chat with a sponser?"
-          checked={data?.considerCoffee}
-          readOnly
-        />
-        <FormDivider label="Emergency Contact" />
-        <div className="flex flex-col md:flex-row md:items-end md:gap-4">
+      )}
+      <FormDivider label="Education" />
+      <FormCheckbox
+        label="Are you currently enrolled in post-secondary education?"
+        checked={data?.studyEnrolledPostSecondary}
+        readOnly
+      />
+      {data?.studyEnrolledPostSecondary && (
+        <div>
           <FormInput
-            id="emergencyContactName"
-            label="Name of Emergency Contact"
-            placeholder="James Doe"
-            text={data?.emergencyContactName}
+            label="Study Location"
+            text={data?.studyLocation}
+            placeholder="School..."
+            optional
           />
           <FormInput
-            id="emergencyContactRelation"
-            label="Relation to Emergency Contact"
-            placeholder="Parent / Guardian / Friend / Spouse"
-            text={data?.emergencyContactRelation}
+            label="Study Degree"
+            text={data?.studyDegree}
+            placeholder="Degree..."
+            optional
+          />
+          <FormInput
+            label="Study Major"
+            text={data?.studyMajor}
+            placeholder="Major..."
+            optional
+          />
+          <FormInput
+            label="Year of Study"
+            text={data?.studyYearOfStudy}
+            placeholder="Study Year..."
+            optional
+          />
+          <FormInput
+            id="studyExpectedGraducation"
+            label="Expected Graduation"
+            text={data?.studyExpectedGraduation?.toISOString().substring(0, 10)}
           />
         </div>
+      )}
+      optional
+      <FormInput
+        label="Previous Hackathons Count"
+        text={data?.previousHackathonsCount.toString()}
+      />
+      <FormDivider label="Long Answer" />
+      <FormTextArea
+        id="longAnswerChange"
+        label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
+        text={data?.longAnswerChange}
+        currentLength={data?.longAnswerChange.split(/\s/g).length ?? 0}
+      />
+      <FormTextArea
+        id="longAnswerExperience"
+        label="How do you hope to make the most out of your experience at DH10?"
+        text={data?.longAnswerExperience}
+        currentLength={data?.longAnswerExperience.split(/\s/g).length ?? 0}
+      />
+      <FormTextArea
+        id="longAnswerTech"
+        label="Which piece of future technology excites you most and where do you see it going?"
+        text={data?.longAnswerTech}
+        currentLength={data?.longAnswerTech.split(/\s/g).length ?? 0}
+      />
+      <FormTextArea
+        id="longAnswerMagic"
+        label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
+        text={data?.longAnswerMagic}
+        currentLength={data?.longAnswerMagic.split(/\s/g).length ?? 0}
+      />
+      <FormDivider label="Survey" />
+      <FormInput
+        id="socialText"
+        label="What are your social media links?"
+        text={data?.socialText ?? ""}
+        optional
+      />
+      <FormTextArea
+        id="interests"
+        label="Is there anything else interesting you want us to know or see?"
+        text={data?.interests ?? ""}
+        currentLength={data?.interests?.split(/\s/g).length ?? 0}
+        optional
+      />
+      <FormInput id="tshirtSize" label="T-shirt Size" text={data?.tshirtSize} />
+      <FormInput
+        id="hackerKind"
+        label="What kind of hacker are you?"
+        text={data?.hackerKind}
+      />
+      <FormInput
+        id="hackerKind"
+        label="What kind of hacker are you?"
+        text={data?.hackerKind}
+      />
+      <FormInput
+        id="workshopChoices"
+        label="What workshops are you interested in?"
+        text={data?.workshopChoices.join(", ")}
+      />
+      <FormInput
+        id="discoveredFrom"
+        label="How did you hear about DeltaHacks?"
+        text={data?.discoverdFrom.join(", ")}
+      />
+      <FormInput id="gender" label="Gender" text={data?.gender} />
+      <FormInput id="race" label="Race" text={data?.race} />
+      <FormCheckbox
+        id="alreadyHaveTeam"
+        label="Do you already have a team?"
+        checked={data?.alreadyHaveTeam}
+        readOnly
+      />
+      <FormCheckbox
+        id="considerCoffee"
+        label="Would you like to be considered for a coffee chat with a sponser?"
+        checked={data?.considerCoffee}
+        readOnly
+      />
+      <FormDivider label="Emergency Contact" />
+      <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput
-          id="emergencyContactPhone"
-          label="Emergency Contact Phone Number"
-          placeholder="000-000-0000"
-          text={data?.emergencyContactPhone}
+          id="emergencyContactName"
+          label="Name of Emergency Contact"
+          placeholder="James Doe"
+          text={data?.emergencyContactName}
         />
-        <FormDivider label="MLH Consent" />
-        <FormCheckbox
-          id="agreeToMLHCodeOfConduct"
-          label="Agree to MLH Code of Conduct"
-          link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
-          checked={data?.agreeToMLHCodeOfConduct}
-          readOnly
-        />
-        <FormCheckbox
-          id="agreeToMLHPrivacyPolicy"
-          label="Agree to MLH Privacy Policy"
-          link="https://mlh.io/privacy"
-          checked={data?.agreeToMLHPrivacyPolicy}
-          readOnly
-        />
-        <FormCheckbox
-          id="agreeToMLHCommunications"
-          label="Agree to MLH Communications"
-          checked={data?.agreeToMLHCommunications}
-          optional
-          readOnly
+        <FormInput
+          id="emergencyContactRelation"
+          label="Relation to Emergency Contact"
+          placeholder="Parent / Guardian / Friend / Spouse"
+          text={data?.emergencyContactRelation}
         />
       </div>
-    </div>
+      <FormInput
+        id="emergencyContactPhone"
+        label="Emergency Contact Phone Number"
+        placeholder="000-000-0000"
+        text={data?.emergencyContactPhone}
+      />
+      <FormDivider label="MLH Consent" />
+      <FormCheckbox
+        id="agreeToMLHCodeOfConduct"
+        label="Agree to MLH Code of Conduct"
+        link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
+        checked={data?.agreeToMLHCodeOfConduct}
+        readOnly
+      />
+      <FormCheckbox
+        id="agreeToMLHPrivacyPolicy"
+        label="Agree to MLH Privacy Policy"
+        link="https://mlh.io/privacy"
+        checked={data?.agreeToMLHPrivacyPolicy}
+        readOnly
+      />
+      <FormCheckbox
+        id="agreeToMLHCommunications"
+        label="Agree to MLH Communications"
+        checked={data?.agreeToMLHCommunications}
+        optional
+        readOnly
+      />
+    </>
   );
 };
 
@@ -326,7 +314,30 @@ const ApplicationPopupButton = ({
             className="fixed z-0 top-0 left-0 w-screen h-screen bg-black/50"
             onClick={() => setVisibility(false)}
           />
-          <ApplicationContent applicationForReview={applicationForReview} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700">
+            <Background className="rounded-md" />
+            <div className="relative flex flex-col w-full h-full">
+              <Button
+                variant="destructive"
+                className="md:absolute top-8 right-8"
+                onClick={() => setVisibility(false)}
+              >
+                Close
+              </Button>
+              <div className="w-full flex-auto flex flex-col p-8 overflow-y-scroll">
+                <ApplicationContent
+                  applicationForReview={applicationForReview}
+                />
+              </div>
+              <div className="w-full flex-inital flex justify-center p-4 h-32 rounded-md">
+                <StatusDropdown
+                  id={applicationForReview.id}
+                  status={applicationForReview.status}
+                  className="h-14 w-40 bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
+                />
+              </div>
+            </div>
+          </div>
         </>
       )}
     </>
