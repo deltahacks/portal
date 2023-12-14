@@ -1,8 +1,9 @@
 import * as React from "react";
 
 import { cn } from "../utils/mergeTailwind";
+import { Table, flexRender } from "@tanstack/react-table";
 
-const Table = React.forwardRef<
+const TableElement = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
@@ -14,7 +15,7 @@ const Table = React.forwardRef<
     />
   </div>
 ));
-Table.displayName = "Table";
+TableElement.displayName = "Table";
 
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
@@ -105,8 +106,60 @@ const TableCaption = React.forwardRef<
 ));
 TableCaption.displayName = "TableCaption";
 
+const DataTable = <TData,>({ table }: { table: Table<TData> }) => {
+  return (
+    <div className="rounded-md border dark:border-zinc-700">
+      <TableElement>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={table.getAllColumns().length}
+                className="h-24 text-center"
+              >
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </TableElement>
+    </div>
+  );
+};
+
 export {
-  Table,
+  TableElement,
   TableHeader,
   TableBody,
   TableFooter,
@@ -114,4 +167,5 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  DataTable,
 };

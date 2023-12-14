@@ -8,7 +8,7 @@ import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import { trpc } from "../utils/trpc";
-import { DataTable } from "../components/DataTable";
+import { ApplicationsTable } from "../components/ApplicationsTable";
 
 const GradingPortal: NextPage = () => {
   const [togglePriority, setTogglePriority] = useState(true);
@@ -45,7 +45,7 @@ const GradingPortal: NextPage = () => {
                 </div>
               </div>
             </div>
-            <DataTable applications={data ?? []} />
+            <ApplicationsTable applications={data ?? []} />
           </main>
         </div>
         <div className="drawer-side md:hidden">
