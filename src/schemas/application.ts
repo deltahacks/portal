@@ -6,7 +6,6 @@ const schema = z.object({
   lastName: z.string().min(1).max(255),
   birthday: z.coerce.date().refine(
     (date) => {
-      // parse date
       // make sure over 15
       const now = new Date();
       const diff = now.getTime() - date.getTime();
@@ -53,14 +52,14 @@ const schema = z.object({
     }),
   socialText: z
     .string()
-    .transform((string) => string ?? null)
+    .transform((string) => (!!string ? string : null))
     .nullish(),
   interests: z
     .string()
     .refine((value) => value.split(/\s/g).length <= 150, {
       message: "Must be less than 150 words",
     })
-    .transform((string) => string ?? null)
+    .transform((string) => (!!string ? string : null))
     .nullish(),
   tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
   hackerKind: z.enum([

@@ -378,7 +378,9 @@ export const applicationRouter = router({
       autofill["lastName"] = converted.lastName;
     }
     if (converted.birthday !== undefined) {
-      autofill["birthday"] = converted.birthday.toISOString().slice(0, 10);
+      autofill["birthday"] = new Date(
+        converted.birthday.toISOString().slice(0, 10)
+      );
     }
 
     if (converted.major !== "N/A") {
@@ -391,9 +393,9 @@ export const applicationRouter = router({
       autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
     }
     if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = converted.graduationYear
-        .toISOString()
-        .slice(0, 10);
+      autofill["studyExpectedGraduation"] = new Date(
+        converted.graduationYear.toISOString().slice(0, 10)
+      );
     }
     if (converted.degree !== "N/A") {
       autofill["studyDegree"] = converted.degree;
