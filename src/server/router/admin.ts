@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RoleSchema } from "../../../prisma/zod";
+import { Role } from "@prisma/client";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 
@@ -7,7 +7,7 @@ export const adminRouter = router({
   setKillSwitch: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session.user.role.includes(RoleSchema.Enum.ADMIN)) {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 

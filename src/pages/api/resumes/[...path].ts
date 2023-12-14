@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { RoleSchema } from "../../../../prisma/zod";
+import { Role } from "@prisma/client";
 import { authOptions as nextAuthOptions } from "../auth/[...nextauth]";
 import { env } from "../../../env/server.mjs";
 import { Readable } from "stream";
@@ -11,8 +11,8 @@ const resume = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, nextAuthOptions);
 
   if (
-    session?.user?.role.includes(RoleSchema.Enum.ADMIN) ||
-    session?.user?.role.includes(RoleSchema.Enum.REVIEWER)
+    session?.user?.role.includes(Role.ADMIN) ||
+    session?.user?.role.includes(Role.REVIEWER)
   ) {
     const options = {
       method: "GET",

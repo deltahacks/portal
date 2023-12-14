@@ -3,7 +3,7 @@ import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
-import { RoleSchema } from "../../prisma/zod";
+import { Role } from "@prisma/client";
 import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
@@ -174,8 +174,8 @@ export const getServerSideProps = async (
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
   if (
     !(
-      session?.user?.role?.includes(RoleSchema.Enum.ADMIN) ||
-      session?.user?.role?.includes(RoleSchema.Enum.REVIEWER)
+      session?.user?.role?.includes(Role.ADMIN) ||
+      session?.user?.role?.includes(Role.REVIEWER)
     )
   ) {
     return {

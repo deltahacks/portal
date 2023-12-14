@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, Status, Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import type {
@@ -8,7 +8,6 @@ import type {
 } from "./reviewers";
 import { options } from "./reviewers";
 import { protectedProcedure, router } from "./trpc";
-import { StatusSchema, RoleSchema } from "../../../prisma/zod";
 import applicationSchema from "../../schemas/application";
 
 const TypeFormSubmissionTruncated = z.object({
@@ -54,8 +53,8 @@ export const applicationRouter = router({
   rsvpCount: protectedProcedure.output(z.number()).query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -63,7 +62,7 @@ export const applicationRouter = router({
     const rsvp_count =
       (await ctx.prisma.user.count({
         where: {
-          status: StatusSchema.Enum.RSVP,
+          status: Status.RSVP,
         },
       })) || 0;
 
@@ -99,13 +98,13 @@ export const applicationRouter = router({
       where: { id: ctx.session.user.id },
     });
 
-    if (user?.status != StatusSchema.Enum.ACCEPTED) {
+    if (user?.status != Status.ACCEPTED) {
       throw new Error("Unauthorized call");
     }
 
     await ctx.prisma?.user.update({
       where: { id: ctx.session.user.id },
-      data: { status: StatusSchema.Enum.RSVP },
+      data: { status: Status.RSVP },
     });
   }),
   submit: protectedProcedure
@@ -151,7 +150,7 @@ export const applicationRouter = router({
         where: { id: ctx.session.user.id },
         data: {
           qrcode: input,
-          status: StatusSchema.Enum.CHECKED_IN,
+          status: Status.CHECKED_IN,
         },
       });
     }),
@@ -419,7 +418,7 @@ export const applicationRouter = router({
 
       const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: StatusSchema.Enum.IN_REVIEW },
+        data: { status: Status.IN_REVIEW },
       });
 
       await ctx.logsnag.track({
@@ -450,7 +449,7 @@ export const applicationRouter = router({
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: StatusSchema.Enum.IN_REVIEW }, // Replace with the correct status
+        data: { status: Status.IN_REVIEW }, // Replace with the correct status
       });
       // create logsnag log
       await ctx.logsnag.track({

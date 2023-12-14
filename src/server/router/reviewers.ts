@@ -1,10 +1,8 @@
 import { z } from "zod";
 import { env } from "../../env/server.mjs";
-import { User } from "@prisma/client";
+import { Role, Status, User } from "@prisma/client";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
-import { RoleSchema, StatusSchema } from "../../../prisma/zod";
-
 const TypeFormResponseField = z.object({
   field: z.object({
     id: z.string(),
@@ -104,22 +102,22 @@ const TypeFormSubmission = z.object({
         typeform_response_id: z.string().nullable(),
         role: z.array(
           z.enum([
-            RoleSchema.Enum.HACKER,
-            RoleSchema.Enum.REVIEWER,
-            RoleSchema.Enum.ADMIN,
-            RoleSchema.Enum.FOOD_MANAGER,
-            RoleSchema.Enum.EVENT_MANAGER,
-            RoleSchema.Enum.GENERAL_SCANNER,
-            RoleSchema.Enum.SPONSER,
+            Role.HACKER,
+            Role.REVIEWER,
+            Role.ADMIN,
+            Role.FOOD_MANAGER,
+            Role.EVENT_MANAGER,
+            Role.GENERAL_SCANNER,
+            Role.SPONSER,
           ])
         ),
         status: z.enum([
-          StatusSchema.Enum.ACCEPTED,
-          StatusSchema.Enum.CHECKED_IN,
-          StatusSchema.Enum.IN_REVIEW,
-          StatusSchema.Enum.REJECTED,
-          StatusSchema.Enum.RSVP,
-          StatusSchema.Enum.WAITLISTED,
+          Status.ACCEPTED,
+          Status.CHECKED_IN,
+          Status.IN_REVIEW,
+          Status.REJECTED,
+          Status.RSVP,
+          Status.WAITLISTED,
         ]),
         qrcode: z.number().nullable(),
         mealsTaken: z.number(),
@@ -134,22 +132,22 @@ const TypeFormSubmission = z.object({
         typeform_response_id: z.string().nullable(),
         role: z.array(
           z.enum([
-            RoleSchema.Enum.HACKER,
-            RoleSchema.Enum.REVIEWER,
-            RoleSchema.Enum.ADMIN,
-            RoleSchema.Enum.FOOD_MANAGER,
-            RoleSchema.Enum.EVENT_MANAGER,
-            RoleSchema.Enum.GENERAL_SCANNER,
-            RoleSchema.Enum.SPONSER,
+            Role.HACKER,
+            Role.REVIEWER,
+            Role.ADMIN,
+            Role.FOOD_MANAGER,
+            Role.EVENT_MANAGER,
+            Role.GENERAL_SCANNER,
+            Role.SPONSER,
           ])
         ),
         status: z.enum([
-          StatusSchema.Enum.ACCEPTED,
-          StatusSchema.Enum.CHECKED_IN,
-          StatusSchema.Enum.IN_REVIEW,
-          StatusSchema.Enum.REJECTED,
-          StatusSchema.Enum.RSVP,
-          StatusSchema.Enum.WAITLISTED,
+          Status.ACCEPTED,
+          Status.CHECKED_IN,
+          Status.IN_REVIEW,
+          Status.REJECTED,
+          Status.RSVP,
+          Status.WAITLISTED,
         ]),
         qrcode: z.number().nullable(),
         mealsTaken: z.number(),
@@ -186,8 +184,8 @@ export const reviewerRouter = router({
   getApplications: protectedProcedure.query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -296,8 +294,8 @@ export const reviewerRouter = router({
   getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-        ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -409,8 +407,8 @@ export const reviewerRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-          ctx.session.user.role.includes(RoleSchema.Enum.REVIEWER)
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
