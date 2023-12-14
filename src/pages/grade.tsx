@@ -9,7 +9,6 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
-import { hasRequiredRoles } from "../utils/assertions";
 import { Application } from "../server/router/reviewers";
 
 const GradingPortal: NextPage = () => {
@@ -108,7 +107,12 @@ export const getServerSideProps = async (
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
-  if (!hasRequiredRoles(session?.user?.role, [Role.ADMIN, Role.REVIEWER])) {
+  if (
+    !(
+      session?.user?.role?.includes(Role.ADMIN) ||
+      session?.user?.role?.includes(Role.REVIEWER)
+    )
+  ) {
     return {
       redirect: { destination: "/dashboard", permanent: false },
     };
