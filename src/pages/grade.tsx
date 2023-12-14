@@ -3,7 +3,7 @@ import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
-import { Role } from "@prisma/client";
+import { Role, Status } from "@prisma/client";
 import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
@@ -15,6 +15,10 @@ const GradingPortal: NextPage = () => {
 
   const { data } = trpc.reviewer.getApplications.useQuery();
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
+
+  const numberReviewed = data?.filter(
+    (application) => application.status !== Status.IN_REVIEW
+  ).length;
 
   return (
     <>
@@ -33,14 +37,14 @@ const GradingPortal: NextPage = () => {
                 Applications
               </h1>
               <div className="text-right">
-                <button
+                {/* <button
                   className="btn btn-primary"
                   onClick={() => setTogglePriority(!togglePriority)}
                 >
                   {togglePriority ? "Showing Priority" : "Showing All"}
-                </button>
+                </button> */}
                 <div className="py-4">
-                  / {data?.length} Applications Reviewed <br />
+                  {numberReviewed} / {data?.length} Applications Reviewed <br />
                   {rsvpCount} RSVPs
                 </div>
               </div>

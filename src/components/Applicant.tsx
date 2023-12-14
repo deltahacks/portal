@@ -54,7 +54,11 @@ const FormCheckbox: React.FC<
             </span>
           )}
         </label>
-        <div className="checkbox-primary checkbox checked-checkbox checkbox-lg rounded-sm bg-white p-4 dark:bg-neutral-800" />
+        <div
+          className={`checkbox-primary checkbox checkbox-lg ${
+            checked ? "checked-checkbox" : ""
+          } rounded-sm bg-white p-4 dark:bg-neutral-800`}
+        />
       </div>
     </>
   );
