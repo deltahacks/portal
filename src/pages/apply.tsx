@@ -13,14 +13,13 @@ import {
   Controller,
   FieldError,
   UseFormRegister,
-  SubmitErrorHandler,
 } from "react-hook-form";
 import useFormPersist from "react-hook-form-persist";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { Drawer } from "../components/NavBar";
-import { DH10ApplicationSchema } from "../../prisma/zod";
+import applicationSchema from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
 import FormDivider from "../components/FormDivider";
 import {
@@ -39,8 +38,8 @@ import {
 } from "../data/applicationSelectData";
 import { useEffect } from "react";
 
-export type InputsType = z.infer<typeof DH10ApplicationSchema>;
-const pt = DH10ApplicationSchema.partial();
+export type InputsType = z.infer<typeof applicationSchema>;
+const pt = applicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
 
 interface FormInputProps {
@@ -164,11 +163,10 @@ const ApplyForm = ({
     setValue,
     formState: { errors },
   } = useForm<InputsType>({
-    resolver: zodResolver(DH10ApplicationSchema),
+    resolver: zodResolver(applicationSchema),
     defaultValues: {
       ...autofillData,
       studyEnrolledPostSecondary: true,
-      studyExpectedGraduation: null,
     },
   });
 
@@ -191,12 +189,9 @@ const ApplyForm = ({
   });
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
-    const processed = DH10ApplicationSchema.parse(data);
-    await submitAppAsync(processed);
-  };
+    const processed = applicationSchema.parse(data);
 
-  const onError: SubmitErrorHandler<InputsType> = async (data) => {
-    console.log(data);
+    await submitAppAsync(processed);
   };
 
   const isSecondary = watch("studyEnrolledPostSecondary");
@@ -204,7 +199,7 @@ const ApplyForm = ({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit, onError)}
+      onSubmit={handleSubmit(onSubmit)}
       className="mx-auto flex flex-col pb-8"
     >
       {wasAutofilled && (

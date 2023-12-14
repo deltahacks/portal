@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
-import { RoleSchema } from "../../prisma/zod";
+import { Role } from "@prisma/client";
 import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import { trpc } from "../utils/trpc";
-import { hasRequiredRoles } from "../utils/assertions";
 import { DataTable } from "../components/DataTable";
 
 const GradingPortal: NextPage = () => {
-  const [togglePriotity, setTogglePriority] = useState(true);
+  const [togglePriority, setTogglePriority] = useState(true);
+
   const { data, isLoading } = trpc.reviewer.getApplications.useQuery();
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
@@ -35,9 +35,9 @@ const GradingPortal: NextPage = () => {
               <div className="text-right">
                 <button
                   className="btn btn-primary"
-                  onClick={() => setTogglePriority(!togglePriotity)}
+                  onClick={() => setTogglePriority(!togglePriority)}
                 >
-                  {togglePriotity ? "Showing Priority" : "Showing All"}
+                  {togglePriority ? "Showing Priority" : "Showing All"}
                 </button>
                 <div className="py-4">
                   / {data?.length} Applications Reviewed <br />
@@ -87,10 +87,10 @@ export const getServerSideProps = async (
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
   if (
-    !hasRequiredRoles(session?.user?.role, [
-      RoleSchema.Enum.ADMIN,
-      RoleSchema.Enum.REVIEWER,
-    ])
+    !(
+      session?.user?.role?.includes(Role.ADMIN) ||
+      session?.user?.role?.includes(Role.REVIEWER)
+    )
   ) {
     return {
       redirect: { destination: "/dashboard", permanent: false },

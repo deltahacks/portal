@@ -1,7 +1,7 @@
+import { Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
-import { RoleSchema } from "../../../prisma/zod";
 
 export const foodRouter = router({
   getFood: protectedProcedure
@@ -9,8 +9,8 @@ export const foodRouter = router({
     .query(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-          ctx.session.user.role.includes(RoleSchema.Enum.FOOD_MANAGER)
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.FOOD_MANAGER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -30,8 +30,8 @@ export const foodRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-          ctx.session.user.role.includes(RoleSchema.Enum.FOOD_MANAGER)
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.FOOD_MANAGER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -53,8 +53,8 @@ export const foodRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (
         !(
-          ctx.session.user.role.includes(RoleSchema.Enum.ADMIN) ||
-          ctx.session.user.role.includes(RoleSchema.Enum.FOOD_MANAGER)
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.FOOD_MANAGER)
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });

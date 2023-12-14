@@ -1,34 +1,31 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
-import {
-  RoleSchema,
-  StatusSchema,
-  DH10ApplicationSchema,
-  DH10Application,
-} from "../../../prisma/zod";
-import {
-  assert,
-  assertHasRequiredRoles,
-  assertWithTRPCError,
-} from "../../utils/assertions";
+import { TRPCError } from "@trpc/server";
+import { Role, Status } from "@prisma/client";
+import ApplicationSchema from "../../schemas/application";
 
 const ApplicationForReview = z.object({
   id: z.string().cuid(),
   name: z.string(),
   email: z.string().email(),
-  status: StatusSchema,
-  dH10ApplicationId: z.string(),
+  status: z.nativeEnum(Status),
+  dH10ApplicationId: z.string().cuid(),
 });
 
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
 export const reviewerRouter = router({
-  getApplications: protectedProcedure.query(
-    async ({ ctx }): Promise<ApplicationForReview[]> => {
-      assertHasRequiredRoles(ctx.session.user.role, [
-        RoleSchema.Enum.ADMIN,
-        RoleSchema.Enum.REVIEWER,
-      ]);
+  getApplications: protectedProcedure
+    .output(ApplicationForReview.array())
+    .query(async ({ ctx }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
       const users = await ctx.prisma.user.findMany({
         where: {
@@ -46,19 +43,23 @@ export const reviewerRouter = router({
       });
 
       return ApplicationForReview.array().parse(users);
-    }
-  ),
+    }),
   getApplication: protectedProcedure
     .input(
       z.object({
         dH10ApplicationId: z.string().optional(),
       })
     )
-    .query(async ({ ctx, input }): Promise<DH10Application> => {
-      assertHasRequiredRoles(ctx.session.user.role, [
-        RoleSchema.Enum.ADMIN,
-        RoleSchema.Enum.REVIEWER,
-      ]);
+    .output(ApplicationSchema)
+    .query(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
       const application = await ctx.prisma.dH10Application.findFirst({
         where: {
@@ -68,15 +69,24 @@ export const reviewerRouter = router({
         },
       });
 
-      return DH10ApplicationSchema.parse(application);
+      return ApplicationSchema.parse(application);
     }),
   updateStatus: protectedProcedure
-    .input(z.object({ id: z.string().cuid().optional(), status: StatusSchema }))
+    .input(
+      z.object({
+        id: z.string().cuid().optional(),
+        status: z.nativeEnum(Status),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
-      assertHasRequiredRoles(ctx.session.user.role, [
-        RoleSchema.Enum.ADMIN,
-        RoleSchema.Enum.REVIEWER,
-      ]);
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
       await ctx.prisma.user.update({
         where: { id: input.id },
@@ -199,10 +209,14 @@ export const reviewerRouter = router({
   submit: protectedProcedure
     .input(z.object({ mark: z.number(), hackerId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      assertHasRequiredRoles(ctx.session.user.role, [
-        RoleSchema.Enum.ADMIN,
-        RoleSchema.Enum.REVIEWER,
-      ]);
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
       // count reviews for a hacker.
       // if we have 3 already, deny making any more reviews
@@ -211,7 +225,9 @@ export const reviewerRouter = router({
           hackerId: input.hackerId,
         },
       });
-      assertWithTRPCError(reviewCount >= 3, "CONFLICT");
+      if (reviewCount >= 3) {
+        throw new TRPCError({ code: "CONFLICT" });
+      }
 
       const res = await ctx.prisma.review.findFirst({
         where: {
@@ -219,8 +235,9 @@ export const reviewerRouter = router({
           reviewerId: ctx.session.user.id,
         },
       });
-      assert(!!res, "Duplicate Review");
-
+      if (res) {
+        throw new Error("Duplicate Review");
+      }
       await ctx.prisma.review.create({
         data: {
           hackerId: input.hackerId,

@@ -21,8 +21,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./DropdownMenu";
 import { Input } from "./Input";
@@ -34,9 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "./Table";
-import { StatusSchema } from "../../prisma/zod";
+import { Status } from "@prisma/client";
 import { trpc } from "../utils/trpc";
-import { StatusType } from "../../prisma/zod/inputTypeSchemas/StatusSchema";
 import ApplicationPopupButton from "./Applicant";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
@@ -113,12 +110,12 @@ const StatusDropdown = ({
   status: srcStatus,
 }: {
   id: string;
-  status: StatusType;
+  status: Status;
 }) => {
   const [displayedStatus, setDisplayedStatus] = React.useState(srcStatus);
   const updateStatus = trpc.reviewer.updateStatus.useMutation();
 
-  const statusTypes = Object.keys(StatusSchema.Enum) as StatusType[];
+  const statusTypes = Object.keys(Status) as Status[];
 
   return (
     <div className="float-right">
@@ -160,7 +157,7 @@ const StatusFilterDropdown = <TData,>({
   column?: Column<TData>;
 }) => {
   const [displayedStatus, setDisplayedStatus] = React.useState("NONE");
-  const statusFilterTypes = ["NONE", ...Object.keys(StatusSchema.Enum)];
+  const statusFilterTypes = ["NONE", ...Object.keys(Status)];
 
   return (
     <DropdownMenu>
