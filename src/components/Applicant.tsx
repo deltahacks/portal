@@ -329,7 +329,7 @@ const ApplicationPopupButton = ({
                   applicationForReview={applicationForReview}
                 />
               </div>
-              <div className="w-full flex-inital flex justify-center p-4 h-32 rounded-md">
+              <div className="w-full md:w-auto flex-inital flex justify-center p-4 md:p-0 rounded-md md:absolute bottom-8 right-8">
                 <StatusDropdown
                   id={applicationForReview.id}
                   status={applicationForReview.status}
