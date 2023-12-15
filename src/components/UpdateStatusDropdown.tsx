@@ -23,7 +23,11 @@ const UpdateStatusDropdown = ({
   position?: string;
 }) => {
   const utils = trpc.useUtils();
-  const updateStatus = trpc.reviewer.updateStatus.useMutation();
+  const updateStatus = trpc.reviewer.updateStatus.useMutation({
+    onSettled() {
+      utils.reviewer.getApplications.invalidate();
+    },
+  });
   const statusTypes = Object.keys(Status) as Status[];
 
   return (
