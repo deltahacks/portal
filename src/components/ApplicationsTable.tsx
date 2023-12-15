@@ -26,7 +26,7 @@ import {
 import { Input } from "./Input";
 import { DataTable } from "./Table";
 import ApplicationPopupButton from "./Applicant";
-import StatusDropdown from "./StatusDropdown";
+import UpdateStatusDropdown from "./UpdateStatusDropdown";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -91,7 +91,9 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     },
     cell: ({ row }) => {
       const { id, status } = row.original;
-      return <StatusDropdown id={id} status={status} position="float-right" />;
+      return (
+        <UpdateStatusDropdown id={id} status={status} position="float-right" />
+      );
     },
     enableSorting: true,
   },

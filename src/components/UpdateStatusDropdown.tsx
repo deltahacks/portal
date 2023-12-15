@@ -11,7 +11,7 @@ import { trpc } from "../utils/trpc";
 import { Button } from "./Button";
 import { cn } from "../utils/mergeTailwind";
 
-const StatusDropdown = ({
+const UpdateStatusDropdown = ({
   id,
   status: srcStatus,
   className,
@@ -22,9 +22,8 @@ const StatusDropdown = ({
   className?: string;
   position?: string;
 }) => {
-  const [displayedStatus, setDisplayedStatus] = useState(srcStatus);
+  const utils = trpc.useUtils();
   const updateStatus = trpc.reviewer.updateStatus.useMutation();
-
   const statusTypes = Object.keys(Status) as Status[];
 
   return (
@@ -36,19 +35,18 @@ const StatusDropdown = ({
             variant="outline"
           >
             <span className="sr-only">Open menu</span>
-            <div>{displayedStatus}</div>
+            <div>{srcStatus}</div>
             <ChevronDown className="pl-2 h-4 w-6 float-right" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {statusTypes
-            .filter((status) => status !== displayedStatus)
+            .filter((status) => status !== srcStatus)
             .map((status) => (
               <DropdownMenuItem
                 key={status}
                 className="capitalize"
                 onClick={async () => {
-                  setDisplayedStatus(status);
                   updateStatus.mutateAsync({
                     id,
                     status: status,
@@ -64,4 +62,4 @@ const StatusDropdown = ({
   );
 };
 
-export default StatusDropdown;
+export default UpdateStatusDropdown;

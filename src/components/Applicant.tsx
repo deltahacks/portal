@@ -4,7 +4,7 @@ import { ApplicationForReview } from "../server/router/reviewers";
 import Background from "./Background";
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
-import StatusDropdown from "./StatusDropdown";
+import UpdateStatusDropdown from "./UpdateStatusDropdown";
 
 interface FormInputProps {
   label: string;
@@ -334,7 +334,7 @@ const ApplicationPopupButton = ({
                 />
               </div>
               <div className="w-full md:w-auto flex-inital flex justify-center p-4 md:p-0 rounded-md md:absolute bottom-8 right-8">
-                <StatusDropdown
+                <UpdateStatusDropdown
                   id={applicationForReview.id}
                   status={applicationForReview.status}
                   className="h-14 w-40 bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
