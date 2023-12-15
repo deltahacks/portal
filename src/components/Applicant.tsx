@@ -220,9 +220,9 @@ const ApplicationContent = ({
       />
       <FormInput id="tshirtSize" label="T-shirt Size" text={data?.tshirtSize} />
       <FormInput
-        id="hackerKind"
+        id="tshirtSize"
         label="What kind of hacker are you?"
-        text={data?.hackerKind}
+        text={data?.tshirtSize}
       />
       <FormInput
         id="hackerKind"
@@ -235,7 +235,7 @@ const ApplicationContent = ({
         text={data?.workshopChoices.join(", ")}
       />
       <FormInput
-        id="discoveredFrom"
+        id="discoverdFrom"
         label="How did you hear about DeltaHacks?"
         text={data?.discoverdFrom.join(", ")}
       />

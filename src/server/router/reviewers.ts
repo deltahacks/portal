@@ -125,7 +125,7 @@ export const reviewerRouter = router({
         },
       });
       if (res) {
-        throw new Error("Duplicate Review");
+        throw new TRPCError({ code: "CONFLICT", message: "Duplicate Review" });
       }
       await ctx.prisma.review.create({
         data: {

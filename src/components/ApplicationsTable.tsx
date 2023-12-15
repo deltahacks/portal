@@ -63,7 +63,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     cell: ({ row }) => (
       <div className="pl-4 py-2 lowercase">{row.getValue("email")}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -175,7 +175,7 @@ const ColumnFilterDropdown = <TDef,>({
 const SearchBarFilter = <TData,>({ column }: { column?: Column<TData> }) => {
   return (
     <Input
-      placeholder="Filter emails..."
+      placeholder={`Filter ${column?.id}...`}
       value={(column?.getFilterValue() as string) ?? ""}
       onChange={(event) => column?.setFilterValue(event.target.value)}
       className="max-w-sm"

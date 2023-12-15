@@ -47,7 +47,7 @@ const schema = z.object({
   longAnswerMagic: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.trim().split(/\s+/).length <= 150, {
+    .refine((value) => value.trim().split(/\s/).length <= 150, {
       message: "Must be less than 150 words",
     }),
   socialText: z

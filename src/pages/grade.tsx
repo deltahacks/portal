@@ -11,8 +11,6 @@ import { trpc } from "../utils/trpc";
 import { ApplicationsTable } from "../components/ApplicationsTable";
 
 const GradingPortal: NextPage = () => {
-  const [togglePriority, setTogglePriority] = useState(true);
-
   const { data } = trpc.reviewer.getApplications.useQuery();
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
 
@@ -37,12 +35,6 @@ const GradingPortal: NextPage = () => {
                 Applications
               </h1>
               <div className="text-right">
-                {/* <button
-                  className="btn btn-primary"
-                  onClick={() => setTogglePriority(!togglePriority)}
-                >
-                  {togglePriority ? "Showing Priority" : "Showing All"}
-                </button> */}
                 <div className="py-4">
                   {numberReviewed} / {data?.length} Applications Reviewed <br />
                   {rsvpCount} RSVPs
