@@ -52,6 +52,9 @@ export const userRouter = router({
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
+      if (!ctx.session.user.role.includes(input.role)) {
+        return;
+      }
 
       const { role } = (await ctx.prisma?.user.findFirstOrThrow({
         where: { id: input.id },

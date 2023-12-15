@@ -103,7 +103,7 @@ const ApplicationContent = ({
 }: {
   applicationForReview: ApplicationForReview;
 }) => {
-  const { dH10ApplicationId, status } = applicationForReview;
+  const { dH10ApplicationId } = applicationForReview;
   const { data } = trpc.reviewer.getApplication.useQuery({ dH10ApplicationId });
 
   return (
@@ -220,11 +220,6 @@ const ApplicationContent = ({
       />
       <FormInput id="tshirtSize" label="T-shirt Size" text={data?.tshirtSize} />
       <FormInput
-        id="tshirtSize"
-        label="What kind of hacker are you?"
-        text={data?.tshirtSize}
-      />
-      <FormInput
         id="hackerKind"
         label="What kind of hacker are you?"
         text={data?.hackerKind}
@@ -300,7 +295,6 @@ const ApplicationContent = ({
   );
 };
 
-// TODO make sexy opening animation
 const ApplicationPopupButton = ({
   applicationForReview,
 }: {

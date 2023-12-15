@@ -30,6 +30,17 @@ const UpdateStatusDropdown = ({
   });
   const statusTypes = Object.keys(Status) as Status[];
 
+  const handleUpdateStatus = async (status: Status) => {
+    try {
+      await updateStatus.mutateAsync({
+        id,
+        status: status,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <div className={position}>
       <DropdownMenu>
@@ -50,12 +61,7 @@ const UpdateStatusDropdown = ({
               <DropdownMenuItem
                 key={status}
                 className="capitalize"
-                onClick={async () => {
-                  updateStatus.mutateAsync({
-                    id,
-                    status: status,
-                  });
-                }}
+                onClick={() => handleUpdateStatus(status)}
               >
                 {status}
               </DropdownMenuItem>

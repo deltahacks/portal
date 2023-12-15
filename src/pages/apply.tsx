@@ -453,7 +453,7 @@ const ApplyForm = ({
       <FormTextArea
         id="longAnswerExperience"
         label="How do you hope to make the most out of your experience at DH10?"
-        errors={errors.longAnswerChange}
+        errors={errors.longAnswerExperience}
         register={register}
         currentLength={watch("longAnswerExperience")?.split(/\s/g).length ?? 0}
       />
