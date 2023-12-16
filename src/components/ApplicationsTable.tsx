@@ -155,9 +155,9 @@ const SearchBarFilter = <TData,>({
     }, new Map<string, Column<TData>>());
 
   return (
-    <>
+    <div className="flex flex-row space-x-0 w-full">
       <SelectionDropdown
-        className="rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
+        className="w-40 rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
         selections={Array.from(filterableColumnsMap.keys())}
         defaultSelection={defaultColumn.id}
         onChangedSelection={(selection) => {
@@ -176,7 +176,7 @@ const SearchBarFilter = <TData,>({
         }}
         className="max-w-sm rounded-none rounded-r-lg"
       />
-    </>
+    </div>
   );
 };
 
@@ -213,12 +213,10 @@ export const ApplicationsTable = ({
     <div className="bg-white dark:border-zinc-700 dark:bg-zinc-950 p-10 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border">
       <div className="w-full">
         <div className="flex items-center justify-between py-4">
-          <div className="flex items-center flex-row">
-            <SearchBarFilter
-              columns={table.getAllColumns()}
-              defaultColumn={table.getColumn("email")}
-            />
-          </div>
+          <SearchBarFilter
+            columns={table.getAllColumns()}
+            defaultColumn={table.getColumn("email")}
+          />
 
           <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>
