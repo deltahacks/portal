@@ -218,16 +218,6 @@ export const ApplicationsTable = ({
               columns={table.getAllColumns()}
               defaultColumn={table.getColumn("email")}
             />
-            <div className="text-right w-72 pr-4">Status Filter:</div>
-            <SelectionDropdown
-              selections={["NONE", ...Object.keys(Status)]}
-              defaultSelection={"NONE"}
-              onChangedSelection={(selection) =>
-                table
-                  .getColumn("status")
-                  ?.setFilterValue(selection === "NONE" ? "" : selection)
-              }
-            />
           </div>
 
           <ColumnFilterDropdown columns={table.getAllColumns()} />
