@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { Check, ChevronRight, Circle } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "../utils/mergeTailwind";
+import { Button } from "./Button";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -179,6 +180,56 @@ const DropdownMenuShortcut = ({
 };
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
 
+const SelectionDropdown = ({
+  selections,
+  defaultSelection,
+  onChangedSelection,
+  className,
+}: {
+  selections: string[];
+  defaultSelection: string;
+  onChangedSelection?: (selection: string) => void;
+  className?: string;
+}) => {
+  const [displayedSelection, setDisplayedSelection] =
+    React.useState(defaultSelection);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          className={cn("justify-between w-60", className)}
+          variant="outline"
+        >
+          <span className="sr-only">Open menu</span>
+          <div>{displayedSelection}</div>
+          <ChevronDown className="pl-2 h-4 w-6 float-right" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {selections
+          .filter((selection) => selection !== displayedSelection)
+          .map((selection) => {
+            return (
+              <DropdownMenuItem
+                key={selection}
+                className="capitalize"
+                onClick={() => {
+                  setDisplayedSelection(selection);
+                  if (onChangedSelection) {
+                    onChangedSelection(selection);
+                  }
+                }}
+              >
+                {selection}
+              </DropdownMenuItem>
+            );
+          })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -195,4 +246,5 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
+  SelectionDropdown,
 };

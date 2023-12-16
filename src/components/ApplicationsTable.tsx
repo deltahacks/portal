@@ -20,8 +20,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
+  SelectionDropdown,
 } from "./DropdownMenu";
 import { Input } from "./Input";
 import { DataTable } from "./Table";
@@ -103,56 +103,6 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableColumnFilter: true,
   },
 ];
-
-const SelectionDropdown = ({
-  selections,
-  defaultSelection,
-  onChangedSelection,
-  className,
-}: {
-  selections: string[];
-  defaultSelection: string;
-  onChangedSelection?: (selection: string) => void;
-  className?: string;
-}) => {
-  const [displayedSelection, setDisplayedSelection] =
-    useState(defaultSelection);
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          className={cn("justify-between w-60", className)}
-          variant="outline"
-        >
-          <span className="sr-only">Open menu</span>
-          <div>{displayedSelection}</div>
-          <ChevronDown className="pl-2 h-4 w-6 float-right" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {selections
-          .filter((selection) => selection !== displayedSelection)
-          .map((selection) => {
-            return (
-              <DropdownMenuItem
-                key={selection}
-                className="capitalize"
-                onClick={() => {
-                  setDisplayedSelection(selection);
-                  if (onChangedSelection) {
-                    onChangedSelection(selection);
-                  }
-                }}
-              >
-                {selection}
-              </DropdownMenuItem>
-            );
-          })}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
 
 const ColumnFilterDropdown = <TDef,>({
   columns,
@@ -271,7 +221,7 @@ export const ApplicationsTable = ({
               onChangedSelection={(selection) =>
                 table
                   .getColumn("status")
-                  ?.setFilterValue(selection === "NONE" ? undefined : selection)
+                  ?.setFilterValue(selection === "NONE" ? "" : selection)
               }
             />
           </div>
