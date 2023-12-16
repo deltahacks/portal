@@ -28,6 +28,7 @@ import { DataTable } from "./Table";
 import ApplicationPopupButton from "./Applicant";
 import UpdateStatusDropdown from "./UpdateStatusDropdown";
 import { cn } from "../utils/mergeTailwind";
+import capitalize from "../utils/capitlize";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -150,7 +151,7 @@ const SearchBarFilter = <TData,>({
   const filterableColumnsMap = columns
     .filter((column) => column.getCanFilter())
     .reduce((map, column) => {
-      map.set(column?.id, column);
+      map.set(capitalize(column?.id), column);
       return map;
     }, new Map<string, Column<TData>>());
 
@@ -159,7 +160,7 @@ const SearchBarFilter = <TData,>({
       <SelectionDropdown
         className="w-40 rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
         selections={Array.from(filterableColumnsMap.keys())}
-        defaultSelection={defaultColumn.id}
+        defaultSelection={capitalize(defaultColumn.id)}
         onChangedSelection={(selection) => {
           const newFilteredColumn =
             filterableColumnsMap.get(selection) ?? defaultColumn;
@@ -169,7 +170,7 @@ const SearchBarFilter = <TData,>({
         }}
       />
       <Input
-        placeholder={`Filter ${filteredColumn.id}...`}
+        placeholder={`Filter ${capitalize(filteredColumn?.id)}...`}
         value={(filteredColumn.getFilterValue() as string) ?? ""}
         onChange={(event) => {
           filteredColumn?.setFilterValue(event.target.value);
