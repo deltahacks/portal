@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Status } from "@prisma/client";
 import {
   Column,
   ColumnDef,
@@ -27,7 +26,6 @@ import { Input } from "./Input";
 import { DataTable } from "./Table";
 import ApplicationPopupButton from "./Applicant";
 import UpdateStatusDropdown from "./UpdateStatusDropdown";
-import { cn } from "../utils/mergeTailwind";
 import capitalize from "../utils/capitlize";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
@@ -155,19 +153,21 @@ const SearchBarFilter = <TData,>({
       return map;
     }, new Map<string, Column<TData>>());
 
+  const changeFilteredColumnToSelection = (selection: string) => {
+    const newFilteredColumn =
+      filterableColumnsMap.get(selection) ?? defaultColumn;
+    setFilteredColumn(newFilteredColumn);
+    newFilteredColumn.setFilterValue(filteredColumn.getFilterValue());
+    filteredColumn.setFilterValue("");
+  };
+
   return (
     <div className="flex flex-row space-x-0 w-full">
       <SelectionDropdown
         className="w-40 rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
         selections={Array.from(filterableColumnsMap.keys())}
         defaultSelection={capitalize(defaultColumn.id)}
-        onChangedSelection={(selection) => {
-          const newFilteredColumn =
-            filterableColumnsMap.get(selection) ?? defaultColumn;
-          setFilteredColumn(newFilteredColumn);
-          newFilteredColumn.setFilterValue(filteredColumn.getFilterValue());
-          filteredColumn.setFilterValue("");
-        }}
+        onChangedSelection={changeFilteredColumnToSelection}
       />
       <Input
         placeholder={`Filter ${capitalize(filteredColumn?.id)}...`}
