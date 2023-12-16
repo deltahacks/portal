@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { Status } from "@prisma/client";
 import {
   Column,
@@ -27,6 +27,7 @@ import { Input } from "./Input";
 import { DataTable } from "./Table";
 import ApplicationPopupButton from "./Applicant";
 import UpdateStatusDropdown from "./UpdateStatusDropdown";
+import { cn } from "../utils/mergeTailwind";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -74,6 +75,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     cell: ({ row }) => {
       return <ApplicationPopupButton applicationForReview={row.original} />;
     },
+    enableColumnFilter: false,
     enableSorting: false,
     enableHiding: true,
   },
@@ -98,6 +100,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     enableSorting: true,
+    enableColumnFilter: true,
   },
 ];
 
@@ -105,18 +108,23 @@ const SelectionDropdown = ({
   selections,
   defaultSelection,
   onChangedSelection,
+  className,
 }: {
   selections: string[];
   defaultSelection: string;
   onChangedSelection?: (selection: string) => void;
+  className?: string;
 }) => {
   const [displayedSelection, setDisplayedSelection] =
-    React.useState(defaultSelection);
+    useState(defaultSelection);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="justify-between w-60" variant="outline">
+        <Button
+          className={cn("justify-between w-60", className)}
+          variant="outline"
+        >
           <span className="sr-only">Open menu</span>
           <div>{displayedSelection}</div>
           <ChevronDown className="pl-2 h-4 w-6 float-right" />
@@ -178,14 +186,43 @@ const ColumnFilterDropdown = <TDef,>({
   );
 };
 
-const SearchBarFilter = <TData,>({ column }: { column?: Column<TData> }) => {
+const SearchBarFilter = <TData,>({
+  columns,
+  defaultColumn,
+}: {
+  columns: Column<TData>[];
+  defaultColumn?: Column<TData>;
+}) => {
+  if (!defaultColumn?.getCanFilter()) {
+    throw Error("defaultColumn should exist and be filterable");
+  }
+  const [filteredColumn, setFilteredColumn] = useState(defaultColumn);
+  const filterableColumns = columns
+    .filter((column) => column.getCanFilter())
+    .reduce((map, column) => {
+      map.set(column?.id, column);
+      return map;
+    }, new Map<string, Column<TData>>());
+
   return (
-    <Input
-      placeholder={`Filter ${column?.id}...`}
-      value={(column?.getFilterValue() as string) ?? ""}
-      onChange={(event) => column?.setFilterValue(event.target.value)}
-      className="max-w-sm"
-    />
+    <>
+      <SelectionDropdown
+        className="rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
+        selections={Array.from(filterableColumns.keys())}
+        defaultSelection={defaultColumn.id}
+        onChangedSelection={(selection) => {
+          setFilteredColumn(filterableColumns.get(selection) ?? defaultColumn);
+        }}
+      />
+      <Input
+        placeholder={`Filter ${filteredColumn.id}...`}
+        value={(filteredColumn.getFilterValue() as string) ?? ""}
+        onChange={(event) => {
+          filteredColumn?.setFilterValue(event.target.value);
+        }}
+        className="max-w-sm rounded-none rounded-r-lg"
+      />
+    </>
   );
 };
 
@@ -194,13 +231,10 @@ export const ApplicationsTable = ({
 }: {
   applications: ApplicationForReview[];
 }) => {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable<ApplicationForReview>({
     data: applications,
@@ -226,7 +260,10 @@ export const ApplicationsTable = ({
       <div className="w-full">
         <div className="flex items-center justify-between py-4">
           <div className="flex items-center flex-row">
-            <SearchBarFilter column={table.getColumn("email")} />
+            <SearchBarFilter
+              columns={table.getAllColumns()}
+              defaultColumn={table.getColumn("email")}
+            />
             <div className="text-right w-72 pr-4">Status Filter:</div>
             <SelectionDropdown
               selections={["NONE", ...Object.keys(Status)]}
