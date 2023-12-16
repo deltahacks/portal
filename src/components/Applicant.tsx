@@ -36,7 +36,7 @@ const FormInput: React.FC<
 
 const FormCheckbox: React.FC<
   FormInputProps & React.HTMLProps<HTMLInputElement>
-> = ({ label, checked, optional, link, readOnly }) => {
+> = ({ label, checked, optional, link }) => {
   return (
     <>
       <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
@@ -65,9 +65,9 @@ const FormCheckbox: React.FC<
 };
 
 const FormTextArea: React.FC<
-  FormInputProps &
-    React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
-> = ({ label, text, optional, currentLength }) => {
+  FormInputProps & React.HTMLProps<HTMLTextAreaElement>
+> = ({ label, text, optional }) => {
+  const currentLength = text?.split(/\s/g).length ?? 0;
   return (
     <div className="flex flex-1 flex-col gap-2 pb-4">
       <label className="text-black dark:text-white">
@@ -184,25 +184,21 @@ const ApplicationContent = ({
         id="longAnswerChange"
         label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
         text={data?.longAnswerChange}
-        currentLength={data?.longAnswerChange.split(/\s/g).length ?? 0}
       />
       <FormTextArea
         id="longAnswerExperience"
         label="How do you hope to make the most out of your experience at DH10?"
         text={data?.longAnswerExperience}
-        currentLength={data?.longAnswerExperience.split(/\s/g).length ?? 0}
       />
       <FormTextArea
         id="longAnswerTech"
         label="Which piece of future technology excites you most and where do you see it going?"
         text={data?.longAnswerTech}
-        currentLength={data?.longAnswerTech.split(/\s/g).length ?? 0}
       />
       <FormTextArea
         id="longAnswerMagic"
         label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
         text={data?.longAnswerMagic}
-        currentLength={data?.longAnswerMagic.split(/\s/g).length ?? 0}
       />
       <FormDivider label="Survey" />
       <FormInput
@@ -215,7 +211,6 @@ const ApplicationContent = ({
         id="interests"
         label="Is there anything else interesting you want us to know or see?"
         text={data?.interests ?? ""}
-        currentLength={data?.interests?.split(/\s/g).length ?? 0}
         optional
       />
       <FormInput id="tshirtSize" label="T-shirt Size" text={data?.tshirtSize} />
