@@ -147,7 +147,7 @@ const SearchBarFilter = <TData,>({
     throw Error("defaultColumn should exist and be filterable");
   }
   const [filteredColumn, setFilteredColumn] = useState(defaultColumn);
-  const filterableColumns = columns
+  const filterableColumnsMap = columns
     .filter((column) => column.getCanFilter())
     .reduce((map, column) => {
       map.set(column?.id, column);
@@ -158,10 +158,14 @@ const SearchBarFilter = <TData,>({
     <>
       <SelectionDropdown
         className="rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
-        selections={Array.from(filterableColumns.keys())}
+        selections={Array.from(filterableColumnsMap.keys())}
         defaultSelection={defaultColumn.id}
         onChangedSelection={(selection) => {
-          setFilteredColumn(filterableColumns.get(selection) ?? defaultColumn);
+          const newFilteredColumn =
+            filterableColumnsMap.get(selection) ?? defaultColumn;
+          setFilteredColumn(newFilteredColumn);
+          newFilteredColumn.setFilterValue(filteredColumn.getFilterValue());
+          filteredColumn.setFilterValue("");
         }}
       />
       <Input
