@@ -46,6 +46,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     cell: ({ row }) => (
       <div className="pl-4 py-2 capitalize">{row.getValue("name")}</div>
     ),
+    enableColumnFilter: true,
   },
   {
     accessorKey: "email",
@@ -63,6 +64,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     cell: ({ row }) => (
       <div className="pl-4 py-2 lowercase">{row.getValue("email")}</div>
     ),
+    enableColumnFilter: true,
     enableSorting: true,
     enableHiding: true,
   },
@@ -99,39 +101,43 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   },
 ];
 
-const StatusFilterDropdown = <TData,>({
-  column,
+const SelectionDropdown = ({
+  selections,
+  defaultSelection,
+  onChangedSelection,
 }: {
-  column?: Column<TData>;
+  selections: string[];
+  defaultSelection: string;
+  onChangedSelection?: (selection: string) => void;
 }) => {
-  const [displayedStatus, setDisplayedStatus] = React.useState("NONE");
-  const statusFilterTypes = ["NONE", ...Object.keys(Status)];
+  const [displayedSelection, setDisplayedSelection] =
+    React.useState(defaultSelection);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="justify-between w-60" variant="outline">
           <span className="sr-only">Open menu</span>
-          <div>{displayedStatus}</div>
+          <div>{displayedSelection}</div>
           <ChevronDown className="pl-2 h-4 w-6 float-right" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {statusFilterTypes
-          .filter((status) => status !== displayedStatus)
-          .map((status) => {
+        {selections
+          .filter((selection) => selection !== displayedSelection)
+          .map((selection) => {
             return (
               <DropdownMenuItem
-                key={status}
+                key={selection}
                 className="capitalize"
                 onClick={() => {
-                  setDisplayedStatus(status);
-                  column?.setFilterValue(
-                    status === "NONE" ? undefined : status
-                  );
+                  setDisplayedSelection(selection);
+                  if (onChangedSelection) {
+                    onChangedSelection(selection);
+                  }
                 }}
               >
-                {status}
+                {selection}
               </DropdownMenuItem>
             );
           })}
@@ -222,7 +228,15 @@ export const ApplicationsTable = ({
           <div className="flex items-center flex-row">
             <SearchBarFilter column={table.getColumn("email")} />
             <div className="text-right w-72 pr-4">Status Filter:</div>
-            <StatusFilterDropdown column={table.getColumn("status")} />
+            <SelectionDropdown
+              selections={["NONE", ...Object.keys(Status)]}
+              defaultSelection={"NONE"}
+              onChangedSelection={(selection) =>
+                table
+                  .getColumn("status")
+                  ?.setFilterValue(selection === "NONE" ? undefined : selection)
+              }
+            />
           </div>
 
           <ColumnFilterDropdown columns={table.getAllColumns()} />
