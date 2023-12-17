@@ -53,27 +53,30 @@ const TimeUntilStart: React.FC<TimeUntilStartInterface> = ({ hms }) => {
 
 const Accepted: React.FC = () => {
   const { data: session } = useSession();
-  const doRsvp = trpc.application.rsvp.useMutation();
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
+  const doRsvp = trpc.application.rsvp.useMutation({
+    onSuccess: async () => {
+      await utils.application.status.invalidate();
+    },
+  });
 
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? session.user?.name : ""}
-        {/*, we can{"'"}t wait to see you at
-        Deltahacks X!*/}
+        Hey {session ? session.user?.name : ""}, we can{"'"}t wait to see you at
+        Deltahacks X!
       </h1>
-      {/*<h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         DeltaHacks X! Come hack for change and build something incredible with
         hundreds of other hackers from January 12 - 14, 2023! To confirm that
         you will be attending, please RSVP below.
-      </h2>*/}
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      </h2>
+      {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Sorry, RSVPs are now closed. Thank you so much for your interest in
         DeltaHacks and we hope to see you next year!
-      </h2>
-      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      </h2> */}
+      <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
         <a href="mailto: tech@deltahacks.com" className="text-sky-400">
@@ -81,15 +84,16 @@ const Accepted: React.FC = () => {
         </a>
       </div>
       <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
-        {/*<button
+        <button
           className="btn btn-primary w-48 border-none text-base font-medium capitalize"
           onClick={async () => {
             await doRsvp.mutateAsync();
-            await utils.invalidateQueries(["application.status"]);
+
+            // await utils.invalidateQueries(["application.status"]);
           }}
         >
           RSVP
-        </button>*/}
+        </button>
 
         <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
@@ -109,13 +113,13 @@ const Rejected: React.FC = () => {
         Hey {session ? `${session.user?.name}` : ""}, thank you for submitting
         your application to DeltaHacks X.
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
         many talented, enthusiastic individuals. Unfortunately, we can’t accept
         everyone and are unable to offer you a spot at the hackathon at this
         time. We really hope you’ll apply again next year!
       </h2>
-      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
         <a href="mailto: tech@deltahacks.com" className="text-sky-400">
@@ -141,14 +145,14 @@ const Waitlisted: React.FC = () => {
         Hey {session ? `${session.user?.name}` : ""}, thank you for your
         application to participate in our hackathon!
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Due to the high volume of submissions we have received, we are unable to
         offer you a spot at this time. However, we have placed you on the
-        waitlist and will be in touch if a spot becomes available. We encourage
-        you to continue checking your email and our website for updates. Thank
-        you for your interest in our event!
+        <b> waitlist</b> and will be in touch if a spot becomes available. We
+        encourage you to continue checking your email and our website for
+        updates. Thank you for your interest in our event!
       </h2>
-      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
         <a href="mailto: tech@deltahacks.com" className="text-sky-400">
@@ -181,13 +185,13 @@ const InReview: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Thanks for applying{session ? `, ${session.user?.name}` : ""}!
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We have recieved your application. You will hear back from us on your
         email. While you wait for DeltaHacks, lookout for other prep events by
         DeltaHacks on our social accounts.
       </h2>
 
-      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
         <a href="mailto: tech@deltahacks.com" className="text-sky-400">
@@ -244,7 +248,7 @@ const RSVPed: React.FC = () => {
         Hey {session ? `${session.user?.name}` : ""}, looking forward to seeing
         you at the hackathon!
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to inform you that your registration for DeltaHacks X has
         been confirmed. Please look for an Attendee Package in your email with
         important information about the event in the coming days. Registration
@@ -264,7 +268,7 @@ const RSVPed: React.FC = () => {
         Please regularly check your email for updates and more information. We
         look forward to seeing you there!
       </h2>
-      <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
         reach us at{" "}
         <a href="mailto: tech@deltahacks.com" className="text-sky-400">
@@ -311,7 +315,7 @@ const CheckedIn: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? `${session.user?.name}` : ""}, welcome to your dashboard!
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Here is where you can access your profile, which will contain a backup
         of your QR code, as well as the event schedule. You can scan the QR code
         of other attendees to get their profile information through the scanner
@@ -374,7 +378,7 @@ const WalkIns: React.FC = () => {
         Hey {session ? `${session.user?.name}` : ""}, thanks for filling out
         your application!
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         You are almost done! To finish registration go to the check-in page, and
         link your QR code. Happy hacking!
       </h2>
@@ -397,8 +401,7 @@ const WalkIns: React.FC = () => {
 const Dashboard: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = (props) => {
-  const { data: status, isSuccess: isStatusLoading } =
-    trpc.application.status.useQuery();
+  const { data: status, isSuccess } = trpc.application.status.useQuery();
 
   const { data: session } = useSession();
 
@@ -411,6 +414,8 @@ const Dashboard: NextPage<
     [Status.CHECKED_IN]: <CheckedIn />,
   };
 
+  const statusToUse = isSuccess ? status : props.status;
+
   return (
     <>
       <Head>
@@ -422,7 +427,7 @@ const Dashboard: NextPage<
           <Background />
           <NavBar />
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            {stateMap[props.status]}
+            {stateMap[statusToUse]}
           </main>
           <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
             <SocialButtons />
