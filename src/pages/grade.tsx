@@ -1,64 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
+import { Role } from "@prisma/client";
 import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
-import { TypeFormSubmission } from "../server/router/reviewers";
+import { Application } from "../server/router/reviewers";
 
 const GradingPortal: NextPage = () => {
-  const [togglePriotity, setTogglePriority] = useState(true);
+  const [togglePriority, setTogglePriority] = useState(true);
 
-  const priorityQuery = trpc.reviewer.getPriorityApplications.useQuery(
-    undefined,
-    {
-      enabled: togglePriotity,
-    }
-  );
-  const appQuery = trpc.reviewer.getApplications.useQuery(undefined, {
-    enabled: !togglePriotity,
-  });
-  const data = priorityQuery.data ?? appQuery.data;
-  const isLoading = priorityQuery.isLoading || appQuery.isLoading;
+  const { data, isLoading } = trpc.reviewer.getApplications.useQuery();
 
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
-
-  const [mean, setMean] = useState<number>(0);
-  const [median, setMedian] = useState<number>(0);
-
-  useEffect(() => {
-    if (!isLoading) {
-      const scores: number[] =
-        data?.data
-          .map((application) => {
-            return (
-              application.reviews.reduce((a: number, b: { mark: number }) => {
-                return a + b.mark;
-              }, 0) / application.reviews.length
-            );
-          })
-          .filter((score) => !Number.isNaN(score)) || [];
-      const sum = scores.reduce(
-        (a: number, b: number) => (!Number.isNaN(b) ? a + b : a),
-        0
-      );
-      const avg = sum / scores.length || 0;
-      setMean(avg);
-
-      const mid = Math.floor(scores.length / 2);
-      const nums: number[] = [...scores].sort((a, b) => a - b);
-
-      const median: number =
-        (scores.length % 2 !== 0
-          ? nums[mid]
-          : (nums[mid - 1]! + nums[mid]!) / 2) || 0;
-      setMedian(median);
-    }
-  }, [data, isLoading]);
 
   return (
     <>
@@ -73,31 +31,18 @@ const GradingPortal: NextPage = () => {
 
           <main className="mx-auto px-14 py-16">
             <div className="flex justify-between">
-              <div>
-                <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                  Applications
-                </h1>
-                <div className="py-2">
-                  <p>Mean: {mean}</p>
-                  <p>Median: {median}</p>
-                </div>
-              </div>
+              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+                Applications
+              </h1>
               <div className="text-right">
                 <button
                   className="btn btn-primary"
-                  onClick={() => setTogglePriority(!togglePriotity)}
+                  onClick={() => setTogglePriority(!togglePriority)}
                 >
-                  {togglePriotity ? "Showing Priority" : "Showing All"}
+                  {togglePriority ? "Showing Priority" : "Showing All"}
                 </button>
                 <div className="py-4">
-                  {
-                    // count how many applications have been reviewed
-                    // an application is considered reviewed if it has 3 or more reviews
-                    data?.data.filter(
-                      (application) => application.reviews.length >= 3
-                    ).length
-                  }{" "}
-                  / {data?.data.length} Applications Reviewed <br />
+                  / {data?.length} Applications Reviewed <br />
                   {rsvpCount} RSVPs
                 </div>
               </div>
@@ -107,28 +52,19 @@ const GradingPortal: NextPage = () => {
                 <tr>
                   <th className="border-2 border-slate-800 p-3">Index</th>
                   <th className="border-2 border-slate-800 p-3">Email</th>
-                  <th className="border-2 border-slate-800 p-3">First Name</th>
-                  <th className="border-2 border-slate-800 p-3">Last Name</th>
-                  <th className="border-2 border-slate-800 p-3">Judged By</th>
-                  <th className="border-2 border-slate-800 p-3">Score</th>
-                  <th className="border-2 border-slate-800 p-3">
-                    Submit Score
-                  </th>
-                  {/* <th className="border-2 border-slate-800 p-3">Accepted</th> */}
+                  <th className="border-2 border-slate-800 p-3">Name</th>
+                  <th className="border-2 border-slate-800 p-3">Status</th>
                 </tr>
               </thead>
               <tbody className="text-white">
-                {!isLoading
-                  ? data?.data.map(
-                      (application: TypeFormSubmission, index: number) => (
-                        <Applicant
-                          key={application.response_id}
-                          applicant={application}
-                          index={index + 1}
-                        />
-                      )
-                    )
-                  : null}
+                {!isLoading &&
+                  data?.map((application: Application, index: number) => (
+                    <Applicant
+                      key={application.id}
+                      applicant={application}
+                      index={index + 1}
+                    />
+                  ))}
               </tbody>
             </table>
           </main>
@@ -173,14 +109,15 @@ export const getServerSideProps = async (
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
   if (
     !(
-      session?.user?.role?.includes("ADMIN") ||
-      session?.user?.role?.includes("REVIEWER")
+      session?.user?.role?.includes(Role.ADMIN) ||
+      session?.user?.role?.includes(Role.REVIEWER)
     )
   ) {
     return {
       redirect: { destination: "/dashboard", permanent: false },
     };
   }
+
   // Otherwise, continue.
   return { props: {} };
 };

@@ -23,7 +23,7 @@ enum ActionType {
 type Action = {
   actionType: ActionType;
   user: User;
-  role: Role | undefined;
+  role?: Role;
 };
 
 const Roles: NextPage = () => {
@@ -35,7 +35,7 @@ const Roles: NextPage = () => {
     role: role ? (role.toUpperCase() as keyof typeof Role) : null,
   });
 
-  const role_options = Object.keys(Role);
+  const roleOptions = Object.keys(Role);
   const addRole = trpc.user.addRole.useMutation();
   const removeRole = trpc.user.removeRole.useMutation();
 
@@ -144,7 +144,7 @@ const Roles: NextPage = () => {
                           tabIndex={0}
                           className="menu dropdown-content w-52 rounded-box bg-base-100 p-2 shadow"
                         >
-                          {role_options.map((role, idx) => {
+                          {roleOptions.map((role, idx) => {
                             return (
                               <li key={idx}>
                                 <option
@@ -206,7 +206,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
-    ["ADMIN"],
+    [Role.ADMIN],
     undefined,
     output
   );

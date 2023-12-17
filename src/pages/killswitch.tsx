@@ -5,6 +5,7 @@ import type {
   NextPage,
 } from "next";
 import Head from "next/head";
+import { Role } from "@prisma/client";
 import { Drawer } from "../components/NavBar";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
@@ -117,7 +118,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
-    ["ADMIN"],
+    [Role.ADMIN],
     undefined,
     output
   );
