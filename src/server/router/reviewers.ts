@@ -93,11 +93,28 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      await ctx.prisma.user.update({
+      const user = await ctx.prisma.user.update({
         where: { id: input.id },
         data: {
           status: input.status,
         },
+      });
+      await ctx.logsnag.track({
+        channel: "reviews",
+        event: "Status Changed",
+        user_id: `${user.name} - ${user.email}`,
+        description: `${ctx.session.user.name} (${ctx.session.user.email}) changed ${user.name}'s status to ${input.status}`,
+        tags: { status: input.status },
+        icon:
+          input.status === Status.ACCEPTED
+            ? "✅"
+            : input.status === Status.REJECTED
+            ? "❌"
+            : input.status === Status.WAITLISTED
+            ? "🕰️"
+            : input.status === Status.RSVP
+            ? "🎟️"
+            : "🤔",
       });
     }),
   submit: protectedProcedure
