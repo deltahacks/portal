@@ -103,8 +103,11 @@ export const reviewerRouter = router({
         channel: "reviews",
         event: "Status Changed",
         user_id: `${user.name} - ${user.email}`,
-        description: `${ctx.session.user.name} (${ctx.session.user.email}) changed ${user.name}'s status to ${input.status}`,
-        tags: { status: input.status },
+        description: `${ctx.session.user.name} changed ${user.name}'s status to ${input.status}`,
+        tags: {
+          status: input.status,
+          reviewer: ctx.session.user.email ?? "",
+        },
         icon:
           input.status === Status.ACCEPTED
             ? "✅"
