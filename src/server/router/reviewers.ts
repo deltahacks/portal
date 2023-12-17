@@ -3,11 +3,15 @@ import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
 import ApplicationSchema from "../../schemas/application";
+import { parse } from "path";
 
 const ApplicationForReview = z.object({
   id: z.string().cuid(),
   name: z.string(),
-  email: z.string().email(),
+  email: z
+    .string()
+    .nullable()
+    .transform((v) => (v === null ? "" : v)),
   status: z.nativeEnum(Status),
   dH10ApplicationId: z.string().cuid(),
 });
@@ -42,7 +46,11 @@ export const reviewerRouter = router({
         },
       });
 
-      return ApplicationForReview.array().parse(users);
+      const parsed = ApplicationForReview.array().parse(users);
+
+      console.log(parsed);
+
+      return parsed;
     }),
   getApplication: protectedProcedure
     .input(

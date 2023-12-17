@@ -307,12 +307,11 @@ const ApplicationPopupButton = ({
             className="fixed z-0 top-0 left-0 w-screen h-screen bg-black/50"
             onClick={() => setVisibility(false)}
           />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700">
-            <Background className="rounded-md" />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700 bg-white dark:bg-[#171717]">
             <div className="relative flex flex-col w-full h-full">
               <Button
                 variant="destructive"
-                className="md:absolute top-8 right-8"
+                className="md:absolute top-8 right-8 bg-red-500"
                 onClick={() => setVisibility(false)}
               >
                 Close
