@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import DHBranding from "../components/DHBranding";
 import LoginCard from "../components/LoginCard";
 import ThemeToggle from "../components/ThemeToggle";
+import { useEffect, useState } from "react";
 
 const errorMsgs = [
   {
@@ -25,11 +26,23 @@ const Login: NextPage = () => {
       "Error logging in. If this error persists, please contact us at tech@deltahacks.com for help.";
   }
 
+  const [isWebview, setIsWebview] = useState(false);
+
+  useEffect(() => {
+    const navigator = window.navigator;
+    const userAgent = navigator.userAgent;
+    const normalizedUserAgent = userAgent.toLowerCase();
+    const isAndroid = /android/.test(normalizedUserAgent);
+    const isWebview = isAndroid && /; wv\)/.test(normalizedUserAgent);
+    setIsWebview(isWebview);
+  }, []);
+
   return (
     <>
       <Head>
         <title>Login - DeltaHacks X</title>
       </Head>
+
       <div className={`flex h-full w-full bg-[#f2f2f2] dark:bg-[#1f1f1f]`}>
         <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#171717] md:w-1/2">
           <div className="light-gradient dark:dark-gradient absolute inset-0 -left-[50%] -top-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg"></div>
@@ -40,6 +53,25 @@ const Login: NextPage = () => {
         <div className="absolute right-4 top-4">
           <ThemeToggle />
         </div>
+        {isWebview && (
+          <div className="z-30">
+            <div className="toast toast-top toast-center">
+              <div className="alert alert-warning">
+                <span>
+                  Webview detected.<br></br> Open this page in your browser.
+                  <a
+                    className="pl-2 underline"
+                    href="/webview_fix.webp"
+                    target="_blank"
+                  >
+                    Help
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <LoginCard errorMsg={isError ? errorMsg : undefined} />
       </div>
     </>

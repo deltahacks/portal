@@ -1,12 +1,7 @@
-import { Prisma, Status } from "@prisma/client";
+import { Prisma, Status, Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import type {
-  TypeFormResponse,
-  TypeFormResponseField,
-  TypeFormSubmission,
-} from "./reviewers";
-import { options } from "./reviewers";
+import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
 import applicationSchema from "../../schemas/application";
 
@@ -17,7 +12,9 @@ const TypeFormSubmissionTruncated = z.object({
   birthday: z.date(),
 });
 
-type TypeFormSubmissionTruncated = z.infer<typeof TypeFormSubmissionTruncated>;
+export type TypeFormSubmissionTruncated = z.infer<
+  typeof TypeFormSubmissionTruncated
+>;
 
 const TypeFormSubmissionSocial = z.object({
   response_id: z.string(),
@@ -30,7 +27,65 @@ const TypeFormSubmissionSocial = z.object({
   socialLinks: z.string().nullish(),
 });
 
-type TypeFormSubmissionSocial = z.infer<typeof TypeFormSubmissionSocial>;
+export type TypeFormSubmissionSocial = z.infer<typeof TypeFormSubmissionSocial>;
+
+const TypeFormResponseField = z.object({
+  field: z.object({
+    id: z.string(),
+    type: z.string(),
+    ref: z.string(),
+  }),
+  type: z.string(),
+  text: z.string().nullish(),
+  date: z.date().nullish(),
+  file_url: z.string().nullish(),
+  boolean: z.boolean().nullish(),
+  phone_number: z.string().nullish(),
+  email: z.string().email().nullish(),
+});
+
+export type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
+
+const TypeFormResponseItems = z.array(
+  z.object({
+    landing_id: z.string(),
+    token: z.string(),
+    response_id: z.string(),
+    landed_at: z.date(),
+    submitted_at: z.date(),
+    metadata: z.object({
+      user_agent: z.string(),
+      platform: z.string(),
+      referer: z.string(),
+      network_id: z.string(),
+      browser: z.string(),
+    }),
+    hidden: z.object({
+      bobthebuilder: z.string(),
+    }),
+    calculated: z.object({
+      score: z.number(),
+    }),
+    answers: z.array(TypeFormResponseField),
+  })
+);
+
+export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
+
+const TypeFormResponse = z.object({
+  total_items: z.number(),
+  page_count: z.number(),
+  items: TypeFormResponseItems,
+});
+
+export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
+
+const options = {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
+  },
+};
 
 // Example router with queries that can only be hit if the user requesting is signed in
 export const applicationRouter = router({
@@ -53,8 +108,8 @@ export const applicationRouter = router({
   rsvpCount: protectedProcedure.output(z.number()).query(async ({ ctx }) => {
     if (
       !(
-        ctx.session.user.role.includes("ADMIN") ||
-        ctx.session.user.role.includes("REVIEWER")
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
       )
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -68,23 +123,25 @@ export const applicationRouter = router({
 
     return rsvp_count;
   }),
-  status: protectedProcedure.output(z.string()).query(async ({ ctx }) => {
-    const user = await ctx.prisma?.user.findFirst({
-      where: { id: ctx.session.user.id },
-      include: { dh10application: true },
-    });
-    if (!user) {
-      return "NULL";
-    }
-    if (
-      user.dH10ApplicationId === null ||
-      user.dH10ApplicationId === undefined
-    ) {
-      return "NULL";
-    }
+  status: protectedProcedure
+    .output(z.nativeEnum(Status))
+    .query(async ({ ctx }) => {
+      const user = await ctx.prisma?.user.findFirst({
+        where: { id: ctx.session.user.id },
+        include: { dh10application: true },
+      });
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      if (
+        user.dH10ApplicationId === null ||
+        user.dH10ApplicationId === undefined
+      ) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
 
-    return user.status;
-  }),
+      return user.status;
+    }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
       where: { id: ctx.session.user.id },
@@ -105,6 +162,13 @@ export const applicationRouter = router({
     await ctx.prisma?.user.update({
       where: { id: ctx.session.user.id },
       data: { status: Status.RSVP },
+    });
+    await ctx.logsnag.track({
+      channel: "rsvps",
+      event: "RSVP Submitted",
+      user_id: `${user.name} - ${user.email}`,
+      description: `${user.name} has submitted their RSVP.`,
+      icon: "🎉",
     });
   }),
   submit: protectedProcedure
@@ -323,7 +387,9 @@ export const applicationRouter = router({
       autofill["lastName"] = converted.lastName;
     }
     if (converted.birthday !== undefined) {
-      autofill["birthday"] = converted.birthday.toISOString().slice(0, 10);
+      autofill["birthday"] = new Date(
+        converted.birthday.toISOString().slice(0, 10)
+      );
     }
 
     if (converted.major !== "N/A") {
@@ -336,9 +402,9 @@ export const applicationRouter = router({
       autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
     }
     if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = converted.graduationYear
-        .toISOString()
-        .slice(0, 10);
+      autofill["studyExpectedGraduation"] = new Date(
+        converted.graduationYear.toISOString().slice(0, 10)
+      );
     }
     if (converted.degree !== "N/A") {
       autofill["studyDegree"] = converted.degree;
