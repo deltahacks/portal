@@ -23,11 +23,11 @@ const GradingPortal: NextPage = () => {
       <Head>
         <title>Grading Portal</title>
       </Head>
+      <Background />
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           <GradingNavBar />
-          <Background />
 
           <main className="mx-auto px-14 py-16">
             <div className="flex justify-between">
