@@ -163,6 +163,13 @@ export const applicationRouter = router({
       where: { id: ctx.session.user.id },
       data: { status: Status.RSVP },
     });
+    await ctx.logsnag.track({
+      channel: "rsvps",
+      event: "RSVP Submitted",
+      user_id: `${user.name} - ${user.email}`,
+      description: `${user.name} has submitted their RSVP.`,
+      icon: "🎉",
+    });
   }),
   submit: protectedProcedure
     .input(z.object({ id: z.string() }))
