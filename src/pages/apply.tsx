@@ -21,6 +21,7 @@ import { trpc } from "../utils/trpc";
 import { Drawer } from "../components/NavBar";
 import applicationSchema from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
+import FormDivider from "../components/FormDivider";
 import {
   workshops,
   tshirtSizes,
@@ -141,18 +142,6 @@ const FormTextArea: React.FC<
       />
       {errors && <span className="text-error">{errors.message}</span>}
     </div>
-  );
-};
-
-interface FormDividerProps {
-  label: string;
-}
-
-const FormDivider: React.FC<FormDividerProps> = ({ label }) => {
-  return (
-    <span className="my-4 border-b-2 border-neutral-700  pb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-400">
-      {label}
-    </span>
   );
 };
 
@@ -465,7 +454,7 @@ const ApplyForm = ({
       <FormTextArea
         id="longAnswerExperience"
         label="How do you hope to make the most out of your experience at DH10?"
-        errors={errors.longAnswerChange}
+        errors={errors.longAnswerExperience}
         register={register}
         currentLength={watch("longAnswerExperience")?.split(/\s/g).length ?? 0}
       />

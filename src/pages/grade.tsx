@@ -3,31 +3,31 @@ import type { GetServerSidePropsContext, NextPage } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Head from "next/head";
 import Link from "next/link";
-import { Role } from "@prisma/client";
+import { Role, Status } from "@prisma/client";
 import Background from "../components/Background";
 import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
-import Applicant from "../components/Applicant";
 import { trpc } from "../utils/trpc";
-import { Application } from "../server/router/reviewers";
+import { ApplicationsTable } from "../components/ApplicationsTable";
 
 const GradingPortal: NextPage = () => {
-  const [togglePriority, setTogglePriority] = useState(true);
-
-  const { data, isLoading } = trpc.reviewer.getApplications.useQuery();
-
+  const { data } = trpc.reviewer.getApplications.useQuery();
   const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
+
+  const numberReviewed = data?.filter(
+    (application) => application.status !== Status.IN_REVIEW
+  ).length;
 
   return (
     <>
       <Head>
         <title>Grading Portal</title>
       </Head>
+      <Background />
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           <GradingNavBar />
-          <Background />
 
           <main className="mx-auto px-14 py-16">
             <div className="flex justify-between">
@@ -35,38 +35,13 @@ const GradingPortal: NextPage = () => {
                 Applications
               </h1>
               <div className="text-right">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setTogglePriority(!togglePriority)}
-                >
-                  {togglePriority ? "Showing Priority" : "Showing All"}
-                </button>
                 <div className="py-4">
-                  / {data?.length} Applications Reviewed <br />
+                  {numberReviewed} / {data?.length} Applications Reviewed <br />
                   {rsvpCount} RSVPs
                 </div>
               </div>
             </div>
-            <table className="my-8 w-full text-left">
-              <thead className=" bg-black text-white">
-                <tr>
-                  <th className="border-2 border-slate-800 p-3">Index</th>
-                  <th className="border-2 border-slate-800 p-3">Email</th>
-                  <th className="border-2 border-slate-800 p-3">Name</th>
-                  <th className="border-2 border-slate-800 p-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="text-white">
-                {!isLoading &&
-                  data?.map((application: Application, index: number) => (
-                    <Applicant
-                      key={application.id}
-                      applicant={application}
-                      index={index + 1}
-                    />
-                  ))}
-              </tbody>
-            </table>
+            <ApplicationsTable applications={data ?? []} />
           </main>
         </div>
         <div className="drawer-side md:hidden">

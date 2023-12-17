@@ -123,23 +123,25 @@ export const applicationRouter = router({
 
     return rsvp_count;
   }),
-  status: protectedProcedure.output(z.string()).query(async ({ ctx }) => {
-    const user = await ctx.prisma?.user.findFirst({
-      where: { id: ctx.session.user.id },
-      include: { dh10application: true },
-    });
-    if (!user) {
-      return "NULL";
-    }
-    if (
-      user.dH10ApplicationId === null ||
-      user.dH10ApplicationId === undefined
-    ) {
-      return "NULL";
-    }
+  status: protectedProcedure
+    .output(z.nativeEnum(Status))
+    .query(async ({ ctx }) => {
+      const user = await ctx.prisma?.user.findFirst({
+        where: { id: ctx.session.user.id },
+        include: { dh10application: true },
+      });
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      if (
+        user.dH10ApplicationId === null ||
+        user.dH10ApplicationId === undefined
+      ) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
 
-    return user.status;
-  }),
+      return user.status;
+    }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
       where: { id: ctx.session.user.id },
@@ -160,6 +162,13 @@ export const applicationRouter = router({
     await ctx.prisma?.user.update({
       where: { id: ctx.session.user.id },
       data: { status: Status.RSVP },
+    });
+    await ctx.logsnag.track({
+      channel: "rsvps",
+      event: "RSVP Submitted",
+      user_id: `${user.name} - ${user.email}`,
+      description: `${user.name} has submitted their RSVP.`,
+      icon: "🎉",
     });
   }),
   submit: protectedProcedure

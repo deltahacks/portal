@@ -4,19 +4,22 @@ import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
 import ApplicationSchema from "../../schemas/application";
 
-const Application = z.object({
+const ApplicationForReview = z.object({
   id: z.string().cuid(),
   name: z.string(),
-  email: z.string().email(),
+  email: z
+    .string()
+    .nullable()
+    .transform((v) => (v === null ? "" : v)),
   status: z.nativeEnum(Status),
-  dh10application: ApplicationSchema,
+  dH10ApplicationId: z.string().cuid(),
 });
 
-export type Application = z.infer<typeof Application>;
+export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
 export const reviewerRouter = router({
   getApplications: protectedProcedure
-    .output(Application.array())
+    .output(ApplicationForReview.array())
     .query(async ({ ctx }) => {
       if (
         !(
@@ -38,123 +41,85 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           status: true,
-          dh10application: true,
+          dH10ApplicationId: true,
         },
       });
 
-      return Application.array().parse(users);
+      const parsed = ApplicationForReview.array().parse(users);
+
+      return parsed;
     }),
-  // getPriorityApplications: protectedProcedure.query(async ({ ctx }) => {
-  //   if (
-  //     !(
-  //       ctx.session.user.role.includes("ADMIN") ||
-  //       ctx.session.user.role.includes("REVIEWER")
-  //     )
-  //   ) {
-  //     throw new TRPCError({ code: "UNAUTHORIZED" });
-  //   }
+  getApplication: protectedProcedure
+    .input(
+      z.object({
+        dH10ApplicationId: z.string().optional(),
+      })
+    )
+    .output(ApplicationSchema)
+    .query(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
-  //   // select all user and their review details joining user on review
-  //   const dbdata = await ctx.prisma.user.findMany({
-  //     include: {
-  //       hacker: {
-  //         select: {
-  //           id: true,
-  //           hacker: true,
-  //           mark: true,
-  //           reviewer: true,
-  //         },
-  //       },
-  //     },
-  //   });
+      const application = await ctx.prisma.dH10Application.findFirst({
+        where: {
+          id: {
+            equals: input.dH10ApplicationId,
+          },
+        },
+      });
 
-  //   const mappedUsers = new Map();
+      return ApplicationSchema.parse(application);
+    }),
+  updateStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().cuid().optional(),
+        status: z.nativeEnum(Status),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
-  //   dbdata
-  //     .map((item) => {
-  //       return {
-  //         typeform_response_id: item.typeform_response_id,
-  //         reviewer: item.hacker,
-  //         id: item.id,
-  //         email: item.email,
-  //       };
-  //     })
-  //     .filter((item) => item.typeform_response_id != undefined)
-  //     .forEach((item) => mappedUsers.set(item.typeform_response_id, item));
-
-  //   // "before" token removed, and "until" token added, ending just after 11:59 PM on Nov 11
-  //   const url = `https://api.typeform.com/forms/MVo09hRB/responses?completed=true&page_size=1000&until=2022-11-12T05:00:00Z`;
-  //   const res = await fetch(url, options);
-  //   const data: TypeFormResponse = await res.json();
-
-  //   // Convert from TypeFormResponse to TypeFormSubmission
-  //   const converted: TypeFormSubmission[] = data.items.map((item) => {
-  //     const responsePreprocessing = new Map<string, TypeFormResponseField>();
-  //     for (const answer of item.answers) {
-  //       responsePreprocessing.set(answer.field.id, answer);
-  //     }
-
-  //     return {
-  //       response_id: item.response_id,
-  //       firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
-  //       lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
-  //       birthday: new Date(
-  //         responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01"
-  //       ),
-  //       major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
-  //       school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "N/A",
-  //       willBeEnrolled:
-  //         responsePreprocessing.get("rG4lrpFoXXpL")?.boolean ?? false,
-  //       graduationYear: new Date(
-  //         responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01"
-  //       ),
-  //       degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "N/A",
-  //       currentLevel: responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "N/A",
-  //       hackathonCount:
-  //         responsePreprocessing.get("MyObNZSNMZOZ")?.text ?? "N/A",
-  //       longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV")?.text ?? "N/A",
-  //       longAnswer2: responsePreprocessing.get("h084NVJ0kEsO")?.text ?? "N/A",
-  //       longAnswer3: responsePreprocessing.get("wq7KawPVuW4I")?.text ?? "N/A",
-  //       socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "N/A",
-  //       resume:
-  //         responsePreprocessing
-  //           .get("z8wTMK3lMO00")
-  //           ?.file_url?.replace(
-  //             "https://api.typeform.com/forms",
-  //             "/api/resumes"
-  //           ) ?? "N/A",
-  //       extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text ?? "N/A",
-  //       tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc")?.text ?? "N/A",
-  //       hackerType: responsePreprocessing.get("k9BrMbznssVX")?.text ?? "N/A",
-  //       hasTeam: responsePreprocessing.get("3h36sGge5G4X")?.boolean ?? false,
-  //       workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text ?? "N/A",
-  //       gender: responsePreprocessing.get("b3sr6g16jGjj")?.text ?? "N/A",
-  //       considerSponserChat:
-  //         responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean ?? false,
-  //       howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR")?.text ?? "N/A",
-  //       background: responsePreprocessing.get("kGs2PWAnqBI3")?.text ?? "N/A",
-  //       emergencyContactInfo: {
-  //         firstName: responsePreprocessing.get("o5rMp5fj0BMa")?.text ?? "N/A",
-  //         lastName: responsePreprocessing.get("irlsiZFKVJKD")?.text ?? "N/A",
-  //         phoneNumber:
-  //           responsePreprocessing.get("ceNTt9oUhO6Q")?.phone_number ?? "N/A",
-  //         email: responsePreprocessing.get("onIT7bTImlRj")?.email ?? "N/A",
-  //       },
-  //       mlhAgreement:
-  //         responsePreprocessing.get("F3vbQhObxXFa")?.boolean ?? false,
-  //       mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs")?.boolean ?? false,
-  //       hackerId: mappedUsers.get(item.response_id)?.id ?? "N/A",
-  //       reviews: mappedUsers.get(item.response_id)?.reviewer ?? [],
-  //       email: mappedUsers.get(item.response_id)?.email ?? "N/A",
-  //     };
-  //   });
-  //   // filter responses to get the ones that need review
-  //   const output = converted.filter((item) =>
-  //     mappedUsers.has(item.response_id)
-  //   );
-
-  //   return { data: output };
-  // }),
+      const user = await ctx.prisma.user.update({
+        where: { id: input.id },
+        data: {
+          status: input.status,
+        },
+      });
+      await ctx.logsnag.track({
+        channel: "reviews",
+        event: "Status Changed",
+        user_id: `${user.name} - ${user.email}`,
+        description: `${ctx.session.user.name} changed ${user.name}'s status to ${input.status}`,
+        tags: {
+          status: input.status,
+          reviewer: ctx.session.user.email ?? "",
+        },
+        icon:
+          input.status === Status.ACCEPTED
+            ? "✅"
+            : input.status === Status.REJECTED
+            ? "❌"
+            : input.status === Status.WAITLISTED
+            ? "🕰️"
+            : input.status === Status.RSVP
+            ? "🎟️"
+            : "🤔",
+      });
+    }),
   submit: protectedProcedure
     .input(z.object({ mark: z.number(), hackerId: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -185,7 +150,7 @@ export const reviewerRouter = router({
         },
       });
       if (res) {
-        throw new Error("Duplicate Review");
+        throw new TRPCError({ code: "CONFLICT", message: "Duplicate Review" });
       }
       await ctx.prisma.review.create({
         data: {
