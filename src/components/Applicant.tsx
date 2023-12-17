@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { trpc } from "../utils/trpc";
 import { ApplicationForReview } from "../server/router/reviewers";
-import Background from "./Background";
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
 import UpdateStatusDropdown from "./UpdateStatusDropdown";

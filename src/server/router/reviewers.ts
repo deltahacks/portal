@@ -3,7 +3,6 @@ import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
 import ApplicationSchema from "../../schemas/application";
-import { parse } from "path";
 
 const ApplicationForReview = z.object({
   id: z.string().cuid(),
@@ -47,8 +46,6 @@ export const reviewerRouter = router({
       });
 
       const parsed = ApplicationForReview.array().parse(users);
-
-      console.log(parsed);
 
       return parsed;
     }),
