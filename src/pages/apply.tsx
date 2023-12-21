@@ -771,7 +771,7 @@ const Apply: NextPage<
                     <span className="font-bold">tech@deltahacks.com</span>
                   </span> */}
                   <span>
-                    Applications are closed for Deltahcks X. If you didn't get
+                    Applications are closed for Deltahcks X. If you did not get
                     to apply, we hope to see you next year!
                   </span>
                 </div>
