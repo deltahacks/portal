@@ -170,7 +170,11 @@ const Waitlisted: React.FC = () => {
   );
 };
 
-const InReview: React.FC = () => {
+type InReviewProps = {
+  killed: boolean;
+};
+
+const InReview: React.FC<InReviewProps> = ({ killed }) => {
   const { data: session } = useSession();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const router = useRouter();
@@ -180,6 +184,7 @@ const InReview: React.FC = () => {
       router.push("/apply");
     },
   });
+  console.log(killed);
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
@@ -190,6 +195,7 @@ const InReview: React.FC = () => {
         email. While you wait for DeltaHacks, lookout for other prep events by
         DeltaHacks on our social accounts.
       </h2>
+      <h1>{killed}</h1>
 
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -198,44 +204,57 @@ const InReview: React.FC = () => {
           tech@deltahacks.com
         </a>
       </div>
-      <div className="flex gap-5 pt-6">
-        <button
-          className="btn btn-primary w-48 border-none  text-base font-medium capitalize"
-          onClick={() => dialogRef.current?.showModal()}
-        >
-          Redo Application
-        </button>
-
-        <dialog className="modal modal-bottom sm:modal-middle" ref={dialogRef}>
-          <div className="modal-box">
-            <h3 className="text-lg font-bold">Are you sure ?</h3>
-            <p className="py-4">
-              You will lose all and have to start from scratch.
-            </p>
-            <div className="modal-action">
-              <form method="dialog">
-                {/* if there is a button in form, it will close the modal */}
-                <div className="flex gap-5">
-                  <button
-                    className="btn btn-outline btn-error"
-                    onClick={() => deleteApplication.mutateAsync()}
-                  >
-                    Proceed
-                  </button>
-                  <button className="btn btn-primary border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </dialog>
-        <Link href="https://deltahacks.com/#FAQ">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
-            FAQ
+      {!killed ? (
+        <div className="flex gap-5 pt-6">
+          <button
+            className="btn btn-primary w-48 border-none  text-base font-medium capitalize"
+            onClick={() => dialogRef.current?.showModal()}
+          >
+            Redo Application
           </button>
-        </Link>
-      </div>
+
+          <dialog
+            className="modal modal-bottom sm:modal-middle"
+            ref={dialogRef}
+          >
+            <div className="modal-box">
+              <h3 className="text-lg font-bold">Are you sure ?</h3>
+              <p className="py-4">
+                You will lose all and have to start from scratch.
+              </p>
+              <div className="modal-action">
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <div className="flex gap-5">
+                    <button
+                      className="btn btn-outline btn-error"
+                      onClick={() => deleteApplication.mutateAsync()}
+                    >
+                      Proceed
+                    </button>
+                    <button className="btn btn-primary border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <Link href="https://deltahacks.com/#FAQ">
+            <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+              FAQ
+            </button>
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-5">
+          <Link href="https://deltahacks.com/#FAQ">
+            <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+              FAQ
+            </button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };
@@ -406,7 +425,7 @@ const Dashboard: NextPage<
   const { data: session } = useSession();
 
   const stateMap = {
-    [Status.IN_REVIEW]: <InReview />,
+    [Status.IN_REVIEW]: <InReview killed={props.killed || false} />,
     [Status.ACCEPTED]: <Accepted />,
     [Status.WAITLISTED]: <Waitlisted />,
     [Status.REJECTED]: <Rejected />,
@@ -492,17 +511,31 @@ export const getServerSideProps = async (
     where: { id: session.user.id },
     include: { dh10application: true },
   });
+  const killedStr = await prisma.config.findFirst({
+    where: { name: "killApplications" },
+    select: { value: true },
+  });
+
+  // they are killed in all cases unless the value is "false"
+  let killed = true;
+
+  if (killedStr && JSON.parse(killedStr.value) === false) {
+    killed = false;
+  }
 
   // If submitted then do nothing
   if (userEntry && userEntry.dh10application !== null) {
     return {
       props: {
         status: userEntry.status,
+        killed: killed,
       },
     };
   }
 
-  return { redirect: { destination: "/welcome", permanent: false } };
+  return {
+    redirect: { destination: "/welcome", permanent: false },
+  };
 };
 
 export default Dashboard;
