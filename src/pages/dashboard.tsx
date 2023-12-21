@@ -184,7 +184,6 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
       router.push("/apply");
     },
   });
-  console.log(killed);
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
