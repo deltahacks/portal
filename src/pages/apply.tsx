@@ -167,7 +167,6 @@ const ApplyForm = ({
     defaultValues: {
       ...autofillData,
       studyEnrolledPostSecondary: true,
-      studyExpectedGraduation: null,
     },
   });
 

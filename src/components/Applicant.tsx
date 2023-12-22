@@ -116,11 +116,7 @@ const ApplicationContent = ({
         />
         <FormInput label="Last Name" text={data?.firstName} placeholder="Doe" />
       </div>
-      <FormInput
-        id="birthday"
-        label="Birthday"
-        text={data?.birthday.toISOString().substring(0, 10)}
-      />
+      <FormInput id="birthday" label="Birthday" text={data?.birthday} />
       <FormInput
         label="Link to Resume"
         text={data?.linkToResume}
@@ -169,7 +165,7 @@ const ApplicationContent = ({
           <FormInput
             id="studyExpectedGraducation"
             label="Expected Graduation"
-            text={data?.studyExpectedGraduation?.toISOString().substring(0, 10)}
+            text={data?.studyExpectedGraduation}
           />
         </div>
       )}
