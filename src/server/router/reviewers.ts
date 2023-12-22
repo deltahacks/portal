@@ -15,6 +15,13 @@ const ApplicationForReview = z.object({
   dH10ApplicationId: z.string().cuid(),
 });
 
+const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
+  z.object({
+    birthday: z.string(),
+    studyExpectedGraduation: z.string().nullish(),
+  })
+);
+
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
 export const reviewerRouter = router({
@@ -55,7 +62,7 @@ export const reviewerRouter = router({
         dH10ApplicationId: z.string().optional(),
       })
     )
-    .output(ApplicationSchema)
+    .output(ApplicationSchemaWithStringDates)
     .query(async ({ ctx, input }) => {
       if (
         !(
@@ -74,7 +81,15 @@ export const reviewerRouter = router({
         },
       });
 
-      return ApplicationSchema.parse(application);
+      const applicationWithStringDates = {
+        ...application,
+        birthday: application?.birthday.toISOString().substring(0, 10) ?? "",
+        studyExpectedGraduation: application?.studyExpectedGraduation
+          ?.toISOString()
+          .substring(0, 10),
+      };
+
+      return ApplicationSchemaWithStringDates.parse(applicationWithStringDates);
     }),
   updateStatus: protectedProcedure
     .input(
