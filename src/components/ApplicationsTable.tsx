@@ -93,10 +93,8 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { id, status } = row.original;
-      return (
-        <UpdateStatusDropdown id={id} status={status} position="float-right" />
-      );
+      const { id } = row.original;
+      return <UpdateStatusDropdown id={id} position="float-right" />;
     },
     enableSorting: true,
     enableColumnFilter: true,
