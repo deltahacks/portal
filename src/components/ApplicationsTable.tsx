@@ -227,7 +227,6 @@ export const ApplicationsTable = ({
             defaultColumnToFilter={table.getColumn("status")}
             defaultFilterValue={Status.IN_REVIEW}
           />
-
           <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>
         <DataTable table={table} />
