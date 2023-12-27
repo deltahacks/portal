@@ -9,10 +9,15 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import { trpc } from "../utils/trpc";
 import { ApplicationsTable } from "../components/ApplicationsTable";
+import { count } from "console";
 
 const GradingPortal: NextPage = () => {
-  const { data } = trpc.reviewer.getApplications.useQuery();
+  const { data: applications } = trpc.reviewer.getApplications.useQuery();
   const { data: statusCount } = trpc.application.getStatusCount.useQuery();
+
+  const numberReviewed = applications?.filter(
+    (application) => application.status !== Status.IN_REVIEW
+  ).length;
 
   return (
     <>
@@ -26,15 +31,24 @@ const GradingPortal: NextPage = () => {
           <GradingNavBar />
 
           <main className="mx-auto px-14 py-16">
-            <div className="flex justify-between">
-              <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                Applications
-              </h1>
-              <div className="text-right">
-                <div className="py-4">{} RSVPs</div>
+            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+              Applications
+            </h1>
+            <div className="py-4">
+              <div className="font-bold">
+                Applications Reviewed: {numberReviewed} / {applications?.length}{" "}
+                <br />
               </div>
+              {statusCount?.map((value, i) => {
+                const { status, count } = value;
+                return (
+                  <>
+                    {status}: {count} <br />
+                  </>
+                );
+              })}
             </div>
-            <ApplicationsTable applications={data ?? []} />
+            <ApplicationsTable applications={applications ?? []} />
           </main>
         </div>
         <div className="drawer-side md:hidden">
