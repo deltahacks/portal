@@ -232,7 +232,7 @@ export const ApplicationsTable = ({
         <DataTable table={table} />
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            Displaying {table.getFilteredRowModel().rows.length} row(s).
+            Generated {table.getFilteredRowModel().rows.length} row(s).
           </div>
           <div className="space-x-2">
             <Button
