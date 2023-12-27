@@ -9,15 +9,14 @@ import GradingNavBar from "../components/GradingNavBar";
 import ThemeToggle from "../components/ThemeToggle";
 import { trpc } from "../utils/trpc";
 import { ApplicationsTable } from "../components/ApplicationsTable";
-import { count } from "console";
 
 const GradingPortal: NextPage = () => {
   const { data: applications } = trpc.reviewer.getApplications.useQuery();
   const { data: statusCount } = trpc.application.getStatusCount.useQuery();
 
-  const numberReviewed = applications?.filter(
-    (application) => application.status !== Status.IN_REVIEW
-  ).length;
+  const numberReviewed = statusCount?.reduce((acc, val) => {
+    return val.status != Status.IN_REVIEW ? acc + val.count : acc;
+  }, 0);
 
   return (
     <>
