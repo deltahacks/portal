@@ -123,7 +123,7 @@ export const applicationRouter = router({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      const statusCount = (
+      let statusCount = (
         await ctx.prisma.user.groupBy({
           by: ["status"],
           _count: {
@@ -135,6 +135,18 @@ export const applicationRouter = router({
           status: val.status,
           count: val._count.status,
         };
+      });
+
+      const otherStatuses = new Set(Object.keys(Status) as Status[]);
+      statusCount.forEach((val) => {
+        otherStatuses.delete(val.status);
+      });
+      otherStatuses.forEach((status) => {
+        statusCount.push({ status, count: 0 });
+      });
+
+      statusCount.sort((a, b) => {
+        return a.status.localeCompare(b.status);
       });
 
       return StatusCount.parse(statusCount);
