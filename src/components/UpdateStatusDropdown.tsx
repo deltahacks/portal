@@ -24,7 +24,7 @@ const UpdateStatusDropdown = ({
   const updateStatus = trpc.reviewer.updateStatus.useMutation({
     onSettled() {
       utils.reviewer.getStatus.invalidate({ id });
-      utils.application.rsvpCount.invalidate();
+      utils.application.getStatusCount.invalidate();
     },
   });
 

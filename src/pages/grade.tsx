@@ -12,11 +12,7 @@ import { ApplicationsTable } from "../components/ApplicationsTable";
 
 const GradingPortal: NextPage = () => {
   const { data } = trpc.reviewer.getApplications.useQuery();
-  const { data: rsvpCount } = trpc.application.rsvpCount.useQuery();
-
-  const numberReviewed = data?.filter(
-    (application) => application.status !== Status.IN_REVIEW
-  ).length;
+  const { data: statusCount } = trpc.application.getStatusCount.useQuery();
 
   return (
     <>
@@ -35,10 +31,7 @@ const GradingPortal: NextPage = () => {
                 Applications
               </h1>
               <div className="text-right">
-                <div className="py-4">
-                  {numberReviewed} / {data?.length} Applications Reviewed <br />
-                  {rsvpCount} RSVPs
-                </div>
+                <div className="py-4">{} RSVPs</div>
               </div>
             </div>
             <ApplicationsTable applications={data ?? []} />
