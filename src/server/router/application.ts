@@ -123,7 +123,7 @@ export const applicationRouter = router({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      let statusCount = (
+      const statusCount = (
         await ctx.prisma.user.groupBy({
           by: ["status"],
           _count: {
