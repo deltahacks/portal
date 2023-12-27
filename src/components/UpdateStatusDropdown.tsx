@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Status } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import {
@@ -13,29 +12,30 @@ import { cn } from "../utils/mergeTailwind";
 
 const UpdateStatusDropdown = ({
   id,
-  status: srcStatus,
   className,
   position,
 }: {
   id: string;
-  status: Status;
   className?: string;
   position?: string;
 }) => {
   const utils = trpc.useUtils();
+  const { data } = trpc.reviewer.getStatus.useQuery({ id });
   const updateStatus = trpc.reviewer.updateStatus.useMutation({
     onSettled() {
-      utils.reviewer.getApplications.invalidate();
-      utils.application.rsvpCount.invalidate();
+      utils.reviewer.getStatus.invalidate({ id });
+      utils.application.getStatusCount.invalidate();
     },
   });
+
+  const srcStatus = data?.status;
   const statusTypes = Object.keys(Status) as Status[];
 
   const handleUpdateStatus = async (status: Status) => {
     try {
       await updateStatus.mutateAsync({
         id,
-        status: status,
+        status,
       });
     } catch (e) {
       console.log(e);
