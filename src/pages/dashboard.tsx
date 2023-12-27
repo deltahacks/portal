@@ -333,7 +333,8 @@ const CheckedIn: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? `${session.user?.name}` : ""}, welcome to your dashboard!
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+      <p>More information will be here as we get closer to the hackathon.</p>
+      {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Here is where you can access your profile, which will contain a backup
         of your QR code, as well as the event schedule. You can scan the QR code
         of other attendees to get their profile information through the scanner
@@ -380,7 +381,7 @@ const CheckedIn: React.FC = () => {
             Discord
           </button>
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 };

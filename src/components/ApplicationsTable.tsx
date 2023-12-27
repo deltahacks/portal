@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Column,
   ColumnDef,
@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Filter } from "lucide-react";
 
 import { Button } from "./Button";
 import { ApplicationForReview } from "../server/router/reviewers";
@@ -27,6 +27,7 @@ import { DataTable } from "./Table";
 import ApplicationPopupButton from "./Applicant";
 import UpdateStatusDropdown from "./UpdateStatusDropdown";
 import capitalize from "../utils/capitlize";
+import { Status } from "@prisma/client";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
@@ -93,10 +94,8 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { id, status } = row.original;
-      return (
-        <UpdateStatusDropdown id={id} status={status} position="float-right" />
-      );
+      const { id } = row.original;
+      return <UpdateStatusDropdown id={id} position="float-right" />;
     },
     enableSorting: true,
     enableColumnFilter: true,
@@ -137,15 +136,17 @@ const ColumnFilterDropdown = <TDef,>({
 
 const SearchBarFilter = <TData,>({
   columns,
-  defaultColumn,
+  defaultColumnToFilter,
+  defaultFilterValue,
 }: {
   columns: Column<TData>[];
-  defaultColumn?: Column<TData>;
+  defaultColumnToFilter?: Column<TData>;
+  defaultFilterValue?: string;
 }) => {
-  if (!defaultColumn?.getCanFilter()) {
-    throw Error("defaultColumn should exist and be filterable");
+  if (!defaultColumnToFilter?.getCanFilter()) {
+    throw Error("defaultColumnToFilter should exist and be filterable");
   }
-  const [filteredColumn, setFilteredColumn] = useState(defaultColumn);
+  const [filteredColumn, setFilteredColumn] = useState(defaultColumnToFilter);
   const filterableColumnsMap = columns
     .filter((column) => column.getCanFilter())
     .reduce((map, column) => {
@@ -155,18 +156,25 @@ const SearchBarFilter = <TData,>({
 
   const changeFilteredColumnToSelection = (selection: string) => {
     const newFilteredColumn =
-      filterableColumnsMap.get(selection) ?? defaultColumn;
+      filterableColumnsMap.get(selection) ?? defaultColumnToFilter;
     setFilteredColumn(newFilteredColumn);
     newFilteredColumn.setFilterValue(filteredColumn.getFilterValue());
     filteredColumn.setFilterValue("");
   };
 
+  useEffect(() => {
+    filteredColumn.setFilterValue(defaultFilterValue);
+  }, [filteredColumn, defaultFilterValue]);
+
   return (
-    <div className="flex flex-row space-x-0 w-full">
+    <div className="flex flex-row items-center space-x-0 w-full">
+      <div className="p-2 pr-3">
+        <Filter />
+      </div>
       <SelectionDropdown
         className="w-40 rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
         selections={Array.from(filterableColumnsMap.keys())}
-        defaultSelection={capitalize(defaultColumn.id)}
+        defaultSelection={capitalize(defaultColumnToFilter.id)}
         onChangedSelection={changeFilteredColumnToSelection}
       />
       <Input
@@ -216,15 +224,15 @@ export const ApplicationsTable = ({
         <div className="flex items-center justify-between py-4">
           <SearchBarFilter
             columns={table.getAllColumns()}
-            defaultColumn={table.getColumn("email")}
+            defaultColumnToFilter={table.getColumn("status")}
+            defaultFilterValue={Status.IN_REVIEW}
           />
-
           <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>
         <DataTable table={table} />
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            Displaying {table.getFilteredRowModel().rows.length} row(s).
+            Generated {table.getFilteredRowModel().rows.length} row(s).
           </div>
           <div className="space-x-2">
             <Button

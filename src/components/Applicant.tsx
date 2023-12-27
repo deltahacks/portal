@@ -319,7 +319,6 @@ const ApplicationPopupButton = ({
               <div className="w-full md:w-auto flex-inital flex justify-center p-4 md:p-0 rounded-md md:absolute bottom-8 right-8">
                 <UpdateStatusDropdown
                   id={applicationForReview.id}
-                  status={applicationForReview.status}
                   className="h-14 w-40 bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
                 />
               </div>

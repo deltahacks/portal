@@ -91,6 +91,36 @@ export const reviewerRouter = router({
 
       return ApplicationSchemaWithStringDates.parse(applicationWithStringDates);
     }),
+  getStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().cuid().optional(),
+      })
+    )
+    .output(z.object({ status: z.nativeEnum(Status) }))
+    .query(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          id: {
+            equals: input.id,
+          },
+        },
+        select: {
+          status: true,
+        },
+      });
+
+      return { status: z.nativeEnum(Status).parse(user?.status) };
+    }),
   updateStatus: protectedProcedure
     .input(
       z.object({
