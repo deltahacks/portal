@@ -16,6 +16,7 @@ import { prisma } from "../server/db/client";
 import { Status } from "@prisma/client";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
+import { Button } from "../components/Button";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -83,7 +84,28 @@ const Accepted: React.FC = () => {
           tech@deltahacks.com
         </a>
       </div>
-      <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
+      <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
+        <Button
+          onClick={async () => {
+            await doRsvp.mutateAsync();
+          }}
+          className="w-full md:w-48 bg-blue-600 dark:bg-blue-600 dark:text-white"
+        >
+          RSVP
+        </Button>
+        <Button>
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+            FAQ
+          </Link>
+        </Button>
+
+        {/* <Button>
+          <Link className="w-full md:w-48" href="/schedule">
+            Schedule
+          </Link>
+        </Button> */}
+      </div>
+      {/* <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
         <button
           className="btn btn-primary w-48 border-none text-base font-medium capitalize"
           onClick={async () => {
@@ -100,7 +122,7 @@ const Accepted: React.FC = () => {
             FAQ
           </button>
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -278,7 +300,6 @@ const RSVPed: React.FC = () => {
           Peter George Centre for Living and Learning building at McMaster
           University{" "}
         </a>
-        from January 12-14{" "}
         <span className="font-bold">
           (Reminder: Friday is NOT in-person and will be taking place on
           Discord).
@@ -290,34 +311,29 @@ const RSVPed: React.FC = () => {
         If you have any questions, you can <br />
         reach us at{" "}
         <a href="mailto: tech@deltahacks.com" className="text-sky-400">
-          tech@deltahacks.com
+          hello@deltahacks.com
         </a>
       </div>
-      <div className="t-6 flex  flex-wrap gap-6 pb-24 pt-6">
-        <a href="https://deltahacks.com/#FAQ">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+      <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
+        <Button>
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
             FAQ
-          </button>
-        </a>
-        <a
-          href="https://drive.google.com/file/d/1r4oLL37piVo_1xrJt34SA95pLaeaU9do/view?usp=sharing"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
-            Attendee Package
-          </button>
-        </a>
-        <a href="https://discord.gg/KpEdu3J5" target="_blank" rel="noreferrer">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          </Link>
+        </Button>
+        <Button>
+          <Link
+            className="w-full md:w-48"
+            href="https://discord.gg/22ddpvfwXn"
+            target="_blank"
+          >
             Discord
-          </button>
-        </a>
-        <a href="/schedule" target="_blank" rel="noreferrer">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          </Link>
+        </Button>
+        {/* <Button>
+          <Link className="w-full md:w-48" href="/schedule">
             Schedule
-          </button>
-        </a>
+          </Link>
+        </Button> */}
       </div>
     </div>
   );
@@ -440,18 +456,16 @@ const Dashboard: NextPage<
       <Head>
         <title>Dashboard - DeltaHacks X</title>
       </Head>
+      <Background />
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
-          <Background />
           <NavBar />
           <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
             {stateMap[statusToUse]}
           </main>
-          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
-            <SocialButtons />
-          </footer>
         </div>
+
         <div className="drawer-side md:hidden">
           <label
             htmlFor="my-drawer-3"
@@ -469,12 +483,6 @@ const Dashboard: NextPage<
                   Dashboard
                 </Link>
               </li>
-              {/* 
-              <li>
-                <a className="mx-2 my-2 text-base font-bold" href="#">
-                  Calendar
-                </a>
-              </li> */}
             </ul>
             <div className="mx-1 mb-2 flex w-full items-center justify-between">
               <ThemeToggle />
@@ -493,6 +501,10 @@ const Dashboard: NextPage<
             </div>
           </div>
         </div>
+
+        <footer className=" bottom-0 right-0 p-5 md:absolute md:bottom-0">
+          <SocialButtons />
+        </footer>
       </div>
     </>
   );
