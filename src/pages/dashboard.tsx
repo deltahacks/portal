@@ -89,7 +89,7 @@ const Accepted: React.FC = () => {
           onClick={async () => {
             await doRsvp.mutateAsync();
           }}
-          className="w-full md:w-48 bg-blue-600 dark:bg-blue-600 dark:text-white"
+          className="w-full md:w-48 bg-primary dark:bg-primary dark:text-white"
         >
           RSVP
         </Button>
@@ -228,7 +228,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
       {!killed ? (
         <div className="flex gap-5 pt-6">
           <button
-            className="btn btn-primary w-48 border-none  text-base font-medium capitalize"
+            className="btn btn-primary dark:text-white w-48 border-none  text-base font-medium capitalize"
             onClick={() => dialogRef.current?.showModal()}
           >
             Redo Application
@@ -253,7 +253,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
                     >
                       Proceed
                     </button>
-                    <button className="btn btn-primary border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+                    <button className="btn btn-primary dark:text-white border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
                       Cancel
                     </button>
                   </div>
@@ -261,8 +261,8 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
               </div>
             </div>
           </dialog>
-          <Link href="https://deltahacks.com/#FAQ">
-            <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <Link href="https://deltahacks./#FAQ">
+            <button className="btn btn-primary dark:text-white w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
               FAQ
             </button>
           </Link>
