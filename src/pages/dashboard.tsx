@@ -89,11 +89,11 @@ const Accepted: React.FC = () => {
           onClick={async () => {
             await doRsvp.mutateAsync();
           }}
-          className="w-full md:w-48 bg-primary dark:bg-primary dark:text-white dark:hover:bg-indigo-600"
+          className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
         >
           RSVP
         </Button>
-        <Button>
+        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
             FAQ
           </Link>
@@ -149,11 +149,11 @@ const Rejected: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#FAQ">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
             FAQ
-          </button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </div>
   );
@@ -182,11 +182,11 @@ const Waitlisted: React.FC = () => {
         </a>
       </div>
       <div className="pt-6">
-        <Link href="https://deltahacks.com/#FAQ">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
             FAQ
-          </button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </div>
   );
@@ -227,12 +227,12 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
       </div>
       {!killed ? (
         <div className="flex gap-5 pt-6">
-          <button
-            className="btn btn-primary dark:text-white w-48 border-none  text-base font-medium capitalize"
+          <Button
             onClick={() => dialogRef.current?.showModal()}
+            className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
           >
             Redo Application
-          </button>
+          </Button>
 
           <dialog
             className="modal modal-bottom sm:modal-middle"
@@ -261,19 +261,19 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
               </div>
             </div>
           </dialog>
-          <Link href="https://deltahacks./#FAQ">
-            <button className="btn btn-primary dark:text-white w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+            <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
               FAQ
-            </button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       ) : (
         <div className="mt-5">
-          <Link href="https://deltahacks.com/#FAQ">
-            <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
+          <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+            <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
               FAQ
-            </button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       )}
     </div>
@@ -315,12 +315,12 @@ const RSVPed: React.FC = () => {
         </a>
       </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
-        <Button>
+        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
             FAQ
           </Link>
         </Button>
-        <Button>
+        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="https://discord.gg/22ddpvfwXn"
