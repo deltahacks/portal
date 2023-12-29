@@ -89,7 +89,7 @@ const Accepted: React.FC = () => {
           onClick={async () => {
             await doRsvp.mutateAsync();
           }}
-          className="w-full md:w-48 bg-primary dark:bg-primary dark:text-white"
+          className="w-full md:w-48 bg-primary dark:bg-primary dark:text-white dark:hover:bg-indigo-600"
         >
           RSVP
         </Button>
