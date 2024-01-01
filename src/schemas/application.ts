@@ -4,10 +4,8 @@ import isMobilePhone from "validator/lib/isMobilePhone";
 const schema = z.object({
   firstName: z.string().min(1).max(255),
   lastName: z.string().min(1).max(255),
-  birthday: z.string().refine(
-    (value) => {
-      // parse date
-      const date = new Date(value);
+  birthday: z.coerce.date().refine(
+    (date) => {
       // make sure over 15
       const now = new Date();
       const diff = now.getTime() - date.getTime();
@@ -25,7 +23,7 @@ const schema = z.object({
   studyDegree: z.string().min(1).max(255).nullish(),
   studyMajor: z.string().min(1).max(255).nullish(),
   studyYearOfStudy: z.string().nullish(),
-  studyExpectedGraduation: z.string().nullish(),
+  studyExpectedGraduation: z.coerce.date().nullish(),
   previousHackathonsCount: z.coerce.number().int().min(0),
   longAnswerChange: z
     .string()
