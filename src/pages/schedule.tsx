@@ -28,13 +28,16 @@ const eventColours = [
 //     allDay: false,
 //     colorId: 0,
 //   },
+
 // ];
+
+// https://calendar.google.com/calendar/ical/%40group.calendar.google.com/public/basic.ics
 
 const getData = async (_: any, requestOptions: any) => {
   const GOOGLE_CALENDAR_URL =
     "https://www.googleapis.com/calendar/v3/calendars/";
   const CALENDAR_ID =
-    "25aa70904fce4f627895a2548224e21849fa24aed26334a8db8090ffbc8dc613@group.calendar.google.com";
+    "c_92d6993e1372148dd97f599a8cafdb44e2447818ee8f15b1faea783753e2e54c@group.calendar.google.com";
   const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
 
   const dataUrl = [
@@ -49,9 +52,26 @@ const getData = async (_: any, requestOptions: any) => {
 
   const data = await response.json();
 
-  console.log(data);
+  const colorMap = new Map();
 
-  return data.items;
+  colorMap.set("Event", 1);
+  colorMap.set("Workshop", 2);
+  colorMap.set("Important", 3);
+  colorMap.set("Deadline", 4);
+  colorMap.set("Food", 5);
+
+  const updatedItems = data.items.map((item: any) => {
+    const itemType = item.summary.split("|").at(-1).trim();
+    const itemColorId = colorMap.get(itemType) ?? 0;
+
+    return {
+      ...item,
+      colorId: itemColorId,
+    };
+  });
+  console.log(updatedItems);
+
+  return updatedItems;
 };
 
 const dataSource = new CustomStore({
@@ -66,33 +86,13 @@ const ScheduleComponent = ({
   // If the user is out of range of the event default them to the start date
   const curDate = new Date(
     2024, // year
-    1, // month
+    0, // month
     12 // day
   );
   const defaultCurrentDate = curDate;
 
-  console.log(dataSource); // this datasource has nothihng...?
+  console.log(dataSource);
 
-  // const [calData, setCalData] = useState([]);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const data = await getData(null, { showDeleted: false });
-  //     setCalData(data);
-  //   };
-
-  //   fetchData();
-  // }, []);
-
-  // console.log("CAL DATA", calData);
-
-  // const calDataFormatted = calData.map((e) => ({
-  //   text: e.summary,
-  //   startDate: new Date(e.start.dateTime),
-  //   endDate: new Date(e.end.dateTime),
-  // }));
-
-  // console.log("CAL DATA", calDataFormatted);
   return (
     <Scheduler
       className="h-full"
@@ -100,17 +100,24 @@ const ScheduleComponent = ({
       views={[
         {
           type: "day",
-          name: "DeltaHacks",
+          name: "Calendar View",
+          intervalCount: 3,
+        },
+        {
+          type: "agenda",
+          name: "List View",
           intervalCount: 3,
         },
       ]}
-      defaultCurrentView="day"
+      // defaultCurrentView="day"
+      defaultCurrentView={defaultCurrentView}
       cellDuration={60}
       firstDayOfWeek={0}
       editing={false}
       startDateExpr="start.dateTime"
       endDateExpr="end.dateTime"
       textExpr="summary"
+      currentDate={defaultCurrentDate}
     >
       <Editing allowAdding={false} />
       <Resource
@@ -130,13 +137,13 @@ const Schedule: NextPage = () => {
   return (
     <Drawer>
       <div className="flex-auto overflow-hidden">
-        {/* desktop view */}
+        {/* mobile view */}
         <div className="h-full pt-5 sm:hidden">
           <ScheduleComponent defaultCurrentView="agenda" />
         </div>
-        {/* mobile view */}
+        {/* desktop view */}
         <div className="hidden h-full p-8 sm:block">
-          <ScheduleComponent defaultCurrentView="timelineDay" />
+          <ScheduleComponent defaultCurrentView="day" />
         </div>
       </div>
     </Drawer>
