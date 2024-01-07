@@ -12,7 +12,7 @@ import LogRocket from "logrocket";
 import setupLogRocketReact from "logrocket-react";
 import { useEffect } from "react";
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = process.env.NODE_ENV !== "production";
 
 const LogIdentifierDev = () => {
   return null;
