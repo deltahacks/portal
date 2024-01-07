@@ -15,6 +15,13 @@ const ApplicationForReview = z.object({
   dH10ApplicationId: z.string().cuid(),
 });
 
+const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
+  z.object({
+    birthday: z.string(),
+    studyExpectedGraduation: z.string().nullish(),
+  })
+);
+
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
 export const reviewerRouter = router({
@@ -55,7 +62,7 @@ export const reviewerRouter = router({
         dH10ApplicationId: z.string().optional(),
       })
     )
-    .output(ApplicationSchema)
+    .output(ApplicationSchemaWithStringDates)
     .query(async ({ ctx, input }) => {
       if (
         !(
@@ -74,7 +81,45 @@ export const reviewerRouter = router({
         },
       });
 
-      return ApplicationSchema.parse(application);
+      const applicationWithStringDates = {
+        ...application,
+        birthday: application?.birthday.toISOString().substring(0, 10) ?? "",
+        studyExpectedGraduation: application?.studyExpectedGraduation
+          ?.toISOString()
+          .substring(0, 10),
+      };
+
+      return ApplicationSchemaWithStringDates.parse(applicationWithStringDates);
+    }),
+  getStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().cuid().optional(),
+      })
+    )
+    .output(z.object({ status: z.nativeEnum(Status) }))
+    .query(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          id: {
+            equals: input.id,
+          },
+        },
+        select: {
+          status: true,
+        },
+      });
+
+      return { status: z.nativeEnum(Status).parse(user?.status) };
     }),
   updateStatus: protectedProcedure
     .input(

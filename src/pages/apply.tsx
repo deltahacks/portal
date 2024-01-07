@@ -764,11 +764,15 @@ const Apply: NextPage<
             {killed && (
               <div className="flex h-full flex-col items-center justify-center py-4 text-center">
                 <div className="alert  bg-red-600 text-center text-2xl text-black dark:text-white md:text-left">
-                  <span>
+                  {/* <span>
                     Applications are currently closed due to technical
                     difficulties. Please check back later. If this error
                     persists, please contact us at{" "}
                     <span className="font-bold">tech@deltahacks.com</span>
+                  </span> */}
+                  <span>
+                    Applications are closed for Deltahcks X. If you did not get
+                    to apply, we hope to see you next year!
                   </span>
                 </div>
               </div>

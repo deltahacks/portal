@@ -80,6 +80,13 @@ const TypeFormResponse = z.object({
 
 export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
 
+const StatusCount = z
+  .object({
+    status: z.nativeEnum(Status),
+    count: z.number(),
+  })
+  .array();
+
 const options = {
   method: "GET",
   headers: {
@@ -105,24 +112,50 @@ export const applicationRouter = router({
     }
     return true;
   }),
-  rsvpCount: protectedProcedure.output(z.number()).query(async ({ ctx }) => {
-    if (
-      !(
-        ctx.session.user.role.includes(Role.ADMIN) ||
-        ctx.session.user.role.includes(Role.REVIEWER)
-      )
-    ) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    const rsvp_count =
-      (await ctx.prisma.user.count({
-        where: {
-          status: Status.RSVP,
-        },
-      })) || 0;
+  getStatusCount: protectedProcedure
+    .output(StatusCount)
+    .query(async ({ ctx }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      const statusCount = (
+        await ctx.prisma.user.groupBy({
+          by: ["status"],
+          where: {
+            dH10ApplicationId: {
+              not: null,
+            },
+          },
+          _count: {
+            status: true,
+          },
+        })
+      ).map((val) => {
+        return {
+          status: val.status,
+          count: val._count.status,
+        };
+      });
 
-    return rsvp_count;
-  }),
+      const otherStatuses = new Set(Object.keys(Status) as Status[]);
+      statusCount.forEach((val) => {
+        otherStatuses.delete(val.status);
+      });
+      otherStatuses.forEach((status) => {
+        statusCount.push({ status, count: 0 });
+      });
+
+      statusCount.sort((a, b) => {
+        return a.status.localeCompare(b.status);
+      });
+
+      return StatusCount.parse(statusCount);
+    }),
   status: protectedProcedure
     .output(z.nativeEnum(Status))
     .query(async ({ ctx }) => {
