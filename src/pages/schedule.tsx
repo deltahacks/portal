@@ -4,6 +4,7 @@ import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import { Drawer } from "../components/NavBar";
 import parseIcsSchedule from "../utils/parseIcsSchedule";
 import { Event } from "../types/scheduler";
+import CustomStore from "devextreme/data/custom_store";
 
 import "devextreme/dist/css/dx.dark.css";
 
@@ -27,92 +28,122 @@ const eventColours = [
 //     allDay: false,
 //     colorId: 0,
 //   },
+
 // ];
+
+// https://calendar.google.com/calendar/ical/%40group.calendar.google.com/public/basic.ics
+
+const getData = async (_: any, requestOptions: any) => {
+  const GOOGLE_CALENDAR_URL =
+    "https://www.googleapis.com/calendar/v3/calendars/";
+  const CALENDAR_ID =
+    "c_92d6993e1372148dd97f599a8cafdb44e2447818ee8f15b1faea783753e2e54c@group.calendar.google.com";
+  const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
+
+  const dataUrl = [
+    GOOGLE_CALENDAR_URL,
+    CALENDAR_ID,
+    "/events?key=",
+    PUBLIC_KEY,
+  ].join("");
+  console.log(dataUrl);
+
+  const response = await fetch(dataUrl, requestOptions);
+
+  const data = await response.json();
+
+  const colorMap = new Map();
+
+  colorMap.set("Event", 1);
+  colorMap.set("Workshop", 2);
+  colorMap.set("Important", 3);
+  colorMap.set("Deadline", 4);
+  colorMap.set("Food", 5);
+
+  const updatedItems = data.items.map((item: any) => {
+    const itemType = item.summary.split("|").at(-1).trim();
+    const itemColorId = colorMap.get(itemType) ?? 0;
+
+    return {
+      ...item,
+      colorId: itemColorId,
+    };
+  });
+  console.log(updatedItems);
+
+  return updatedItems;
+};
+
+const dataSource = new CustomStore({
+  load: (options) => getData(options, { showDeleted: false }),
+});
+
+const ScheduleComponent = ({
+  defaultCurrentView,
+}: {
+  defaultCurrentView: string;
+}) => {
+  // If the user is out of range of the event default them to the start date
+  const curDate = new Date(
+    2024, // year
+    0, // month
+    12 // day
+  );
+  const defaultCurrentDate = curDate;
+
+  console.log(dataSource);
+
+  return (
+    <Scheduler
+      className="h-full"
+      dataSource={dataSource}
+      views={[
+        {
+          type: "day",
+          name: "Calendar View",
+          intervalCount: 3,
+        },
+        {
+          type: "agenda",
+          name: "List View",
+          intervalCount: 3,
+        },
+      ]}
+      // defaultCurrentView="day"
+      defaultCurrentView={defaultCurrentView}
+      cellDuration={60}
+      firstDayOfWeek={0}
+      editing={false}
+      startDateExpr="start.dateTime"
+      endDateExpr="end.dateTime"
+      textExpr="summary"
+      currentDate={defaultCurrentDate}
+    >
+      <Editing allowAdding={false} />
+      <Resource
+        dataSource={eventColours}
+        fieldExpr="colorId" // so its coloring based on the colorId of the event
+        useColorAsDefault={true}
+      />
+    </Scheduler>
+  );
+};
 
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
 const Schedule: NextPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
-
-  // Remove resource label from scheduler
-  const removeResourceLabel = () => {
-    setTimeout(() => {
-      // Add an event listener to popup
-      const popups = document.querySelectorAll(".dx-overlay-content");
-      popups.forEach((popup) => {
-        popup.addEventListener("click", removeResourceLabel);
-      });
-    }, 500);
-
-    setTimeout(() => {
-      const resource = document.querySelector("textarea");
-      const parent8 =
-        resource?.parentElement?.parentElement?.parentElement?.parentElement
-          ?.parentElement?.parentElement?.parentElement?.parentElement;
-      parent8?.removeChild(parent8?.lastElementChild as Node);
-    }, 100);
-  };
-
-  // Load in the tsv into the scheduler
-  useEffect(() => {
-    (async () => {
-      const data = [
-        ...(await parseIcsSchedule()).map((v) => ({
-          ...v,
-          disabled: true,
-          // Randomize the colour of the event. If allDay then make it white
-          colorId: v.allDay
-            ? 0
-            : Math.floor(Math.random() * (eventColours.length - 1) + 1),
-        })),
-      ];
-      setEvents(data);
-    })();
-  }, []);
-
-  const Schedule = ({ defaultCurrentView }: { defaultCurrentView: string }) => {
-    // If the user is out of range of the event default them to the start date
-    const curDate = new Date(Date.now());
-    const defaultCurrentDate =
-      curDate < new Date("2023-1-13") || new Date("2023-1-15") < curDate
-        ? new Date("2023-1-13")
-        : curDate;
-
-    return (
-      <Scheduler
-        className="h-full"
-        dataSource={events}
-        views={["timelineDay", "agenda"]}
-        defaultCurrentView={defaultCurrentView}
-        defaultCurrentDate={defaultCurrentDate}
-        cellDuration={60}
-        firstDayOfWeek={0}
-      >
-        <Editing allowAdding={false} />
-        <Resource
-          dataSource={eventColours}
-          fieldExpr="colorId"
-          useColorAsDefault={true}
-        />
-      </Scheduler>
-    );
-  };
+  const [data, setData] = useState([]); // waht about this?
 
   return (
     <Drawer>
-      <div className="flex-auto overflow-hidden" onClick={removeResourceLabel}>
-        {/* desktop view */}
-        <div className="h-full pt-5 sm:hidden">
-          {events.length === 0 && (
-            <div className="py-4 text-4xl font-bold">Loading...</div>
-          )}
-          <Schedule defaultCurrentView="agenda" />
-        </div>
+      <div className="flex-auto overflow-hidden">
         {/* mobile view */}
+        <div className="h-full pt-5 sm:hidden">
+          <ScheduleComponent defaultCurrentView="agenda" />
+        </div>
+        {/* desktop view */}
         <div className="hidden h-full p-8 sm:block">
-          {events.length === 0 && (
-            <div className="py-4 text-4xl font-bold">Loading...</div>
-          )}
-          <Schedule defaultCurrentView="timelineDay" />
+          <ScheduleComponent defaultCurrentView="day" />
         </div>
       </div>
     </Drawer>
