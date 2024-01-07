@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import { Drawer } from "../components/NavBar";
@@ -150,8 +150,23 @@ const Schedule: NextPage = () => {
   );
 };
 
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
-export default dynamic(() => Promise.resolve(Schedule), {
-  ssr: false,
-});
+// export default dynamic(() => Promise.resolve(Schedule), {
+//   ssr: false,
+// });
+
+export default Schedule;
+
+// add netlify cahce control
+// https://docs.netlify.com/routing/headers/#syntax-for-the-headers-file
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  ctx.res.setHeader("Netlify-Vary", "cookie=next-auth.session-token");
+  ctx.res.setHeader("Cache-Control", "public, max-age=7200");
+
+  // just return the page but with cache headers
+  return {
+    props: {},
+  };
+}
