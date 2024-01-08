@@ -31,22 +31,6 @@ const eventColours = [
 
 // ];
 
-const getRandomIntegerFromRange = (start: number, end: number): number => {
-  return Math.floor(Math.random() * (end - start + 1) + start);
-};
-
-const getEventsSchedule = async (): Promise<Event[]> => {
-  const icsSchedule = await parseIcsSchedule();
-  const eventsSchedule = icsSchedule.map((v) => ({
-    ...v,
-    disabled: true,
-    colorId: v.allDay
-      ? 0
-      : getRandomIntegerFromRange(0, eventColours.length - 1),
-  }));
-  return eventsSchedule;
-};
-
 const removeResourceLabel = () => {
   setTimeout(() => {
     // Add an event listener to popup
@@ -116,11 +100,7 @@ const ScheduleComponent = ({
   defaultCurrentView: string;
 }) => {
   // If the user is out of range of the event default them to the start date
-  const curDate = new Date(
-    2024, // year
-    0, // month
-    12 // day
-  );
+  const curDate = new Date(2024, 0, 12);
   const defaultCurrentDate = curDate;
 
   console.log(dataSource);
@@ -161,19 +141,11 @@ const ScheduleComponent = ({
   );
 };
 
-const getDefaultCurrentDate = (start: Date, end: Date): Date => {
-  const curDate = new Date(Date.now());
-  return start < curDate && curDate < end ? curDate : start;
-};
-
 // docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
 const Schedule: NextPage = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [data, setData] = useState([]); // waht about this?
-
   return (
     <Drawer>
-      <div className="flex-auto overflow-hidden">
+      <div className="flex-auto overflow-hidden" onClick={removeResourceLabel}>
         {/* mobile view */}
         <div className="h-full pt-5 sm:hidden">
           <ScheduleComponent defaultCurrentView="agenda" />
