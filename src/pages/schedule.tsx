@@ -28,7 +28,6 @@ const eventColours = [
 //     allDay: false,
 //     colorId: 0,
 //   },
-
 // ];
 
 const removeResourceLabel = () => {
@@ -45,7 +44,10 @@ const removeResourceLabel = () => {
     const parent8 =
       resource?.parentElement?.parentElement?.parentElement?.parentElement
         ?.parentElement?.parentElement?.parentElement?.parentElement;
-    parent8?.removeChild(parent8?.lastElementChild as Node);
+
+    if (parent8?.lastElementChild?.textContent != "Description") {
+      parent8?.removeChild(parent8?.lastElementChild as Node);
+    }
   }, 100);
 };
 
@@ -66,7 +68,7 @@ const getData = async (_: any, requestOptions: any) => {
 
   const response = await fetch(dataUrl, requestOptions);
 
-  const data = await response.json();
+  const { items: events } = await response.json();
 
   const colorMap = new Map();
 
@@ -76,18 +78,19 @@ const getData = async (_: any, requestOptions: any) => {
   colorMap.set("Deadline", 4);
   colorMap.set("Food", 5);
 
-  const updatedItems = data.items.map((item: any) => {
-    const itemType = item.summary.split("|").at(-1).trim();
-    const itemColorId = colorMap.get(itemType) ?? 0;
+  const updatedEvents = events.map((event: any) => {
+    const eventType = event.summary.split("|").at(-1).trim();
+    const eventColorId = colorMap.get(eventType) ?? 0;
 
     return {
-      ...item,
-      colorId: itemColorId,
+      ...event,
+      description: "Location: " + event.location,
+      colorId: eventColorId,
     };
   });
-  console.log(updatedItems);
+  console.log(updatedEvents);
 
-  return updatedItems;
+  return updatedEvents;
 };
 
 const dataSource = new CustomStore({
