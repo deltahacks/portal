@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const SocialButtons = () => {
   return (
-    <div className=" flex gap-x-2.5 md:flex-col">
+    <div className="flex gap-1 md:flex-col">
       <a
         href="https://www.instagram.com/deltahacks/"
         className="invert filter hover:brightness-150 dark:invert-0"

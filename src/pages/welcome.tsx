@@ -11,20 +11,20 @@ const Content = () => {
     <main className="px-7 py-8 sm:px-14 md:w-10/12 md:py-16 lg:pl-20 2xl:w-8/12 2xl:pt-20">
       <div className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl">
         A weekend worth hacking,
-        <br />@ DeltaHacks 9
+        <br />@ DeltaHacks X
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-2xl lg:leading-tight 2xl:pt-10 2xl:text-2xl">
         At DeltaHacks, we believe change comes from dreaming big. Each year we
         enable over 800 students from across North America, working hard over 36
         hours, to bring their big ideas to life. Unleash your creativity and
         make something great, we{"'"}ll handle the rest! Make big ideas a
-        reality at DeltaHacks 9!
+        reality at DeltaHacks X!
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-2xl lg:leading-tight 2xl:pt-10 2xl:text-2xl">
         If you have any questions, you can <br />
         reach us at{" "}
-        <a href="mailto: hello@deltahacks.com" className="text-sky-400">
-          hello@deltahacks.com
+        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
+          tech@deltahacks.com
         </a>
       </div>
       <div className="flex flex-col gap-3 pt-6 md:flex-row lg:pt-8 2xl:pt-10">
@@ -33,7 +33,7 @@ const Content = () => {
             Apply
           </button>
         </Link>
-        <Link href="https://deltahacks.com/#faq">
+        <Link href="https://deltahacks.com/#FAQ">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -63,17 +63,18 @@ const Welcome: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks 9</title>
+        <title>Welcome - DeltaHacks X</title>
       </Head>
       <Drawer>
         <Content />
-        <footer className="flex justify-end pr-4 md:absolute md:bottom-0 md:right-0 md:block">
+        <footer className="flex justify-end pb-4 pr-4 md:absolute md:bottom-0 md:right-0 md:block">
           <SocialButtons />
         </footer>
       </Drawer>
     </>
   );
 };
+
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -85,16 +86,15 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
+    include: { dh10application: true },
   });
 
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { props: {} };
+  // If submitted then go to dashboard
+  if (userEntry && userEntry.dh10application !== null) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
   }
-  return { redirect: { destination: "/dashboard", permanent: false } };
+
+  return { props: {} };
 };
 
 export default Welcome;
