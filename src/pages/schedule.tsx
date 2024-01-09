@@ -29,7 +29,7 @@ const eventColours = [
   { id: 2, color: "#fed750" },
   { id: 3, color: "#eb5e7a" },
   { id: 4, color: "#aa7ef7" },
-  // { id: 5, color: "#7ee683" },
+  { id: 5, color: "#7ee683" },
 ];
 
 // Filter out the organizer events
@@ -63,7 +63,7 @@ const getData = async (_: any, requestOptions: any) => {
 
   const { items: events } = await response.json();
 
-  const colorMap = new Map();
+  const colorMap = new Map<string, number>();
 
   colorMap.set("Event", 1);
   colorMap.set("Workshop", 2);
