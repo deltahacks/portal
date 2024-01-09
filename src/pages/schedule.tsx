@@ -8,6 +8,21 @@ import CustomStore from "devextreme/data/custom_store";
 
 import "devextreme/dist/css/dx.dark.css";
 
+const toMilitaryTime = (date: Date) => {
+  // Get hours and minutes
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // Pad single-digit hours and minutes with leading zeros
+  const militaryHours = hours < 10 ? "0" + hours : hours.toString();
+  const militaryMinutes = minutes < 10 ? "0" + minutes : minutes.toString();
+
+  // Concatenate hours and minutes in military time format
+  const militaryTime = militaryHours + ":" + militaryMinutes;
+
+  return militaryTime;
+};
+
 const eventColours = [
   { id: 0, color: "rgba(250, 250, 250, 88%)" },
   { id: 1, color: "#50d2de" },
@@ -83,6 +98,7 @@ const getData = async (_: any, requestOptions: any) => {
 
     return {
       ...event,
+      summary: event.summary + " | " + event.location,
       colorId: eventColorId,
     };
   });
@@ -102,6 +118,33 @@ const ScheduleComponent = ({
   // If the user is out of range of the event default them to the start date
   const curDate = new Date(2024, 0, 12);
   const defaultCurrentDate = curDate;
+
+  const renderCell = ({
+    summary,
+    start,
+    end,
+    location,
+  }: {
+    summary: string;
+    start: { dateTime: string; timeZone: string };
+    end: { dateTime: string; timeZone: string };
+    location: string;
+  }) => {
+    const militaryStartDate = toMilitaryTime(new Date(start.dateTime));
+    const militaryEndDate = toMilitaryTime(new Date(end.dateTime));
+    const summarySubHeading = `${militaryStartDate} - ${militaryEndDate}, ${location}`;
+
+    return (
+      <>
+        <div className="dx-scheduler-appointment-title">{summary}</div>
+        <div className="dx-scheduler-appointment-content-details">
+          <div className="dx-scheduler-appointment-content-date">
+            {summarySubHeading}
+          </div>
+        </div>
+      </>
+    );
+  };
 
   return (
     <Scheduler
@@ -128,6 +171,7 @@ const ScheduleComponent = ({
       endDateExpr="end.dateTime"
       textExpr="summary"
       currentDate={defaultCurrentDate}
+      appointmentRender={(data) => renderCell(data.targetedAppointmentData)}
     >
       <Editing allowAdding={false} />
       <Resource
