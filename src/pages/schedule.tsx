@@ -150,7 +150,6 @@ const ScheduleComponent = ({
       textExpr="summary"
       currentDate={defaultCurrentDate}
       appointmentRender={(data) => renderEvent(data.targetedAppointmentData)}
-      onAppointmentFormOpening={(e) => (e.cancel = true)}
     >
       <Editing allowAdding={false} />
       <Resource
