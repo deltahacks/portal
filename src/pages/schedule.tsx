@@ -64,7 +64,6 @@ const getData = async (_: any, requestOptions: any) => {
     "/events?key=",
     PUBLIC_KEY,
   ].join("");
-  console.log(dataUrl);
 
   const response = await fetch(dataUrl, requestOptions);
 
@@ -84,11 +83,9 @@ const getData = async (_: any, requestOptions: any) => {
 
     return {
       ...event,
-      description: "Location: " + event.location,
       colorId: eventColorId,
     };
   });
-  console.log(updatedEvents);
 
   return updatedEvents;
 };
@@ -105,8 +102,6 @@ const ScheduleComponent = ({
   // If the user is out of range of the event default them to the start date
   const curDate = new Date(2024, 0, 12);
   const defaultCurrentDate = curDate;
-
-  console.log(dataSource);
 
   return (
     <Scheduler
