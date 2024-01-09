@@ -98,7 +98,6 @@ const getData = async (_: any, requestOptions: any) => {
 
     return {
       ...event,
-      summary: event.summary + " | " + event.location,
       colorId: eventColorId,
     };
   });
@@ -119,7 +118,7 @@ const ScheduleComponent = ({
   const curDate = new Date(2024, 0, 12);
   const defaultCurrentDate = curDate;
 
-  const renderCell = ({
+  const renderEvent = ({
     summary,
     start,
     end,
@@ -171,7 +170,8 @@ const ScheduleComponent = ({
       endDateExpr="end.dateTime"
       textExpr="summary"
       currentDate={defaultCurrentDate}
-      appointmentRender={(data) => renderCell(data.targetedAppointmentData)}
+      appointmentRender={(data) => renderEvent(data.targetedAppointmentData)}
+      onAppointmentFormOpening={(e) => (e.cancel = true)}
     >
       <Editing allowAdding={false} />
       <Resource
