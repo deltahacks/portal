@@ -45,27 +45,6 @@ const eventColours = [
 //   },
 // ];
 
-const removeResourceLabel = () => {
-  setTimeout(() => {
-    // Add an event listener to popup
-    const popups = document.querySelectorAll(".dx-overlay-content");
-    popups.forEach((popup) => {
-      popup.addEventListener("click", removeResourceLabel);
-    });
-  }, 500);
-
-  setTimeout(() => {
-    const resource = document.querySelector("textarea");
-    const parent8 =
-      resource?.parentElement?.parentElement?.parentElement?.parentElement
-        ?.parentElement?.parentElement?.parentElement?.parentElement;
-
-    if (parent8?.lastElementChild?.textContent != "Description") {
-      parent8?.removeChild(parent8?.lastElementChild as Node);
-    }
-  }, 100);
-};
-
 const getData = async (_: any, requestOptions: any) => {
   const GOOGLE_CALENDAR_URL =
     "https://www.googleapis.com/calendar/v3/calendars/";
@@ -187,7 +166,7 @@ const ScheduleComponent = ({
 const Schedule: NextPage = () => {
   return (
     <Drawer>
-      <div className="flex-auto overflow-hidden" onClick={removeResourceLabel}>
+      <div className="flex-auto overflow-hidden">
         {/* mobile view */}
         <div className="h-full pt-5 sm:hidden">
           <ScheduleComponent defaultCurrentView="agenda" />
