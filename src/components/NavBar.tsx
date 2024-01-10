@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import Background from "./Background";
 import { useRef } from "react";
 import { useRouter } from "next/router";
+import { router } from "../server/router/trpc";
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -83,6 +84,7 @@ export const Drawer = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   const { data: session } = useSession();
+  const router = useRouter();
 
   const drawer = useRef<HTMLInputElement>(null);
 
@@ -101,7 +103,7 @@ export const Drawer = ({
           <NavBar />
           {children}
         </div>
-        <div className="drawer-side md:hidden">
+        <div className="drawer-side md:hidden z-50 ">
           <label
             htmlFor="my-drawer-3"
             className="drawer-overlay md:hidden"
@@ -128,24 +130,30 @@ export const Drawer = ({
                 />
               </svg>
             </button>
-            <ul className="w-full">
-              <li>Your application has not been received.</li>
-            </ul>
 
-            <div className="mx-1 mb-2 flex w-full items-center justify-between">
+            <div className="mx-1 mb-2 flex w-full items-center justify-between ">
               <ThemeToggle />
-              <div>
-                <a className="font-sub mx-2.5 text-sm">
-                  Hi,{" "}
-                  <strong className="font-bold">{session?.user?.name}</strong>
-                </a>
+              {session ? (
+                <div>
+                  <a className="font-sub mx-2.5 text-sm">
+                    Hi,{" "}
+                    <strong className="font-bold">{session?.user?.name}</strong>
+                  </a>
+                  <button
+                    onClick={() => signOut()}
+                    className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white dark:text-gray-300"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={() => signOut()}
-                  className="font-sub rounded bg-[#4F14EE] px-2.5 py-2.5 text-sm font-bold text-white dark:text-gray-300"
+                  className="btn btn-primary text-white"
+                  onClick={() => router.push("/login")}
                 >
-                  Sign Out
+                  Sign In
                 </button>
-              </div>
+              )}
             </div>
           </div>
         </div>
