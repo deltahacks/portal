@@ -8,13 +8,28 @@ import CustomStore from "devextreme/data/custom_store";
 
 import "devextreme/dist/css/dx.dark.css";
 
+const toMilitaryTime = (date: Date) => {
+  // Get hours and minutes
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // Pad single-digit hours and minutes with leading zeros
+  const militaryHours = hours < 10 ? "0" + hours : hours.toString();
+  const militaryMinutes = minutes < 10 ? "0" + minutes : minutes.toString();
+
+  // Concatenate hours and minutes in military time format
+  const militaryTime = militaryHours + ":" + militaryMinutes;
+
+  return militaryTime;
+};
+
 const eventColours = [
   { id: 0, color: "rgba(250, 250, 250, 88%)" },
   { id: 1, color: "#50d2de" },
   { id: 2, color: "#fed750" },
   { id: 3, color: "#eb5e7a" },
   { id: 4, color: "#aa7ef7" },
-  // { id: 5, color: "#7ee683" },
+  { id: 5, color: "#7ee683" },
 ];
 
 // Filter out the organizer events
@@ -28,10 +43,7 @@ const eventColours = [
 //     allDay: false,
 //     colorId: 0,
 //   },
-
 // ];
-
-// https://calendar.google.com/calendar/ical/%40group.calendar.google.com/public/basic.ics
 
 const getData = async (_: any, requestOptions: any) => {
   const GOOGLE_CALENDAR_URL =
@@ -46,13 +58,12 @@ const getData = async (_: any, requestOptions: any) => {
     "/events?key=",
     PUBLIC_KEY,
   ].join("");
-  console.log(dataUrl);
 
   const response = await fetch(dataUrl, requestOptions);
 
-  const data = await response.json();
+  const { items: events } = await response.json();
 
-  const colorMap = new Map();
+  const colorMap = new Map<string, number>();
 
   colorMap.set("Event", 1);
   colorMap.set("Workshop", 2);
@@ -60,18 +71,17 @@ const getData = async (_: any, requestOptions: any) => {
   colorMap.set("Deadline", 4);
   colorMap.set("Food", 5);
 
-  const updatedItems = data.items.map((item: any) => {
-    const itemType = item.summary.split("|").at(-1).trim();
-    const itemColorId = colorMap.get(itemType) ?? 0;
+  const updatedEvents = events.map((event: any) => {
+    const eventType = event.summary.split("|").at(-1).trim();
+    const eventColorId = colorMap.get(eventType) ?? 0;
 
     return {
-      ...item,
-      colorId: itemColorId,
+      ...event,
+      colorId: eventColorId,
     };
   });
-  console.log(updatedItems);
 
-  return updatedItems;
+  return updatedEvents;
 };
 
 const dataSource = new CustomStore({
@@ -84,14 +94,69 @@ const ScheduleComponent = ({
   defaultCurrentView: string;
 }) => {
   // If the user is out of range of the event default them to the start date
-  const curDate = new Date(
-    2024, // year
-    0, // month
-    12 // day
-  );
+  const curDate = new Date(2024, 0, 12);
   const defaultCurrentDate = curDate;
+  const [view, setView] = useState(
+    defaultCurrentView == "day" ? "Calendar View" : "List View"
+  );
 
-  console.log(dataSource);
+  // const renderEvent = (e) => {
+  //   console.log(e);
+  // };
+
+  const renderEvent = ({
+    colorId,
+    summary,
+    start,
+    end,
+    location,
+  }: {
+    colorId: number;
+    summary: string;
+    start: { dateTime: string; timeZone: string };
+    end: { dateTime: string; timeZone: string };
+    location: string;
+  }) => {
+    const militaryStartDate = toMilitaryTime(new Date(start.dateTime));
+    const militaryEndDate = toMilitaryTime(new Date(end.dateTime));
+    const summarySubHeading = `${militaryStartDate} - ${militaryEndDate}, ${location}`;
+
+    const colour = eventColours.find((val) => val.id == colorId)?.color;
+
+    if (view == "List View") {
+      return (
+        <>
+          <div className="dx-item-content dx-scheduler-appointment-content">
+            <div className="dx-scheduler-agenda-appointment-left-layout">
+              <div
+                className={`dx-scheduler-agenda-appointment-marker`}
+                style={{ backgroundColor: colour }}
+              />
+            </div>
+            <div className="dx-scheduler-agenda-appointment-right-layout">
+              <div className="dx-scheduler-appointment-title">{summary}</div>
+              <div className="dx-scheduler-appointment-content-details">
+                <div className="dx-scheduler-appointment-content-date">
+                  {summarySubHeading}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <div className="dx-scheduler-appointment-title">{summary}&nbsp;</div>
+          <div className="dx-scheduler-appointment-content-details">
+            <div className="dx-scheduler-appointment-content-date">
+              {summarySubHeading}
+            </div>
+          </div>
+        </>
+      );
+    }
+  };
 
   return (
     <Scheduler
@@ -118,6 +183,14 @@ const ScheduleComponent = ({
       endDateExpr="end.dateTime"
       textExpr="summary"
       currentDate={defaultCurrentDate}
+      appointmentRender={(data) => renderEvent(data.targetedAppointmentData)}
+      // appointmentTooltipRender={(data) =>
+      //   renderEvent(data.targetedAppointmentData)
+      // }
+      onAppointmentFormOpening={(e) => {
+        e.cancel = true;
+      }}
+      onCurrentViewChange={(newView) => setView(newView)}
     >
       <Editing allowAdding={false} />
       <Resource
@@ -129,11 +202,8 @@ const ScheduleComponent = ({
   );
 };
 
-// docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
+// docs for the calendar component https://js.devexpress.com/React/Documentation/Guide/UI_Components/Scheduler/Getting_Started_with_Scheduler/
 const Schedule: NextPage = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [data, setData] = useState([]); // waht about this?
-
   return (
     <Drawer>
       <div className="flex-auto overflow-hidden">
