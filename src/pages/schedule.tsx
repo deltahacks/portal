@@ -96,13 +96,22 @@ const ScheduleComponent = ({
   // If the user is out of range of the event default them to the start date
   const curDate = new Date(2024, 0, 12);
   const defaultCurrentDate = curDate;
+  const [view, setView] = useState(
+    defaultCurrentView == "day" ? "Calendar View" : "List View"
+  );
+
+  // const renderEvent = (e) => {
+  //   console.log(e);
+  // };
 
   const renderEvent = ({
+    colorId,
     summary,
     start,
     end,
     location,
   }: {
+    colorId: number;
     summary: string;
     start: { dateTime: string; timeZone: string };
     end: { dateTime: string; timeZone: string };
@@ -112,16 +121,41 @@ const ScheduleComponent = ({
     const militaryEndDate = toMilitaryTime(new Date(end.dateTime));
     const summarySubHeading = `${militaryStartDate} - ${militaryEndDate}, ${location}`;
 
-    return (
-      <>
-        <div className="dx-scheduler-appointment-title">{summary}&nbsp;</div>
-        <div className="dx-scheduler-appointment-content-details">
-          <div className="dx-scheduler-appointment-content-date">
-            {summarySubHeading}
+    const colour = eventColours.find((val) => val.id == colorId)?.color;
+
+    if (view == "List View") {
+      return (
+        <>
+          <div className="dx-item-content dx-scheduler-appointment-content">
+            <div className="dx-scheduler-agenda-appointment-left-layout">
+              <div
+                className={`dx-scheduler-agenda-appointment-marker`}
+                style={{ backgroundColor: colour }}
+              />
+            </div>
+            <div className="dx-scheduler-agenda-appointment-right-layout">
+              <div className="dx-scheduler-appointment-title">{summary}</div>
+              <div className="dx-scheduler-appointment-content-details">
+                <div className="dx-scheduler-appointment-content-date">
+                  {summarySubHeading}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </>
-    );
+        </>
+      );
+    } else {
+      return (
+        <>
+          <div className="dx-scheduler-appointment-title">{summary}&nbsp;</div>
+          <div className="dx-scheduler-appointment-content-details">
+            <div className="dx-scheduler-appointment-content-date">
+              {summarySubHeading}
+            </div>
+          </div>
+        </>
+      );
+    }
   };
 
   return (
@@ -150,12 +184,13 @@ const ScheduleComponent = ({
       textExpr="summary"
       currentDate={defaultCurrentDate}
       appointmentRender={(data) => renderEvent(data.targetedAppointmentData)}
-      appointmentTooltipRender={(data) =>
-        renderEvent(data.targetedAppointmentData)
-      }
+      // appointmentTooltipRender={(data) =>
+      //   renderEvent(data.targetedAppointmentData)
+      // }
       onAppointmentFormOpening={(e) => {
         e.cancel = true;
       }}
+      onCurrentViewChange={(newView) => setView(newView)}
     >
       <Editing allowAdding={false} />
       <Resource
