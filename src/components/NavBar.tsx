@@ -3,9 +3,11 @@ import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import Background from "./Background";
 import { useRef } from "react";
+import { useRouter } from "next/router";
 
 const NavBar = () => {
   const { data: session } = useSession();
+  const router = useRouter();
 
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
@@ -30,6 +32,7 @@ const NavBar = () => {
       </div>
       <div className="hidden items-center md:flex">
         <ThemeToggle />
+        {/* This is probably not a good idea we should fix this later */}
         {session ? (
           <div>
             <p className="mx-2 hidden font-inter text-sm lg:inline-block">
@@ -44,7 +47,12 @@ const NavBar = () => {
             </button>
           </div>
         ) : (
-          <></>
+          <button
+            onClick={async () => await router.push("/login")}
+            className="mx-2 rounded bg-primary px-5 py-2.5 font-inter text-sm font-bold text-white md:px-7"
+          >
+            Log In
+          </button>
         )}
       </div>
       {/* Hamburger Button */}
