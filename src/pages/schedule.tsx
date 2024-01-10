@@ -153,6 +153,9 @@ const ScheduleComponent = ({
       appointmentTooltipRender={(data) =>
         renderEvent(data.targetedAppointmentData)
       }
+      onAppointmentFormOpening={(e) => {
+        e.cancel = true;
+      }}
     >
       <Editing allowAdding={false} />
       <Resource
