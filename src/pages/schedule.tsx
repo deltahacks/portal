@@ -114,7 +114,7 @@ const ScheduleComponent = ({
 
     return (
       <>
-        <div className="dx-scheduler-appointment-title">{summary}</div>
+        <div className="dx-scheduler-appointment-title">{summary}&nbsp;</div>
         <div className="dx-scheduler-appointment-content-details">
           <div className="dx-scheduler-appointment-content-date">
             {summarySubHeading}
@@ -150,6 +150,9 @@ const ScheduleComponent = ({
       textExpr="summary"
       currentDate={defaultCurrentDate}
       appointmentRender={(data) => renderEvent(data.targetedAppointmentData)}
+      appointmentTooltipRender={(data) =>
+        renderEvent(data.targetedAppointmentData)
+      }
     >
       <Editing allowAdding={false} />
       <Resource
@@ -161,7 +164,7 @@ const ScheduleComponent = ({
   );
 };
 
-// docs for the calendar component https://ej2.syncfusion.com/react/documentation/api/schedule/
+// docs for the calendar component https://js.devexpress.com/React/Documentation/Guide/UI_Components/Scheduler/Getting_Started_with_Scheduler/
 const Schedule: NextPage = () => {
   return (
     <Drawer>
