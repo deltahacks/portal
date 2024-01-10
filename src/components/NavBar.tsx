@@ -30,16 +30,22 @@ const NavBar = () => {
       </div>
       <div className="hidden items-center md:flex">
         <ThemeToggle />
-        <p className="mx-2 hidden font-inter text-sm lg:inline-block">
-          Logged in as{" "}
-          <strong className="font-bold">{session?.user?.name}</strong>
-        </p>
-        <button
-          onClick={() => signOut()}
-          className="mx-2 rounded bg-primary px-5 py-2.5 font-inter text-sm font-bold text-white md:px-7"
-        >
-          Sign Out
-        </button>
+        {session ? (
+          <div>
+            <p className="mx-2 hidden font-inter text-sm lg:inline-block">
+              Logged in as{" "}
+              <strong className="font-bold">{session?.user?.name}</strong>
+            </p>
+            <button
+              onClick={() => signOut()}
+              className="mx-2 rounded bg-primary px-5 py-2.5 font-inter text-sm font-bold text-white md:px-7"
+            >
+              Sign Out
+            </button>
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
       {/* Hamburger Button */}
       <div className="md:hidden">
