@@ -100,10 +100,6 @@ const ScheduleComponent = ({
     defaultCurrentView == "day" ? "Calendar View" : "List View"
   );
 
-  // const renderEvent = (e) => {
-  //   console.log(e);
-  // };
-
   const renderEvent = ({
     colorId,
     summary,
@@ -184,9 +180,9 @@ const ScheduleComponent = ({
       textExpr="summary"
       currentDate={defaultCurrentDate}
       appointmentRender={(data) => renderEvent(data.targetedAppointmentData)}
-      // appointmentTooltipRender={(data) =>
-      //   renderEvent(data.targetedAppointmentData)
-      // }
+      appointmentTooltipRender={(data) =>
+        renderEvent(data.targetedAppointmentData)
+      }
       onAppointmentFormOpening={(e) => {
         e.cancel = true;
       }}
