@@ -1,6 +1,10 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import React, { useEffect, useState } from "react";
-import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
+import Scheduler, {
+  Editing,
+  Resource,
+  Scrolling,
+} from "devextreme-react/scheduler";
 import { Drawer } from "../components/NavBar";
 import parseIcsSchedule from "../utils/parseIcsSchedule";
 import { Event } from "../types/scheduler";
@@ -160,7 +164,7 @@ const ScheduleComponent = ({
 
   return (
     <Scheduler
-      className="h-full"
+      className="h-fit"
       dataSource={dataSource}
       views={[
         {
@@ -198,6 +202,7 @@ const ScheduleComponent = ({
         fieldExpr="colorId" // so its coloring based on the colorId of the event
         useColorAsDefault={true}
       />
+      <Scrolling mode="standard" />
     </Scheduler>
   );
 };
