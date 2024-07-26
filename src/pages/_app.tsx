@@ -1,55 +1,18 @@
 // src/pages/_app.tsx
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import type { AppType } from "next/app";
 import type { Session } from "next-auth";
 import "../styles/globals.css";
 import Head from "next/head";
-import Script from "next/script";
+
 import { ThemeProvider } from "next-themes";
 import { trpc } from "../utils/trpc";
 import { env } from "../env/client.mjs";
-import LogRocket from "logrocket";
-import setupLogRocketReact from "logrocket-react";
-import { useEffect } from "react";
-
-const isDev = process.env.NODE_ENV !== "production";
-
-const LogIdentifierDev = () => {
-  return null;
-};
-
-const LogIdentifierProd = () => {
-  const { data: session } = useSession();
-  useEffect(() => {
-    if (
-      session &&
-      session.user &&
-      session.user.id &&
-      typeof window !== "undefined" &&
-      LogRocket &&
-      session.user.name &&
-      session.user.email
-    ) {
-      LogRocket.identify(session.user.id, {
-        name: session.user.name,
-        email: session.user.email,
-      });
-    }
-  }, [session]);
-  return null;
-};
-
-const LogIdentifier = isDev ? LogIdentifierDev : LogIdentifierProd;
 
 const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   Component,
   pageProps: { session, ogImage, ...pageProps },
 }) => {
-  if (typeof window !== "undefined") {
-    LogRocket.init("qhayjx/deltahacks-portal");
-    setupLogRocketReact(LogRocket);
-  }
-
   return (
     <SessionProvider session={session}>
       <ThemeProvider>
@@ -107,20 +70,6 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             <meta name="robots" content="noindex" />
           ) : null}
         </Head>
-        <LogIdentifier />
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-419VDPBPXK"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){window.dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-419VDPBPXK');
-          `}
-        </Script>
         <Component {...pageProps} />
       </ThemeProvider>
     </SessionProvider>

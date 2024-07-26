@@ -5,18 +5,18 @@ import { foodRouter } from "./food";
 import { sponsorRouter } from "./sponsors";
 import { eventsRouter } from "./events";
 import { userRouter } from "./users";
-import { publicProcedure, router } from "./trpc";
+import { router } from "./trpc";
 import { adminRouter } from "./admin";
 
 export const appRouter = router({
-  ping: publicProcedure.query(() => "pong"),
   application: applicationRouter,
   reviewer: reviewerRouter,
-  food: foodRouter,
-  sponsor: sponsorRouter,
-  events: eventsRouter,
   user: userRouter,
   admin: adminRouter,
+  // NOTE: Will be deprecated
+  food: foodRouter,
+  events: eventsRouter,
+  sponsor: sponsorRouter,
 });
 
 // export type definition of API

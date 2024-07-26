@@ -3,6 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
 
+// TODO: Deprecate
 export const foodRouter = router({
   getFood: protectedProcedure
     .input(z.number())
