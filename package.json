@@ -44,8 +44,6 @@
     "fork-react-qr-reader": "^3.0.1-beta-1",
     "ical-js-parser": "^0.6.12",
     "ical.js": "^1.5.0",
-    "logrocket": "^7.0.0",
-    "logrocket-react": "^6.0.1",
     "lucide-react": "^0.294.0",
     "next": "^13.4.8",
     "next-auth": "^4.15.1",
