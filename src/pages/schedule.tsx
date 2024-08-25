@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
-import { Drawer } from "../components/NavBar";
+import Drawer from "../components/Drawer";
 import parseIcsSchedule from "../utils/parseIcsSchedule";
 import { Event } from "../types/scheduler";
 import CustomStore from "devextreme/data/custom_store";
@@ -218,15 +218,10 @@ const Schedule: NextPage = () => {
 
 // import dynamic from "next/dynamic";
 
-// export default dynamic(() => Promise.resolve(Schedule), {
-//   ssr: false,
-// });
-
 export default Schedule;
 
-// add netlify cahce control
+// add netlify cache control
 // https://docs.netlify.com/routing/headers/#syntax-for-the-headers-file
-
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   ctx.res.setHeader("Netlify-Vary", "cookie=next-auth.session-token");
   ctx.res.setHeader("Cache-Control", "public, max-age=7200");
