@@ -3,13 +3,10 @@ import type {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { getSession, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import Background from "../components/Background";
-import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
-import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
@@ -17,6 +14,7 @@ import { Status } from "@prisma/client";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
+import Drawer from "../components/Drawer";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -465,56 +463,14 @@ const Dashboard: NextPage<
       <Head>
         <title>Dashboard - DeltaHacks X</title>
       </Head>
-      <Background />
-      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
-        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
-          <NavBar />
-          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            {stateMap[statusToUse]}
-          </main>
-        </div>
-
-        <div className="drawer-side md:hidden">
-          <label
-            htmlFor="my-drawer-3"
-            className="drawer-overlay md:hidden"
-          ></label>
-          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
-            <ul className="w-full">
-              {/* <li>Your application has not been received.</li> */}
-              {/* <!-- Sidebar content here --> */}
-              <li>
-                <Link
-                  className="mx-2 my-2 text-base font-bold"
-                  href="/dashboard"
-                >
-                  Dashboard
-                </Link>
-              </li>
-            </ul>
-            <div className="mx-1 mb-2 flex w-full items-center justify-between">
-              <ThemeToggle />
-              <div>
-                <a className="font-sub mx-2.5 text-sm">
-                  Hi,{" "}
-                  <strong className="font-bold">{session?.user?.name}</strong>
-                </a>
-                <button
-                  onClick={() => signOut()}
-                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
+        <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+          {stateMap[statusToUse]}
+        </main>
         <footer className=" bottom-0 right-0 p-5 md:absolute md:bottom-0">
           <SocialButtons />
         </footer>
-      </div>
+      </Drawer>
     </>
   );
 };
