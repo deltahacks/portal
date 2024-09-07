@@ -4,11 +4,19 @@ import Background from "./Background";
 import { useRef } from "react";
 import { useRouter } from "next/router";
 import NavBar from "./NavBar";
+import Link from "next/link";
+
+interface PageTab {
+  pageName: string;
+  link: string;
+}
 
 export const Drawer = ({
   children,
+  pageTabs,
 }: {
   children: JSX.Element[] | JSX.Element;
+  pageTabs?: PageTab[];
 }) => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -18,7 +26,7 @@ export const Drawer = ({
   return (
     <>
       <Background />
-      <div className="drawer drawer-end relative h-full w-full overflow-x-hidden font-montserrat">
+      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
         <input
           id="my-drawer-3"
           type="checkbox"
@@ -36,28 +44,38 @@ export const Drawer = ({
             htmlFor="my-drawer-3"
             className="drawer-overlay md:hidden"
           ></label>
+
           <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
-            <button
-              className="btn btn-square btn-ghost drawer-button"
-              onClick={() => {
-                if (drawer.current) {
-                  drawer.current.checked = false;
-                }
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
+            <ul className="w-full">
+              <button
+                className="btn btn-square btn-ghost drawer-button"
+                onClick={() => {
+                  if (drawer.current) {
+                    drawer.current.checked = false;
+                  }
+                }}
               >
-                <path
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  d="m6.5 17.5l8.25-5.5L6.5 6.5l1-1.5L18 12L7.5 19z"
-                />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill="currentColor"
+                    fillRule="evenodd"
+                    d="m6.5 17.5l8.25-5.5L6.5 6.5l1-1.5L18 12L7.5 19z"
+                  />
+                </svg>
+              </button>
+              {pageTabs?.map(({ pageName, link }, i) => (
+                <li key={i}>
+                  <Link className="mx-2 my-2 text-base font-bold" href={link}>
+                    {pageName}
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
             <div className="mx-1 mb-2 flex w-full items-center justify-between ">
               <ThemeToggle />
