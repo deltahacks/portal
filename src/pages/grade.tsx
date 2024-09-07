@@ -34,12 +34,11 @@ const GradingPortal: NextPage = () => {
               Applications Reviewed: {numberReviewed} / {applications?.length}{" "}
               <br />
             </div>
-            {statusCount?.map((value, i) => {
-              const { status, count } = value;
+            {statusCount?.map(({ status, count }, i) => {
               return (
-                <>
+                <div key={i}>
                   {status}: {count} <br />
-                </>
+                </div>
               );
             })}
           </div>
