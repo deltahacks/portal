@@ -1,9 +1,7 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import Drawer from "../components/Drawer";
-import parseIcsSchedule from "../utils/parseIcsSchedule";
-import { Event } from "../types/scheduler";
 import CustomStore from "devextreme/data/custom_store";
 
 import "devextreme/dist/css/dx.dark.css";

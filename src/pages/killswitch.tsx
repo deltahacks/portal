@@ -1,12 +1,11 @@
 import type {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
-  InferGetServerSidePropsType,
   NextPage,
 } from "next";
 import Head from "next/head";
 import { Role } from "@prisma/client";
-import { Drawer } from "../components/NavBar";
+import Drawer from "../components/Drawer";
 import { rbac } from "../components/RBACWrapper";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
