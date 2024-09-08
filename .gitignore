@@ -39,3 +39,5 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+cockroach-data
