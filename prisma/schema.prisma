@@ -48,8 +48,8 @@ model User {
   sessions             Session[]
   typeform_response_id String?
   role                 Role[]     @default([HACKER])
-  hacker               Review[]   @relation("hacker")
-  reviewer             Review[]   @relation("reviewer")
+  hacker               Review[]   @relation("hacker") /// @deprecated Use `User.status` instead
+  reviewer             Review[]   @relation("reviewer") /// @deprecated Use `User.status` instead
   status               Status     @default(IN_REVIEW)
   qrcode               Int?       @unique
   mealsTaken           Int        @default(0)
@@ -60,6 +60,7 @@ model User {
   dH10ApplicationId String?          @unique
 }
 
+/// @deprecated Use `User.status` instead
 model Review {
   id         String @id @default(cuid())
   hackerId   String
@@ -158,4 +159,62 @@ model Config {
 
   name  String @unique
   value String
+}
+
+model FormSubmission {
+  id String @id @default(cuid())
+  lastUpdated DateTime
+  isSubmitted Boolean
+
+  structure FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
+  formYear Int @unique
+
+  answers Answer[]
+}
+
+model FormStructure {
+  year Int @id
+  questions Question[]
+  submissions FormSubmission[]
+}
+
+model Answer {
+  id String @id @default(cuid())
+  statement String
+
+  addressedQuestion Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String @unique
+
+  submissions FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId String @unique
+}
+
+model Question {
+  id String @id @default(cuid())
+  statement String
+  category QuestionCategory
+
+  formStructure FormStructure @relation(fields: [formStructureYear], references: [year], onDelete: Cascade)
+  formStructureYear Int @unique
+
+  answerType AnswerType @relation(fields: [answerTypeId], references: [type], onDelete: Cascade)
+  answerTypeId String @unique
+
+  answers Answer[]
+}
+
+model AnswerType {
+  type String @id
+  validElements Json?
+
+  questions Question[]
+}
+
+enum QuestionCategory {
+  PERSONAL_INFORMATION
+  EDUCATION
+  LONG_ANSWER_QUESTIONS
+  SURVEY
+  EMERGENCY_CONTACT
+  MLH_CONSENT
 }
