@@ -166,16 +166,28 @@ model FormSubmission {
   lastUpdated DateTime
   isSubmitted Boolean
 
-  structure FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
+  form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
   formYear Int @unique
 
   answers Answer[]
 }
 
+model FormStructureQuestion {
+  displayPriority Int
+
+  form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
+  formYear Int @unique
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String @unique
+
+  @@id([formYear, questionId])
+}
+
 model FormStructure {
   year Int @id
-  questions Question[]
   submissions FormSubmission[]
+  questions FormStructureQuestion[]
 }
 
 model Answer {
@@ -192,15 +204,14 @@ model Answer {
 model Question {
   id String @id @default(cuid())
   statement String
+  displayOrder Int
   category QuestionCategory
-
-  formStructure FormStructure @relation(fields: [formStructureYear], references: [year], onDelete: Cascade)
-  formStructureYear Int @unique
 
   answerType AnswerType @relation(fields: [answerTypeId], references: [type], onDelete: Cascade)
   answerTypeId String @unique
 
   answers Answer[]
+  relatedForms FormStructureQuestion[]
 }
 
 model AnswerType {
