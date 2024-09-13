@@ -294,7 +294,7 @@ const ApplicationPopupButton = ({
   return (
     <>
       <Button variant="outline" onClick={() => setVisibility(true)}>
-        View Application
+        View
       </Button>
       {isVisible && (
         <>

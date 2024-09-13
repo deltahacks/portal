@@ -1,7 +1,7 @@
 import type { NextPage, GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { Drawer } from "../components/NavBar";
+import Drawer from "../components/Drawer";
 import SocialButtons from "../components/SocialButtons";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";

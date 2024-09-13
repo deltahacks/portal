@@ -18,7 +18,7 @@ import useFormPersist from "react-hook-form-persist";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
-import { Drawer } from "../components/NavBar";
+import Drawer from "../components/Drawer";
 import applicationSchema from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
 import FormDivider from "../components/FormDivider";
