@@ -173,7 +173,7 @@ model FormSubmission {
 }
 
 model FormStructureQuestion {
-  displayPriority Int
+  displayPriority Int /// debating on making the db store the position to a question in the form
 
   form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
   formYear Int @unique
