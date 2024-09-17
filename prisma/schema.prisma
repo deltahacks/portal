@@ -205,9 +205,11 @@ model Question {
   id String @id @default(cuid())
   statement String
   displayOrder Int
-  category QuestionCategory
 
-  answerType AnswerType @relation(fields: [answerTypeId], references: [type], onDelete: Cascade)
+  category QuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
+  categoryId String @unique
+
+  answerType AnswerType @relation(fields: [answerTypeId], references: [name], onDelete: Cascade)
   answerTypeId String @unique
 
   answers Answer[]
@@ -215,17 +217,14 @@ model Question {
 }
 
 model AnswerType {
-  type String @id
+  name String @id
   validElements Json?
 
   questions Question[]
 }
 
-enum QuestionCategory {
-  PERSONAL_INFORMATION
-  EDUCATION
-  LONG_ANSWER_QUESTIONS
-  SURVEY
-  EMERGENCY_CONTACT
-  MLH_CONSENT
+model QuestionCategory {
+  name String @id
+
+  questions Question[]
 }
