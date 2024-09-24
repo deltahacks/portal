@@ -58,6 +58,8 @@ model User {
 
   dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id])
   dH10ApplicationId String?          @unique
+
+  applicationSubmissions FormSubmission[]
 }
 
 /// @deprecated Use `User.status` instead
@@ -167,19 +169,22 @@ model FormSubmission {
   isSubmitted Boolean
 
   form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
-  formYear Int @unique
+  formYear Int
 
   answers Answer[]
+
+  submitter User? @relation(fields: [submitterID], references: [id])
+  submitterID String?
 }
 
 model FormStructureQuestion {
-  displayPriority Int /// debating on making the db store the position to a question in the form
+  displayPriority Int
 
   form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
-  formYear Int @unique
+  formYear Int
 
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String @unique
+  questionId String
 
   @@id([formYear, questionId])
 }
@@ -195,22 +200,21 @@ model Answer {
   statement String
 
   addressedQuestion Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String @unique
+  questionId String
 
   submissions FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  submissionId String @unique
+  submissionId String
 }
 
 model Question {
   id String @id @default(cuid())
   statement String
-  displayOrder Int
 
   category QuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
-  categoryId String @unique
+  categoryId String
 
   answerType AnswerType @relation(fields: [answerTypeId], references: [name], onDelete: Cascade)
-  answerTypeId String @unique
+  answerTypeId String
 
   answers Answer[]
   relatedForms FormStructureQuestion[]

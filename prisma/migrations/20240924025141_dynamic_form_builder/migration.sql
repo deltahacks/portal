@@ -4,6 +4,7 @@ CREATE TABLE "FormSubmission" (
     "lastUpdated" TIMESTAMP(3) NOT NULL,
     "isSubmitted" BOOL NOT NULL,
     "formYear" INT4 NOT NULL,
+    "submitterID" STRING,
 
     CONSTRAINT "FormSubmission_pkey" PRIMARY KEY ("id")
 );
@@ -38,7 +39,6 @@ CREATE TABLE "Answer" (
 CREATE TABLE "Question" (
     "id" STRING NOT NULL,
     "statement" STRING NOT NULL,
-    "displayOrder" INT4 NOT NULL,
     "categoryId" STRING NOT NULL,
     "answerTypeId" STRING NOT NULL,
 
@@ -60,29 +60,11 @@ CREATE TABLE "QuestionCategory" (
     CONSTRAINT "QuestionCategory_pkey" PRIMARY KEY ("name")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "FormSubmission_formYear_key" ON "FormSubmission"("formYear");
-
--- CreateIndex
-CREATE UNIQUE INDEX "FormStructureQuestion_formYear_key" ON "FormStructureQuestion"("formYear");
-
--- CreateIndex
-CREATE UNIQUE INDEX "FormStructureQuestion_questionId_key" ON "FormStructureQuestion"("questionId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Answer_questionId_key" ON "Answer"("questionId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Answer_submissionId_key" ON "Answer"("submissionId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Question_categoryId_key" ON "Question"("categoryId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Question_answerTypeId_key" ON "Question"("answerTypeId");
-
 -- AddForeignKey
 ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_formYear_fkey" FOREIGN KEY ("formYear") REFERENCES "FormStructure"("year") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_submitterID_fkey" FOREIGN KEY ("submitterID") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FormStructureQuestion" ADD CONSTRAINT "FormStructureQuestion_formYear_fkey" FOREIGN KEY ("formYear") REFERENCES "FormStructure"("year") ON DELETE CASCADE ON UPDATE CASCADE;
