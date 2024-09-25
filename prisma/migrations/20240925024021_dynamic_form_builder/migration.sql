@@ -1,12 +1,11 @@
 -- CreateTable
 CREATE TABLE "FormSubmission" (
-    "id" STRING NOT NULL,
-    "lastUpdated" TIMESTAMP(3) NOT NULL,
+    "lastUpdated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isSubmitted" BOOL NOT NULL,
     "formYear" INT4 NOT NULL,
-    "submitterID" STRING,
+    "submitterID" STRING NOT NULL,
 
-    CONSTRAINT "FormSubmission_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "FormSubmission_pkey" PRIMARY KEY ("formYear","submitterID")
 );
 
 -- CreateTable
@@ -27,12 +26,11 @@ CREATE TABLE "FormStructure" (
 
 -- CreateTable
 CREATE TABLE "Answer" (
-    "id" STRING NOT NULL,
-    "statement" STRING NOT NULL,
     "questionId" STRING NOT NULL,
-    "submissionId" STRING NOT NULL,
+    "formYear" INT4 NOT NULL,
+    "submitterID" STRING NOT NULL,
 
-    CONSTRAINT "Answer_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Answer_pkey" PRIMARY KEY ("questionId","submitterID","formYear")
 );
 
 -- CreateTable
@@ -60,11 +58,14 @@ CREATE TABLE "QuestionCategory" (
     CONSTRAINT "QuestionCategory_pkey" PRIMARY KEY ("name")
 );
 
+-- CreateIndex
+CREATE UNIQUE INDEX "FormStructureQuestion_displayPriority_formYear_key" ON "FormStructureQuestion"("displayPriority", "formYear");
+
 -- AddForeignKey
 ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_formYear_fkey" FOREIGN KEY ("formYear") REFERENCES "FormStructure"("year") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_submitterID_fkey" FOREIGN KEY ("submitterID") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_submitterID_fkey" FOREIGN KEY ("submitterID") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FormStructureQuestion" ADD CONSTRAINT "FormStructureQuestion_formYear_fkey" FOREIGN KEY ("formYear") REFERENCES "FormStructure"("year") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -76,7 +77,7 @@ ALTER TABLE "FormStructureQuestion" ADD CONSTRAINT "FormStructureQuestion_questi
 ALTER TABLE "Answer" ADD CONSTRAINT "Answer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Answer" ADD CONSTRAINT "Answer_submissionId_fkey" FOREIGN KEY ("submissionId") REFERENCES "FormSubmission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Answer" ADD CONSTRAINT "Answer_formYear_submitterID_fkey" FOREIGN KEY ("formYear", "submitterID") REFERENCES "FormSubmission"("formYear", "submitterID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Question" ADD CONSTRAINT "Question_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "QuestionCategory"("name") ON DELETE CASCADE ON UPDATE CASCADE;

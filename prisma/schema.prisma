@@ -164,8 +164,7 @@ model Config {
 }
 
 model FormSubmission {
-  id String @id @default(cuid())
-  lastUpdated DateTime
+  lastUpdated DateTime @default(now())
   isSubmitted Boolean
 
   form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
@@ -173,8 +172,10 @@ model FormSubmission {
 
   answers Answer[]
 
-  submitter User? @relation(fields: [submitterID], references: [id])
-  submitterID String?
+  submitter User @relation(fields: [submitterID], references: [id])
+  submitterID String
+
+  @@id([formYear, submitterID])
 }
 
 model FormStructureQuestion {
@@ -186,6 +187,7 @@ model FormStructureQuestion {
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
+  @@unique([displayPriority, formYear])
   @@id([formYear, questionId])
 }
 
@@ -196,14 +198,16 @@ model FormStructure {
 }
 
 model Answer {
-  id String @id @default(cuid())
   statement String
 
   addressedQuestion Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
-  submissions FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  submissionId String
+  submissions FormSubmission @relation(fields: [formYear, submitterID], references: [formYear, submitterID], onDelete: Cascade)
+  formYear Int
+  submitterID String
+
+  @@id([questionId, submitterID, formYear])
 }
 
 model Question {
