@@ -205,13 +205,48 @@ export const applicationRouter = router({
     });
   }),
   submit: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.user.update({
+      // make sure there is no existing application
+
+      try {
+        let gradDate = null;
+        if (input.studyExpectedGraduation) {
+          const possible = new Date(input.studyExpectedGraduation);
+          if (!isNaN(possible.getTime())) {
+            gradDate = possible;
+          }
+        }
+
+        await ctx.prisma.dH10Application.create({
+          data: {
+            ...input,
+            birthday: new Date(input.birthday),
+            studyExpectedGraduation: gradDate,
+            User: { connect: { id: ctx.session.user.id } },
+          },
+        });
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === "P2002")
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "You have already submitted an application.",
+            });
+        }
+      }
+
+      const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: {
-          typeform_response_id: input.id,
-        },
+        data: { status: Status.IN_REVIEW },
+      });
+
+      await ctx.logsnag.track({
+        channel: "applications",
+        event: "Application Submitted",
+        user_id: `${user.name} - ${user.email}`,
+        description: "A user has submitted an application.",
+        icon: "📝",
       });
     }),
   checkIn: protectedProcedure

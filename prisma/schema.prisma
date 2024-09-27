@@ -167,12 +167,12 @@ model FormSubmission {
   lastUpdated DateTime @default(now())
   isSubmitted Boolean
 
-  form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
+  form     FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
   formYear Int
 
   answers Answer[]
 
-  submitter User @relation(fields: [submitterID], references: [id])
+  submitter   User   @relation(fields: [submitterID], references: [id])
   submitterID String
 
   @@id([formYear, submitterID])
@@ -181,51 +181,53 @@ model FormSubmission {
 model FormStructureQuestion {
   displayPriority Int
 
-  form FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
+  form     FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
   formYear Int
 
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
-  @@unique([displayPriority, formYear])
   @@id([formYear, questionId])
+  @@unique([displayPriority, formYear])
 }
 
 model FormStructure {
-  year Int @id
+  year        Int                     @id
   submissions FormSubmission[]
-  questions FormStructureQuestion[]
+  questions   FormStructureQuestion[]
 }
 
 model Answer {
   statement String
 
   addressedQuestion Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String
+  questionId        String
 
   submissions FormSubmission @relation(fields: [formYear, submitterID], references: [formYear, submitterID], onDelete: Cascade)
-  formYear Int
+  formYear    Int
   submitterID String
 
   @@id([questionId, submitterID, formYear])
 }
 
 model Question {
-  id String @id @default(cuid())
+  id        String @id @default(cuid())
   statement String
 
-  category QuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
+  category   QuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
   categoryId String
 
-  answerType AnswerType @relation(fields: [answerTypeId], references: [name], onDelete: Cascade)
+  answerType   AnswerType @relation(fields: [answerTypeId], references: [id], onDelete: Cascade)
   answerTypeId String
 
-  answers Answer[]
+  answers      Answer[]
   relatedForms FormStructureQuestion[]
 }
 
 model AnswerType {
-  name String @id
+  id            String  @id @default(cuid())
+  name          String
+  required      Boolean
   validElements Json?
 
   questions Question[]
