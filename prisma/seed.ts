@@ -82,6 +82,47 @@ const answerTypes: AnswerType[] = [
   },
 ];
 
+const QUESTION_IDS = [
+  "first_name",
+  "last_name",
+  "birthday",
+  "resume",
+  "mac_experience_ventures",
+  "study_enrolled_post_secondary",
+  "study_location",
+  "study_degree",
+  "study_major",
+  "study_year",
+  "study_expected_grad",
+  "prev_hackathons_count",
+  "long_answer_1",
+  "long_answer_2",
+  "long_answer_3",
+  "long_answer_4",
+  "social_links",
+  "interests",
+  "tshirt_size",
+  "hacker_skills",
+  "interested_workshops",
+  "how_discovered",
+  "gender",
+  "race",
+  "already_have_team",
+  "consider_coffee",
+  "emergency_contact_name",
+  "emergency_contact_relation",
+  "emergency_contact_phone",
+  "agree_to_mlh_code_of_conduct",
+  "agree_to_mlh_privacy_policy",
+  "agree_to_mlh_communications",
+];
+type QuestionId = (typeof QUESTION_IDS)[number];
+
+interface Question {
+  id: QuestionId;
+  statement: string;
+  answerTypeId: AnswerTypeId;
+}
 const questions = [
   { id: "first_name", statement: "First Name", answerTypeId: "string_255" },
   { id: "last_name", statement: "Last Name", answerTypeId: "string_255" },
@@ -222,7 +263,6 @@ const questions = [
     answerTypeId: "boolean",
   },
 ] as const;
-type QuestionId = (typeof questions)[number]["id"];
 
 const formQuestionCategories = [
   { name: "Education" },
