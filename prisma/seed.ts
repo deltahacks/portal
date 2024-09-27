@@ -1,8 +1,16 @@
 import { PrismaClient } from "@prisma/client";
+import { AnswerTypeId } from "../src/server/db/types";
 
 const prisma = new PrismaClient({ log: ["query", "error", "warn"] });
 
-const answerTypes = [
+interface AnswerType {
+  id: AnswerTypeId;
+  name: string;
+  required?: boolean;
+  isArray?: boolean;
+  multipleChoiceSelection?: string[];
+}
+const answerTypes: AnswerType[] = [
   { id: "string", name: "string" },
   { id: "string_nullable", name: "string", required: false },
   { id: "string_255", name: "string_255" },
@@ -20,7 +28,6 @@ const answerTypes = [
   {
     id: "tshirt_size",
     name: "tshirt_size",
-    required: true,
     multipleChoiceSelection: ["XS", "S", "M", "L", "XL"],
   },
   {
@@ -73,10 +80,8 @@ const answerTypes = [
       "Prefer not to say",
     ],
   },
-] as const;
-type AnswerTypeId = (typeof answerTypes)[number]["id"];
+];
 
-// TODO migration for place holder values
 const questions = [
   { id: "first_name", statement: "First Name", answerTypeId: "string_255" },
   { id: "last_name", statement: "Last Name", answerTypeId: "string_255" },

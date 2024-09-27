@@ -1,0 +1,21 @@
+const ANSWER_TYPE_IDS = [
+  "string",
+  "string_nullable",
+  "string_255",
+  "string_255_nullable",
+  "string_255_array",
+  "string_150",
+  "string_150_nullable",
+  "question_150",
+  "boolean",
+  "url_nullable",
+  "date",
+  "date_nullable",
+  "positive_number",
+  "phone_number",
+  "tshirt_size",
+  "workshop_array",
+  "hacker_skills_array",
+  "gender",
+] as const;
+export type AnswerTypeId = (typeof ANSWER_TYPE_IDS)[number];
