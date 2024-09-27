@@ -200,7 +200,7 @@ model FormStructure {
 }
 
 model Answer {
-  statement String
+  statement String?
 
   addressedQuestion   Question @relation(fields: [addressedQuestionId], references: [id], onDelete: Cascade)
   addressedQuestionId String

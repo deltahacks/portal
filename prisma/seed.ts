@@ -50,9 +50,8 @@ const answerTypes: AnswerType[] = [
     ],
   },
   {
-    id: "hacker_skills_array",
+    id: "hacker_skills",
     name: "hacker_skills",
-    isArray: true,
     multipleChoiceSelection: [
       "Front-end",
       "Back-end",
@@ -102,7 +101,7 @@ const QUESTION_IDS = [
   "social_links",
   "interests",
   "tshirt_size",
-  "hacker_skills",
+  "hacker_skill",
   "interested_workshops",
   "how_discovered",
   "gender",
@@ -115,7 +114,7 @@ const QUESTION_IDS = [
   "agree_to_mlh_code_of_conduct",
   "agree_to_mlh_privacy_policy",
   "agree_to_mlh_communications",
-];
+] as const;
 type QuestionId = (typeof QUESTION_IDS)[number];
 
 interface Question {
@@ -123,7 +122,7 @@ interface Question {
   statement: string;
   answerTypeId: AnswerTypeId;
 }
-const questions = [
+const questions: Question[] = [
   { id: "first_name", statement: "First Name", answerTypeId: "string_255" },
   { id: "last_name", statement: "Last Name", answerTypeId: "string_255" },
   { id: "birthday", statement: "Birthday", answerTypeId: "date" },
@@ -205,9 +204,9 @@ const questions = [
   },
   { id: "tshirt_size", statement: "T-shirt Size", answerTypeId: "tshirt_size" },
   {
-    id: "hacker_skills",
+    id: "hacker_skill",
     statement: "What kind of hacker are you?",
-    answerTypeId: "hacker_skills_array",
+    answerTypeId: "hacker_skills",
   },
   {
     id: "interested_workshops",
@@ -262,7 +261,7 @@ const questions = [
     statement: "Agree to MLH Communications",
     answerTypeId: "boolean",
   },
-] as const;
+];
 
 const formQuestionCategories = [
   { name: "Education" },
@@ -298,7 +297,7 @@ const formStructureQuestions: FromStructureQuestion[] = [
   { questionId: "social_links", categoryId: "Survey" },
   { questionId: "interests", categoryId: "Survey" },
   { questionId: "tshirt_size", categoryId: "Survey" },
-  { questionId: "hacker_skills", categoryId: "Survey" },
+  { questionId: "hacker_skill", categoryId: "Survey" },
   { questionId: "interested_workshops", categoryId: "Survey" },
   { questionId: "how_discovered", categoryId: "Survey" },
   { questionId: "gender", categoryId: "Survey" },
@@ -333,7 +332,6 @@ async function main() {
 
   await Promise.all(
     questions.map(async (question) => {
-      console.log(question);
       await prisma.question.upsert({
         where: { id: question.id },
         update: question,

@@ -177,7 +177,7 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh10.useMutation({
+  } = trpc.application.submit.useMutation({
     onSuccess: async () => {
       await router.push("/dashboard");
     },

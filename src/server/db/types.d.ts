@@ -15,7 +15,7 @@ const ANSWER_TYPE_IDS = [
   "phone_number",
   "tshirt_size",
   "workshop_array",
-  "hacker_skills_array",
+  "hacker_skills",
   "gender",
 ] as const;
 export type AnswerTypeId = (typeof ANSWER_TYPE_IDS)[number];

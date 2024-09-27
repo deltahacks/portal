@@ -80,6 +80,13 @@ const TypeFormResponse = z.object({
 
 export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
 
+interface AnswerForRouter {
+  statement: string | null;
+  addressedQuestionId: string;
+}
+
+const HACKATHON_YEAR = 2024;
+
 const StatusCount = z
   .object({
     status: z.nativeEnum(Status),
@@ -207,34 +214,160 @@ export const applicationRouter = router({
   submit: protectedProcedure
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
-      // make sure there is no existing application
-
-      try {
-        let gradDate = null;
-        if (input.studyExpectedGraduation) {
-          const possible = new Date(input.studyExpectedGraduation);
-          if (!isNaN(possible.getTime())) {
-            gradDate = possible;
-          }
-        }
-
-        await ctx.prisma.dH10Application.create({
-          data: {
-            ...input,
-            birthday: new Date(input.birthday),
-            studyExpectedGraduation: gradDate,
-            User: { connect: { id: ctx.session.user.id } },
+      const formSubmission = {
+        formYear: HACKATHON_YEAR,
+        submitterId: ctx.session.user.id,
+        isSubmitted: true,
+      };
+      await ctx.prisma.formSubmission.upsert({
+        where: {
+          formYear_submitterId: {
+            formYear: formSubmission.formYear,
+            submitterId: formSubmission.submitterId,
           },
-        });
-      } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002")
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "You have already submitted an application.",
-            });
+        },
+        update: formSubmission,
+        create: formSubmission,
+      });
+
+      let gradDate = null;
+      if (input.studyExpectedGraduation) {
+        const possible = new Date(input.studyExpectedGraduation);
+        if (!isNaN(possible.getTime())) {
+          gradDate = possible;
         }
       }
+
+      const answers: AnswerForRouter[] = [
+        { statement: input.firstName, addressedQuestionId: "first_name" },
+        { statement: input.lastName, addressedQuestionId: "last_name" },
+        {
+          statement: input.birthday.toISOString(),
+          addressedQuestionId: "birthday",
+        },
+        { statement: input.linkToResume, addressedQuestionId: "resume" },
+        {
+          statement: input.macEv.toString(),
+          addressedQuestionId: "mac_experience_ventures",
+        },
+        {
+          statement: input.studyEnrolledPostSecondary.toString(),
+          addressedQuestionId: "study_enrolled_post_secondary",
+        },
+        {
+          statement: input.studyLocation ?? null,
+          addressedQuestionId: "study_location",
+        },
+        {
+          statement: input.studyDegree ?? null,
+          addressedQuestionId: "study_degree",
+        },
+        {
+          statement: input.studyMajor ?? null,
+          addressedQuestionId: "study_major",
+        },
+        {
+          statement: input.studyYearOfStudy ?? null,
+          addressedQuestionId: "study_year",
+        },
+        {
+          statement: gradDate?.toISOString() ?? null,
+          addressedQuestionId: "study_expected_grad",
+        },
+        {
+          statement: input.previousHackathonsCount.toString(),
+          addressedQuestionId: "prev_hackathons_count",
+        },
+        {
+          statement: input.longAnswerChange,
+          addressedQuestionId: "long_answer_1",
+        },
+        {
+          statement: input.longAnswerExperience,
+          addressedQuestionId: "long_answer_2",
+        },
+        {
+          statement: input.longAnswerTech,
+          addressedQuestionId: "long_answer_3",
+        },
+        {
+          statement: input.longAnswerMagic,
+          addressedQuestionId: "long_answer_4",
+        },
+        {
+          statement: input.socialText ?? null,
+          addressedQuestionId: "social_links",
+        },
+        {
+          statement: input.interests?.toString() ?? null,
+          addressedQuestionId: "interests",
+        },
+        { statement: input.tshirtSize, addressedQuestionId: "tshirt_size" },
+        { statement: input.hackerKind, addressedQuestionId: "hacker_skill" },
+        {
+          statement: input.workshopChoices.toString(),
+          addressedQuestionId: "interested_workshops",
+        },
+        {
+          statement: input.discoverdFrom.toString(),
+          addressedQuestionId: "how_discovered",
+        },
+        { statement: input.gender, addressedQuestionId: "gender" },
+        { statement: input.race, addressedQuestionId: "race" },
+        {
+          statement: input.alreadyHaveTeam.toString(),
+          addressedQuestionId: "already_have_team",
+        },
+        {
+          statement: input.considerCoffee.toString(),
+          addressedQuestionId: "consider_coffee",
+        },
+        {
+          statement: input.emergencyContactName,
+          addressedQuestionId: "emergency_contact_name",
+        },
+        {
+          statement: input.emergencyContactRelation,
+          addressedQuestionId: "emergency_contact_relation",
+        },
+        {
+          statement: input.emergencyContactPhone,
+          addressedQuestionId: "emergency_contact_phone",
+        },
+        {
+          statement: input.agreeToMLHCodeOfConduct.toString(),
+          addressedQuestionId: "agree_to_mlh_code_of_conduct",
+        },
+        {
+          statement: input.agreeToMLHPrivacyPolicy.toString(),
+          addressedQuestionId: "agree_to_mlh_privacy_policy",
+        },
+        {
+          statement: input.agreeToMLHCommunications.toString(),
+          addressedQuestionId: "agree_to_mlh_communications",
+        },
+      ];
+
+      await Promise.all(
+        answers.map(async (answerPartial) => {
+          const answer = {
+            ...answerPartial,
+            submitterId: ctx.session.user.id,
+            formYear: HACKATHON_YEAR,
+          };
+          await ctx.prisma.answer.upsert({
+            where: {
+              addressedQuestionId_submitterId_formYear: {
+                addressedQuestionId: answer.addressedQuestionId,
+                submitterId: answer.submitterId,
+                formYear: answer.formYear,
+              },
+            },
+            update: answer,
+            create: answer,
+          });
+        })
+      );
 
       const user = await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
