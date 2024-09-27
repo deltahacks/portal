@@ -26,6 +26,7 @@ CREATE TABLE "FormStructure" (
 
 -- CreateTable
 CREATE TABLE "Answer" (
+    "statement" STRING NOT NULL,
     "questionId" STRING NOT NULL,
     "formYear" INT4 NOT NULL,
     "submitterID" STRING NOT NULL,
@@ -45,10 +46,12 @@ CREATE TABLE "Question" (
 
 -- CreateTable
 CREATE TABLE "AnswerType" (
+    "id" STRING NOT NULL,
     "name" STRING NOT NULL,
+    "required" BOOL NOT NULL,
     "validElements" JSONB,
 
-    CONSTRAINT "AnswerType_pkey" PRIMARY KEY ("name")
+    CONSTRAINT "AnswerType_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -83,4 +86,4 @@ ALTER TABLE "Answer" ADD CONSTRAINT "Answer_formYear_submitterID_fkey" FOREIGN K
 ALTER TABLE "Question" ADD CONSTRAINT "Question_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "QuestionCategory"("name") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_answerTypeId_fkey" FOREIGN KEY ("answerTypeId") REFERENCES "AnswerType"("name") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Question" ADD CONSTRAINT "Question_answerTypeId_fkey" FOREIGN KEY ("answerTypeId") REFERENCES "AnswerType"("id") ON DELETE CASCADE ON UPDATE CASCADE;

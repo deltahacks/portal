@@ -187,6 +187,9 @@ model FormStructureQuestion {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
+  category   FormQuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
+  categoryId String
+
   @@id([formYear, questionId])
   @@unique([displayPriority, formYear])
 }
@@ -214,9 +217,6 @@ model Question {
   id        String @id @default(cuid())
   statement String
 
-  category   QuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
-  categoryId String
-
   answerType   AnswerType @relation(fields: [answerTypeId], references: [id], onDelete: Cascade)
   answerTypeId String
 
@@ -225,16 +225,17 @@ model Question {
 }
 
 model AnswerType {
-  id            String  @id @default(cuid())
-  name          String
-  required      Boolean
-  validElements Json?
+  id                      String  @id @default(cuid())
+  name                    String
+  required                Boolean @default(true)
+  isArray                 Boolean @default(false)
+  multipleChoiceSelection Json?
 
   questions Question[]
 }
 
-model QuestionCategory {
+model FormQuestionCategory {
   name String @id
 
-  questions Question[]
+  formStructureQuestion FormStructureQuestion[]
 }
