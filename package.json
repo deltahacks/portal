@@ -11,9 +11,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\""
   },
   "prisma": {
-    "seed": {
-      "dH10ApplicationFormStructure": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seeds/dH10ApplicationFormStructure.ts"
-    }
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seeds/dH10ApplicationFormStructure.ts"
   },
   "dependencies": {
     "@babel/plugin-transform-react-display-name": "^7.24.7",
