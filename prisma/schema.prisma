@@ -172,23 +172,22 @@ model FormSubmission {
 
   answers Answer[]
 
-  submitter   User   @relation(fields: [submitterID], references: [id])
-  submitterID String
+  submitter   User   @relation(fields: [submitterId], references: [id])
+  submitterId String
 
-  @@id([formYear, submitterID])
+  @@id([formYear, submitterId])
 }
 
 model FormStructureQuestion {
-  displayPriority Int
-
   form     FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
   formYear Int
 
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
-  category   FormQuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
-  categoryId String
+  displayPriority Int
+  category        FormQuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
+  categoryId      String
 
   @@id([formYear, questionId])
   @@unique([displayPriority, formYear])
@@ -203,14 +202,14 @@ model FormStructure {
 model Answer {
   statement String
 
-  addressedQuestion Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId        String
+  addressedQuestion   Question @relation(fields: [addressedQuestionId], references: [id], onDelete: Cascade)
+  addressedQuestionId String
 
-  submissions FormSubmission @relation(fields: [formYear, submitterID], references: [formYear, submitterID], onDelete: Cascade)
+  submissions FormSubmission @relation(fields: [formYear, submitterId], references: [formYear, submitterId], onDelete: Cascade)
   formYear    Int
-  submitterID String
+  submitterId String
 
-  @@id([questionId, submitterID, formYear])
+  @@id([addressedQuestionId, submitterId, formYear])
 }
 
 model Question {

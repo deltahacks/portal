@@ -76,6 +76,7 @@ const answerTypes = [
 ] as const;
 type AnswerTypeId = (typeof answerTypes)[number]["id"];
 
+// TODO migration for place holder values
 const questions = [
   { id: "first_name", statement: "First Name", answerTypeId: "string_255" },
   { id: "last_name", statement: "Last Name", answerTypeId: "string_255" },
@@ -274,48 +275,57 @@ async function main() {
     create: { year: 2024 },
   });
 
-  answerTypes.forEach(
-    async (answerType) =>
-      await prisma.answerType.upsert({
-        where: { id: answerType.id },
-        update: answerType,
-        create: answerType,
-      })
+  await Promise.all(
+    answerTypes.map(
+      async (answerType) =>
+        await prisma.answerType.upsert({
+          where: { id: answerType.id },
+          update: answerType,
+          create: answerType,
+        })
+    )
   );
 
-  questions.forEach(async (question) => {
-    await prisma.question.upsert({
-      where: { id: question.id },
-      update: question,
-      create: question,
-    });
-  });
+  await Promise.all(
+    questions.map(async (question) => {
+      console.log(question);
+      await prisma.question.upsert({
+        where: { id: question.id },
+        update: question,
+        create: question,
+      });
+    })
+  );
 
-  formQuestionCategories.forEach(async (category) => {
-    await prisma.formQuestionCategory.upsert({
-      where: { name: category.name },
-      update: category,
-      create: category,
-    });
-  });
+  await Promise.all(
+    formQuestionCategories.map(async (category) => {
+      await prisma.formQuestionCategory.upsert({
+        where: { name: category.name },
+        update: category,
+        create: category,
+      });
+    })
+  );
 
-  formStructureQuestions.forEach(async (formQuestionOld, i) => {
-    const formQuestion = {
-      ...formQuestionOld,
-      formYear: 2024,
-      displayPriority: i,
-    };
-    await prisma.formStructureQuestion.upsert({
-      where: {
-        formYear_questionId: {
-          formYear: formQuestion.formYear,
-          questionId: formQuestion.questionId,
+  await Promise.all(
+    formStructureQuestions.map(async (formQuestionOld, i) => {
+      const formQuestion = {
+        ...formQuestionOld,
+        formYear: 2024,
+        displayPriority: i,
+      };
+      await prisma.formStructureQuestion.upsert({
+        where: {
+          formYear_questionId: {
+            formYear: formQuestion.formYear,
+            questionId: formQuestion.questionId,
+          },
         },
-      },
-      update: formQuestion,
-      create: formQuestion,
-    });
-  });
+        update: formQuestion,
+        create: formQuestion,
+      });
+    })
+  );
 }
 
 main()
