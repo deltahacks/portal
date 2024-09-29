@@ -217,7 +217,7 @@ export const applicationRouter = router({
       const formSubmission = {
         formYear: HACKATHON_YEAR,
         submitterId: ctx.session.user.id,
-        isSubmitted: true,
+        status: Status.IN_REVIEW,
       };
       await ctx.prisma.formSubmission.upsert({
         where: {
@@ -305,7 +305,9 @@ export const applicationRouter = router({
         { statement: input.tshirtSize, addressedQuestionId: "tshirt_size" },
         { statement: input.hackerKind, addressedQuestionId: "hacker_skill" },
         {
-          statement: input.workshopChoices.toString(),
+          statement: input.workshopChoices
+            .map((s) => s.replaceAll(",", "\\,"))
+            .toString(),
           addressedQuestionId: "interested_workshops",
         },
         {
@@ -369,15 +371,10 @@ export const applicationRouter = router({
         })
       );
 
-      const user = await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW },
-      });
-
       await ctx.logsnag.track({
         channel: "applications",
         event: "Application Submitted",
-        user_id: `${user.name} - ${user.email}`,
+        user_id: `${ctx.session.user.name} - ${ctx.session.user.email}`,
         description: "A user has submitted an application.",
         icon: "📝",
       });

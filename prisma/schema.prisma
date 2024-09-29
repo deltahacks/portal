@@ -46,18 +46,18 @@ model User {
   image                String?
   accounts             Account[]
   sessions             Session[]
-  typeform_response_id String?
+  typeform_response_id String? /// @deprecated Use FormSubmission instead
   role                 Role[]     @default([HACKER])
-  hacker               Review[]   @relation("hacker") /// @deprecated Use `User.status` instead
-  reviewer             Review[]   @relation("reviewer") /// @deprecated Use `User.status` instead
-  status               Status     @default(IN_REVIEW)
+  hacker               Review[]   @relation("hacker") /// @deprecated Use `FormSubmission.status` instead
+  reviewer             Review[]   @relation("reviewer") /// @deprecated Use `FormSubmission.status` instead
+  status               Status     @default(IN_REVIEW) /// @deprecated User `FormSubmission.status` instead
   qrcode               Int?       @unique
   mealsTaken           Int        @default(0)
   lastMealTaken        DateTime?
   EventLog             EventLog[]
 
-  dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id])
-  dH10ApplicationId String?          @unique
+  dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id]) // @deprecated Use `FormSubmission` instead
+  dH10ApplicationId String?          @unique // @deprecated Use `FormSubmission` insteadtgud
 
   applicationSubmissions FormSubmission[]
 }
@@ -165,7 +165,7 @@ model Config {
 
 model FormSubmission {
   lastUpdated DateTime @default(now())
-  isSubmitted Boolean
+  status      Status   @default(IN_REVIEW)
 
   form     FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
   formYear Int
