@@ -1,4 +1,4 @@
-import { Prisma, Status, Role } from "@prisma/client";
+import { Prisma, Status, Role, PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
@@ -85,8 +85,6 @@ interface AnswerForRouter {
   addressedQuestionId: string;
 }
 
-const HACKATHON_YEAR = 2024;
-
 const StatusCount = z
   .object({
     status: z.nativeEnum(Status),
@@ -99,6 +97,15 @@ const options = {
   headers: {
     Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
   },
+};
+
+const getHackathonYear = async (prisma: PrismaClient) => {
+  const hackathonYearConfig = await prisma.config.findFirstOrThrow({
+    where: {
+      id: "hackathonYear",
+    },
+  });
+  return parseInt(hackathonYearConfig.value);
 };
 
 // Example router with queries that can only be hit if the user requesting is signed in
@@ -214,8 +221,10 @@ export const applicationRouter = router({
   submit: protectedProcedure
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
+      const hackathonYear = await getHackathonYear(ctx.prisma);
+
       const formSubmission = {
-        formYear: HACKATHON_YEAR,
+        formYear: hackathonYear,
         submitterId: ctx.session.user.id,
         status: Status.IN_REVIEW,
       };
@@ -355,7 +364,7 @@ export const applicationRouter = router({
           const answer = {
             ...answerPartial,
             submitterId: ctx.session.user.id,
-            formYear: HACKATHON_YEAR,
+            formYear: hackathonYear,
           };
           await ctx.prisma.answer.upsert({
             where: {

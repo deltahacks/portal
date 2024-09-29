@@ -273,50 +273,105 @@ const formQuestionCategories = [
 ] as const;
 type FormQuestionCategoryId = (typeof formQuestionCategories)[number]["name"];
 
-interface FromStructureQuestion {
+interface FormStructureQuestion {
   questionId: QuestionId;
   categoryId: FormQuestionCategoryId;
 }
-const formStructureQuestions: FromStructureQuestion[] = [
-  { questionId: "first_name", categoryId: "Personal Information" },
-  { questionId: "last_name", categoryId: "Personal Information" },
-  { questionId: "birthday", categoryId: "Personal Information" },
-  { questionId: "resume", categoryId: "Personal Information" },
-  { questionId: "mac_experience_ventures", categoryId: "Personal Information" },
-  { questionId: "study_enrolled_post_secondary", categoryId: "Education" },
-  { questionId: "study_location", categoryId: "Education" },
-  { questionId: "study_degree", categoryId: "Education" },
-  { questionId: "study_major", categoryId: "Education" },
-  { questionId: "study_year", categoryId: "Education" },
-  { questionId: "study_expected_grad", categoryId: "Education" },
-  { questionId: "prev_hackathons_count", categoryId: "Education" },
-  { questionId: "long_answer_1", categoryId: "Long Answer" },
-  { questionId: "long_answer_2", categoryId: "Long Answer" },
-  { questionId: "long_answer_3", categoryId: "Long Answer" },
-  { questionId: "long_answer_4", categoryId: "Long Answer" },
-  { questionId: "social_links", categoryId: "Survey" },
-  { questionId: "interests", categoryId: "Survey" },
-  { questionId: "tshirt_size", categoryId: "Survey" },
-  { questionId: "hacker_skill", categoryId: "Survey" },
-  { questionId: "interested_workshops", categoryId: "Survey" },
-  { questionId: "how_discovered", categoryId: "Survey" },
-  { questionId: "gender", categoryId: "Survey" },
-  { questionId: "race", categoryId: "Survey" },
-  { questionId: "already_have_team", categoryId: "Survey" },
-  { questionId: "consider_coffee", categoryId: "Survey" },
-  { questionId: "emergency_contact_name", categoryId: "Emergency Contact" },
-  { questionId: "emergency_contact_relation", categoryId: "Emergency Contact" },
-  { questionId: "emergency_contact_phone", categoryId: "Emergency Contact" },
-  { questionId: "agree_to_mlh_code_of_conduct", categoryId: "MLH Consent" },
-  { questionId: "agree_to_mlh_privacy_policy", categoryId: "MLH Consent" },
-  { questionId: "agree_to_mlh_communications", categoryId: "MLH Consent" },
-];
+
+const createFormStructure = async (
+  year: number,
+  formStructureQuestions: FormStructureQuestion[]
+) => {
+  await prisma.formStructure.upsert({
+    where: { year },
+    update: { year },
+    create: { year },
+  });
+
+  await Promise.all(
+    formStructureQuestions.map(async (formQuestionOld, i) => {
+      const formQuestion = {
+        ...formQuestionOld,
+        formYear: year,
+        displayPriority: i,
+      };
+      await prisma.formStructureQuestion.upsert({
+        where: {
+          formYear_questionId: {
+            formYear: formQuestion.formYear,
+            questionId: formQuestion.questionId,
+          },
+        },
+        update: formQuestion,
+        create: formQuestion,
+      });
+    })
+  );
+};
+
+const createDeltahacksXForm = async () => {
+  const deltahacksXFormStructureQuestions: FormStructureQuestion[] = [
+    { questionId: "first_name", categoryId: "Personal Information" },
+    { questionId: "last_name", categoryId: "Personal Information" },
+    { questionId: "birthday", categoryId: "Personal Information" },
+    { questionId: "resume", categoryId: "Personal Information" },
+    {
+      questionId: "mac_experience_ventures",
+      categoryId: "Personal Information",
+    },
+
+    { questionId: "study_enrolled_post_secondary", categoryId: "Education" },
+    { questionId: "study_location", categoryId: "Education" },
+    { questionId: "study_degree", categoryId: "Education" },
+    { questionId: "study_major", categoryId: "Education" },
+    { questionId: "study_year", categoryId: "Education" },
+    { questionId: "study_expected_grad", categoryId: "Education" },
+    { questionId: "prev_hackathons_count", categoryId: "Education" },
+
+    { questionId: "long_answer_1", categoryId: "Long Answer" },
+    { questionId: "long_answer_2", categoryId: "Long Answer" },
+    { questionId: "long_answer_3", categoryId: "Long Answer" },
+    { questionId: "long_answer_4", categoryId: "Long Answer" },
+
+    { questionId: "social_links", categoryId: "Survey" },
+    { questionId: "interests", categoryId: "Survey" },
+    { questionId: "tshirt_size", categoryId: "Survey" },
+    { questionId: "hacker_skill", categoryId: "Survey" },
+    { questionId: "interested_workshops", categoryId: "Survey" },
+    { questionId: "how_discovered", categoryId: "Survey" },
+    { questionId: "gender", categoryId: "Survey" },
+    { questionId: "race", categoryId: "Survey" },
+    { questionId: "already_have_team", categoryId: "Survey" },
+    { questionId: "consider_coffee", categoryId: "Survey" },
+
+    { questionId: "emergency_contact_name", categoryId: "Emergency Contact" },
+    {
+      questionId: "emergency_contact_relation",
+      categoryId: "Emergency Contact",
+    },
+    { questionId: "emergency_contact_phone", categoryId: "Emergency Contact" },
+
+    { questionId: "agree_to_mlh_code_of_conduct", categoryId: "MLH Consent" },
+    { questionId: "agree_to_mlh_privacy_policy", categoryId: "MLH Consent" },
+    { questionId: "agree_to_mlh_communications", categoryId: "MLH Consent" },
+  ];
+
+  await createFormStructure(2024, deltahacksXFormStructureQuestions);
+};
 
 async function main() {
-  await prisma.formStructure.upsert({
-    where: { year: 2024 },
-    update: { year: 2024 },
-    create: { year: 2024 },
+  const HACKATHON_YEAR_CONFIG = {
+    id: "hackathonYear",
+    name: "hackathonYear",
+    value: "2024",
+  };
+
+  await prisma.config.upsert({
+    where: {
+      id: HACKATHON_YEAR_CONFIG.id,
+    },
+    create: HACKATHON_YEAR_CONFIG,
+    update: HACKATHON_YEAR_CONFIG,
   });
 
   await Promise.all(
@@ -350,25 +405,7 @@ async function main() {
     })
   );
 
-  await Promise.all(
-    formStructureQuestions.map(async (formQuestionOld, i) => {
-      const formQuestion = {
-        ...formQuestionOld,
-        formYear: 2024,
-        displayPriority: i,
-      };
-      await prisma.formStructureQuestion.upsert({
-        where: {
-          formYear_questionId: {
-            formYear: formQuestion.formYear,
-            questionId: formQuestion.questionId,
-          },
-        },
-        update: formQuestion,
-        create: formQuestion,
-      });
-    })
-  );
+  await createDeltahacksXForm();
 }
 
 main()
