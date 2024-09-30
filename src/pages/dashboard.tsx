@@ -15,6 +15,7 @@ import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
 import Drawer from "../components/Drawer";
+import { DirectPrismaQuerier } from "../server/db/directQueries";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -484,27 +485,15 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-    include: { dh10application: true },
-  });
-  const killedStr = await prisma.config.findFirst({
-    where: { name: "killApplications" },
-    select: { value: true },
-  });
-
-  // they are killed in all cases unless the value is "false"
-  let killed = true;
-
-  if (killedStr && JSON.parse(killedStr.value) === false) {
-    killed = false;
-  }
+  const querier = new DirectPrismaQuerier(prisma);
+  const killed = await querier.hasKilledApplications();
+  const application = await querier.getUserApplication(session.user.id);
 
   // If submitted then do nothing
-  if (userEntry && userEntry.dh10application !== null) {
+  if (!!application) {
     return {
       props: {
-        status: userEntry.status,
+        status: application.status,
         killed: killed,
       },
     };

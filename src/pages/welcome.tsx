@@ -5,6 +5,7 @@ import Drawer from "../components/Drawer";
 import SocialButtons from "../components/SocialButtons";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
+import { DirectPrismaQuerier } from "../server/db/directQueries";
 
 const Content = () => {
   return (
@@ -84,13 +85,9 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-    include: { dh10application: true },
-  });
-
-  // If submitted then go to dashboard
-  if (userEntry && userEntry.dh10application !== null) {
+  const querier = new DirectPrismaQuerier(prisma);
+  const application = await querier.getUserApplication(session.user.id);
+  if (!!application) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 

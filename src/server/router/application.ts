@@ -1,9 +1,16 @@
-import { Prisma, Status, Role, PrismaClient } from "@prisma/client";
+import {
+  Prisma,
+  Status,
+  Role,
+  PrismaClient,
+  FormSubmission,
+} from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
 import applicationSchema from "../../schemas/application";
+import { DirectPrismaQuerier } from "../db/directQueries";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -99,15 +106,6 @@ const options = {
   },
 };
 
-const getHackathonYear = async (prisma: PrismaClient) => {
-  const hackathonYearConfig = await prisma.config.findFirstOrThrow({
-    where: {
-      id: "hackathonYear",
-    },
-  });
-  return parseInt(hackathonYearConfig.value);
-};
-
 // Example router with queries that can only be hit if the user requesting is signed in
 export const applicationRouter = router({
   received: protectedProcedure.query(async ({ ctx }) => {
@@ -170,25 +168,6 @@ export const applicationRouter = router({
 
       return StatusCount.parse(statusCount);
     }),
-  status: protectedProcedure
-    .output(z.nativeEnum(Status))
-    .query(async ({ ctx }) => {
-      const user = await ctx.prisma?.user.findFirst({
-        where: { id: ctx.session.user.id },
-        include: { dh10application: true },
-      });
-      if (!user) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      if (
-        user.dH10ApplicationId === null ||
-        user.dH10ApplicationId === undefined
-      ) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-
-      return user.status;
-    }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
       where: { id: ctx.session.user.id },
@@ -218,10 +197,28 @@ export const applicationRouter = router({
       icon: "🎉",
     });
   }),
+  getApplicationShallow: protectedProcedure
+    .input(
+      z.object({
+        submitterId: z.string().nullable(),
+      })
+    )
+    .query(async ({ ctx, input }): Promise<FormSubmission | null> => {
+      if (!input.submitterId) {
+        return null;
+      }
+
+      const directQuerier = new DirectPrismaQuerier(ctx.prisma);
+      const application = await directQuerier.getUserApplication(
+        input.submitterId
+      );
+      return application;
+    }),
   submit: protectedProcedure
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
-      const hackathonYear = await getHackathonYear(ctx.prisma);
+      const directQuerier = new DirectPrismaQuerier(ctx.prisma);
+      const hackathonYear = await directQuerier.getHackathonYear();
 
       const formSubmission = {
         formYear: hackathonYear,
