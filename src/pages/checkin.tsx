@@ -1,4 +1,8 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
@@ -10,6 +14,8 @@ import { useRouter } from "next/router";
 import { prisma } from "../server/db/client";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Drawer from "../components/Drawer";
+import { TRPCError } from "@trpc/server";
+import { DirectPrismaQuerier } from "../server/db/directQueries";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -178,12 +184,9 @@ const NoRSVP: React.FC = () => {
     </div>
   );
 };
-const Checkin: NextPage = () => {
-  const { data: session } = useSession();
-
-  const { data: status, isSuccess: isStatusLoading } =
-    trpc.application.status.useQuery();
-
+const Checkin: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ status }) => {
   const stateMap = {
     [Status.IN_REVIEW]: <PreCheckedIn />,
     [Status.ACCEPTED]: <PreCheckedIn />,
@@ -203,15 +206,8 @@ const Checkin: NextPage = () => {
           <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
             Check In
           </h1>
-          {!isStatusLoading ? (
-            <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-              Loading...
-            </h1>
-          ) : (
-            stateMap[status as Status]
-          )}
+          {stateMap[status]}
         </main>
-
         <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
           <SocialButtons />
         </footer>
@@ -242,7 +238,12 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/welcome", permanent: false } };
   }
 
-  return { props: {} };
+  const querier = new DirectPrismaQuerier(prisma);
+  const application = await querier.getUserApplication(session?.user.id);
+  if (!application) {
+    throw new TRPCError({ code: "NOT_FOUND" });
+  }
+  return { props: { status: application.status } };
 };
 
 export default Checkin;

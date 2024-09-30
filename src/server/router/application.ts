@@ -1,16 +1,11 @@
-import {
-  Prisma,
-  Status,
-  Role,
-  PrismaClient,
-  FormSubmission,
-} from "@prisma/client";
+import { Prisma, Status, Role, FormSubmission } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
 import applicationSchema from "../../schemas/application";
 import { DirectPrismaQuerier } from "../db/directQueries";
+import { trpcAssert } from "../../utils/asserts";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -177,23 +172,29 @@ export const applicationRouter = router({
     return qr;
   }),
   rsvp: protectedProcedure.mutation(async ({ ctx }) => {
-    const user = await ctx.prisma?.user.findFirst({
-      where: { id: ctx.session.user.id },
+    const querier = new DirectPrismaQuerier(ctx.prisma);
+    const hackathonYear = await querier.getHackathonYear();
+    const form = await ctx.prisma?.formSubmission.findFirst({
+      where: { submitterId: ctx.session.user.id, formYear: hackathonYear },
     });
 
-    if (user?.status != Status.ACCEPTED) {
-      throw new Error("Unauthorized call");
-    }
+    trpcAssert(form?.status !== Status.ACCEPTED, "UNAUTHORIZED");
 
-    await ctx.prisma?.user.update({
-      where: { id: ctx.session.user.id },
+    await ctx.prisma?.formSubmission.update({
+      where: {
+        formYear_submitterId: {
+          submitterId: ctx.session.user.id,
+          formYear: hackathonYear,
+        },
+      },
       data: { status: Status.RSVP },
     });
+
     await ctx.logsnag.track({
       channel: "rsvps",
       event: "RSVP Submitted",
-      user_id: `${user.name} - ${user.email}`,
-      description: `${user.name} has submitted their RSVP.`,
+      user_id: `${ctx.session.user.name} - ${ctx.session.user.email}`,
+      description: `${ctx.session.user.name} has submitted their RSVP.`,
       icon: "🎉",
     });
   }),
@@ -210,7 +211,7 @@ export const applicationRouter = router({
 
       const directQuerier = new DirectPrismaQuerier(ctx.prisma);
       const application = await directQuerier.getUserApplication(
-        input.submitterId
+        ctx.session.user.id
       );
       return application;
     }),
