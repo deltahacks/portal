@@ -45,7 +45,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="pl-4 py-2 capitalize">{row.getValue("name")}</div>
+      <div className="pl-4 py-2 capitalize">{row.original.submitter.name}</div>
     ),
     enableColumnFilter: true,
   },
@@ -63,14 +63,14 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="pl-4 py-2 lowercase">{row.getValue("email")}</div>
+      <div className="pl-4 py-2 lowercase">{row.original.submitter.email}</div>
     ),
     enableColumnFilter: true,
     enableSorting: true,
     enableHiding: true,
   },
   {
-    accessorKey: "dH10ApplicationId",
+    accessorKey: "dH10ApplicationIdd",
     header: "DeltaHacks X Application",
     cell: ({ row }) => {
       return <ApplicationPopupButton applicationForReview={row.original} />;

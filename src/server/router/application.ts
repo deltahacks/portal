@@ -107,20 +107,19 @@ export const applicationRouter = router({
     .output(StatusCount)
     .query(async ({ ctx }) => {
       trpcAssert(
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        ),
+        ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER),
         "UNAUTHORIZED"
       );
 
+      const directQuerier = new DirectPrismaQuerier(ctx.prisma);
+      const hackathonYear = await directQuerier.getHackathonYear();
+
       const statusCount = (
-        await ctx.prisma.user.groupBy({
+        await ctx.prisma.formSubmission.groupBy({
           by: ["status"],
           where: {
-            dH10ApplicationId: {
-              not: null,
-            },
+            formYear: hackathonYear,
           },
           _count: {
             status: true,
@@ -299,7 +298,7 @@ export const applicationRouter = router({
           statement: input.workshopChoices
             .map((s) => s.replaceAll(",", "\\,"))
             .toString(),
-          addressedQuestionId: "interested_workshops",
+          addressedQuestionId: "intersted_workshops",
         },
         {
           statement: input.discoverdFrom.toString(),

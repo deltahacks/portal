@@ -3,16 +3,19 @@ import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
 import ApplicationSchema from "../../schemas/application";
+import { trpcAssert } from "../../utils/asserts";
+import { DirectPrismaQuerier } from "../db/directQueries";
 
 const ApplicationForReview = z.object({
-  id: z.string().cuid(),
-  name: z.string(),
-  email: z
-    .string()
-    .nullable()
-    .transform((v) => (v === null ? "" : v)),
+  submitter: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z
+      .string()
+      .nullable()
+      .transform((v) => (v === null ? "" : v)),
+  }),
   status: z.nativeEnum(Status),
-  dH10ApplicationId: z.string().cuid(),
 });
 
 const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
@@ -28,33 +31,33 @@ export const reviewerRouter = router({
   getApplications: protectedProcedure
     .output(ApplicationForReview.array())
     .query(async ({ ctx }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
+      trpcAssert(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER),
+        "UNAUTHORIZED"
+      );
 
-      const users = await ctx.prisma.user.findMany({
+      const querier = new DirectPrismaQuerier(ctx.prisma);
+      const hackathonYear = await querier.getHackathonYear();
+
+      const application = await ctx.prisma.formSubmission.findMany({
         where: {
-          dH10ApplicationId: {
-            not: null,
-          },
+          formYear: hackathonYear,
         },
         select: {
-          id: true,
-          name: true,
-          email: true,
           status: true,
-          dH10ApplicationId: true,
+          formYear: true,
+          submitter: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
         },
       });
 
-      const parsed = ApplicationForReview.array().parse(users);
-
-      return parsed;
+      return ApplicationForReview.array().parse(application);
     }),
   getApplication: protectedProcedure
     .input(
