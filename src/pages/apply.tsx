@@ -37,6 +37,7 @@ import {
   workshopType,
 } from "../data/applicationSelectData";
 import { useEffect } from "react";
+import { DirectPrismaQuerier } from "../server/db/directQueries";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -793,33 +794,18 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-    include: { dh10application: true },
-  });
+  const querier = new DirectPrismaQuerier(prisma);
+  const application = await querier.getUserApplication(session.user.id);
+  const killed = await querier.hasKilledApplications();
 
-  const killedStr = await prisma.config.findFirst({
-    where: { name: "killApplications" },
-    select: { value: true },
-  });
-
-  // they are killed in all cases unless the value is "false"
-  let killed = true;
-
-  if (killedStr && JSON.parse(killedStr.value) === false) {
-    killed = false;
-  }
-
-  // If submitted then go dashboard
-  if (userEntry && userEntry.dh10application !== null) {
+  if (!application) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
-  console.log(killedStr, killed);
   return {
     props: {
       email: session.user.email,
-      killed: killed,
+      killed,
     },
   };
 };

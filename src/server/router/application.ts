@@ -106,14 +106,14 @@ export const applicationRouter = router({
   getStatusCount: protectedProcedure
     .output(StatusCount)
     .query(async ({ ctx }) => {
-      if (
+      trpcAssert(
         !(
           ctx.session.user.role.includes(Role.ADMIN) ||
           ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
+        ),
+        "UNAUTHORIZED"
+      );
+
       const statusCount = (
         await ctx.prisma.user.groupBy({
           by: ["status"],
