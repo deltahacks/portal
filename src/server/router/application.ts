@@ -103,22 +103,6 @@ const options = {
 
 // Example router with queries that can only be hit if the user requesting is signed in
 export const applicationRouter = router({
-  received: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.prisma?.user.findFirst({
-      where: { id: ctx.session.user.id },
-    });
-
-    if (!user) {
-      return false;
-    }
-    if (
-      user.typeform_response_id === undefined ||
-      user.typeform_response_id === null
-    ) {
-      return false;
-    }
-    return true;
-  }),
   getStatusCount: protectedProcedure
     .output(StatusCount)
     .query(async ({ ctx }) => {
@@ -651,53 +635,7 @@ export const applicationRouter = router({
           | "XL";
       }
     }
-    // console.log(autofill)
 
     return autofill;
   }),
-  submitDh10: protectedProcedure
-    .input(applicationSchema)
-    .mutation(async ({ ctx, input }) => {
-      // make sure there is no existing application
-
-      try {
-        let gradDate = null;
-        if (input.studyExpectedGraduation) {
-          const possible = new Date(input.studyExpectedGraduation);
-          if (!isNaN(possible.getTime())) {
-            gradDate = possible;
-          }
-        }
-
-        await ctx.prisma.dH10Application.create({
-          data: {
-            ...input,
-            birthday: new Date(input.birthday),
-            studyExpectedGraduation: gradDate,
-            User: { connect: { id: ctx.session.user.id } },
-          },
-        });
-      } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002")
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "You have already submitted an application.",
-            });
-        }
-      }
-
-      const user = await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW },
-      });
-
-      await ctx.logsnag.track({
-        channel: "applications",
-        event: "Application Submitted",
-        user_id: `${user.name} - ${user.email}`,
-        description: "A user has submitted an application.",
-        icon: "📝",
-      });
-    }),
 });
