@@ -169,14 +169,7 @@ type InReviewProps = {
 
 const InReview: React.FC<InReviewProps> = ({ killed }) => {
   const { data: session } = useSession();
-  const dialogRef = useRef<HTMLDialogElement | null>(null);
   const router = useRouter();
-  // call deleteApplication endpoint
-  const deleteApplication = trpc.application.deleteApplication.useMutation({
-    onSuccess: () => {
-      router.push("/apply");
-    },
-  });
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
@@ -199,39 +192,11 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
       {!killed ? (
         <div className="flex gap-5 pt-6">
           <Button
-            onClick={() => dialogRef.current?.showModal()}
+            onClick={() => router.push("/apply")}
             className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
           >
             Redo Application
           </Button>
-
-          <dialog
-            className="modal modal-bottom sm:modal-middle"
-            ref={dialogRef}
-          >
-            <div className="modal-box">
-              <h3 className="text-lg font-bold">Are you sure ?</h3>
-              <p className="py-4">
-                You will lose all and have to start from scratch.
-              </p>
-              <div className="modal-action">
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <div className="flex gap-5">
-                    <button
-                      className="btn btn-outline btn-error"
-                      onClick={() => deleteApplication.mutateAsync()}
-                    >
-                      Proceed
-                    </button>
-                    <button className="btn btn-primary dark:text-white border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </dialog>
           <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
             <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
               FAQ

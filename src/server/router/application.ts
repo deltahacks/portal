@@ -183,8 +183,8 @@ export const applicationRouter = router({
     await ctx.prisma?.formSubmission.update({
       where: {
         formYear_submitterId: {
-          submitterId: ctx.session.user.id,
           formYear: hackathonYear,
+          submitterId: ctx.session.user.id,
         },
       },
       data: { status: Status.RSVP },
@@ -700,41 +700,4 @@ export const applicationRouter = router({
         icon: "📝",
       });
     }),
-
-  deleteApplication: protectedProcedure.mutation(async ({ ctx }) => {
-    const user = await ctx.prisma.user.findFirst({
-      where: { id: ctx.session.user.id },
-    });
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
-    if (
-      user.dH10ApplicationId === null ||
-      user.dH10ApplicationId === undefined
-    ) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
-    try {
-      await ctx.prisma.dH10Application.delete({
-        where: { id: user.dH10ApplicationId },
-      });
-      await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW }, // Replace with the correct status
-      });
-      // create logsnag log
-      await ctx.logsnag.track({
-        channel: "applications",
-        event: "Application Deleted",
-        user_id: `${user.name} - ${user.email}`,
-        description: "A user has deleted their application.",
-        icon: "🗑️",
-      });
-    } catch (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to delete the application.",
-      });
-    }
-  }),
 });
