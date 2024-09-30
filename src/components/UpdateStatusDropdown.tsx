@@ -11,19 +11,21 @@ import { Button } from "./Button";
 import { cn } from "../utils/mergeTailwind";
 
 const UpdateStatusDropdown = ({
-  id,
+  submitterId,
   className,
   position,
 }: {
-  id: string;
+  submitterId: string;
   className?: string;
   position?: string;
 }) => {
   const utils = trpc.useUtils();
-  const { data } = trpc.reviewer.getStatus.useQuery({ id });
-  const updateStatus = trpc.reviewer.updateStatus.useMutation({
+  const { data } = trpc.application.getApplicationShallow.useQuery({
+    submitterId,
+  });
+  const updateStatus = trpc.reviewer.updateApplicationShallow.useMutation({
     onSettled() {
-      utils.reviewer.getStatus.invalidate({ id });
+      utils.application.getApplicationShallow.invalidate({ submitterId });
       utils.application.getStatusCount.invalidate();
     },
   });
@@ -34,8 +36,8 @@ const UpdateStatusDropdown = ({
   const handleUpdateStatus = async (status: Status) => {
     try {
       await updateStatus.mutateAsync({
-        id,
-        status,
+        submitterId,
+        application: { status },
       });
     } catch (e) {
       console.log(e);

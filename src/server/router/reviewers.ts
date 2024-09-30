@@ -94,76 +94,49 @@ export const reviewerRouter = router({
 
       return ApplicationSchemaWithStringDates.parse(applicationWithStringDates);
     }),
-  getStatus: protectedProcedure
+  updateApplicationShallow: protectedProcedure
     .input(
       z.object({
-        id: z.string().cuid().optional(),
-      })
-    )
-    .output(z.object({ status: z.nativeEnum(Status) }))
-    .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-
-      const user = await ctx.prisma.user.findFirst({
-        where: {
-          id: {
-            equals: input.id,
-          },
-        },
-        select: {
-          status: true,
-        },
-      });
-
-      return { status: z.nativeEnum(Status).parse(user?.status) };
-    }),
-  updateStatus: protectedProcedure
-    .input(
-      z.object({
-        id: z.string().cuid().optional(),
-        status: z.nativeEnum(Status),
+        submitterId: z.string(),
+        application: z.object({ status: z.nativeEnum(Status) }),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
+      trpcAssert(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER),
+        "UNAUTHORIZED"
+      );
 
-      const user = await ctx.prisma.user.update({
-        where: { id: input.id },
-        data: {
-          status: input.status,
+      const querier = new DirectPrismaQuerier(ctx.prisma);
+      const hackathonYear = await querier.getHackathonYear();
+
+      const formSubmission = await prisma?.formSubmission.update({
+        where: {
+          formYear_submitterId: {
+            formYear: hackathonYear,
+            submitterId: input.submitterId,
+          },
         },
+        data: input.application,
       });
       await ctx.logsnag.track({
         channel: "reviews",
         event: "Status Changed",
-        user_id: `${user.name} - ${user.email}`,
-        description: `${ctx.session.user.name} changed ${user.name}'s status to ${input.status}`,
+        user_id: `user ${formSubmission?.submitterId}`,
+        description: `${ctx.session.user.name} changed user ${formSubmission?.submitterId}'s status to ${input.application.status}`,
         tags: {
-          status: input.status,
+          status: input.application.status,
           reviewer: ctx.session.user.email ?? "",
         },
         icon:
-          input.status === Status.ACCEPTED
+          input.application.status === Status.ACCEPTED
             ? "✅"
-            : input.status === Status.REJECTED
+            : input.application.status === Status.REJECTED
             ? "❌"
-            : input.status === Status.WAITLISTED
+            : input.application.status === Status.WAITLISTED
             ? "🕰️"
-            : input.status === Status.RSVP
+            : input.application.status === Status.RSVP
             ? "🎟️"
             : "🤔",
       });

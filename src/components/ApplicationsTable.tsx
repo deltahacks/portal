@@ -94,8 +94,8 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { id } = row.original;
-      return <UpdateStatusDropdown id={id} position="float-right" />;
+      const { id } = row.original.submitter;
+      return <UpdateStatusDropdown submitterId={id} position="float-right" />;
     },
     enableSorting: true,
     enableColumnFilter: true,
