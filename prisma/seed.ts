@@ -1,31 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { AnswerRestrictionId } from "../src/server/db/answerRestrictions";
+import {
+  AnswerRestrictionId,
+  ANSWER_RESTRICTIONS,
+} from "../src/server/db/answerRestrictions";
 
 const prisma = new PrismaClient({ log: ["query", "error", "warn"] });
-
-interface AnswerRestriction {
-  id: AnswerRestrictionId;
-}
-const answerRestrictions: AnswerRestriction[] = [
-  { id: "string" },
-  { id: "string_nullable" },
-  { id: "string_255" },
-  { id: "string_255_nullable" },
-  { id: "string_255_array" },
-  { id: "string_150" },
-  { id: "string_150_nullable" },
-  { id: "long_answer_150" },
-  { id: "boolean" },
-  { id: "url_nullable" },
-  { id: "date" },
-  { id: "date_nullable" },
-  { id: "positive_number" },
-  { id: "phone_number" },
-  { id: "tshirt_size" },
-  { id: "workshop_array" },
-  { id: "hacker_skills" },
-  { id: "gender" },
-];
 
 const QUESTION_IDS = [
   "first_name",
@@ -337,12 +316,12 @@ async function main() {
   });
 
   await Promise.all(
-    answerRestrictions.map(
-      async (answerType) =>
+    ANSWER_RESTRICTIONS.map(
+      async (answerRestriction) =>
         await prisma.answerRestriction.upsert({
-          where: { id: answerType.id },
-          update: answerType,
-          create: answerType,
+          where: { id: answerRestriction.id },
+          update: answerRestriction,
+          create: answerRestriction,
         })
     )
   );
