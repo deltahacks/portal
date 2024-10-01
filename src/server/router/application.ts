@@ -343,14 +343,12 @@ export const applicationRouter = router({
           const answer = {
             ...answerPartial,
             submitterId: ctx.session.user.id,
-            formYear: hackathonYear,
           };
           await ctx.prisma.answer.upsert({
             where: {
-              addressedQuestionId_submitterId_formYear: {
+              addressedQuestionId_submitterId: {
                 addressedQuestionId: answer.addressedQuestionId,
                 submitterId: answer.submitterId,
-                formYear: answer.formYear,
               },
             },
             update: answer,

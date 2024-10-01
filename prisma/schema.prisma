@@ -60,6 +60,7 @@ model User {
   dH10ApplicationId String?          @unique // @deprecated Use `FormSubmission` insteadtgud
 
   applicationSubmissions FormSubmission[]
+  answers                Answer[]
 }
 
 /// @deprecated Use `User.status` instead
@@ -170,8 +171,6 @@ model FormSubmission {
   form     FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
   formYear Int
 
-  answers Answer[]
-
   submitter   User   @relation(fields: [submitterId], references: [id])
   submitterId String
 
@@ -205,11 +204,10 @@ model Answer {
   addressedQuestion   Question @relation(fields: [addressedQuestionId], references: [id], onDelete: Cascade)
   addressedQuestionId String
 
-  submissions FormSubmission @relation(fields: [formYear, submitterId], references: [formYear, submitterId], onDelete: Cascade)
-  formYear    Int
+  submitter   User   @relation(fields: [submitterId], references: [id])
   submitterId String
 
-  @@id([addressedQuestionId, submitterId, formYear])
+  @@id([addressedQuestionId, submitterId])
 }
 
 model Question {

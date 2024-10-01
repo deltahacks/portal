@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
-import { trpcAssert } from "../../utils/asserts";
+import { assert, trpcAssert } from "../../utils/asserts";
 import { DirectPrismaQuerier } from "../db/directQueries";
 
 const ApplicationForReview = z.object({
@@ -79,21 +79,34 @@ export const reviewerRouter = router({
           },
         },
         include: {
-          answers: {
+          form: {
             select: {
-              statement: true,
-              addressedQuestion: {
-                include: {},
+              questions: {
+                select: {
+                  question: {
+                    include: {
+                      answers: {
+                        where: {
+                          submitterId: input.submitterId,
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
         },
       });
       const answers = new Map<string, FormItem>();
-      application.answers.forEach((answer) => {
-        answers.set(answer.addressedQuestion.id, {
-          question: answer.addressedQuestion.statement,
-          answer: answer.statement,
+      application.form.questions.forEach((questionStructure) => {
+        assert(
+          questionStructure.question.answers.length == 1,
+          "Each answer has a unique submitter"
+        );
+        answers.set(questionStructure.question.id, {
+          question: questionStructure.question.statement,
+          answer: questionStructure.question.answers[0]?.statement ?? null,
         });
       });
       return answers;
@@ -124,10 +137,11 @@ export const reviewerRouter = router({
         },
         data: input.application,
       });
+
       await ctx.logsnag.track({
         channel: "reviews",
         event: "Status Changed",
-        user_id: `user ${formSubmission?.submitterId}`,
+        user_id: `${ctx.session.user.name} - ${ctx.session.user.email}`,
         description: `${ctx.session.user.name} changed user ${formSubmission?.submitterId}'s status to ${input.application.status}`,
         tags: {
           status: input.application.status,

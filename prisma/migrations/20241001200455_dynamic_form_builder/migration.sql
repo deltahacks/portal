@@ -29,10 +29,9 @@ CREATE TABLE "FormStructure" (
 CREATE TABLE "Answer" (
     "statement" STRING,
     "addressedQuestionId" STRING NOT NULL,
-    "formYear" INT4 NOT NULL,
     "submitterId" STRING NOT NULL,
 
-    CONSTRAINT "Answer_pkey" PRIMARY KEY ("addressedQuestionId","submitterId","formYear")
+    CONSTRAINT "Answer_pkey" PRIMARY KEY ("addressedQuestionId","submitterId")
 );
 
 -- CreateTable
@@ -80,7 +79,7 @@ ALTER TABLE "FormStructureQuestion" ADD CONSTRAINT "FormStructureQuestion_catego
 ALTER TABLE "Answer" ADD CONSTRAINT "Answer_addressedQuestionId_fkey" FOREIGN KEY ("addressedQuestionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Answer" ADD CONSTRAINT "Answer_formYear_submitterId_fkey" FOREIGN KEY ("formYear", "submitterId") REFERENCES "FormSubmission"("formYear", "submitterId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Answer" ADD CONSTRAINT "Answer_submitterId_fkey" FOREIGN KEY ("submitterId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Question" ADD CONSTRAINT "Question_answerRestrictionId_fkey" FOREIGN KEY ("answerRestrictionId") REFERENCES "AnswerRestriction"("id") ON DELETE CASCADE ON UPDATE CASCADE;

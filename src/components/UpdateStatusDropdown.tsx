@@ -25,8 +25,12 @@ const UpdateStatusDropdown = ({
   });
   const updateStatus = trpc.reviewer.updateApplicationShallow.useMutation({
     onSettled() {
-      utils.application.getApplicationShallow.invalidate({ submitterId });
-      utils.application.getStatusCount.invalidate();
+      try {
+        utils.application.getApplicationShallow.invalidate({ submitterId });
+        utils.application.getStatusCount.invalidate();
+      } catch (e) {
+        console.error("Error from onSettled:", e);
+      }
     },
   });
 
@@ -40,7 +44,7 @@ const UpdateStatusDropdown = ({
         application: { status },
       });
     } catch (e) {
-      console.log(e);
+      console.error("Error from status update handler:", e);
     }
   };
 
