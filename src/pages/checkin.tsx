@@ -4,7 +4,6 @@ import type {
   NextPage,
 } from "next";
 import Head from "next/head";
-import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 import SocialButtons from "../components/SocialButtons";
 import { Status } from "@prisma/client";

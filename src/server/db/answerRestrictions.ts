@@ -18,4 +18,4 @@ const ANSWER_RESTRICTION_IDS = [
   "hacker_skills",
   "gender",
 ] as const;
-export type AnswerTypeId = (typeof ANSWER_RESTRICTION_IDS)[number];
+export type AnswerRestrictionId = (typeof ANSWER_RESTRICTION_IDS)[number];

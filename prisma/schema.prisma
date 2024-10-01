@@ -216,21 +216,15 @@ model Question {
   id        String @id @default(cuid())
   statement String
 
-  answerType   AnswerType @relation(fields: [answerTypeId], references: [id], onDelete: Cascade)
-  answerTypeId String
+  answerRestriction   AnswerRestriction @relation(fields: [answerRestrictionId], references: [id], onDelete: Cascade)
+  answerRestrictionId String
 
   answers      Answer[]
   relatedForms FormStructureQuestion[]
 }
 
-/// Rename to AnswerRestriction
-model AnswerType {
-  id                      String  @id @default(cuid()) /// remove default
-  name                    String /// maybe remove
-  required                Boolean @default(true) /// change to nullable
-  isArray                 Boolean @default(false)
-  multipleChoiceSelection Json?
-
+model AnswerRestriction {
+  id        String     @id
   questions Question[]
 }
 

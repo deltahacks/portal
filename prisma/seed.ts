@@ -1,84 +1,30 @@
 import { PrismaClient } from "@prisma/client";
-import { AnswerTypeId } from "../src/server/db/answerRestrictions";
+import { AnswerRestrictionId } from "../src/server/db/answerRestrictions";
 
 const prisma = new PrismaClient({ log: ["query", "error", "warn"] });
 
-interface AnswerType {
-  id: AnswerTypeId;
-  name: string;
-  required?: boolean;
-  isArray?: boolean;
-  multipleChoiceSelection?: string[];
+interface AnswerRestriction {
+  id: AnswerRestrictionId;
 }
-const answerTypes: AnswerType[] = [
-  { id: "string", name: "string" },
-  { id: "string_nullable", name: "string", required: false },
-  { id: "string_255", name: "string_255" },
-  { id: "string_255_nullable", name: "string_255" },
-  { id: "string_255_array", name: "string_255", isArray: true },
-  { id: "string_150", name: "string_150" },
-  { id: "string_150_nullable", name: "string_150", required: false },
-  { id: "long_answer_150", name: "long_answer_150" },
-  { id: "boolean", name: "boolean" },
-  { id: "url_nullable", name: "url", required: false },
-  { id: "date", name: "date", required: false },
-  { id: "date_nullable", name: "date", required: false },
-  { id: "positive_number", name: "positive_number" },
-  { id: "phone_number", name: "phone_number" },
-  {
-    id: "tshirt_size",
-    name: "tshirt_size",
-    multipleChoiceSelection: ["XS", "S", "M", "L", "XL"],
-  },
-  {
-    id: "workshop_array",
-    name: "workshops",
-    isArray: true,
-    multipleChoiceSelection: [
-      "React/Vue.js",
-      "Blockchain",
-      "Machine Learning",
-      "Android Development",
-      "iOS Development",
-      "Web Development",
-      "Intro to AR/VR",
-      "Game Development",
-      "Interview Prep",
-      "Intro to UI/UX Design",
-      "Hardware Hacking",
-      "Computer Vision with OpenCV",
-    ],
-  },
-  {
-    id: "hacker_skills",
-    name: "hacker_skills",
-    multipleChoiceSelection: [
-      "Front-end",
-      "Back-end",
-      "Design",
-      "iOS Development",
-      "Android Development",
-      "Hardware",
-      "Machine Learning",
-      "Graphics Programming",
-      "Data Analysis",
-      "Game Development",
-      "Writer",
-      "Product Manager",
-      "Other",
-    ],
-  },
-  {
-    id: "gender",
-    name: "gender",
-    multipleChoiceSelection: [
-      "Man",
-      "Woman",
-      "Non-binary",
-      "Transgender",
-      "Prefer not to say",
-    ],
-  },
+const answerRestrictions: AnswerRestriction[] = [
+  { id: "string" },
+  { id: "string_nullable" },
+  { id: "string_255" },
+  { id: "string_255_nullable" },
+  { id: "string_255_array" },
+  { id: "string_150" },
+  { id: "string_150_nullable" },
+  { id: "long_answer_150" },
+  { id: "boolean" },
+  { id: "url_nullable" },
+  { id: "date" },
+  { id: "date_nullable" },
+  { id: "positive_number" },
+  { id: "phone_number" },
+  { id: "tshirt_size" },
+  { id: "workshop_array" },
+  { id: "hacker_skills" },
+  { id: "gender" },
 ];
 
 const QUESTION_IDS = [
@@ -120,146 +66,162 @@ type QuestionId = (typeof QUESTION_IDS)[number];
 interface Question {
   id: QuestionId;
   statement: string;
-  answerTypeId: AnswerTypeId;
+  answerRestrictionId: AnswerRestrictionId;
 }
 const questions: Question[] = [
-  { id: "first_name", statement: "First Name", answerTypeId: "string_255" },
-  { id: "last_name", statement: "Last Name", answerTypeId: "string_255" },
-  { id: "birthday", statement: "Birthday", answerTypeId: "date" },
-  { id: "resume", statement: "Link to Resume", answerTypeId: "url_nullable" },
+  {
+    id: "first_name",
+    statement: "First Name",
+    answerRestrictionId: "string_255",
+  },
+  {
+    id: "last_name",
+    statement: "Last Name",
+    answerRestrictionId: "string_255",
+  },
+  { id: "birthday", statement: "Birthday", answerRestrictionId: "date" },
+  {
+    id: "resume",
+    statement: "Link to Resume",
+    answerRestrictionId: "url_nullable",
+  },
   {
     id: "mac_experience_ventures",
     statement:
       "Would you like to be a part of the McMaster Experience Ventures Program?",
-    answerTypeId: "boolean",
+    answerRestrictionId: "boolean",
   },
   {
     id: "study_enrolled_post_secondary",
     statement: "Are you currently enrolled in post-secondary education?",
-    answerTypeId: "boolean",
+    answerRestrictionId: "boolean",
   },
   {
     id: "study_location",
     statement: "Study Location",
-    answerTypeId: "string_255_nullable",
+    answerRestrictionId: "string_255_nullable",
   },
   {
     id: "study_degree",
     statement: "Study Degree",
-    answerTypeId: "string_255_nullable",
+    answerRestrictionId: "string_255_nullable",
   },
   {
     id: "study_major",
     statement: "Study Major",
-    answerTypeId: "string_255_nullable",
+    answerRestrictionId: "string_255_nullable",
   },
   {
     id: "study_year",
     statement: "Year of Study",
-    answerTypeId: "string_255_nullable",
+    answerRestrictionId: "string_255_nullable",
   },
   {
     id: "study_expected_grad",
     statement: "Expected Graduation",
-    answerTypeId: "date_nullable",
+    answerRestrictionId: "date_nullable",
   },
   {
     id: "prev_hackathons_count",
     statement: "Previous Hackathons Count",
-    answerTypeId: "positive_number",
+    answerRestrictionId: "positive_number",
   },
   {
     id: "long_answer_1",
     statement:
       "DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?",
-    answerTypeId: "long_answer_150",
+    answerRestrictionId: "long_answer_150",
   },
   {
     id: "long_answer_2",
     statement:
       "How do you hope to make the most out of your experience at DH10?",
-    answerTypeId: "long_answer_150",
+    answerRestrictionId: "long_answer_150",
   },
   {
     id: "long_answer_3",
     statement:
       "Which piece of future technology excites you most and where do you see it going?",
-    answerTypeId: "long_answer_150",
+    answerRestrictionId: "long_answer_150",
   },
   {
     id: "long_answer_4",
     statement:
       "You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?",
-    answerTypeId: "long_answer_150",
+    answerRestrictionId: "long_answer_150",
   },
   {
     id: "social_links",
     statement: "What are your social media links?",
-    answerTypeId: "string_255_nullable",
+    answerRestrictionId: "string_255_nullable",
   },
   {
     id: "interests",
     statement: "Is there anything else interesting you want us to know or see?",
-    answerTypeId: "string_150_nullable",
+    answerRestrictionId: "string_150_nullable",
   },
-  { id: "tshirt_size", statement: "T-shirt Size", answerTypeId: "tshirt_size" },
+  {
+    id: "tshirt_size",
+    statement: "T-shirt Size",
+    answerRestrictionId: "tshirt_size",
+  },
   {
     id: "hacker_skill",
     statement: "What kind of hacker are you?",
-    answerTypeId: "hacker_skills",
+    answerRestrictionId: "hacker_skills",
   },
   {
     id: "interested_workshops",
     statement: "What workshops are you interested in?",
-    answerTypeId: "workshop_array",
+    answerRestrictionId: "workshop_array",
   },
   {
     id: "how_discovered",
     statement: "How did you hear about DeltaHacks?",
-    answerTypeId: "string_255_array",
+    answerRestrictionId: "string_255_array",
   },
-  { id: "gender", statement: "Gender", answerTypeId: "gender" },
-  { id: "race", statement: "Race", answerTypeId: "string_255" },
+  { id: "gender", statement: "Gender", answerRestrictionId: "gender" },
+  { id: "race", statement: "Race", answerRestrictionId: "string_255" },
   {
     id: "already_have_team",
     statement: "Do you already have a team?",
-    answerTypeId: "boolean",
+    answerRestrictionId: "boolean",
   },
   {
     id: "consider_coffee",
     statement:
       "Would you like to be considered for a coffee chat with a sponser?",
-    answerTypeId: "boolean",
+    answerRestrictionId: "boolean",
   },
   {
     id: "emergency_contact_name",
     statement: "Name of Emergency Contact",
-    answerTypeId: "string",
+    answerRestrictionId: "string",
   },
   {
     id: "emergency_contact_relation",
     statement: "Relation to Emergency Contact",
-    answerTypeId: "string",
+    answerRestrictionId: "string",
   },
   {
     id: "emergency_contact_phone",
     statement: "Emergency Contact Phone Number",
-    answerTypeId: "phone_number",
+    answerRestrictionId: "phone_number",
   },
   {
     id: "agree_to_mlh_code_of_conduct",
     statement: "Agree to MLH Code of Conduct",
-    answerTypeId: "boolean",
+    answerRestrictionId: "boolean",
   },
   {
     id: "agree_to_mlh_privacy_policy",
     statement: "Agree to MLH Privacy Policy",
-    answerTypeId: "boolean",
+    answerRestrictionId: "boolean",
   },
   {
     id: "agree_to_mlh_communications",
     statement: "Agree to MLH Communications",
-    answerTypeId: "boolean",
+    answerRestrictionId: "boolean",
   },
 ];
 
@@ -375,9 +337,9 @@ async function main() {
   });
 
   await Promise.all(
-    answerTypes.map(
+    answerRestrictions.map(
       async (answerType) =>
-        await prisma.answerType.upsert({
+        await prisma.answerRestriction.upsert({
           where: { id: answerType.id },
           update: answerType,
           create: answerType,
