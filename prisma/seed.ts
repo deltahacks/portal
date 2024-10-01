@@ -1,11 +1,30 @@
 import { PrismaClient } from "@prisma/client";
-import {
-  AnswerRestrictionId,
-  ANSWER_RESTRICTIONS,
-} from "../src/server/db/answerRestrictions";
 import { assert } from "../src/utils/asserts";
 
 const prisma = new PrismaClient({ log: ["query", "error", "warn"] });
+
+export const ANSWER_RESTRICTIONS = [
+  { id: "string" },
+  { id: "string_nullable" },
+  { id: "string_255" },
+  { id: "string_255_nullable" },
+  { id: "string_255_array" },
+  { id: "string_150" },
+  { id: "string_150_nullable" },
+  { id: "long_answer_150" },
+  { id: "boolean" },
+  { id: "url_nullable" },
+  { id: "date" },
+  { id: "date_nullable" },
+  { id: "positive_number" },
+  { id: "phone_number" },
+  { id: "tshirt_size" },
+  { id: "workshop_array" },
+  { id: "hacker_skills" },
+  { id: "gender" },
+] as const;
+
+export type AnswerRestrictionId = (typeof ANSWER_RESTRICTIONS)[number]["id"];
 
 const QUESTION_IDS = [
   "first_name",
@@ -48,7 +67,7 @@ interface Question {
   statement: string;
   answerRestrictionId: AnswerRestrictionId;
 }
-const questions: Question[] = [
+const QUESTIONS: Question[] = [
   {
     id: "first_name",
     statement: "First Name",
@@ -205,7 +224,7 @@ const questions: Question[] = [
   },
 ];
 
-const formQuestionCategories = [
+const FORM_QUESTION_CATEGORIES = [
   { name: "Education" },
   { name: "Emergency Contact" },
   { name: "Long Answer" },
@@ -213,7 +232,7 @@ const formQuestionCategories = [
   { name: "Personal Information" },
   { name: "Survey" },
 ] as const;
-type FormQuestionCategoryId = (typeof formQuestionCategories)[number]["name"];
+type FormQuestionCategoryId = (typeof FORM_QUESTION_CATEGORIES)[number]["name"];
 
 interface FormStructureQuestion {
   questionId: QuestionId;
@@ -252,7 +271,7 @@ const createFormStructure = async (
 };
 
 const createDeltahacksXForm = async () => {
-  const deltahacksXFormStructureQuestions: FormStructureQuestion[] = [
+  const DELTAHACKS_X_FORM_STRUCTURE_QUESTIONS: FormStructureQuestion[] = [
     { questionId: "first_name", categoryId: "Personal Information" },
     { questionId: "last_name", categoryId: "Personal Information" },
     { questionId: "birthday", categoryId: "Personal Information" },
@@ -298,16 +317,16 @@ const createDeltahacksXForm = async () => {
     { questionId: "agree_to_mlh_communications", categoryId: "MLH Consent" },
   ];
 
-  await createFormStructure(2024, deltahacksXFormStructureQuestions);
+  await createFormStructure(2024, DELTAHACKS_X_FORM_STRUCTURE_QUESTIONS);
+};
+
+const HACKATHON_YEAR_CONFIG = {
+  id: "hackathonYear",
+  name: "hackathonYear",
+  value: "2024",
 };
 
 async function main() {
-  const HACKATHON_YEAR_CONFIG = {
-    id: "hackathonYear",
-    name: "hackathonYear",
-    value: "2024",
-  };
-
   assert(
     parseInt(HACKATHON_YEAR_CONFIG.value) >= 2024,
     "No forms in the database exist before 2024"
@@ -333,7 +352,7 @@ async function main() {
   );
 
   await Promise.all(
-    questions.map(async (question) => {
+    QUESTIONS.map(async (question) => {
       await prisma.question.upsert({
         where: { id: question.id },
         update: question,
@@ -343,7 +362,7 @@ async function main() {
   );
 
   await Promise.all(
-    formQuestionCategories.map(async (category) => {
+    FORM_QUESTION_CATEGORIES.map(async (category) => {
       await prisma.formQuestionCategory.upsert({
         where: { name: category.name },
         update: category,
