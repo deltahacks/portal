@@ -65,7 +65,6 @@ export const getServerSideProps = async (
     };
   }
 
-  // Otherwise, continue.
   return { props: {} };
 };
 

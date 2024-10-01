@@ -87,7 +87,7 @@ export const getServerSideProps = async (
 
   const querier = new DirectPrismaQuerier(prisma);
   const application = await querier.getUserApplication(session.user.id);
-  if (!!application) {
+  if (application) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 

@@ -491,4 +491,38 @@ export const applicationRouter = router({
 
     return user?.dh10application ?? {};
   }),
+  deleteApplication: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: input.userId },
+      });
+      trpcAssert(user, "NOT_FOUND");
+
+      const querier = new DirectPrismaQuerier(ctx.prisma);
+      const hackathonYear = await querier.getHackathonYear();
+      try {
+        await ctx.prisma.formSubmission.delete({
+          where: {
+            formYear_submitterId: {
+              formYear: hackathonYear,
+              submitterId: ctx.session.user.id,
+            },
+          },
+        });
+        // create logsnag log
+        await ctx.logsnag.track({
+          channel: "applications",
+          event: "Application Deleted",
+          user_id: `${user.name} - ${user.email}`,
+          description: "A user has deleted their application.",
+          icon: "🗑️",
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete the application.",
+        });
+      }
+    }),
 });
