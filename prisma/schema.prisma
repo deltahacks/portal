@@ -56,8 +56,8 @@ model User {
   lastMealTaken        DateTime?
   EventLog             EventLog[]
 
-  dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id]) // @deprecated Use `FormSubmission` instead
-  dH10ApplicationId String?          @unique // @deprecated Use `FormSubmission` insteadtgud
+  dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id])
+  dH10ApplicationId String?          @unique
 
   applicationSubmissions FormSubmission[]
   answers                Answer[]
