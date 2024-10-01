@@ -165,11 +165,11 @@ model Config {
 }
 
 model FormSubmission {
-  lastUpdated DateTime @default(now())
-  status      Status   @default(IN_REVIEW)
+  submissionTime DateTime @default(now())
+  status         Status   @default(IN_REVIEW)
 
-  form     FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
-  formYear Int
+  formStructure FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
+  formYear      Int
 
   submitter   User   @relation(fields: [submitterId], references: [id])
   submitterId String
@@ -178,24 +178,24 @@ model FormSubmission {
 }
 
 model FormStructureQuestion {
-  form     FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
-  formYear Int
+  formStructure FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
+  formYear      Int
 
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
-  displayPriority Int
-  category        FormQuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
-  categoryId      String
+  displayPriority      Int
+  formQuestionCategory FormQuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
+  categoryId           String
 
   @@id([formYear, questionId])
   @@unique([displayPriority, formYear])
 }
 
 model FormStructure {
-  year        Int                     @id
-  submissions FormSubmission[]
-  questions   FormStructureQuestion[]
+  year               Int                     @id
+  submissions        FormSubmission[]
+  questionStructures FormStructureQuestion[]
 }
 
 model Answer {
@@ -211,14 +211,14 @@ model Answer {
 }
 
 model Question {
-  id        String @id @default(cuid())
+  id        String @id
   statement String
 
   answerRestriction   AnswerRestriction @relation(fields: [answerRestrictionId], references: [id], onDelete: Cascade)
   answerRestrictionId String
 
-  answers      Answer[]
-  relatedForms FormStructureQuestion[]
+  answers               Answer[]
+  relatedFormStructures FormStructureQuestion[]
 }
 
 model AnswerRestriction {

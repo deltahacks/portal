@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "FormSubmission" (
-    "lastUpdated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "submissionTime" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" "Status" NOT NULL DEFAULT 'IN_REVIEW',
     "formYear" INT4 NOT NULL,
     "submitterId" STRING NOT NULL,

@@ -79,9 +79,9 @@ export const reviewerRouter = router({
           },
         },
         include: {
-          form: {
+          formStructure: {
             select: {
-              questions: {
+              questionStructures: {
                 select: {
                   question: {
                     include: {
@@ -99,16 +99,18 @@ export const reviewerRouter = router({
         },
       });
       const answers = new Map<string, FormItem>();
-      application.form.questions.forEach((questionStructure) => {
-        assert(
-          questionStructure.question.answers.length == 1,
-          "Each answer has a unique submitter"
-        );
-        answers.set(questionStructure.question.id, {
-          question: questionStructure.question.statement,
-          answer: questionStructure.question.answers[0]?.statement ?? null,
-        });
-      });
+      application.formStructure.questionStructures.forEach(
+        (questionStructure) => {
+          assert(
+            questionStructure.question.answers.length == 1,
+            "Each answer has a unique submitter"
+          );
+          answers.set(questionStructure.question.id, {
+            question: questionStructure.question.statement,
+            answer: questionStructure.question.answers[0]?.statement ?? null,
+          });
+        }
+      );
       return answers;
     }),
   updateApplicationShallow: protectedProcedure
