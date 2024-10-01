@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "FormSubmission" (
     "lastUpdated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "isSubmitted" BOOL NOT NULL,
+    "status" "Status" NOT NULL DEFAULT 'IN_REVIEW',
     "formYear" INT4 NOT NULL,
     "submitterId" STRING NOT NULL,
 
@@ -27,7 +27,7 @@ CREATE TABLE "FormStructure" (
 
 -- CreateTable
 CREATE TABLE "Answer" (
-    "statement" STRING NOT NULL,
+    "statement" STRING,
     "addressedQuestionId" STRING NOT NULL,
     "formYear" INT4 NOT NULL,
     "submitterId" STRING NOT NULL,
@@ -39,20 +39,16 @@ CREATE TABLE "Answer" (
 CREATE TABLE "Question" (
     "id" STRING NOT NULL,
     "statement" STRING NOT NULL,
-    "answerTypeId" STRING NOT NULL,
+    "answerRestrictionId" STRING NOT NULL,
 
     CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "AnswerType" (
+CREATE TABLE "AnswerRestriction" (
     "id" STRING NOT NULL,
-    "name" STRING NOT NULL,
-    "required" BOOL NOT NULL DEFAULT true,
-    "isArray" BOOL NOT NULL DEFAULT false,
-    "multipleChoiceSelection" JSONB,
 
-    CONSTRAINT "AnswerType_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "AnswerRestriction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -87,4 +83,4 @@ ALTER TABLE "Answer" ADD CONSTRAINT "Answer_addressedQuestionId_fkey" FOREIGN KE
 ALTER TABLE "Answer" ADD CONSTRAINT "Answer_formYear_submitterId_fkey" FOREIGN KEY ("formYear", "submitterId") REFERENCES "FormSubmission"("formYear", "submitterId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_answerTypeId_fkey" FOREIGN KEY ("answerTypeId") REFERENCES "AnswerType"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Question" ADD CONSTRAINT "Question_answerRestrictionId_fkey" FOREIGN KEY ("answerRestrictionId") REFERENCES "AnswerRestriction"("id") ON DELETE CASCADE ON UPDATE CASCADE;
