@@ -3,6 +3,7 @@ import {
   AnswerRestrictionId,
   ANSWER_RESTRICTIONS,
 } from "../src/server/db/answerRestrictions";
+import { assert } from "../src/utils/asserts";
 
 const prisma = new PrismaClient({ log: ["query", "error", "warn"] });
 
@@ -306,6 +307,11 @@ async function main() {
     name: "hackathonYear",
     value: "2024",
   };
+
+  assert(
+    parseInt(HACKATHON_YEAR_CONFIG.value) >= 2024,
+    "No forms in the database exist before 2024"
+  );
 
   await prisma.config.upsert({
     where: {
