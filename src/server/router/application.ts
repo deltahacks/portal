@@ -481,17 +481,14 @@ export const applicationRouter = router({
         role: user?.role,
       };
     }),
-  getPrevAutofill: protectedProcedure
-    .output(applicationSchema.partial())
-    .query(async ({ ctx }) => {
-      // get the current user's typeform response id
-      const dH10Application = await ctx.prisma.user.findUnique({
-        where: { id: ctx.session.user.id },
-        select: {
-          dh10application: true,
-        },
-      });
+  getPrevAutofill: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: {
+        dh10application: true,
+      },
+    });
 
-      return dH10Application ?? {};
-    }),
+    return user?.dh10application ?? {};
+  }),
 });
