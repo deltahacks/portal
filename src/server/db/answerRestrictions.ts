@@ -1,21 +1,21 @@
-const ANSWER_TYPE_IDS = [
+const ANSWER_RESTRICTION_IDS = [
   "string",
   "string_nullable",
   "string_255",
   "string_255_nullable",
-  "string_255_array",
   "string_150",
   "string_150_nullable",
-  "question_150",
-  "boolean",
+  "long_answer_150",
   "url_nullable",
+  "phone_number",
+  "string_255_array",
+  "boolean",
   "date",
   "date_nullable",
   "positive_number",
-  "phone_number",
   "tshirt_size",
   "workshop_array",
   "hacker_skills",
   "gender",
 ] as const;
-export type AnswerTypeId = (typeof ANSWER_TYPE_IDS)[number];
+export type AnswerTypeId = (typeof ANSWER_RESTRICTION_IDS)[number];

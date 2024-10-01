@@ -2,7 +2,6 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
-import ApplicationSchema from "../../schemas/application";
 import { trpcAssert } from "../../utils/asserts";
 import { DirectPrismaQuerier } from "../db/directQueries";
 
@@ -16,16 +15,15 @@ const ApplicationForReview = z.object({
       .transform((v) => (v === null ? "" : v)),
   }),
   status: z.nativeEnum(Status),
+  formYear: z.number(),
 });
 
-const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
-  z.object({
-    birthday: z.string(),
-    studyExpectedGraduation: z.string().nullish(),
-  })
-);
-
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
+
+interface FormItem {
+  question: string;
+  answer: string | null;
+}
 
 export const reviewerRouter = router({
   getApplications: protectedProcedure
@@ -62,37 +60,43 @@ export const reviewerRouter = router({
   getApplication: protectedProcedure
     .input(
       z.object({
-        dH10ApplicationId: z.string().optional(),
+        submitterId: z.string(),
       })
     )
-    .output(ApplicationSchemaWithStringDates)
     .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-
-      const application = await ctx.prisma.dH10Application.findFirst({
+      trpcAssert(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER),
+        "UNAUTHORIZED"
+      );
+      const querier = new DirectPrismaQuerier(ctx.prisma);
+      const hackathonYear = await querier.getHackathonYear();
+      const application = await ctx.prisma.formSubmission.findUniqueOrThrow({
         where: {
-          id: {
-            equals: input.dH10ApplicationId,
+          formYear_submitterId: {
+            formYear: hackathonYear,
+            submitterId: input.submitterId,
+          },
+        },
+        include: {
+          answers: {
+            select: {
+              statement: true,
+              addressedQuestion: {
+                include: {},
+              },
+            },
           },
         },
       });
-
-      const applicationWithStringDates = {
-        ...application,
-        birthday: application?.birthday.toISOString().substring(0, 10) ?? "",
-        studyExpectedGraduation: application?.studyExpectedGraduation
-          ?.toISOString()
-          .substring(0, 10),
-      };
-
-      return ApplicationSchemaWithStringDates.parse(applicationWithStringDates);
+      const answers = new Map<string, FormItem>();
+      application.answers.forEach((answer) => {
+        answers.set(answer.addressedQuestion.id, {
+          question: answer.addressedQuestion.statement,
+          answer: answer.statement,
+        });
+      });
+      return answers;
     }),
   updateApplicationShallow: protectedProcedure
     .input(

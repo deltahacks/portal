@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { AnswerTypeId } from "../src/server/db/types";
+import { AnswerTypeId } from "../src/server/db/answerRestrictions";
 
 const prisma = new PrismaClient({ log: ["query", "error", "warn"] });
 
@@ -18,7 +18,7 @@ const answerTypes: AnswerType[] = [
   { id: "string_255_array", name: "string_255", isArray: true },
   { id: "string_150", name: "string_150" },
   { id: "string_150_nullable", name: "string_150", required: false },
-  { id: "question_150", name: "question_150" },
+  { id: "long_answer_150", name: "long_answer_150" },
   { id: "boolean", name: "boolean" },
   { id: "url_nullable", name: "url", required: false },
   { id: "date", name: "date", required: false },
@@ -172,25 +172,25 @@ const questions: Question[] = [
     id: "long_answer_1",
     statement:
       "DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?",
-    answerTypeId: "string_150",
+    answerTypeId: "long_answer_150",
   },
   {
     id: "long_answer_2",
     statement:
       "How do you hope to make the most out of your experience at DH10?",
-    answerTypeId: "string_150",
+    answerTypeId: "long_answer_150",
   },
   {
     id: "long_answer_3",
     statement:
       "Which piece of future technology excites you most and where do you see it going?",
-    answerTypeId: "string_150",
+    answerTypeId: "long_answer_150",
   },
   {
     id: "long_answer_4",
     statement:
       "You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?",
-    answerTypeId: "string_150",
+    answerTypeId: "long_answer_150",
   },
   {
     id: "social_links",

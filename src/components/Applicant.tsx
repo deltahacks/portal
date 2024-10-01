@@ -102,182 +102,204 @@ const ApplicationContent = ({
 }: {
   applicationForReview: ApplicationForReview;
 }) => {
-  const { dH10ApplicationId } = applicationForReview;
-  const { data } = trpc.reviewer.getApplication.useQuery({ dH10ApplicationId });
+  const { submitter } = applicationForReview;
+  const { data } = trpc.reviewer.getApplication.useQuery({
+    submitterId: submitter.id,
+  });
 
   return (
     <>
       <FormDivider label="Personal Information" />
       <div className="flex w-full flex-col lg:flex-row lg:gap-4">
         <FormInput
-          label="First Name"
-          text={data?.lastName}
+          label={data?.get("first_name")?.question ?? ""}
+          text={data?.get("first_name")?.answer}
           placeholder="John"
         />
-        <FormInput label="Last Name" text={data?.firstName} placeholder="Doe" />
+        <FormInput
+          label={data?.get("last_name")?.question ?? ""}
+          text={data?.get("last_name")?.answer}
+          placeholder="Doe"
+        />
       </div>
-      <FormInput id="birthday" label="Birthday" text={data?.birthday} />
       <FormInput
-        label="Link to Resume"
-        text={data?.linkToResume}
+        id="birthday"
+        label={data?.get("birthday")?.question ?? ""}
+        text={data?.get("birthday")?.answer}
+      />
+      <FormInput
+        label={data?.get("resume")?.question ?? ""}
+        text={data?.get("resume")?.answer}
         placeholder="https://example.com/resume.pdf"
         optional
       />
-      {applicationForReview.email.endsWith("mcmaster.ca") && (
+      {submitter.email.endsWith("mcmaster.ca") && (
         <FormCheckbox
-          label="Would you like to be a part of the McMaster Experience Ventures Program?"
-          checked={data?.macEv}
+          label={data?.get("mac_experience_ventures")?.question ?? ""}
+          checked={data?.get("mac_experience_ventures")?.answer === "true"}
           readOnly
         />
       )}
       <FormDivider label="Education" />
       <FormCheckbox
-        label="Are you currently enrolled in post-secondary education?"
-        checked={data?.studyEnrolledPostSecondary}
+        label={data?.get("study_enrolled_post_secondary")?.question ?? ""}
+        checked={data?.get("study_enrolled_post_secondary")?.answer === "true"}
         readOnly
       />
-      {data?.studyEnrolledPostSecondary && (
+      {data?.get("study_enrolled_post_secondary")?.answer === "true" && (
         <div>
           <FormInput
-            label="Study Location"
-            text={data?.studyLocation}
+            label={data?.get("study_location")?.question ?? ""}
+            text={data?.get("study_location")?.answer}
             placeholder="School..."
             optional
           />
           <FormInput
-            label="Study Degree"
-            text={data?.studyDegree}
+            label={data?.get("study_degree")?.question ?? ""}
+            text={data?.get("study_degree")?.answer}
             placeholder="Degree..."
             optional
           />
           <FormInput
-            label="Study Major"
-            text={data?.studyMajor}
+            label={data?.get("study_major")?.question ?? ""}
+            text={data?.get("study_major")?.answer}
             placeholder="Major..."
             optional
           />
           <FormInput
-            label="Year of Study"
-            text={data?.studyYearOfStudy}
+            label={data?.get("study_year")?.question ?? ""}
+            text={data?.get("study_year")?.answer}
             placeholder="Study Year..."
             optional
           />
           <FormInput
             id="studyExpectedGraducation"
-            label="Expected Graduation"
-            text={data?.studyExpectedGraduation}
+            label={data?.get("study_expected_grad")?.question ?? ""}
+            text={data?.get("study_expected_grad")?.answer}
           />
         </div>
       )}
       optional
       <FormInput
-        label="Previous Hackathons Count"
-        text={data?.previousHackathonsCount.toString()}
+        label={data?.get("prev_hackathons_count")?.question ?? ""}
+        text={data?.get("prev_hackathons_count")?.answer}
       />
       <FormDivider label="Long Answer" />
       <FormTextArea
         id="longAnswerChange"
-        label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
-        text={data?.longAnswerChange}
+        label={data?.get("long_answer_1")?.question ?? ""}
+        text={data?.get("long_answer_1")?.answer}
       />
       <FormTextArea
         id="longAnswerExperience"
-        label="How do you hope to make the most out of your experience at DH10?"
-        text={data?.longAnswerExperience}
+        label={data?.get("long_answer_2")?.question ?? ""}
+        text={data?.get("long_answer_2")?.answer}
       />
       <FormTextArea
         id="longAnswerTech"
-        label="Which piece of future technology excites you most and where do you see it going?"
-        text={data?.longAnswerTech}
+        label={data?.get("long_answer_3")?.question ?? ""}
+        text={data?.get("long_answer_3")?.answer}
       />
       <FormTextArea
         id="longAnswerMagic"
-        label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
-        text={data?.longAnswerMagic}
+        label={data?.get("long_answer_4")?.question ?? ""}
+        text={data?.get("long_answer_4")?.answer}
       />
       <FormDivider label="Survey" />
       <FormInput
         id="socialText"
-        label="What are your social media links?"
-        text={data?.socialText ?? ""}
+        label={data?.get("social_links")?.question ?? ""}
+        text={data?.get("social_links")?.answer}
         optional
       />
       <FormTextArea
         id="interests"
-        label="Is there anything else interesting you want us to know or see?"
-        text={data?.interests ?? ""}
+        label={data?.get("interests")?.question ?? ""}
+        text={data?.get("interests")?.answer}
         optional
       />
-      <FormInput id="tshirtSize" label="T-shirt Size" text={data?.tshirtSize} />
+      <FormInput
+        id="tshirtSize"
+        label={data?.get("tshirt_size")?.question ?? ""}
+        text={data?.get("tshirt_size")?.answer}
+      />
       <FormInput
         id="hackerKind"
-        label="What kind of hacker are you?"
-        text={data?.hackerKind}
+        label={data?.get("hacker_skill")?.question ?? ""}
+        text={data?.get("hacker_skill")?.answer}
       />
       <FormInput
         id="workshopChoices"
-        label="What workshops are you interested in?"
-        text={data?.workshopChoices.join(", ")}
+        label={data?.get("interested_workshops")?.question ?? ""}
+        text={data?.get("interested_workshops")?.answer}
       />
       <FormInput
         id="discoverdFrom"
-        label="How did you hear about DeltaHacks?"
-        text={data?.discoverdFrom.join(", ")}
+        label={data?.get("how_discovered")?.question ?? ""}
+        text={data?.get("how_discovered")?.answer}
       />
-      <FormInput id="gender" label="Gender" text={data?.gender} />
-      <FormInput id="race" label="Race" text={data?.race} />
+      <FormInput
+        id="gender"
+        label={data?.get("gender")?.question ?? ""}
+        text={data?.get("gender")?.answer}
+      />
+      <FormInput
+        id="race"
+        label={data?.get("race")?.question ?? ""}
+        text={data?.get("race")?.answer}
+      />
       <FormCheckbox
         id="alreadyHaveTeam"
-        label="Do you already have a team?"
-        checked={data?.alreadyHaveTeam}
+        label={data?.get("already_have_team")?.question ?? ""}
+        checked={data?.get("already_have_team")?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="considerCoffee"
-        label="Would you like to be considered for a coffee chat with a sponser?"
-        checked={data?.considerCoffee}
+        label={data?.get("consider_coffee")?.question ?? ""}
+        checked={data?.get("consider_coffee")?.answer === "true"}
         readOnly
       />
       <FormDivider label="Emergency Contact" />
       <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput
           id="emergencyContactName"
-          label="Name of Emergency Contact"
+          label={data?.get("emergency_contact_name")?.question ?? ""}
+          text={data?.get("emergency_contact_name")?.answer}
           placeholder="James Doe"
-          text={data?.emergencyContactName}
         />
         <FormInput
           id="emergencyContactRelation"
-          label="Relation to Emergency Contact"
+          label={data?.get("emergency_contact_relation")?.question ?? ""}
+          text={data?.get("emergency_contact_relation")?.answer}
           placeholder="Parent / Guardian / Friend / Spouse"
-          text={data?.emergencyContactRelation}
         />
       </div>
       <FormInput
         id="emergencyContactPhone"
-        label="Emergency Contact Phone Number"
+        label={data?.get("emergency_contact_phone")?.question ?? ""}
+        text={data?.get("emergency_contact_phone")?.answer}
         placeholder="000-000-0000"
-        text={data?.emergencyContactPhone}
       />
       <FormDivider label="MLH Consent" />
       <FormCheckbox
         id="agreeToMLHCodeOfConduct"
-        label="Agree to MLH Code of Conduct"
         link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
-        checked={data?.agreeToMLHCodeOfConduct}
+        label={data?.get("agree_to_mlh_code_of_conduct")?.question ?? ""}
+        checked={data?.get("agree_to_mlh_code_of_conduct")?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="agreeToMLHPrivacyPolicy"
-        label="Agree to MLH Privacy Policy"
         link="https://mlh.io/privacy"
-        checked={data?.agreeToMLHPrivacyPolicy}
+        label={data?.get("agree_to_mlh_privacy_policy")?.question ?? ""}
+        checked={data?.get("agree_to_mlh_privacy_policy")?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="agreeToMLHCommunications"
-        label="Agree to MLH Communications"
-        checked={data?.agreeToMLHCommunications}
+        label={data?.get("agree_to_mlh_communications")?.question ?? ""}
+        checked={data?.get("agree_to_mlh_communications")?.answer === "true"}
         optional
         readOnly
       />

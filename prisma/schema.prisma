@@ -223,10 +223,11 @@ model Question {
   relatedForms FormStructureQuestion[]
 }
 
+/// Rename to AnswerRestriction
 model AnswerType {
-  id                      String  @id @default(cuid())
-  name                    String
-  required                Boolean @default(true)
+  id                      String  @id @default(cuid()) /// remove default
+  name                    String /// maybe remove
+  required                Boolean @default(true) /// change to nullable
   isArray                 Boolean @default(false)
   multipleChoiceSelection Json?
 
