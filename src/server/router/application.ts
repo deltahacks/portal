@@ -232,7 +232,7 @@ export const applicationRouter = router({
         { statement: input.firstName, addressedQuestionId: "first_name" },
         { statement: input.lastName, addressedQuestionId: "last_name" },
         {
-          statement: input.birthday.toISOString(),
+          statement: input.birthday.toISOString().substring(0, 10),
           addressedQuestionId: "birthday",
         },
         { statement: input.linkToResume, addressedQuestionId: "resume" },
@@ -261,7 +261,7 @@ export const applicationRouter = router({
           addressedQuestionId: "study_year",
         },
         {
-          statement: gradDate?.toISOString() ?? null,
+          statement: gradDate?.toISOString().substring(0, 10) ?? null,
           addressedQuestionId: "study_expected_grad",
         },
         {
@@ -295,13 +295,11 @@ export const applicationRouter = router({
         { statement: input.tshirtSize, addressedQuestionId: "tshirt_size" },
         { statement: input.hackerKind, addressedQuestionId: "hacker_skill" },
         {
-          statement: input.workshopChoices
-            .map((s) => s.replaceAll(",", "\\,"))
-            .toString(),
-          addressedQuestionId: "intersted_workshops",
+          statement: JSON.stringify(input.workshopChoices),
+          addressedQuestionId: "interested_workshops",
         },
         {
-          statement: input.discoverdFrom.toString(),
+          statement: JSON.stringify(input.discoverdFrom.toString()),
           addressedQuestionId: "how_discovered",
         },
         { statement: input.gender, addressedQuestionId: "gender" },
@@ -483,158 +481,17 @@ export const applicationRouter = router({
         role: user?.role,
       };
     }),
-  getPrevAutofill: protectedProcedure.query(async ({ ctx }) => {
-    // get the current user's typeform response id
-    const user = await ctx.prisma.user.findFirst({
-      where: { id: ctx.session.user.id },
-    });
-
-    if (
-      user?.typeform_response_id === null ||
-      user?.typeform_response_id === undefined
-    ) {
-      return {};
-    }
-
-    const url = `https://api.typeform.com/forms/MVo09hRB/responses?included_response_ids=${user.typeform_response_id}`;
-    const res = await fetch(url, options);
-    const data: TypeFormResponse = await res.json();
-
-    const converted = data.items.map((item) => {
-      const responsePreprocessing = new Map<string, TypeFormResponseField>();
-      for (const answer of item.answers) {
-        responsePreprocessing.set(answer.field.id, answer);
-      }
-
-      return {
-        response_id: item.response_id,
-        firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
-        lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
-        birthday: new Date(
-          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01"
-        ),
-        major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
-        school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "N/A",
-        willBeEnrolled:
-          responsePreprocessing.get("rG4lrpFoXXpL")?.boolean ?? false,
-        graduationYear: new Date(
-          responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01"
-        ),
-        degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "N/A",
-        currentLevel: responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "N/A",
-        hackathonCount:
-          responsePreprocessing.get("MyObNZSNMZOZ")?.text ?? "N/A",
-        longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV")?.text ?? "N/A",
-        longAnswer2: responsePreprocessing.get("h084NVJ0kEsO")?.text ?? "N/A",
-        longAnswer3: responsePreprocessing.get("wq7KawPVuW4I")?.text ?? "N/A",
-        socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "N/A",
-        resume:
-          responsePreprocessing
-            .get("z8wTMK3lMO00")
-            ?.file_url?.replace(
-              "https://api.typeform.com/forms",
-              "/api/resumes"
-            ) ?? "N/A",
-        extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text ?? "N/A",
-        tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc")?.text ?? "N/A",
-        hackerType: responsePreprocessing.get("k9BrMbznssVX")?.text ?? "N/A",
-        hasTeam: responsePreprocessing.get("3h36sGge5G4X")?.boolean ?? false,
-        workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text ?? "N/A",
-        gender: responsePreprocessing.get("b3sr6g16jGjj")?.text ?? "N/A",
-        considerSponserChat:
-          responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean ?? false,
-        howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR")?.text ?? "N/A",
-        background: responsePreprocessing.get("kGs2PWAnqBI3")?.text ?? "N/A",
-        emergencyContactInfo: {
-          firstName: responsePreprocessing.get("o5rMp5fj0BMa")?.text ?? "N/A",
-          lastName: responsePreprocessing.get("irlsiZFKVJKD")?.text ?? "N/A",
-          phoneNumber:
-            responsePreprocessing.get("ceNTt9oUhO6Q")?.phone_number ?? "N/A",
-          email: responsePreprocessing.get("onIT7bTImlRj")?.email ?? "N/A",
+  getPrevAutofill: protectedProcedure
+    .output(applicationSchema.partial())
+    .query(async ({ ctx }) => {
+      // get the current user's typeform response id
+      const dH10Application = await ctx.prisma.user.findUnique({
+        where: { id: ctx.session.user.id },
+        select: {
+          dh10application: true,
         },
-        mlhAgreement:
-          responsePreprocessing.get("F3vbQhObxXFa")?.boolean ?? false,
-        mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs")?.boolean ?? false,
-      };
-    })[0];
+      });
 
-    if (converted === undefined) {
-      return {};
-    }
-
-    const pt = applicationSchema.partial();
-
-    type AutofillType = z.infer<typeof pt>;
-
-    const autofill: AutofillType = {};
-
-    if (converted.firstName !== "N/A") {
-      autofill["firstName"] = converted.firstName;
-    }
-    if (converted.lastName !== "N/A") {
-      autofill["lastName"] = converted.lastName;
-    }
-    if (converted.birthday !== undefined) {
-      autofill["birthday"] = new Date(
-        converted.birthday.toISOString().slice(0, 10)
-      );
-    }
-
-    if (converted.major !== "N/A") {
-      autofill["studyMajor"] = converted.major;
-    }
-    if (converted.school !== "N/A") {
-      autofill["studyLocation"] = converted.school;
-    }
-    if (converted.willBeEnrolled !== false) {
-      autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
-    }
-    if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = new Date(
-        converted.graduationYear.toISOString().slice(0, 10)
-      );
-    }
-    if (converted.degree !== "N/A") {
-      autofill["studyDegree"] = converted.degree;
-    }
-
-    if (converted.hackathonCount !== "N/A") {
-      autofill["previousHackathonsCount"] = parseInt(converted.hackathonCount);
-    }
-    // emergencyContact
-
-    if (converted.emergencyContactInfo.firstName !== "N/A") {
-      autofill["emergencyContactName"] =
-        converted.emergencyContactInfo.firstName;
-    }
-
-    if (converted.emergencyContactInfo.lastName !== "N/A") {
-      autofill["emergencyContactName"] =
-        autofill["emergencyContactName"] +
-        " " +
-        converted.emergencyContactInfo.lastName;
-    }
-
-    if (converted.emergencyContactInfo.phoneNumber !== "N/A") {
-      autofill["emergencyContactPhone"] =
-        converted.emergencyContactInfo.phoneNumber;
-    }
-
-    if (converted.socialLinks !== "N/A") {
-      autofill["socialText"] = converted.socialLinks;
-    }
-
-    if (converted.tshirtSize !== "N/A") {
-      if (z.enum(["XS", "S", "M", "L", "XL"]).parse(converted.tshirtSize)) {
-        autofill["tshirtSize"] = converted.tshirtSize as
-          | "XS"
-          | "S"
-          | "M"
-          | "L"
-          | "XL";
-      }
-    }
-
-    return autofill;
-  }),
+      return dH10Application ?? {};
+    }),
 });
