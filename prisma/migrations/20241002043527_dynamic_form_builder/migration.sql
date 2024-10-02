@@ -38,16 +38,8 @@ CREATE TABLE "Answer" (
 CREATE TABLE "Question" (
     "id" STRING NOT NULL,
     "statement" STRING NOT NULL,
-    "answerRestrictionId" STRING NOT NULL,
 
     CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "AnswerRestriction" (
-    "id" STRING NOT NULL,
-
-    CONSTRAINT "AnswerRestriction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -80,6 +72,3 @@ ALTER TABLE "Answer" ADD CONSTRAINT "Answer_addressedQuestionId_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "Answer" ADD CONSTRAINT "Answer_submitterId_fkey" FOREIGN KEY ("submitterId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_answerRestrictionId_fkey" FOREIGN KEY ("answerRestrictionId") REFERENCES "AnswerRestriction"("id") ON DELETE CASCADE ON UPDATE CASCADE;

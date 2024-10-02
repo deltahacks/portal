@@ -109,6 +109,8 @@ enum Status {
   CHECKED_IN
 }
 
+/// Once the application data is fully migrated from this database to
+/// FormSubmissions, this is no longer needed and will be deprecated
 model DH10Application {
   id String @id @default(cuid())
 
@@ -214,16 +216,8 @@ model Question {
   id        String @id
   statement String
 
-  answerRestriction   AnswerRestriction @relation(fields: [answerRestrictionId], references: [id], onDelete: Cascade)
-  answerRestrictionId String
-
   answers               Answer[]
   relatedFormStructures FormStructureQuestion[]
-}
-
-model AnswerRestriction {
-  id        String     @id
-  questions Question[]
 }
 
 model FormQuestionCategory {
