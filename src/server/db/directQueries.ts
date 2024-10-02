@@ -27,6 +27,10 @@ export class DirectPrismaQuerier {
       deltaHacksApplicationFormConfig,
       "Deltahacks application form configuration not found"
     );
+    assert(
+      deltaHacksApplicationFormConfig.value.length > 0,
+      "Invalid DeltaHacksApplicationConfig value"
+    );
     return deltaHacksApplicationFormConfig.value;
   }
 
@@ -44,6 +48,7 @@ export class DirectPrismaQuerier {
       return JSON.parse(killedConfig.value) !== false;
     } catch (error) {
       console.error("Invalid killApplications configuration:", error);
+      throw error;
     }
   }
 

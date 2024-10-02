@@ -120,7 +120,7 @@ export const reviewerRouter = router({
           });
         }
       );
-      return answers;
+      return Object.fromEntries(answers);
     }),
   updateApplicationShallow: protectedProcedure
     .input(

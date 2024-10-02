@@ -112,194 +112,194 @@ const ApplicationContent = ({
       <FormDivider label="Personal Information" />
       <div className="flex w-full flex-col lg:flex-row lg:gap-4">
         <FormInput
-          label={data?.get("first_name")?.question ?? ""}
-          text={data?.get("first_name")?.answer}
+          label={data?.first_name?.question ?? ""}
+          text={data?.first_name?.answer}
           placeholder="John"
         />
         <FormInput
-          label={data?.get("last_name")?.question ?? ""}
-          text={data?.get("last_name")?.answer}
+          label={data?.last_name?.question ?? ""}
+          text={data?.last_name?.answer}
           placeholder="Doe"
         />
       </div>
       <FormInput
         id="birthday"
-        label={data?.get("birthday")?.question ?? ""}
-        text={data?.get("birthday")?.answer}
+        label={data?.birthday?.question ?? ""}
+        text={data?.birthday?.answer}
       />
       <FormInput
-        label={data?.get("resume")?.question ?? ""}
-        text={data?.get("resume")?.answer}
+        label={data?.resume?.question ?? ""}
+        text={data?.resume?.answer}
         placeholder="https://example.com/resume.pdf"
         optional
       />
       {submitter.email.endsWith("mcmaster.ca") && (
         <FormCheckbox
-          label={data?.get("mac_experience_ventures")?.question ?? ""}
-          checked={data?.get("mac_experience_ventures")?.answer === "true"}
+          label={data?.mac_experience_ventures?.question ?? ""}
+          checked={data?.mac_experience_ventures?.answer === "true"}
           readOnly
         />
       )}
       <FormDivider label="Education" />
       <FormCheckbox
-        label={data?.get("study_enrolled_post_secondary")?.question ?? ""}
-        checked={data?.get("study_enrolled_post_secondary")?.answer === "true"}
+        label={data?.study_enrolled_post_secondary?.question ?? ""}
+        checked={data?.study_enrolled_post_secondary?.answer === "true"}
         readOnly
       />
-      {data?.get("study_enrolled_post_secondary")?.answer === "true" && (
+      {data?.study_enrolled_post_secondary?.answer === "true" && (
         <div>
           <FormInput
-            label={data?.get("study_location")?.question ?? ""}
-            text={data?.get("study_location")?.answer}
+            label={data?.study_location?.question ?? ""}
+            text={data?.study_location?.answer}
             placeholder="School..."
             optional
           />
           <FormInput
-            label={data?.get("study_degree")?.question ?? ""}
-            text={data?.get("study_degree")?.answer}
+            label={data?.study_degree?.question ?? ""}
+            text={data?.study_degree?.answer}
             placeholder="Degree..."
             optional
           />
           <FormInput
-            label={data?.get("study_major")?.question ?? ""}
-            text={data?.get("study_major")?.answer}
+            label={data?.study_major?.question ?? ""}
+            text={data?.study_major?.answer}
             placeholder="Major..."
             optional
           />
           <FormInput
-            label={data?.get("study_year")?.question ?? ""}
-            text={data?.get("study_year")?.answer}
+            label={data?.study_year?.question ?? ""}
+            text={data?.study_year?.answer}
             placeholder="Study Year..."
             optional
           />
           <FormInput
             id="studyExpectedGraducation"
-            label={data?.get("study_expected_grad")?.question ?? ""}
-            text={data?.get("study_expected_grad")?.answer}
+            label={data?.study_expected_grad?.question ?? ""}
+            text={data?.study_expected_grad?.answer}
           />
         </div>
       )}
       optional
       <FormInput
-        label={data?.get("prev_hackathons_count")?.question ?? ""}
-        text={data?.get("prev_hackathons_count")?.answer}
+        label={data?.prev_hackathons_count?.question ?? ""}
+        text={data?.prev_hackathons_count?.answer}
       />
       <FormDivider label="Long Answer" />
       <FormTextArea
         id="longAnswerChange"
-        label={data?.get("long_answer_1")?.question ?? ""}
-        text={data?.get("long_answer_1")?.answer}
+        label={data?.long_answer_1?.question ?? ""}
+        text={data?.long_answer_1?.answer}
       />
       <FormTextArea
         id="longAnswerExperience"
-        label={data?.get("long_answer_2")?.question ?? ""}
-        text={data?.get("long_answer_2")?.answer}
+        label={data?.long_answer_2?.question ?? ""}
+        text={data?.long_answer_2?.answer}
       />
       <FormTextArea
         id="longAnswerTech"
-        label={data?.get("long_answer_3")?.question ?? ""}
-        text={data?.get("long_answer_3")?.answer}
+        label={data?.long_answer_3?.question ?? ""}
+        text={data?.long_answer_3?.answer}
       />
       <FormTextArea
         id="longAnswerMagic"
-        label={data?.get("long_answer_4")?.question ?? ""}
-        text={data?.get("long_answer_4")?.answer}
+        label={data?.long_answer_4?.question ?? ""}
+        text={data?.long_answer_4?.answer}
       />
       <FormDivider label="Survey" />
       <FormInput
         id="socialText"
-        label={data?.get("social_links")?.question ?? ""}
-        text={data?.get("social_links")?.answer}
+        label={data?.social_links?.question ?? ""}
+        text={data?.social_links?.answer}
         optional
       />
       <FormTextArea
         id="interests"
-        label={data?.get("interests")?.question ?? ""}
-        text={data?.get("interests")?.answer}
+        label={data?.interests?.question ?? ""}
+        text={data?.interests?.answer}
         optional
       />
       <FormInput
         id="tshirtSize"
-        label={data?.get("tshirt_size")?.question ?? ""}
-        text={data?.get("tshirt_size")?.answer}
+        label={data?.tshirt_size?.question ?? ""}
+        text={data?.tshirt_size?.answer}
       />
       <FormInput
         id="hackerKind"
-        label={data?.get("hacker_skill")?.question ?? ""}
-        text={data?.get("hacker_skill")?.answer}
+        label={data?.hacker_skill?.question ?? ""}
+        text={data?.hacker_skill?.answer}
       />
       <FormInput
         id="workshopChoices"
-        label={data?.get("interested_workshops")?.question ?? ""}
-        text={data?.get("interested_workshops")?.answer}
+        label={data?.interested_workshops?.question ?? ""}
+        text={data?.interested_workshops?.answer}
       />
       <FormInput
         id="discoverdFrom"
-        label={data?.get("how_discovered")?.question ?? ""}
-        text={data?.get("how_discovered")?.answer}
+        label={data?.how_discovered?.question ?? ""}
+        text={data?.how_discovered?.answer}
       />
       <FormInput
         id="gender"
-        label={data?.get("gender")?.question ?? ""}
-        text={data?.get("gender")?.answer}
+        label={data?.gender?.question ?? ""}
+        text={data?.gender?.answer}
       />
       <FormInput
         id="race"
-        label={data?.get("race")?.question ?? ""}
-        text={data?.get("race")?.answer}
+        label={data?.race?.question ?? ""}
+        text={data?.race?.answer}
       />
       <FormCheckbox
         id="alreadyHaveTeam"
-        label={data?.get("already_have_team")?.question ?? ""}
-        checked={data?.get("already_have_team")?.answer === "true"}
+        label={data?.already_have_team?.question ?? ""}
+        checked={data?.already_have_team?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="considerCoffee"
-        label={data?.get("consider_coffee")?.question ?? ""}
-        checked={data?.get("consider_coffee")?.answer === "true"}
+        label={data?.consider_coffee?.question ?? ""}
+        checked={data?.consider_coffee?.answer === "true"}
         readOnly
       />
       <FormDivider label="Emergency Contact" />
       <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput
           id="emergencyContactName"
-          label={data?.get("emergency_contact_name")?.question ?? ""}
-          text={data?.get("emergency_contact_name")?.answer}
+          label={data?.emergency_contact_name?.question ?? ""}
+          text={data?.emergency_contact_name?.answer}
           placeholder="James Doe"
         />
         <FormInput
           id="emergencyContactRelation"
-          label={data?.get("emergency_contact_relation")?.question ?? ""}
-          text={data?.get("emergency_contact_relation")?.answer}
+          label={data?.emergency_contact_relation?.question ?? ""}
+          text={data?.emergency_contact_relation?.answer}
           placeholder="Parent / Guardian / Friend / Spouse"
         />
       </div>
       <FormInput
         id="emergencyContactPhone"
-        label={data?.get("emergency_contact_phone")?.question ?? ""}
-        text={data?.get("emergency_contact_phone")?.answer}
+        label={data?.emergency_contact_phone?.question ?? ""}
+        text={data?.emergency_contact_phone?.answer}
         placeholder="000-000-0000"
       />
       <FormDivider label="MLH Consent" />
       <FormCheckbox
         id="agreeToMLHCodeOfConduct"
         link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
-        label={data?.get("agree_to_mlh_code_of_conduct")?.question ?? ""}
-        checked={data?.get("agree_to_mlh_code_of_conduct")?.answer === "true"}
+        label={data?.agree_to_mlh_code_of_conduct?.question ?? ""}
+        checked={data?.agree_to_mlh_code_of_conduct?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="agreeToMLHPrivacyPolicy"
         link="https://mlh.io/privacy"
-        label={data?.get("agree_to_mlh_privacy_policy")?.question ?? ""}
-        checked={data?.get("agree_to_mlh_privacy_policy")?.answer === "true"}
+        label={data?.agree_to_mlh_privacy_policy?.question ?? ""}
+        checked={data?.agree_to_mlh_privacy_policy?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="agreeToMLHCommunications"
-        label={data?.get("agree_to_mlh_communications")?.question ?? ""}
-        checked={data?.get("agree_to_mlh_communications")?.answer === "true"}
+        label={data?.agree_to_mlh_communications?.question ?? ""}
+        checked={data?.agree_to_mlh_communications?.answer === "true"}
         optional
         readOnly
       />
