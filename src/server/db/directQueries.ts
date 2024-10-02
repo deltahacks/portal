@@ -7,13 +7,14 @@ export class DirectPrismaQuerier {
     this.prisma = prisma;
   }
 
-  async getHackathonYear() {
-    const hackathonYearConfig = await this.prisma.config.findFirstOrThrow({
-      where: {
-        id: "hackathonYear",
-      },
-    });
-    return parseInt(hackathonYearConfig.value);
+  async getDeltaHacksApplicationFormName() {
+    const deltaHacksApplicationFormConfig =
+      await this.prisma.config.findFirstOrThrow({
+        where: {
+          id: "DeltaHacksApplication",
+        },
+      });
+    return deltaHacksApplicationFormConfig.value;
   }
 
   async hasKilledApplications() {
@@ -27,9 +28,12 @@ export class DirectPrismaQuerier {
   }
 
   async getUserApplication(userId: string) {
-    const hackathonYear = await this.getHackathonYear();
+    const formName = await this.getDeltaHacksApplicationFormName();
     const userApplication = await this.prisma.formSubmission.findFirst({
-      where: { formYear: hackathonYear, submitterId: userId },
+      where: {
+        formStructureId: formName,
+        submitterId: userId,
+      },
     });
     return userApplication;
   }

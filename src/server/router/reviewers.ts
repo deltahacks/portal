@@ -15,7 +15,7 @@ const ApplicationForReview = z.object({
       .transform((v) => (v === null ? "" : v)),
   }),
   status: z.nativeEnum(Status),
-  formYear: z.number(),
+  formStructureId: z.string(),
 });
 
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
@@ -36,15 +36,16 @@ export const reviewerRouter = router({
       );
 
       const querier = new DirectPrismaQuerier(ctx.prisma);
-      const hackathonYear = await querier.getHackathonYear();
+      const deltaHacksApplicationFormName =
+        await querier.getDeltaHacksApplicationFormName();
 
       const application = await ctx.prisma.formSubmission.findMany({
         where: {
-          formYear: hackathonYear,
+          formStructureId: deltaHacksApplicationFormName,
         },
         select: {
           status: true,
-          formYear: true,
+          formStructureId: true,
           submitter: {
             select: {
               id: true,
@@ -70,11 +71,12 @@ export const reviewerRouter = router({
         "UNAUTHORIZED"
       );
       const querier = new DirectPrismaQuerier(ctx.prisma);
-      const hackathonYear = await querier.getHackathonYear();
+      const deltaHacksApplicationFormName =
+        await querier.getDeltaHacksApplicationFormName();
       const application = await ctx.prisma.formSubmission.findUniqueOrThrow({
         where: {
-          formYear_submitterId: {
-            formYear: hackathonYear,
+          formStructureId_submitterId: {
+            formStructureId: deltaHacksApplicationFormName,
             submitterId: input.submitterId,
           },
         },
@@ -128,12 +130,13 @@ export const reviewerRouter = router({
       );
 
       const querier = new DirectPrismaQuerier(ctx.prisma);
-      const hackathonYear = await querier.getHackathonYear();
+      const deltaHacksApplicationFormName =
+        await querier.getDeltaHacksApplicationFormName();
 
       const formSubmission = await prisma?.formSubmission.update({
         where: {
-          formYear_submitterId: {
-            formYear: hackathonYear,
+          formStructureId_submitterId: {
+            formStructureId: deltaHacksApplicationFormName,
             submitterId: input.submitterId,
           },
         },

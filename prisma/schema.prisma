@@ -168,18 +168,18 @@ model FormSubmission {
   submissionTime DateTime @default(now())
   status         Status   @default(IN_REVIEW)
 
-  formStructure FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
-  formYear      Int
+  formStructure   FormStructure @relation(fields: [formStructureId], references: [id], onDelete: Cascade)
+  formStructureId String
 
   submitter   User   @relation(fields: [submitterId], references: [id])
   submitterId String
 
-  @@id([formYear, submitterId])
+  @@id([formStructureId, submitterId])
 }
 
 model FormStructureQuestion {
-  formStructure FormStructure @relation(fields: [formYear], references: [year], onDelete: Cascade)
-  formYear      Int
+  formStructure   FormStructure @relation(fields: [formStructureId], references: [id], onDelete: Cascade)
+  formStructureId String
 
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
@@ -188,12 +188,12 @@ model FormStructureQuestion {
   formQuestionCategory FormQuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
   categoryId           String
 
-  @@id([formYear, questionId])
-  @@unique([displayPriority, formYear])
+  @@id([formStructureId, questionId])
+  @@unique([displayPriority, formStructureId])
 }
 
 model FormStructure {
-  year               Int                     @id
+  id                 String                  @id @default(cuid())
   submissions        FormSubmission[]
   questionStructures FormStructureQuestion[]
 }

@@ -113,13 +113,13 @@ export const applicationRouter = router({
       );
 
       const directQuerier = new DirectPrismaQuerier(ctx.prisma);
-      const hackathonYear = await directQuerier.getHackathonYear();
+      const formName = await directQuerier.getDeltaHacksApplicationFormName();
 
       const statusCount = (
         await ctx.prisma.formSubmission.groupBy({
           by: ["status"],
           where: {
-            formYear: hackathonYear,
+            formStructureId: formName,
           },
           _count: {
             status: true,
@@ -156,17 +156,17 @@ export const applicationRouter = router({
   }),
   rsvp: protectedProcedure.mutation(async ({ ctx }) => {
     const querier = new DirectPrismaQuerier(ctx.prisma);
-    const hackathonYear = await querier.getHackathonYear();
+    const formName = await querier.getDeltaHacksApplicationFormName();
     const form = await ctx.prisma?.formSubmission.findFirst({
-      where: { submitterId: ctx.session.user.id, formYear: hackathonYear },
+      where: { submitterId: ctx.session.user.id, formStructureId: formName },
     });
 
     trpcAssert(form?.status !== Status.ACCEPTED, "UNAUTHORIZED");
 
     await ctx.prisma?.formSubmission.update({
       where: {
-        formYear_submitterId: {
-          formYear: hackathonYear,
+        formStructureId_submitterId: {
+          formStructureId: formName,
           submitterId: ctx.session.user.id,
         },
       },
@@ -202,17 +202,18 @@ export const applicationRouter = router({
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
       const directQuerier = new DirectPrismaQuerier(ctx.prisma);
-      const hackathonYear = await directQuerier.getHackathonYear();
+      const deltaHacksApplicationFormName =
+        await directQuerier.getDeltaHacksApplicationFormName();
 
       const formSubmission = {
-        formYear: hackathonYear,
+        formStructureId: deltaHacksApplicationFormName,
         submitterId: ctx.session.user.id,
         status: Status.IN_REVIEW,
       };
       await ctx.prisma.formSubmission.upsert({
         where: {
-          formYear_submitterId: {
-            formYear: formSubmission.formYear,
+          formStructureId_submitterId: {
+            formStructureId: formSubmission.formStructureId,
             submitterId: formSubmission.submitterId,
           },
         },
@@ -498,12 +499,13 @@ export const applicationRouter = router({
       trpcAssert(user, "NOT_FOUND");
 
       const querier = new DirectPrismaQuerier(ctx.prisma);
-      const hackathonYear = await querier.getHackathonYear();
+      const deltaHacksApplicationFormName =
+        await querier.getDeltaHacksApplicationFormName();
       try {
         await ctx.prisma.formSubmission.delete({
           where: {
-            formYear_submitterId: {
-              formYear: hackathonYear,
+            formStructureId_submitterId: {
+              formStructureId: deltaHacksApplicationFormName,
               submitterId: ctx.session.user.id,
             },
           },

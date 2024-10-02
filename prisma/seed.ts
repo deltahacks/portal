@@ -239,37 +239,6 @@ interface FormStructureQuestion {
   categoryId: FormQuestionCategoryId;
 }
 
-const createFormStructure = async (
-  year: number,
-  formStructureQuestions: FormStructureQuestion[]
-) => {
-  await prisma.formStructure.upsert({
-    where: { year },
-    update: { year },
-    create: { year },
-  });
-
-  await Promise.all(
-    formStructureQuestions.map(async (formQuestionOld, i) => {
-      const formQuestion = {
-        ...formQuestionOld,
-        formYear: year,
-        displayPriority: i,
-      };
-      await prisma.formStructureQuestion.upsert({
-        where: {
-          formYear_questionId: {
-            formYear: formQuestion.formYear,
-            questionId: formQuestion.questionId,
-          },
-        },
-        update: formQuestion,
-        create: formQuestion,
-      });
-    })
-  );
-};
-
 const createDeltahacksXForm = async () => {
   const DELTAHACKS_X_FORM_STRUCTURE_QUESTIONS: FormStructureQuestion[] = [
     { questionId: "first_name", categoryId: "Personal Information" },
@@ -317,27 +286,56 @@ const createDeltahacksXForm = async () => {
     { questionId: "agree_to_mlh_communications", categoryId: "MLH Consent" },
   ];
 
-  await createFormStructure(2024, DELTAHACKS_X_FORM_STRUCTURE_QUESTIONS);
+  await createFormStructure(
+    "DeltaHacks X Application Form",
+    DELTAHACKS_X_FORM_STRUCTURE_QUESTIONS
+  );
 };
 
-const HACKATHON_YEAR_CONFIG = {
-  id: "hackathonYear",
-  name: "hackathonYear",
-  value: "2024",
+const createFormStructure = async (
+  deltaHacksApplicationFormName: string,
+  formStructureQuestions: FormStructureQuestion[]
+) => {
+  await prisma.formStructure.upsert({
+    where: { id: deltaHacksApplicationFormName },
+    update: { id: deltaHacksApplicationFormName },
+    create: { id: deltaHacksApplicationFormName },
+  });
+
+  await Promise.all(
+    formStructureQuestions.map(async (formQuestionOld, i) => {
+      const formQuestion = {
+        ...formQuestionOld,
+        formStructureId: deltaHacksApplicationFormName,
+        displayPriority: i,
+      };
+      await prisma.formStructureQuestion.upsert({
+        where: {
+          formStructureId_questionId: {
+            formStructureId: formQuestion.formStructureId,
+            questionId: formQuestion.questionId,
+          },
+        },
+        update: formQuestion,
+        create: formQuestion,
+      });
+    })
+  );
+};
+
+const DELTAHACKS_APPLICATION_FORM_CONFIG = {
+  id: "DeltaHacksApplication",
+  name: "DeltaHacksApplication",
+  value: "DeltaHacks X Application Form",
 };
 
 async function main() {
-  assert(
-    parseInt(HACKATHON_YEAR_CONFIG.value) >= 2024,
-    "No forms in the database exist before 2024"
-  );
-
   await prisma.config.upsert({
     where: {
-      id: HACKATHON_YEAR_CONFIG.id,
+      id: DELTAHACKS_APPLICATION_FORM_CONFIG.id,
     },
-    create: HACKATHON_YEAR_CONFIG,
-    update: HACKATHON_YEAR_CONFIG,
+    create: DELTAHACKS_APPLICATION_FORM_CONFIG,
+    update: DELTAHACKS_APPLICATION_FORM_CONFIG,
   });
 
   await Promise.all(

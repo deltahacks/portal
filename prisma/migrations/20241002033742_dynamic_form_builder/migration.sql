@@ -2,27 +2,27 @@
 CREATE TABLE "FormSubmission" (
     "submissionTime" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" "Status" NOT NULL DEFAULT 'IN_REVIEW',
-    "formYear" INT4 NOT NULL,
+    "formStructureId" STRING NOT NULL,
     "submitterId" STRING NOT NULL,
 
-    CONSTRAINT "FormSubmission_pkey" PRIMARY KEY ("formYear","submitterId")
+    CONSTRAINT "FormSubmission_pkey" PRIMARY KEY ("formStructureId","submitterId")
 );
 
 -- CreateTable
 CREATE TABLE "FormStructureQuestion" (
-    "formYear" INT4 NOT NULL,
+    "formStructureId" STRING NOT NULL,
     "questionId" STRING NOT NULL,
     "displayPriority" INT4 NOT NULL,
     "categoryId" STRING NOT NULL,
 
-    CONSTRAINT "FormStructureQuestion_pkey" PRIMARY KEY ("formYear","questionId")
+    CONSTRAINT "FormStructureQuestion_pkey" PRIMARY KEY ("formStructureId","questionId")
 );
 
 -- CreateTable
 CREATE TABLE "FormStructure" (
-    "year" INT4 NOT NULL,
+    "id" STRING NOT NULL,
 
-    CONSTRAINT "FormStructure_pkey" PRIMARY KEY ("year")
+    CONSTRAINT "FormStructure_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -58,16 +58,16 @@ CREATE TABLE "FormQuestionCategory" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "FormStructureQuestion_displayPriority_formYear_key" ON "FormStructureQuestion"("displayPriority", "formYear");
+CREATE UNIQUE INDEX "FormStructureQuestion_displayPriority_formStructureId_key" ON "FormStructureQuestion"("displayPriority", "formStructureId");
 
 -- AddForeignKey
-ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_formYear_fkey" FOREIGN KEY ("formYear") REFERENCES "FormStructure"("year") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_formStructureId_fkey" FOREIGN KEY ("formStructureId") REFERENCES "FormStructure"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_submitterId_fkey" FOREIGN KEY ("submitterId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "FormStructureQuestion" ADD CONSTRAINT "FormStructureQuestion_formYear_fkey" FOREIGN KEY ("formYear") REFERENCES "FormStructure"("year") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "FormStructureQuestion" ADD CONSTRAINT "FormStructureQuestion_formStructureId_fkey" FOREIGN KEY ("formStructureId") REFERENCES "FormStructure"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FormStructureQuestion" ADD CONSTRAINT "FormStructureQuestion_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
