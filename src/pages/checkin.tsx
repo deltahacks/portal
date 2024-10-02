@@ -240,7 +240,7 @@ export const getServerSideProps = async (
   const querier = new DirectPrismaQuerier(prisma);
   const application = await querier.getUserApplication(session?.user.id);
   if (!application) {
-    throw new TRPCError({ code: "NOT_FOUND" });
+    return { notFound: true };
   }
   return { props: { status: application.status } };
 };

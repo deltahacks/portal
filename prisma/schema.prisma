@@ -50,7 +50,7 @@ model User {
   role                 Role[]     @default([HACKER])
   hacker               Review[]   @relation("hacker") /// @deprecated Use `FormSubmission.status` instead
   reviewer             Review[]   @relation("reviewer") /// @deprecated Use `FormSubmission.status` instead
-  status               Status     @default(IN_REVIEW) /// @deprecated User `FormSubmission.status` instead
+  status               Status     @default(IN_REVIEW) /// @deprecated Use `FormSubmission.status` instead
   qrcode               Int?       @unique
   mealsTaken           Int        @default(0)
   lastMealTaken        DateTime?
@@ -206,7 +206,7 @@ model Answer {
   addressedQuestion   Question @relation(fields: [addressedQuestionId], references: [id], onDelete: Cascade)
   addressedQuestionId String
 
-  submitter   User   @relation(fields: [submitterId], references: [id])
+  submitter   User   @relation(fields: [submitterId], references: [id], onDelete: Cascade)
   submitterId String
 
   @@id([addressedQuestionId, submitterId])

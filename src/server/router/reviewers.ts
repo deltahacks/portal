@@ -56,7 +56,14 @@ export const reviewerRouter = router({
         },
       });
 
-      return ApplicationForReview.array().parse(application);
+      try {
+        return ApplicationForReview.array().parse(application);
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to parse applications.",
+        });
+      }
     }),
   getApplication: protectedProcedure
     .input(
@@ -133,7 +140,7 @@ export const reviewerRouter = router({
       const deltaHacksApplicationFormName =
         await querier.getDeltaHacksApplicationFormName();
 
-      const formSubmission = await prisma?.formSubmission.update({
+      const formSubmission = await ctx.prisma?.formSubmission.update({
         where: {
           formStructureId_submitterId: {
             formStructureId: deltaHacksApplicationFormName,

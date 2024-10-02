@@ -102,7 +102,7 @@ const QUESTIONS = [
   {
     id: "consider_coffee",
     statement:
-      "Would you like to be considered for a coffee chat with a sponser?",
+      "Would you like to be considered for a coffee chat with a sponsor?",
   },
   {
     id: "emergency_contact_name",

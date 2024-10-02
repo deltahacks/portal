@@ -1,5 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import { assert } from "../../utils/asserts";
 
+/**
+ * General purpose class for common prisma queries. Mainly used in
+ * getServerSideProps calls or calling specific config settings.
+ *
+ * IMPORTANT: Use wherever prisma is used. So only use this in the
+ *            server and not in user facing components (front-end)
+ */
 export class DirectPrismaQuerier {
   private prisma: PrismaClient;
 
@@ -8,23 +16,35 @@ export class DirectPrismaQuerier {
   }
 
   async getDeltaHacksApplicationFormName() {
-    const deltaHacksApplicationFormConfig =
-      await this.prisma.config.findFirstOrThrow({
+    const deltaHacksApplicationFormConfig = await this.prisma.config.findUnique(
+      {
         where: {
           id: "DeltaHacksApplication",
         },
-      });
+      }
+    );
+    assert(
+      deltaHacksApplicationFormConfig,
+      "Deltahacks application form configuration not found"
+    );
     return deltaHacksApplicationFormConfig.value;
   }
 
   async hasKilledApplications() {
-    const killedStr = await this.prisma.config.findFirst({
+    const killedConfig = await this.prisma.config.findFirst({
       where: { name: "killApplications" },
       select: { value: true },
     });
-    // they are killed in all cases unless the value is "false"
-    const shouldBeKilled = !killedStr || JSON.parse(killedStr.value) !== false;
-    return shouldBeKilled;
+
+    // Default behaviour if config isn't present
+    if (!killedConfig) {
+      return true;
+    }
+    try {
+      return JSON.parse(killedConfig.value) !== false;
+    } catch (error) {
+      console.error("Invalid killApplications configuration:", error);
+    }
   }
 
   async getUserApplication(userId: string) {

@@ -161,7 +161,8 @@ export const applicationRouter = router({
       where: { submitterId: ctx.session.user.id, formStructureId: formName },
     });
 
-    trpcAssert(form?.status !== Status.ACCEPTED, "UNAUTHORIZED");
+    trpcAssert(form, "NOT_FOUND");
+    trpcAssert(form.status === Status.ACCEPTED, "UNAUTHORIZED");
 
     await ctx.prisma?.formSubmission.update({
       where: {
@@ -224,7 +225,7 @@ export const applicationRouter = router({
       let gradDate = null;
       if (input.studyExpectedGraduation) {
         const possible = new Date(input.studyExpectedGraduation);
-        if (!isNaN(possible.getTime())) {
+        if (!Number.isNaN(possible.getTime())) {
           gradDate = possible;
         }
       }

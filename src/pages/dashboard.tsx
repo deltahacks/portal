@@ -57,7 +57,11 @@ const Accepted: React.FC = () => {
   const utils = trpc.useUtils();
   const doRsvp = trpc.application.rsvp.useMutation({
     onSuccess: async () => {
-      await utils.application.getApplicationShallow.invalidate();
+      try {
+        await utils.application.getApplicationShallow.invalidate();
+      } catch (error) {
+        console.error("Error invalidating cache:", error);
+      }
     },
   });
 
@@ -221,9 +225,9 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
                   <div className="flex gap-5">
                     <button
                       className="btn btn-outline btn-error"
-                      onClick={() => {
+                      onClick={async () => {
                         assert(session?.user?.id);
-                        deleteApplication.mutateAsync({
+                        await deleteApplication.mutateAsync({
                           userId: session.user.id,
                         });
                       }}
@@ -423,7 +427,7 @@ const Dashboard: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ killed }) => {
   const { data: session } = useSession();
-  const { data: application, isSuccess: isApplicationLoading } =
+  const { data: application, isSuccess } =
     trpc.application.getApplicationShallow.useQuery({
       submitterId: session?.user?.id ?? null,
     });
@@ -439,7 +443,7 @@ const Dashboard: NextPage<
     };
 
     // TODO: add loading screen on content load
-    const statusToUse = isApplicationLoading ? application?.status : null;
+    const statusToUse = isSuccess ? application?.status : null;
     return statusToUse ? stateMap[statusToUse] : null;
   };
 
