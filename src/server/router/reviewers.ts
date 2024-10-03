@@ -20,9 +20,12 @@ const ApplicationForReview = z.object({
 
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
-interface FormItem {
-  question: string;
-  answer: string | null;
+interface Application {
+  categoryName: string;
+  questionAndAnswer: {
+    question: string;
+    answer: string | null;
+  }[];
 }
 
 export const reviewerRouter = router({
@@ -80,35 +83,67 @@ export const reviewerRouter = router({
       const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
         await querier.getDeltaHacksApplicationFormName();
-      const application = await ctx.prisma.formSubmission.findUniqueOrThrow({
-        where: {
-          formStructureId_submitterId: {
-            formStructureId: deltaHacksApplicationFormName,
-            submitterId: input.submitterId,
-          },
-        },
-        include: {
-          formStructure: {
-            select: {
-              questions:
+      const applicationSubmission =
+        await ctx.prisma.formSubmission.findUniqueOrThrow({
+          where: {
+            formStructureId_submitterId: {
+              formStructureId: deltaHacksApplicationFormName,
+              submitterId: input.submitterId,
             },
           },
-        },
-      });
-      const answers = new Map<string, FormItem>();
-      application.formStructure.questionStructures.forEach(
-        (questionStructure) => {
-          assert(
-            questionStructure.question.answers.length == 1,
-            "Each answer has a unique submitter"
+          include: {
+            formStructure: {
+              select: {
+                questionCategories: {
+                  select: {
+                    name: true,
+                    formPosition: true,
+                    questions: {
+                      select: {
+                        statement: true,
+                        categoryPosition: true,
+                        answers: {
+                          where: {
+                            submitterId: input.submitterId,
+                          },
+                          select: {
+                            statement: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+      applicationSubmission.formStructure.questionCategories.sort(
+        (questionCategory1, questionCategory2) =>
+          questionCategory1.formPosition - questionCategory2.formPosition
+      );
+      applicationSubmission.formStructure.questionCategories.forEach(
+        (questionCategory) => {
+          questionCategory.questions.sort(
+            (question1, question2) =>
+              question1.categoryPosition - question2.categoryPosition
           );
-          answers.set(questionStructure.question.id, {
-            question: questionStructure.question.statement,
-            answer: questionStructure.question.answers[0]?.statement ?? null,
-          });
         }
       );
-      return Object.fromEntries(answers);
+
+      const application: Application[] =
+        applicationSubmission.formStructure.questionCategories.map(
+          (questionCategory) => ({
+            categoryName: questionCategory.name,
+            questionAndAnswer: questionCategory.questions.map((question) => ({
+              question: question.statement,
+              answer: question.answers[0]?.statement ?? null,
+            })),
+          })
+        );
+
+      return application;
     }),
   updateApplicationShallow: protectedProcedure
     .input(
