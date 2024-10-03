@@ -180,9 +180,9 @@ model FormSubmission {
 }
 
 model FormStructure {
-  id               String             @id @default(cuid())
-  submissions      FormSubmission[]
-  questionCategory QuestionCategory[]
+  id                 String             @id @default(cuid())
+  submissions        FormSubmission[]
+  questionCategories QuestionCategory[]
 }
 
 model QuestionCategory {
