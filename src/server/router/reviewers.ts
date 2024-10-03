@@ -41,6 +41,9 @@ export const reviewerRouter = router({
       const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
         await querier.getDeltaHacksApplicationFormName();
+      if (!deltaHacksApplicationFormName) {
+        return [];
+      }
 
       const application = await ctx.prisma.formSubmission.findMany({
         where: {
@@ -83,6 +86,11 @@ export const reviewerRouter = router({
       const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
         await querier.getDeltaHacksApplicationFormName();
+
+      if (!deltaHacksApplicationFormName) {
+        return null;
+      }
+
       const applicationSubmission =
         await ctx.prisma.formSubmission.findUniqueOrThrow({
           where: {
@@ -162,6 +170,12 @@ export const reviewerRouter = router({
       const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
         await querier.getDeltaHacksApplicationFormName();
+
+      trpcAssert(
+        deltaHacksApplicationFormName,
+        "NOT_FOUND",
+        "No application found to update"
+      );
 
       const formSubmission = await ctx.prisma?.formSubmission.update({
         where: {

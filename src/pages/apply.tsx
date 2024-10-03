@@ -797,6 +797,13 @@ export const getServerSideProps = async (
   const querier = new DirectPrismaQuerier(prisma);
   const killed = await querier.hasKilledApplications();
 
+  // The formName can be uninitialized on the initial migration.
+  // After migration, formName should be immediately initialized.
+  const formName = await querier.getDeltaHacksApplicationFormName();
+  if (!formName) {
+    return { redirect: { destination: "welcome", permanent: false } };
+  }
+
   return {
     props: {
       email: session.user.email,

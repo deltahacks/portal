@@ -23,10 +23,10 @@ export class DirectPrismaQuerier {
         },
       }
     );
-    assert(
-      deltaHacksApplicationFormConfig,
-      "Deltahacks application form configuration not found"
-    );
+    if (!deltaHacksApplicationFormConfig) {
+      return null;
+    }
+
     assert(
       deltaHacksApplicationFormConfig.value.length > 0,
       "Invalid DeltaHacksApplicationConfig value"
@@ -54,6 +54,10 @@ export class DirectPrismaQuerier {
 
   async getUserApplication(userId: string) {
     const formName = await this.getDeltaHacksApplicationFormName();
+    if (!formName) {
+      return null;
+    }
+
     const userApplication = await this.prisma.formSubmission.findFirst({
       where: {
         formStructureId: formName,

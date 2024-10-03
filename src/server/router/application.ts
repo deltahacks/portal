@@ -115,6 +115,10 @@ export const applicationRouter = router({
       const directQuerier = new DirectPrismaQuerier(ctx.prisma);
       const formName = await directQuerier.getDeltaHacksApplicationFormName();
 
+      if (!formName) {
+        return [];
+      }
+
       const statusCount = (
         await ctx.prisma.formSubmission.groupBy({
           by: ["status"],
@@ -157,6 +161,12 @@ export const applicationRouter = router({
   rsvp: protectedProcedure.mutation(async ({ ctx }) => {
     const querier = new DirectPrismaQuerier(ctx.prisma);
     const formName = await querier.getDeltaHacksApplicationFormName();
+    trpcAssert(
+      formName,
+      "NOT_FOUND",
+      "No application found for the User to RSVP"
+    );
+
     const form = await ctx.prisma?.formSubmission.findFirst({
       where: { submitterId: ctx.session.user.id, formStructureId: formName },
     });
@@ -206,6 +216,12 @@ export const applicationRouter = router({
       const deltaHacksApplicationFormName =
         await directQuerier.getDeltaHacksApplicationFormName();
 
+      trpcAssert(
+        deltaHacksApplicationFormName,
+        "NOT_FOUND",
+        "No form for the User to submit to"
+      );
+
       const formSubmission = {
         formStructureId: deltaHacksApplicationFormName,
         submitterId: ctx.session.user.id,
@@ -230,113 +246,184 @@ export const applicationRouter = router({
         }
       }
 
+      // IMPORTANT
+      // this is all temporary code that will be replaced in the future
+      // Assumptions are made about the Category table and Question table.
+      // Do not mimmick what you see here
+      const getCategoryIdFromName = async (name: string) => {
+        const questionCategory = await prisma?.questionCategory.findUnique({
+          where: {
+            name_formStructureId: {
+              name,
+              formStructureId: deltaHacksApplicationFormName,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+        trpcAssert(questionCategory, "NOT_FOUND");
+        return questionCategory?.id ?? null;
+      };
+
+      const personalInfoId = await getCategoryIdFromName(
+        "Personal Information"
+      );
+      const educationId = await getCategoryIdFromName("Education");
+      const longAnswerId = await getCategoryIdFromName("Long Answer");
+      const surveyId = await getCategoryIdFromName("Survey");
+      const emergencyContactId = await getCategoryIdFromName(
+        "Emergency Contact"
+      );
+      const mLHContactId = await getCategoryIdFromName("MLH Consent");
+
+      const getQuestionId = async (
+        categoryPosition: number,
+        questionCategoryId: string
+      ) => {
+        const question = await prisma?.question.findUnique({
+          where: {
+            categoryPosition_categoryId: {
+              categoryPosition,
+              categoryId: questionCategoryId,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+        trpcAssert(question, "NOT_FOUND");
+        return question.id;
+      };
+
       const answers: AnswerForRouter[] = [
-        { statement: input.firstName, addressedQuestionId: "first_name" },
-        { statement: input.lastName, addressedQuestionId: "last_name" },
+        {
+          statement: input.firstName,
+          addressedQuestionId: await getQuestionId(0, personalInfoId),
+        },
+        {
+          statement: input.lastName,
+          addressedQuestionId: await getQuestionId(1, personalInfoId),
+        },
         {
           statement: input.birthday.toISOString().substring(0, 10),
-          addressedQuestionId: "birthday",
+          addressedQuestionId: await getQuestionId(2, personalInfoId),
         },
-        { statement: input.linkToResume, addressedQuestionId: "resume" },
+        {
+          statement: input.linkToResume,
+          addressedQuestionId: await getQuestionId(3, personalInfoId),
+        },
         {
           statement: input.macEv.toString(),
-          addressedQuestionId: "mac_experience_ventures",
+          addressedQuestionId: await getQuestionId(4, personalInfoId),
         },
         {
           statement: input.studyEnrolledPostSecondary.toString(),
-          addressedQuestionId: "study_enrolled_post_secondary",
+          addressedQuestionId: await getQuestionId(0, educationId),
         },
         {
           statement: input.studyLocation ?? null,
-          addressedQuestionId: "study_location",
+          addressedQuestionId: await getQuestionId(1, educationId),
         },
         {
           statement: input.studyDegree ?? null,
-          addressedQuestionId: "study_degree",
+          addressedQuestionId: await getQuestionId(2, educationId),
         },
         {
           statement: input.studyMajor ?? null,
-          addressedQuestionId: "study_major",
+          addressedQuestionId: await getQuestionId(3, educationId),
         },
         {
           statement: input.studyYearOfStudy ?? null,
-          addressedQuestionId: "study_year",
+          addressedQuestionId: await getQuestionId(4, educationId),
         },
         {
           statement: gradDate?.toISOString().substring(0, 10) ?? null,
-          addressedQuestionId: "study_expected_grad",
+          addressedQuestionId: await getQuestionId(5, educationId),
         },
         {
           statement: input.previousHackathonsCount.toString(),
-          addressedQuestionId: "prev_hackathons_count",
+          addressedQuestionId: await getQuestionId(6, educationId),
         },
         {
           statement: input.longAnswerChange,
-          addressedQuestionId: "long_answer_1",
+          addressedQuestionId: await getQuestionId(0, longAnswerId),
         },
         {
           statement: input.longAnswerExperience,
-          addressedQuestionId: "long_answer_2",
+          addressedQuestionId: await getQuestionId(1, longAnswerId),
         },
         {
           statement: input.longAnswerTech,
-          addressedQuestionId: "long_answer_3",
+          addressedQuestionId: await getQuestionId(2, longAnswerId),
         },
         {
           statement: input.longAnswerMagic,
-          addressedQuestionId: "long_answer_4",
+          addressedQuestionId: await getQuestionId(3, longAnswerId),
         },
         {
           statement: input.socialText ?? null,
-          addressedQuestionId: "social_links",
+          addressedQuestionId: await getQuestionId(0, surveyId),
         },
         {
           statement: input.interests?.toString() ?? null,
-          addressedQuestionId: "interests",
+          addressedQuestionId: await getQuestionId(1, surveyId),
         },
-        { statement: input.tshirtSize, addressedQuestionId: "tshirt_size" },
-        { statement: input.hackerKind, addressedQuestionId: "hacker_skill" },
+        {
+          statement: input.tshirtSize,
+          addressedQuestionId: await getQuestionId(2, surveyId),
+        },
+        {
+          statement: input.hackerKind,
+          addressedQuestionId: await getQuestionId(3, surveyId),
+        },
         {
           statement: JSON.stringify(input.workshopChoices),
-          addressedQuestionId: "interested_workshops",
+          addressedQuestionId: await getQuestionId(4, surveyId),
         },
         {
           statement: JSON.stringify(input.discoverdFrom.toString()),
-          addressedQuestionId: "how_discovered",
+          addressedQuestionId: await getQuestionId(5, surveyId),
         },
-        { statement: input.gender, addressedQuestionId: "gender" },
-        { statement: input.race, addressedQuestionId: "race" },
+        {
+          statement: input.gender,
+          addressedQuestionId: await getQuestionId(6, surveyId),
+        },
+        {
+          statement: input.race,
+          addressedQuestionId: await getQuestionId(7, surveyId),
+        },
         {
           statement: input.alreadyHaveTeam.toString(),
-          addressedQuestionId: "already_have_team",
+          addressedQuestionId: await getQuestionId(8, surveyId),
         },
         {
           statement: input.considerCoffee.toString(),
-          addressedQuestionId: "consider_coffee",
+          addressedQuestionId: await getQuestionId(9, surveyId),
         },
         {
           statement: input.emergencyContactName,
-          addressedQuestionId: "emergency_contact_name",
+          addressedQuestionId: await getQuestionId(0, emergencyContactId),
         },
         {
           statement: input.emergencyContactRelation,
-          addressedQuestionId: "emergency_contact_relation",
+          addressedQuestionId: await getQuestionId(1, emergencyContactId),
         },
         {
           statement: input.emergencyContactPhone,
-          addressedQuestionId: "emergency_contact_phone",
+          addressedQuestionId: await getQuestionId(2, emergencyContactId),
         },
         {
           statement: input.agreeToMLHCodeOfConduct.toString(),
-          addressedQuestionId: "agree_to_mlh_code_of_conduct",
+          addressedQuestionId: await getQuestionId(0, mLHContactId),
         },
         {
           statement: input.agreeToMLHPrivacyPolicy.toString(),
-          addressedQuestionId: "agree_to_mlh_privacy_policy",
+          addressedQuestionId: await getQuestionId(1, mLHContactId),
         },
         {
           statement: input.agreeToMLHCommunications.toString(),
-          addressedQuestionId: "agree_to_mlh_communications",
+          addressedQuestionId: await getQuestionId(2, mLHContactId),
         },
       ];
 
@@ -502,6 +589,12 @@ export const applicationRouter = router({
       const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
         await querier.getDeltaHacksApplicationFormName();
+
+      if (!deltaHacksApplicationFormName) {
+        console.log("No application found to delete.");
+        return;
+      }
+
       try {
         await ctx.prisma.formSubmission.delete({
           where: {
