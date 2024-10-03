@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { assert } from "../../src/utils/asserts";
 import {
   DELTAHACKS_APPLICATION_FORM_CONFIG,
   FORM_STRUCTURES,
@@ -16,27 +17,58 @@ const createFormStructure = async (formStructure: FormStructure) => {
   });
 
   await prisma.questionCategory.createMany({
-    data: formStructure.categories.map(({ name }) => ({
+    data: formStructure.categories.map(({ name }, i) => ({
       formStructureId: formStructure.id,
       name,
+      formPosition: i,
     })),
     skipDuplicates: true,
   });
 
-  const questions = formStructure.categories.flatMap(
-    ({ name: categoryName, questions }) =>
-      questions.map((question) => ({ categoryName, question }))
+  const categories = await prisma.questionCategory.findMany({
+    where: {
+      formStructureId: formStructure.id,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  assert(
+    categories.length >= formStructure.categories.length,
+    "All categories should've been added before"
   );
 
-  await prisma.question.createMany({
-    data: questions.map(({ categoryName, question }, i) => ({
-      statement: question,
-      displayPriority: i,
-      formStructureId: formStructure.id,
-      categoryName,
-    })),
-    skipDuplicates: true,
-  });
+  const categoryNameToIdMap = new Map(
+    categories.map(({ id, name }) => [name, id])
+  );
+
+  await Promise.all(
+    formStructure.categories.map(async ({ name: categoryName, questions }) => {
+      const categoryId = categoryNameToIdMap.get(categoryName);
+      assert(categoryId);
+
+      try {
+        await prisma.question.createMany({
+          data: questions.map((question, i) => {
+            return {
+              statement: question,
+              categoryPosition: i,
+              categoryId,
+            };
+          }),
+          skipDuplicates: true,
+        });
+      } catch (e) {
+        console.error(
+          `Error occured while adding the following: categoryName: ${categoryName}, categoryId: ${categoryId}, questions:`,
+          questions
+        );
+        throw e;
+      }
+    })
+  );
 };
 
 async function main() {

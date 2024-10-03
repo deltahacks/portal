@@ -186,8 +186,9 @@ model FormStructure {
 }
 
 model QuestionCategory {
-  id   String @id @default(cuid())
-  name String
+  id           String @id @default(cuid())
+  name         String
+  formPosition Int
 
   formStructure   FormStructure @relation(fields: [formStructureId], references: [id])
   formStructureId String
@@ -195,19 +196,20 @@ model QuestionCategory {
   questions Question[]
 
   @@unique([name, formStructureId])
+  @@unique([formPosition, formStructureId])
 }
 
 model Question {
-  id              String @id @default(cuid())
-  statement       String
-  displayPriority Int
+  id               String @id @default(cuid())
+  statement        String
+  categoryPosition Int
 
   category   QuestionCategory @relation(fields: [categoryId], references: [id])
   categoryId String
 
   answers Answer[]
 
-  @@unique([displayPriority, categoryId])
+  @@unique([categoryPosition, categoryId])
 }
 
 model Answer {

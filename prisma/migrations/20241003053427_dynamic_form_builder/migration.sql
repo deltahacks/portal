@@ -19,6 +19,7 @@ CREATE TABLE "FormStructure" (
 CREATE TABLE "QuestionCategory" (
     "id" STRING NOT NULL,
     "name" STRING NOT NULL,
+    "formPosition" INT4 NOT NULL,
     "formStructureId" STRING NOT NULL,
 
     CONSTRAINT "QuestionCategory_pkey" PRIMARY KEY ("id")
@@ -28,7 +29,7 @@ CREATE TABLE "QuestionCategory" (
 CREATE TABLE "Question" (
     "id" STRING NOT NULL,
     "statement" STRING NOT NULL,
-    "displayPriority" INT4 NOT NULL,
+    "categoryPosition" INT4 NOT NULL,
     "categoryId" STRING NOT NULL,
 
     CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
@@ -44,7 +45,13 @@ CREATE TABLE "Answer" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Question_displayPriority_categoryId_key" ON "Question"("displayPriority", "categoryId");
+CREATE UNIQUE INDEX "QuestionCategory_name_formStructureId_key" ON "QuestionCategory"("name", "formStructureId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "QuestionCategory_formPosition_formStructureId_key" ON "QuestionCategory"("formPosition", "formStructureId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Question_categoryPosition_categoryId_key" ON "Question"("categoryPosition", "categoryId");
 
 -- AddForeignKey
 ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_formStructureId_fkey" FOREIGN KEY ("formStructureId") REFERENCES "FormStructure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
