@@ -90,19 +90,7 @@ export const reviewerRouter = router({
         include: {
           formStructure: {
             select: {
-              questionStructures: {
-                select: {
-                  question: {
-                    include: {
-                      answers: {
-                        where: {
-                          submitterId: input.submitterId,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
+              questions:
             },
           },
         },

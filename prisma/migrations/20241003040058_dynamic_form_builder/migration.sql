@@ -17,10 +17,11 @@ CREATE TABLE "FormStructure" (
 
 -- CreateTable
 CREATE TABLE "QuestionCategory" (
+    "id" STRING NOT NULL,
     "name" STRING NOT NULL,
     "formStructureId" STRING NOT NULL,
 
-    CONSTRAINT "QuestionCategory_pkey" PRIMARY KEY ("name","formStructureId")
+    CONSTRAINT "QuestionCategory_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -28,8 +29,7 @@ CREATE TABLE "Question" (
     "id" STRING NOT NULL,
     "statement" STRING NOT NULL,
     "displayPriority" INT4 NOT NULL,
-    "formStructureId" STRING NOT NULL,
-    "categoryName" STRING NOT NULL,
+    "categoryId" STRING NOT NULL,
 
     CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
 );
@@ -44,7 +44,7 @@ CREATE TABLE "Answer" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Question_displayPriority_formStructureId_key" ON "Question"("displayPriority", "formStructureId");
+CREATE UNIQUE INDEX "Question_displayPriority_categoryId_key" ON "Question"("displayPriority", "categoryId");
 
 -- AddForeignKey
 ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_formStructureId_fkey" FOREIGN KEY ("formStructureId") REFERENCES "FormStructure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -56,10 +56,7 @@ ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_submitterId_fkey" FO
 ALTER TABLE "QuestionCategory" ADD CONSTRAINT "QuestionCategory_formStructureId_fkey" FOREIGN KEY ("formStructureId") REFERENCES "FormStructure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_formStructureId_fkey" FOREIGN KEY ("formStructureId") REFERENCES "FormStructure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_categoryName_formStructureId_fkey" FOREIGN KEY ("categoryName", "formStructureId") REFERENCES "QuestionCategory"("name", "formStructureId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Question" ADD CONSTRAINT "Question_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "QuestionCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Answer" ADD CONSTRAINT "Answer_addressedQuestionId_fkey" FOREIGN KEY ("addressedQuestionId") REFERENCES "Question"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
