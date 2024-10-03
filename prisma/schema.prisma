@@ -170,7 +170,7 @@ model FormSubmission {
   submissionTime DateTime @default(now())
   status         Status   @default(IN_REVIEW)
 
-  formStructure   FormStructure @relation(fields: [formStructureId], references: [id], onDelete: Cascade)
+  formStructure   FormStructure @relation(fields: [formStructureId], references: [id])
   formStructureId String
 
   submitter   User   @relation(fields: [submitterId], references: [id])
@@ -179,49 +179,45 @@ model FormSubmission {
   @@id([formStructureId, submitterId])
 }
 
-model FormStructureQuestion {
-  formStructure   FormStructure @relation(fields: [formStructureId], references: [id], onDelete: Cascade)
-  formStructureId String
-
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String
-
-  displayPriority      Int
-  formQuestionCategory FormQuestionCategory @relation(fields: [categoryId], references: [name], onDelete: Cascade)
-  categoryId           String
-
-  @@id([formStructureId, questionId])
-  @@unique([displayPriority, formStructureId])
+model FormStructure {
+  id               String             @id @default(cuid())
+  submissions      FormSubmission[]
+  questions        Question[]
+  questionCategory QuestionCategory[]
 }
 
-model FormStructure {
-  id                 String                  @id @default(cuid())
-  submissions        FormSubmission[]
-  questionStructures FormStructureQuestion[]
+model QuestionCategory {
+  id   String @id @default(cuid())
+  name String
+
+  formStructure   FormStructure @relation(fields: [formStructureId], references: [id])
+  formStructureId String
+  questions       Question[]
+}
+
+model Question {
+  id              String @id @default(cuid())
+  statement       String
+  displayPriority Int
+
+  formStructure   FormStructure @relation(fields: [formStructureId], references: [id])
+  formStructureId String
+
+  answers    Answer[]
+  category   QuestionCategory @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  @@unique([displayPriority, formStructureId])
 }
 
 model Answer {
   statement String?
 
-  addressedQuestion   Question @relation(fields: [addressedQuestionId], references: [id], onDelete: Cascade)
+  addressedQuestion   Question @relation(fields: [addressedQuestionId], references: [id])
   addressedQuestionId String
 
-  submitter   User   @relation(fields: [submitterId], references: [id], onDelete: Cascade)
+  submitter   User   @relation(fields: [submitterId], references: [id])
   submitterId String
 
   @@id([addressedQuestionId, submitterId])
-}
-
-model Question {
-  id        String @id
-  statement String
-
-  answers               Answer[]
-  relatedFormStructures FormStructureQuestion[]
-}
-
-model FormQuestionCategory {
-  name String @id
-
-  formStructureQuestion FormStructureQuestion[]
 }
