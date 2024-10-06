@@ -93,14 +93,13 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(async (e) => {
     console.error("Error occurred during database seeding:");
     console.error(e);
     if (e.stack) {
       console.error("Stack trace:");
       console.error(e.stack);
     }
-    process.exit(1);
   })
   .finally(async () => {
     console.log("Disconnecting from database...");

@@ -22,14 +22,23 @@ export const fileBuilder = router({
         formStructureId: z.string(),
       })
     )
+    .output(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        formStructureId: z.string(),
+        formPosition: z.number(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.questionCategory.create({
+      const newCategory = await ctx.prisma.questionCategory.create({
         data: {
           formStructureId: input.formStructureId,
           name: input.name,
           formPosition: input.formPosition,
         },
       });
+      return newCategory;
     }),
 
   updateCategory: protectedProcedure

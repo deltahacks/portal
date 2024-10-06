@@ -238,6 +238,10 @@ export const applicationRouter = router({
         create: formSubmission,
       });
 
+      // IMPORTANT
+      // this is all temporary code that will be replaced in the future
+      // Assumptions are made about the Category table and Question table.
+      // Do not mimmick what you see here
       let gradDate = null;
       if (input.studyExpectedGraduation) {
         const possible = new Date(input.studyExpectedGraduation);
@@ -246,10 +250,6 @@ export const applicationRouter = router({
         }
       }
 
-      // IMPORTANT
-      // this is all temporary code that will be replaced in the future
-      // Assumptions are made about the Category table and Question table.
-      // Do not mimmick what you see here
       const getCategoryIdFromName = async (name: string) => {
         const questionCategory = await prisma?.questionCategory.findUnique({
           where: {

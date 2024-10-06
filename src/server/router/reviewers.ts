@@ -127,6 +127,7 @@ export const reviewerRouter = router({
           },
         });
 
+      // Sort the questions by their positions
       applicationSubmission.formStructure.questionCategories.sort(
         (questionCategory1, questionCategory2) =>
           questionCategory1.formPosition - questionCategory2.formPosition
