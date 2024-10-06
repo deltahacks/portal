@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
 import applicationSchema from "../../schemas/application";
-import { DirectPrismaQuerier } from "../db/directQueries";
+import * as Config from "../db/configQueries";
 import { trpcAssert } from "../../utils/asserts";
 
 const TypeFormSubmissionTruncated = z.object({
@@ -112,8 +112,9 @@ export const applicationRouter = router({
         "UNAUTHORIZED"
       );
 
-      const directQuerier = new DirectPrismaQuerier(ctx.prisma);
-      const formName = await directQuerier.getDeltaHacksApplicationFormName();
+      const formName = await Config.getDeltaHacksApplicationFormName(
+        ctx.prisma
+      );
 
       if (!formName) {
         return [];
@@ -159,8 +160,7 @@ export const applicationRouter = router({
     return qr;
   }),
   rsvp: protectedProcedure.mutation(async ({ ctx }) => {
-    const querier = new DirectPrismaQuerier(ctx.prisma);
-    const formName = await querier.getDeltaHacksApplicationFormName();
+    const formName = await Config.getDeltaHacksApplicationFormName(ctx.prisma);
     trpcAssert(
       formName,
       "NOT_FOUND",
@@ -203,18 +203,26 @@ export const applicationRouter = router({
         return null;
       }
 
-      const directQuerier = new DirectPrismaQuerier(ctx.prisma);
-      const application = await directQuerier.getUserApplication(
-        ctx.session.user.id
+      const formName = await Config.getDeltaHacksApplicationFormName(
+        ctx.prisma
       );
+      if (!formName) {
+        return null;
+      }
+
+      const application = await ctx.prisma.formSubmission.findFirst({
+        where: {
+          formStructureId: formName,
+          submitterId: input.submitterId,
+        },
+      });
       return application;
     }),
   submit: protectedProcedure
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
-      const directQuerier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
-        await directQuerier.getDeltaHacksApplicationFormName();
+        await Config.getDeltaHacksApplicationFormName(ctx.prisma);
 
       trpcAssert(
         deltaHacksApplicationFormName,
@@ -586,9 +594,8 @@ export const applicationRouter = router({
       });
       trpcAssert(user, "NOT_FOUND");
 
-      const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
-        await querier.getDeltaHacksApplicationFormName();
+        await Config.getDeltaHacksApplicationFormName(ctx.prisma);
 
       if (!deltaHacksApplicationFormName) {
         console.log("No application found to delete.");

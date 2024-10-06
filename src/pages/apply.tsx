@@ -37,7 +37,7 @@ import {
   workshopType,
 } from "../data/applicationSelectData";
 import { useEffect } from "react";
-import { DirectPrismaQuerier } from "../server/db/directQueries";
+import * as Config from "../server/db/configQueries";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -794,16 +794,14 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const querier = new DirectPrismaQuerier(prisma);
-  const killed = await querier.hasKilledApplications();
-
   // The formName can be uninitialized on the initial migration.
   // After migration, formName should be immediately initialized.
-  const formName = await querier.getDeltaHacksApplicationFormName();
+  const formName = await Config.getDeltaHacksApplicationFormName(prisma);
   if (!formName) {
     return { redirect: { destination: "welcome", permanent: false } };
   }
 
+  const killed = await Config.hasKilledApplications(prisma);
   return {
     props: {
       email: session.user.email,

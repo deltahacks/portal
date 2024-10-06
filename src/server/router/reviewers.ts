@@ -2,8 +2,8 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
-import { assert, trpcAssert } from "../../utils/asserts";
-import { DirectPrismaQuerier } from "../db/directQueries";
+import { trpcAssert } from "../../utils/asserts";
+import * as Config from "../db/configQueries";
 
 const ApplicationForReview = z.object({
   submitter: z.object({
@@ -38,9 +38,8 @@ export const reviewerRouter = router({
         "UNAUTHORIZED"
       );
 
-      const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
-        await querier.getDeltaHacksApplicationFormName();
+        await Config.getDeltaHacksApplicationFormName(ctx.prisma);
       if (!deltaHacksApplicationFormName) {
         return [];
       }
@@ -83,9 +82,8 @@ export const reviewerRouter = router({
           ctx.session.user.role.includes(Role.REVIEWER),
         "UNAUTHORIZED"
       );
-      const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
-        await querier.getDeltaHacksApplicationFormName();
+        await Config.getDeltaHacksApplicationFormName(ctx.prisma);
 
       if (!deltaHacksApplicationFormName) {
         return null;
@@ -168,9 +166,8 @@ export const reviewerRouter = router({
         "UNAUTHORIZED"
       );
 
-      const querier = new DirectPrismaQuerier(ctx.prisma);
       const deltaHacksApplicationFormName =
-        await querier.getDeltaHacksApplicationFormName();
+        await Config.getDeltaHacksApplicationFormName(ctx.prisma);
 
       trpcAssert(
         deltaHacksApplicationFormName,

@@ -13,8 +13,7 @@ import { useRouter } from "next/router";
 import { prisma } from "../server/db/client";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Drawer from "../components/Drawer";
-import { TRPCError } from "@trpc/server";
-import { DirectPrismaQuerier } from "../server/db/directQueries";
+import * as Config from "../server/db/configQueries";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -237,11 +236,22 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/welcome", permanent: false } };
   }
 
-  const querier = new DirectPrismaQuerier(prisma);
-  const application = await querier.getUserApplication(session?.user.id);
+  const formName = await Config.getDeltaHacksApplicationFormName(prisma);
+  if (!formName) {
+    return { notFound: true };
+  }
+
+  const application = await prisma.formSubmission.findFirst({
+    where: {
+      formStructureId: formName,
+      submitterId: session?.user.id,
+    },
+  });
+
   if (!application) {
     return { notFound: true };
   }
+
   return { props: { status: application.status } };
 };
 

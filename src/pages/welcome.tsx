@@ -5,7 +5,7 @@ import Drawer from "../components/Drawer";
 import SocialButtons from "../components/SocialButtons";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
-import { DirectPrismaQuerier } from "../server/db/directQueries";
+import * as Config from "../server/db/configQueries";
 
 const Content = () => {
   return (
@@ -85,13 +85,23 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const querier = new DirectPrismaQuerier(prisma);
-  const application = await querier.getUserApplication(session.user.id);
-  if (application) {
-    return { redirect: { destination: "/dashboard", permanent: false } };
+  const formName = await Config.getDeltaHacksApplicationFormName(prisma);
+  if (!formName) {
+    return { notFound: true };
   }
 
-  return { props: {} };
+  const application = await prisma.formSubmission.findFirst({
+    where: {
+      formStructureId: formName,
+      submitterId: session?.user.id,
+    },
+  });
+
+  if (!application) {
+    return {};
+  }
+
+  return { redirect: { destination: "/dashboard", permanent: false } };
 };
 
 export default Welcome;

@@ -15,7 +15,7 @@ import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
 import Drawer from "../components/Drawer";
-import { DirectPrismaQuerier } from "../server/db/directQueries";
+import * as Config from "../server/db/configQueries";
 import { assert } from "../utils/asserts";
 
 interface TimeUntilStartInterface {
@@ -473,10 +473,23 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/login", permanent: false } };
   }
 
-  const querier = new DirectPrismaQuerier(prisma);
-  const killed = await querier.hasKilledApplications();
-  const application = await querier.getUserApplication(session?.user?.id);
+  const formName = await Config.getDeltaHacksApplicationFormName(prisma);
+  if (!formName) {
+    return { notFound: true };
+  }
 
+  const application = await prisma.formSubmission.findFirst({
+    where: {
+      formStructureId: formName,
+      submitterId: session?.user.id,
+    },
+  });
+
+  if (!application) {
+    return { notFound: true };
+  }
+
+  const killed = await Config.hasKilledApplications(prisma);
   if (application) {
     return { props: { killed } };
   }
