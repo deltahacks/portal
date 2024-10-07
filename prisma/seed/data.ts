@@ -1,14 +1,8 @@
-export interface FormStructure {
-  id: string;
-  categories: {
-    name: string;
-    questions: string[];
-  }[];
-}
+import { FormStructure } from "../../src/server/router/formBuilder";
 
 export const FORM_STRUCTURES: FormStructure[] = [
   {
-    id: "DeltaHacks X Application Form",
+    name: "DeltaHacks X Application Form",
     categories: [
       {
         name: "Personal Information",
@@ -77,7 +71,7 @@ export const FORM_STRUCTURES: FormStructure[] = [
 ];
 
 export const DELTAHACKS_APPLICATION_FORM_CONFIG = {
-  id: "DeltaHacksApplication",
-  name: "DeltaHacksApplication",
-  value: "DeltaHacks X Application Form",
+  id: "CurrentDeltaHacksApplication",
+  name: "deltaHacksApplicationFormId",
+  value: "fewadghtregfdasf", // unique id of form
 };
