@@ -181,6 +181,7 @@ model FormSubmission {
 
 model FormStructure {
   id                 String             @id @default(cuid())
+  name               String
   submissions        FormSubmission[]
   questionCategories QuestionCategory[]
 }
