@@ -5,7 +5,6 @@ import Drawer from "../components/Drawer";
 import SocialButtons from "../components/SocialButtons";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
-import * as Config from "../server/db/configQueries";
 
 const Content = () => {
   return (
@@ -98,7 +97,7 @@ export const getServerSideProps = async (
   });
 
   if (!application) {
-    return {};
+    return { props: {} };
   }
 
   return { redirect: { destination: "/dashboard", permanent: false } };
