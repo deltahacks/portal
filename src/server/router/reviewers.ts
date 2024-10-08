@@ -20,12 +20,12 @@ const ApplicationForReview = z.object({
 
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
-interface Application {
-  categoryName: string;
-  questionAndAnswer: {
-    question: string;
-    answer: string | null;
-  }[];
+interface FormItemAndAnswer {
+  formItem: {
+    statement: string;
+    formPosition: number;
+  };
+  answer: string | null;
 }
 
 export const reviewerRouter = router({
@@ -89,6 +89,15 @@ export const reviewerRouter = router({
         return null;
       }
 
+      const formSubmission = await ctx.prisma.formSubmission.findUniqueOrThrow({
+        where: {
+          formStructureId_submitterId: {
+            formStructureId: deltaHacksApplicationFormName,
+            submitterId: input.submitterId,
+          },
+        },
+      });
+
       const applicationSubmission =
         await ctx.prisma.formSubmission.findUniqueOrThrow({
           where: {
@@ -100,20 +109,13 @@ export const reviewerRouter = router({
           include: {
             formStructure: {
               select: {
-                questionCategories: {
-                  select: {
-                    name: true,
-                    formPosition: true,
-                    questions: {
-                      select: {
-                        statement: true,
-                        categoryPosition: true,
+                formItems: {
+                  include: {
+                    childQuestion: {
+                      include: {
                         answers: {
                           where: {
-                            submitterId: input.submitterId,
-                          },
-                          select: {
-                            statement: true,
+                            formSubmissionId: formSubmission.id,
                           },
                         },
                       },
@@ -126,29 +128,20 @@ export const reviewerRouter = router({
         });
 
       // Sort the questions by their positions
-      applicationSubmission.formStructure.questionCategories.sort(
-        (questionCategory1, questionCategory2) =>
-          questionCategory1.formPosition - questionCategory2.formPosition
-      );
-      applicationSubmission.formStructure.questionCategories.forEach(
-        (questionCategory) => {
-          questionCategory.questions.sort(
-            (question1, question2) =>
-              question1.categoryPosition - question2.categoryPosition
-          );
+      applicationSubmission.formStructure.formItems.sort(
+        (formItem1, formItem2) => {
+          return formItem1.formPosition - formItem2.formPosition;
         }
       );
 
-      const application: Application[] =
-        applicationSubmission.formStructure.questionCategories.map(
-          (questionCategory) => ({
-            categoryName: questionCategory.name,
-            questionAndAnswer: questionCategory.questions.map((question) => ({
-              question: question.statement,
-              answer: question.answers[0]?.statement ?? null,
-            })),
-          })
-        );
+      const application: FormItemAndAnswer[] =
+        applicationSubmission.formStructure.formItems.map((item) => ({
+          formItem: {
+            statement: item.statement,
+            formPosition: item.formPosition,
+          },
+          answer: item.childQuestion?.answers[0]?.statement ?? null,
+        }));
 
       return application;
     }),

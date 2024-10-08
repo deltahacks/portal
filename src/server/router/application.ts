@@ -230,20 +230,12 @@ export const applicationRouter = router({
         "No form for the User to submit to"
       );
 
-      const formSubmission = {
-        formStructureId: deltaHacksApplicationFormName,
-        submitterId: ctx.session.user.id,
-        status: Status.IN_REVIEW,
-      };
-      await ctx.prisma.formSubmission.upsert({
-        where: {
-          formStructureId_submitterId: {
-            formStructureId: formSubmission.formStructureId,
-            submitterId: formSubmission.submitterId,
-          },
+      const formSubmission = await ctx.prisma.formSubmission.create({
+        data: {
+          formStructureId: deltaHacksApplicationFormName,
+          submitterId: ctx.session.user.id,
+          status: Status.IN_REVIEW,
         },
-        update: formSubmission,
-        create: formSubmission,
       });
 
       // IMPORTANT
@@ -258,42 +250,12 @@ export const applicationRouter = router({
         }
       }
 
-      const getCategoryIdFromName = async (name: string) => {
-        const questionCategory = await prisma?.questionCategory.findUnique({
+      const getQuestionId = async (position: number) => {
+        const question = await prisma?.formItem.findUnique({
           where: {
-            name_formStructureId: {
-              name,
+            formPosition_formStructureId: {
+              formPosition: position,
               formStructureId: deltaHacksApplicationFormName,
-            },
-          },
-          select: {
-            id: true,
-          },
-        });
-        trpcAssert(questionCategory, "NOT_FOUND");
-        return questionCategory?.id ?? null;
-      };
-
-      const personalInfoId = await getCategoryIdFromName(
-        "Personal Information"
-      );
-      const educationId = await getCategoryIdFromName("Education");
-      const longAnswerId = await getCategoryIdFromName("Long Answer");
-      const surveyId = await getCategoryIdFromName("Survey");
-      const emergencyContactId = await getCategoryIdFromName(
-        "Emergency Contact"
-      );
-      const mLHContactId = await getCategoryIdFromName("MLH Consent");
-
-      const getQuestionId = async (
-        categoryPosition: number,
-        questionCategoryId: string
-      ) => {
-        const question = await prisma?.question.findUnique({
-          where: {
-            categoryPosition_categoryId: {
-              categoryPosition,
-              categoryId: questionCategoryId,
             },
           },
           select: {
@@ -307,152 +269,141 @@ export const applicationRouter = router({
       const answers: AnswerForRouter[] = [
         {
           statement: input.firstName,
-          addressedQuestionId: await getQuestionId(0, personalInfoId),
+          addressedQuestionId: await getQuestionId(1),
         },
         {
           statement: input.lastName,
-          addressedQuestionId: await getQuestionId(1, personalInfoId),
+          addressedQuestionId: await getQuestionId(2),
         },
         {
           statement: input.birthday.toISOString().substring(0, 10),
-          addressedQuestionId: await getQuestionId(2, personalInfoId),
+          addressedQuestionId: await getQuestionId(3),
         },
         {
           statement: input.linkToResume,
-          addressedQuestionId: await getQuestionId(3, personalInfoId),
+          addressedQuestionId: await getQuestionId(4),
         },
         {
           statement: input.macEv.toString(),
-          addressedQuestionId: await getQuestionId(4, personalInfoId),
+          addressedQuestionId: await getQuestionId(5),
         },
         {
           statement: input.studyEnrolledPostSecondary.toString(),
-          addressedQuestionId: await getQuestionId(0, educationId),
+          addressedQuestionId: await getQuestionId(7),
         },
         {
           statement: input.studyLocation ?? null,
-          addressedQuestionId: await getQuestionId(1, educationId),
+          addressedQuestionId: await getQuestionId(8),
         },
         {
           statement: input.studyDegree ?? null,
-          addressedQuestionId: await getQuestionId(2, educationId),
+          addressedQuestionId: await getQuestionId(9),
         },
         {
           statement: input.studyMajor ?? null,
-          addressedQuestionId: await getQuestionId(3, educationId),
+          addressedQuestionId: await getQuestionId(10),
         },
         {
           statement: input.studyYearOfStudy ?? null,
-          addressedQuestionId: await getQuestionId(4, educationId),
+          addressedQuestionId: await getQuestionId(11),
         },
         {
           statement: gradDate?.toISOString().substring(0, 10) ?? null,
-          addressedQuestionId: await getQuestionId(5, educationId),
+          addressedQuestionId: await getQuestionId(12),
         },
         {
           statement: input.previousHackathonsCount.toString(),
-          addressedQuestionId: await getQuestionId(6, educationId),
+          addressedQuestionId: await getQuestionId(13),
         },
         {
           statement: input.longAnswerChange,
-          addressedQuestionId: await getQuestionId(0, longAnswerId),
+          addressedQuestionId: await getQuestionId(15),
         },
         {
           statement: input.longAnswerExperience,
-          addressedQuestionId: await getQuestionId(1, longAnswerId),
+          addressedQuestionId: await getQuestionId(16),
         },
         {
           statement: input.longAnswerTech,
-          addressedQuestionId: await getQuestionId(2, longAnswerId),
+          addressedQuestionId: await getQuestionId(17),
         },
         {
           statement: input.longAnswerMagic,
-          addressedQuestionId: await getQuestionId(3, longAnswerId),
+          addressedQuestionId: await getQuestionId(18),
         },
         {
           statement: input.socialText ?? null,
-          addressedQuestionId: await getQuestionId(0, surveyId),
+          addressedQuestionId: await getQuestionId(20),
         },
         {
           statement: input.interests?.toString() ?? null,
-          addressedQuestionId: await getQuestionId(1, surveyId),
+          addressedQuestionId: await getQuestionId(21),
         },
         {
           statement: input.tshirtSize,
-          addressedQuestionId: await getQuestionId(2, surveyId),
+          addressedQuestionId: await getQuestionId(22),
         },
         {
           statement: input.hackerKind,
-          addressedQuestionId: await getQuestionId(3, surveyId),
+          addressedQuestionId: await getQuestionId(23),
         },
         {
           statement: JSON.stringify(input.workshopChoices),
-          addressedQuestionId: await getQuestionId(4, surveyId),
+          addressedQuestionId: await getQuestionId(24),
         },
         {
           statement: JSON.stringify(input.discoverdFrom.toString()),
-          addressedQuestionId: await getQuestionId(5, surveyId),
+          addressedQuestionId: await getQuestionId(25),
         },
         {
           statement: input.gender,
-          addressedQuestionId: await getQuestionId(6, surveyId),
+          addressedQuestionId: await getQuestionId(26),
         },
         {
           statement: input.race,
-          addressedQuestionId: await getQuestionId(7, surveyId),
+          addressedQuestionId: await getQuestionId(27),
         },
         {
           statement: input.alreadyHaveTeam.toString(),
-          addressedQuestionId: await getQuestionId(8, surveyId),
+          addressedQuestionId: await getQuestionId(28),
         },
         {
           statement: input.considerCoffee.toString(),
-          addressedQuestionId: await getQuestionId(9, surveyId),
+          addressedQuestionId: await getQuestionId(29),
         },
         {
           statement: input.emergencyContactName,
-          addressedQuestionId: await getQuestionId(0, emergencyContactId),
+          addressedQuestionId: await getQuestionId(31),
         },
         {
           statement: input.emergencyContactRelation,
-          addressedQuestionId: await getQuestionId(1, emergencyContactId),
+          addressedQuestionId: await getQuestionId(32),
         },
         {
           statement: input.emergencyContactPhone,
-          addressedQuestionId: await getQuestionId(2, emergencyContactId),
+          addressedQuestionId: await getQuestionId(33),
         },
         {
           statement: input.agreeToMLHCodeOfConduct.toString(),
-          addressedQuestionId: await getQuestionId(0, mLHContactId),
+          addressedQuestionId: await getQuestionId(35),
         },
         {
           statement: input.agreeToMLHPrivacyPolicy.toString(),
-          addressedQuestionId: await getQuestionId(1, mLHContactId),
+          addressedQuestionId: await getQuestionId(36),
         },
         {
           statement: input.agreeToMLHCommunications.toString(),
-          addressedQuestionId: await getQuestionId(2, mLHContactId),
+          addressedQuestionId: await getQuestionId(37),
         },
       ];
 
-      await Promise.all(
-        answers.map(async (answerPartial) => {
-          const answer = {
-            ...answerPartial,
-            submitterId: ctx.session.user.id,
-          };
-          await ctx.prisma.answer.upsert({
-            where: {
-              addressedQuestionId_submitterId: {
-                addressedQuestionId: answer.addressedQuestionId,
-                submitterId: answer.submitterId,
-              },
-            },
-            update: answer,
-            create: answer,
-          });
-        })
-      );
+      console.log("formsubmission: ", formSubmission.id);
+      await ctx.prisma.answer.createMany({
+        data: answers.map((answerPartial) => ({
+          ...answerPartial,
+          formSubmissionId: formSubmission.id,
+        })),
+      });
 
       await ctx.logsnag.track({
         channel: "applications",

@@ -60,7 +60,6 @@ model User {
   dH10ApplicationId String?          @unique
 
   applicationSubmissions FormSubmission[]
-  answers                Answer[]
 }
 
 /// @deprecated Use `User.status` instead
@@ -167,60 +166,56 @@ model Config {
 }
 
 model FormSubmission {
+  id             String   @id @default(cuid())
   submissionTime DateTime @default(now())
   status         Status   @default(IN_REVIEW)
 
   formStructure   FormStructure @relation(fields: [formStructureId], references: [id])
   formStructureId String
 
-  submitter   User   @relation(fields: [submitterId], references: [id])
+  submitter   User     @relation(fields: [submitterId], references: [id])
   submitterId String
+  answers     Answer[]
 
-  @@id([formStructureId, submitterId])
+  @@unique([formStructureId, submitterId])
 }
 
 model FormStructure {
-  id                 String             @id @default(cuid())
-  name               String
-  submissions        FormSubmission[]
-  questionCategories QuestionCategory[]
+  id   String @id @default(cuid())
+  name String
+
+  submissions FormSubmission[]
+  formItems   FormItem[]
 }
 
-model QuestionCategory {
+model FormItem {
   id           String @id @default(cuid())
-  name         String
+  statement    String
   formPosition Int
 
   formStructure   FormStructure @relation(fields: [formStructureId], references: [id])
   formStructureId String
 
-  questions Question[]
+  childQuestion Question?
 
-  @@unique([name, formStructureId])
   @@unique([formPosition, formStructureId])
 }
 
 model Question {
-  id               String @id @default(cuid())
-  statement        String
-  categoryPosition Int
-
-  category   QuestionCategory @relation(fields: [categoryId], references: [id])
-  categoryId String
+  formItem    FormItem @relation(fields: [formItemId], references: [id])
+  formItemId  String   @id
+  placeholder String?
 
   answers Answer[]
-
-  @@unique([categoryPosition, categoryId])
 }
 
 model Answer {
   statement String?
 
-  addressedQuestion   Question @relation(fields: [addressedQuestionId], references: [id])
+  addressedQuestion   Question       @relation(fields: [addressedQuestionId], references: [formItemId])
   addressedQuestionId String
+  formSubmission      FormSubmission @relation(fields: [formSubmissionId], references: [id])
+  formSubmissionId    String
 
-  submitter   User   @relation(fields: [submitterId], references: [id])
-  submitterId String
-
-  @@id([addressedQuestionId, submitterId])
+  @@id([addressedQuestionId, formSubmissionId])
 }

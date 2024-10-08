@@ -1,14 +1,15 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
 import { PrismaClient } from "@prisma/client";
-import { assert } from "../../utils/asserts";
+import { trpcAssert } from "../../utils/asserts";
 
 const FormStructure = z.object({
   name: z.string(),
-  categories: z
+  formItems: z
     .object({
-      name: z.string(),
-      questions: z.string().array(),
+      itemType: z.enum(["category", "question"]),
+      statement: z.string(),
+      placeholder: z.string().optional(),
     })
     .array(),
 });
@@ -23,59 +24,31 @@ export const createForm = async (
     data: { name: formStructure.name },
   });
 
-  await prisma.questionCategory.createMany({
-    data: formStructure.categories.map(({ name }, i) => ({
+  const formItems = await prisma.formItem.createManyAndReturn({
+    data: formStructure.formItems.map(({ statement }, i) => ({
       formStructureId: form.id,
-      name,
+      statement,
       formPosition: i,
     })),
-    skipDuplicates: true,
   });
 
-  const categories = await prisma.questionCategory.findMany({
-    where: {
-      formStructureId: form.id,
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
-
-  assert(
-    categories.length >= formStructure.categories.length,
-    "All categories should've been added before"
-  );
-
-  const categoryNameToIdMap = new Map(
-    categories.map(({ id, name }) => [name, id])
-  );
-
-  await Promise.all(
-    formStructure.categories.map(async ({ name: categoryName, questions }) => {
-      const categoryId = categoryNameToIdMap.get(categoryName);
-      assert(categoryId);
-
-      try {
-        await prisma.question.createMany({
-          data: questions.map((question, i) => {
-            return {
-              statement: question,
-              categoryPosition: i,
-              categoryId,
-            };
-          }),
-          skipDuplicates: true,
-        });
-      } catch (e) {
-        console.error(
-          `Error occured while adding the following: categoryName: ${categoryName}, categoryId: ${categoryId}, questions:`,
-          questions
+  await prisma.question.createMany({
+    data: formStructure.formItems
+      .map(({ itemType }, formPosition) => ({ itemType, formPosition }))
+      .filter(({ itemType }) => itemType == "question")
+      .map(({ formPosition }) => {
+        // The above list operations were to obtain this formItem
+        // to create questions.
+        const formItem = formItems.find(
+          (item) => item.formPosition == formPosition
         );
-        throw e;
-      }
-    })
-  );
+
+        trpcAssert(formItem, "NOT_FOUND");
+        return {
+          formItemId: formItem?.id,
+        };
+      }),
+  });
 };
 
 export const fileBuilder = router({

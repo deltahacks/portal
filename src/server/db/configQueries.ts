@@ -6,7 +6,7 @@ export const getDeltaHacksApplicationFormName = async (
 ) => {
   const deltaHacksApplicationFormConfig = await prisma.config.findUnique({
     where: {
-      id: "DeltaHacksApplication",
+      id: "CurrentDeltaHacksApplication",
     },
   });
   if (!deltaHacksApplicationFormConfig) {
@@ -31,7 +31,7 @@ export const hasKilledApplications = async (prisma: PrismaClient) => {
     return true;
   }
   try {
-    return JSON.parse(killedConfig.value) !== false;
+    return JSON.parse(killedConfig.value) === true;
   } catch (error) {
     console.error("Invalid killApplications configuration:", error);
     throw error;

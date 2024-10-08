@@ -109,199 +109,197 @@ const ApplicationContent = ({
 
   return (
     <>
-      <FormDivider label={application?.at(0)?.categoryName ?? ""} />
+      <FormDivider label={application?.at(0)?.formItem.statement ?? ""} />
       <div className="flex w-full flex-col lg:flex-row lg:gap-4">
         <FormInput
-          label={application?.at(0)?.questionAndAnswer.at(0)?.question ?? ""}
-          text={application?.at(0)?.questionAndAnswer.at(0)?.answer}
+          label={application?.at(1)?.formItem.statement ?? ""}
+          text={application?.at(1)?.answer}
           placeholder="John"
         />
         <FormInput
-          label={application?.at(0)?.questionAndAnswer.at(1)?.question ?? ""}
-          text={application?.at(0)?.questionAndAnswer.at(1)?.answer}
+          label={application?.at(2)?.formItem.statement ?? ""}
+          text={application?.at(2)?.answer}
           placeholder="Doe"
         />
       </div>
       <FormInput
         id="birthday"
-        label={application?.at(0)?.questionAndAnswer.at(2)?.question ?? ""}
-        text={application?.at(0)?.questionAndAnswer.at(2)?.answer}
+        label={application?.at(3)?.formItem.statement ?? ""}
+        text={application?.at(3)?.answer}
       />
       <FormInput
-        label={application?.at(0)?.questionAndAnswer.at(3)?.question ?? ""}
-        text={application?.at(0)?.questionAndAnswer.at(3)?.answer}
+        label={application?.at(4)?.formItem.statement ?? ""}
+        text={application?.at(4)?.answer}
         placeholder="https://example.com/resume.pdf"
         optional
       />
       {submitter.email.endsWith("mcmaster.ca") && (
         <FormCheckbox
-          label={application?.at(0)?.questionAndAnswer.at(5)?.question ?? ""}
-          checked={
-            application?.at(0)?.questionAndAnswer.at(5)?.answer === "true"
-          }
+          label={application?.at(5)?.formItem.statement ?? ""}
+          checked={application?.at(5)?.answer === "true"}
           readOnly
         />
       )}
-      <FormDivider label={application?.at(1)?.categoryName ?? ""} />
+      <FormDivider label={application?.at(6)?.formItem?.statement ?? ""} />
       <FormCheckbox
-        label={application?.at(1)?.questionAndAnswer.at(0)?.question ?? ""}
-        checked={application?.at(1)?.questionAndAnswer.at(0)?.answer === "true"}
+        label={application?.at(7)?.formItem.statement ?? ""}
+        checked={application?.at(7)?.answer === "true"}
         readOnly
       />
-      {application?.at(1)?.questionAndAnswer.at(0)?.answer === "true" && (
+      {application?.at(7)?.answer === "true" && (
         <div>
           <FormInput
-            label={application?.at(1)?.questionAndAnswer.at(1)?.question ?? ""}
-            text={application?.at(1)?.questionAndAnswer.at(1)?.answer}
+            label={application?.at(8)?.formItem.statement ?? ""}
+            text={application?.at(8)?.answer}
             placeholder="School..."
             optional
           />
           <FormInput
-            label={application?.at(1)?.questionAndAnswer.at(2)?.question ?? ""}
-            text={application?.at(1)?.questionAndAnswer.at(2)?.answer}
+            label={application?.at(9)?.formItem.statement ?? ""}
+            text={application?.at(9)?.answer}
             placeholder="Degree..."
             optional
           />
           <FormInput
-            label={application?.at(1)?.questionAndAnswer.at(3)?.question ?? ""}
-            text={application?.at(1)?.questionAndAnswer.at(3)?.answer}
+            label={application?.at(10)?.formItem.statement ?? ""}
+            text={application?.at(10)?.answer}
             placeholder="Major..."
             optional
           />
           <FormInput
-            label={application?.at(1)?.questionAndAnswer.at(4)?.question ?? ""}
-            text={application?.at(1)?.questionAndAnswer.at(4)?.answer}
+            label={application?.at(11)?.formItem.statement ?? ""}
+            text={application?.at(11)?.answer}
             placeholder="Study Year..."
             optional
           />
           <FormInput
             id="studyExpectedGraducation"
-            label={application?.at(1)?.questionAndAnswer.at(5)?.question ?? ""}
-            text={application?.at(1)?.questionAndAnswer.at(5)?.answer}
+            label={application?.at(12)?.formItem.statement ?? ""}
+            text={application?.at(12)?.answer}
           />
         </div>
       )}
       optional
       <FormInput
-        label={application?.at(1)?.questionAndAnswer.at(6)?.question ?? ""}
-        text={application?.at(1)?.questionAndAnswer.at(6)?.answer}
+        label={application?.at(13)?.formItem.statement ?? ""}
+        text={application?.at(13)?.answer}
       />
-      <FormDivider label="Long Answer" />
+      <FormDivider label={application?.at(14)?.formItem.statement ?? ""} />
       <FormTextArea
         id="longAnswerChange"
-        label={application?.at(2)?.questionAndAnswer.at(0)?.question ?? ""}
-        text={application?.at(2)?.questionAndAnswer.at(0)?.answer}
+        label={application?.at(15)?.formItem.statement ?? ""}
+        text={application?.at(15)?.answer}
       />
       <FormTextArea
         id="longAnswerExperience"
-        label={application?.at(2)?.questionAndAnswer.at(1)?.question ?? ""}
-        text={application?.at(2)?.questionAndAnswer.at(1)?.answer}
+        label={application?.at(16)?.formItem.statement ?? ""}
+        text={application?.at(16)?.answer}
       />
       <FormTextArea
         id="longAnswerTech"
-        label={application?.at(2)?.questionAndAnswer.at(2)?.question ?? ""}
-        text={application?.at(2)?.questionAndAnswer.at(2)?.answer}
+        label={application?.at(17)?.formItem.statement ?? ""}
+        text={application?.at(17)?.answer}
       />
       <FormTextArea
         id="longAnswerMagic"
-        label={application?.at(2)?.questionAndAnswer.at(3)?.question ?? ""}
-        text={application?.at(2)?.questionAndAnswer.at(3)?.answer}
+        label={application?.at(18)?.formItem.statement ?? ""}
+        text={application?.at(18)?.answer}
       />
-      <FormDivider label="Survey" />
+      <FormDivider label={application?.at(19)?.formItem.statement ?? ""} />
       <FormInput
         id="socialText"
-        label={application?.at(3)?.questionAndAnswer.at(0)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(0)?.answer}
+        label={application?.at(20)?.formItem.statement ?? ""}
+        text={application?.at(20)?.answer}
         optional
       />
       <FormTextArea
         id="interests"
-        label={application?.at(3)?.questionAndAnswer.at(1)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(1)?.answer}
+        label={application?.at(21)?.formItem.statement ?? ""}
+        text={application?.at(21)?.answer}
         optional
       />
       <FormInput
         id="tshirtSize"
-        label={application?.at(3)?.questionAndAnswer.at(2)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(2)?.answer}
+        label={application?.at(22)?.formItem.statement ?? ""}
+        text={application?.at(22)?.answer}
       />
       <FormInput
         id="hackerKind"
-        label={application?.at(3)?.questionAndAnswer.at(3)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(3)?.answer}
+        label={application?.at(23)?.formItem.statement ?? ""}
+        text={application?.at(23)?.answer}
       />
       <FormInput
         id="workshopChoices"
-        label={application?.at(3)?.questionAndAnswer.at(4)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(4)?.answer}
+        label={application?.at(24)?.formItem.statement ?? ""}
+        text={application?.at(24)?.answer}
       />
       <FormInput
         id="discoverdFrom"
-        label={application?.at(3)?.questionAndAnswer.at(5)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(5)?.answer}
+        label={application?.at(25)?.formItem.statement ?? ""}
+        text={application?.at(25)?.answer}
       />
       <FormInput
         id="gender"
-        label={application?.at(3)?.questionAndAnswer.at(6)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(6)?.answer}
+        label={application?.at(26)?.formItem.statement ?? ""}
+        text={application?.at(26)?.answer}
       />
       <FormInput
         id="race"
-        label={application?.at(3)?.questionAndAnswer.at(7)?.question ?? ""}
-        text={application?.at(3)?.questionAndAnswer.at(7)?.answer}
+        label={application?.at(27)?.formItem.statement ?? ""}
+        text={application?.at(27)?.answer}
       />
       <FormCheckbox
         id="alreadyHaveTeam"
-        label={application?.at(3)?.questionAndAnswer.at(8)?.question ?? ""}
-        checked={application?.at(3)?.questionAndAnswer.at(8)?.answer === "true"}
+        label={application?.at(28)?.formItem.statement ?? ""}
+        checked={application?.at(28)?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="considerCoffee"
-        label={application?.at(3)?.questionAndAnswer.at(9)?.question ?? ""}
-        checked={application?.at(3)?.questionAndAnswer.at(9)?.answer === "true"}
+        label={application?.at(29)?.formItem.statement ?? ""}
+        checked={application?.at(29)?.answer === "true"}
         readOnly
       />
-      <FormDivider label="Emergency Contact" />
+      <FormDivider label={application?.at(30)?.formItem.statement ?? ""} />
       <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput
           id="emergencyContactName"
-          label={application?.at(4)?.questionAndAnswer.at(0)?.question ?? ""}
-          text={application?.at(4)?.questionAndAnswer.at(0)?.answer}
+          label={application?.at(31)?.formItem.statement ?? ""}
+          text={application?.at(31)?.answer}
           placeholder="James Doe"
         />
         <FormInput
           id="emergencyContactRelation"
-          label={application?.at(4)?.questionAndAnswer.at(1)?.question ?? ""}
-          text={application?.at(4)?.questionAndAnswer.at(1)?.answer}
+          label={application?.at(32)?.formItem.statement ?? ""}
+          text={application?.at(32)?.answer}
           placeholder="Parent / Guardian / Friend / Spouse"
         />
       </div>
       <FormInput
         id="emergencyContactPhone"
-        label={application?.at(4)?.questionAndAnswer.at(2)?.question ?? ""}
-        text={application?.at(4)?.questionAndAnswer.at(2)?.answer}
+        label={application?.at(33)?.formItem.statement ?? ""}
+        text={application?.at(33)?.answer}
         placeholder="000-000-0000"
       />
-      <FormDivider label="MLH Consent" />
+      <FormDivider label={application?.at(34)?.formItem.statement ?? ""} />
       <FormCheckbox
         id="agreeToMLHCodeOfConduct"
         link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
-        label={application?.at(5)?.questionAndAnswer.at(0)?.question ?? ""}
-        checked={application?.at(5)?.questionAndAnswer.at(0)?.answer === "true"}
+        label={application?.at(35)?.formItem.statement ?? ""}
+        checked={application?.at(35)?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="agreeToMLHPrivacyPolicy"
         link="https://mlh.io/privacy"
-        label={application?.at(5)?.questionAndAnswer.at(1)?.question ?? ""}
-        checked={application?.at(5)?.questionAndAnswer.at(1)?.answer === "true"}
+        label={application?.at(36)?.formItem.statement ?? ""}
+        checked={application?.at(36)?.answer === "true"}
         readOnly
       />
       <FormCheckbox
         id="agreeToMLHCommunications"
-        label={application?.at(5)?.questionAndAnswer.at(2)?.question ?? ""}
-        checked={application?.at(5)?.questionAndAnswer.at(2)?.answer === "true"}
+        label={application?.at(37)?.formItem.statement ?? ""}
+        checked={application?.at(37)?.answer === "true"}
         optional
         readOnly
       />
