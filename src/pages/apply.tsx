@@ -130,7 +130,7 @@ const FormTextArea: React.FC<
               : "text-neutral-500 dark:text-neutral-400")
           }
         >
-          {150 - currentLength} words left
+          {150 + 1 - currentLength} words left
         </div>
       </label>
       <textarea
@@ -177,7 +177,7 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh10.useMutation({
+  } = trpc.application.submitDh11.useMutation({
     onSuccess: async () => {
       await router.push("/dashboard");
     },
@@ -196,7 +196,6 @@ const ApplyForm = ({
   };
 
   const isSecondary = watch("studyEnrolledPostSecondary");
-  const isMacEv = watch("macEv");
 
   return (
     <form
@@ -264,29 +263,6 @@ const ApplyForm = ({
         register={register}
         optional
       />
-
-      {persistId.endsWith("mcmaster.ca") && (
-        <FormCheckbox
-          label="Would you like to be a part of the McMaster Experience Ventures Program?"
-          id="macEv"
-          errors={errors.macEv}
-          register={register}
-        />
-      )}
-
-      {isMacEv && (
-        <div>
-          Please be sure to fill out this form for your application to be
-          considered:{" "}
-          <a
-            href="https://forms.office.com/r/59eVyQ2W4T"
-            className="text-blue-500"
-            target="_blank"
-          >
-            https://forms.office.com/r/Vf8wYec5JW
-          </a>
-        </div>
-      )}
 
       <FormDivider label="Education" />
 
@@ -444,35 +420,43 @@ const ApplyForm = ({
       <FormDivider label="Long Answer" />
 
       <FormTextArea
-        id="longAnswerChange"
-        label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
-        errors={errors.longAnswerChange}
+        id="longAnswerIncident"
+        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook."
+        errors={errors.longAnswerIncident}
         register={register}
-        currentLength={watch("longAnswerChange")?.split(/\s/g).length ?? 0}
+        currentLength={watch("longAnswerIncident")?.split(/\s/g).length ?? 0}
       />
 
       <FormTextArea
-        id="longAnswerExperience"
-        label="How do you hope to make the most out of your experience at DH10?"
-        errors={errors.longAnswerExperience}
+        id="longAnswerGoals"
+        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
+        errors={errors.longAnswerGoals}
         register={register}
-        currentLength={watch("longAnswerExperience")?.split(/\s/g).length ?? 0}
+        currentLength={watch("longAnswerGoals")?.split(/\s/g).length ?? 0}
       />
 
       <FormTextArea
-        id="longAnswerTech"
-        label="Which piece of future technology excites you most and where do you see it going?"
-        errors={errors.longAnswerTech}
+        id="longAnswerFood"
+        label="What's your go-to comfort food?"
+        errors={errors.longAnswerFood}
         register={register}
-        currentLength={watch("longAnswerTech")?.split(/\s/g).length ?? 0}
+        currentLength={watch("longAnswerFood")?.split(/\s/g).length ?? 0}
       />
 
       <FormTextArea
-        id="longAnswerMagic"
-        label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
-        errors={errors.longAnswerMagic}
+        id="longAnswerTravel"
+        label="If you could travel anywhere in the universe, where would you go and why?"
+        errors={errors.longAnswerTravel}
         register={register}
-        currentLength={watch("longAnswerMagic")?.split(/\s/g).length ?? 0}
+        currentLength={watch("longAnswerTravel")?.split(/\s/g).length ?? 0}
+      />
+
+      <FormTextArea
+        id="longAnswerSocratica"
+        label="If you did not have to worry about school/money/time, what is the one thing you would work on?"
+        errors={errors.longAnswerSocratica}
+        register={register}
+        currentLength={watch("longAnswerSocratica")?.split(/\s/g).length ?? 0}
       />
 
       <FormDivider label="Survey" />
@@ -480,7 +464,7 @@ const ApplyForm = ({
       <FormInput
         label="What are your social media links?"
         id={"socialText"}
-        errors={errors.socialText}
+        errors={errors?.socialText && errors.socialText[0]}
         register={register}
         optional
       />
@@ -525,10 +509,13 @@ const ApplyForm = ({
           render={({ field: { onChange, value } }) => (
             <CustomSelect
               options={hackerTypes}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={hackerTypes.find((val) => val.value === value)}
-              isMulti={false}
-              defaultInputValue={autofillData.hackerKind ?? undefined}
+              onChange={(val: SelectChoice[] | null) =>
+                onChange(val?.map((v: SelectChoice) => v.value))
+              }
+              value={workshops.filter((val) =>
+                value?.includes(val.value as workshopType)
+              )}
+              isMulti={true}
             />
           )}
         />
@@ -795,7 +782,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { dh10application: true },
+    include: { dh11application: true },
   });
 
   const killedStr = await prisma.config.findFirst({
@@ -811,7 +798,7 @@ export const getServerSideProps = async (
   }
 
   // If submitted then go dashboard
-  if (userEntry && userEntry.dh10application !== null) {
+  if (userEntry && userEntry.dh11application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
