@@ -58,6 +58,8 @@ model User {
 
   dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id])
   dH10ApplicationId String?          @unique
+
+  DH11Review DH11Review[]
 }
 
 model Review {
@@ -158,4 +160,79 @@ model Config {
 
   name  String @unique
   value String
+}
+
+model DH11Application {
+  id String @id @default(cuid())
+
+  firstName String
+  lastName  String
+
+  birthday DateTime
+
+  // School
+  studyEnrolledPostSecondary Boolean
+  studyLocation              String?
+  studyDegree                String?
+  studyMajor                 String?
+  studyYearOfStudy           String?
+  studyExpectedGraduation    DateTime?
+
+  previousHackathonsCount Int
+
+  longAnswerIncident  String
+  longAnswerGoals     String
+  longAnswerFood      String
+  longAnswerTravel    String
+  longAnswerSocratica String
+
+  socialText String[] @default([])
+  interests  String?
+
+  linkToResume String?
+
+  tshirtSize          String
+  hackerKind          String[] @default([])
+  alreadyHaveTeam     Boolean
+  workshopChoices     String[] @default([])
+  discoverdFrom       String[] @default([])
+  considerCoffee      Boolean
+  dietaryRestrictions String?
+
+  underrepresented YesNoUnsure
+
+  gender      String
+  race        String
+  orientation String
+
+  emergencyContactName     String
+  emergencyContactPhone    String
+  emergencyContactRelation String
+
+  agreeToMLHCodeOfConduct  Boolean
+  agreeToMLHPrivacyPolicy  Boolean
+  agreeToMLHCommunications Boolean
+
+  DH11Review DH11Review[]
+
+  status Status @default(IN_REVIEW)
+}
+
+model DH11Review {
+  id String @id @default(cuid())
+
+  score   Float
+  comment String
+
+  reviewerId    String
+  applicationId String
+
+  application DH11Application @relation(fields: [applicationId], references: [id], onDelete: NoAction)
+  reviewer    User            @relation(fields: [reviewerId], references: [id])
+}
+
+enum YesNoUnsure {
+  YES
+  NO
+  UNSURE
 }
