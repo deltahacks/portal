@@ -8,7 +8,7 @@ import { env } from "../../env/server.mjs";
 
 const logsnag = new LogSnag({
   token: env.LOGSNAG_TOKEN,
-  project: "deltahacks-portal",
+  project: "deltahacks-11",
 });
 
 type CreateContextOptions = {
