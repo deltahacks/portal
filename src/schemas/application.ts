@@ -204,7 +204,6 @@ const dh11schema = z.object({
     message: "You must agree to the MLH Privacy Policy",
   }),
   agreeToMLHCommunications: z.boolean(),
-  status: Status,
 });
 
 export default dh11schema;

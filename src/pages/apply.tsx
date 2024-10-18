@@ -35,6 +35,8 @@ import {
   heardFrom,
   SelectChoice,
   workshopType,
+  orientations,
+  represenation,
 } from "../data/applicationSelectData";
 import { useEffect } from "react";
 
@@ -55,7 +57,7 @@ const FormInput: React.FC<
   FormInputProps & React.HTMLProps<HTMLInputElement>
 > = ({ label, id, errors, optional, register, ...props }) => {
   return (
-    <div className="flex flex-1 flex-col gap-2 pb-4">
+    <div className="flex flex-col flex-1 gap-2 pb-4">
       <label className="text-black dark:text-white" htmlFor={id}>
         {label}{" "}
         {optional && (
@@ -65,7 +67,7 @@ const FormInput: React.FC<
         )}
       </label>
       <input
-        className="input rounded-lg  border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+        className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         type="text"
         id={id}
         {...register(id)}
@@ -81,7 +83,7 @@ const FormCheckbox: React.FC<
 > = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
     <>
-      <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
+      <div className="flex items-center justify-between w-full gap-2 pt-4 pb-4 md:flex-row-reverse md:justify-end">
         <label className="text-black dark:text-white" htmlFor={id}>
           {link ? (
             <a className="underline" href={link}>
@@ -97,7 +99,7 @@ const FormCheckbox: React.FC<
           )}
         </label>
         <input
-          className="checkbox-primary checkbox checkbox-lg rounded-sm bg-white p-2 dark:bg-neutral-800"
+          className="p-2 bg-white rounded-sm checkbox-primary checkbox checkbox-lg dark:bg-neutral-800"
           type="checkbox"
           id={id}
           {...register(id)}
@@ -114,7 +116,7 @@ const FormTextArea: React.FC<
     React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
 > = ({ label, id, errors, optional, currentLength, register, ...props }) => {
   return (
-    <div className="flex flex-1 flex-col gap-2 pb-4">
+    <div className="flex flex-col flex-1 gap-2 pb-4">
       <label className="text-black dark:text-white" htmlFor={id}>
         {label}{" "}
         {optional && (
@@ -134,7 +136,7 @@ const FormTextArea: React.FC<
         </div>
       </label>
       <textarea
-        className="textarea textarea-bordered rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+        className="text-black rounded-lg textarea textarea-bordered border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         id={id}
         placeholder="Type here..."
         {...register(id)}
@@ -190,25 +192,31 @@ const ApplyForm = ({
   });
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
+    console.log(data);
+    console.log("validating");
     const processed = applicationSchema.parse(data);
+
+    console.log("validated");
 
     await submitAppAsync(processed);
   };
+
+  console.log("Errors", errors);
 
   const isSecondary = watch("studyEnrolledPostSecondary");
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto flex flex-col pb-8"
+      className="flex flex-col pb-8 mx-auto"
     >
       {wasAutofilled && (
-        <div className="alert alert-success mb-4 justify-normal text-center">
+        <div className="mb-4 text-center alert alert-success justify-normal">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            className="h-6 w-6 shrink-0 stroke-current"
+            className="w-6 h-6 stroke-current shrink-0"
           >
             <path
               stroke-linecap="round"
@@ -222,7 +230,7 @@ const ApplyForm = ({
       )}
 
       <FormDivider label="Personal Information" />
-      <div className="flex w-full flex-col lg:flex-row lg:gap-4">
+      <div className="flex flex-col w-full lg:flex-row lg:gap-4">
         <FormInput
           label="First Name"
           id="firstName"
@@ -244,7 +252,7 @@ const ApplyForm = ({
           Birthday
         </label>
         <input
-          className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+          className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
           id="birthdayInput"
           {...register("birthday", {})}
@@ -380,7 +388,7 @@ const ApplyForm = ({
               Expected Graduation
             </label>
             <input
-              className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+              className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
               type="date"
               id="studyExpectedGraduationInput"
               {...register("studyExpectedGraduation")}
@@ -401,7 +409,7 @@ const ApplyForm = ({
           Previous Hackathons Count
         </label>
         <input
-          className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+          className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="number"
           min="0"
           id="previousHackathonsCountInput"
@@ -578,6 +586,33 @@ const ApplyForm = ({
       </div>
 
       <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="text-black dark:text-white"
+          htmlFor="underrepresentedInput"
+        >
+          Do you identify as part of an underrepresented group in the technology
+          industry?
+        </label>
+
+        <Controller
+          name="underrepresented"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={represenation}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={represenation.find((val) => val.value === value)}
+            />
+          )}
+        />
+
+        {errors.gender && (
+          <span className="text-error">{errors.gender.message}</span>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="genderInput">
           Gender
         </label>
@@ -597,6 +632,32 @@ const ApplyForm = ({
 
         {errors.gender && (
           <span className="text-error">{errors.gender.message}</span>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="text-black dark:text-white"
+          htmlFor="orientationInput"
+        >
+          Orientation
+        </label>
+
+        <Controller
+          name="orientation"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={orientations}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={orientations.find((val) => val.value === value)}
+            />
+          )}
+        />
+
+        {errors.orientation && (
+          <span className="text-error">{errors.orientation.message}</span>
         )}
       </div>
 
@@ -688,11 +749,11 @@ const ApplyForm = ({
         optional
       />
 
-      <button type="submit" className="btn btn-primary mb-4 mt-4">
+      <button type="submit" className="mt-4 mb-4 btn btn-primary">
         Submit
       </button>
       {isError && (
-        <div className="alert alert-error mb-4 justify-normal text-center">
+        <div className="mb-4 text-center alert alert-error justify-normal">
           There was an error submitting your application. Please try again. If
           this error persists, please contact us at tech@deltahacks.com
         </div>
@@ -728,14 +789,14 @@ const Apply: NextPage<
       </Head>
       <Drawer>
         <div className="w-full">
-          <div className="mx-auto max-w-4xl p-4 text-black dark:text-white md:w-1/2 md:p-0">
-            <h1 className="py-8 text-center text-4xl font-bold text-black dark:text-white md:text-left">
+          <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
+            <h1 className="py-8 text-4xl font-bold text-center text-black dark:text-white md:text-left">
               Apply to DeltaHacks XI
             </h1>
 
             {!killed &&
               (autofillData.isLoading ? (
-                <div className="flex h-full flex-col items-center justify-center py-4 text-center">
+                <div className="flex flex-col items-center justify-center h-full py-4 text-center">
                   Loading your application...
                   <div className="loading loading-infinity loading-lg"></div>
                 </div>
@@ -747,8 +808,8 @@ const Apply: NextPage<
               ))}
 
             {killed && (
-              <div className="flex h-full flex-col items-center justify-center py-4 text-center">
-                <div className="alert  bg-red-600 text-center text-2xl text-black dark:text-white md:text-left">
+              <div className="flex flex-col items-center justify-center h-full py-4 text-center">
+                <div className="text-2xl text-center text-black bg-red-600 alert dark:text-white md:text-left">
                   {/* <span>
                     Applications are currently closed due to technical
                     difficulties. Please check back later. If this error
