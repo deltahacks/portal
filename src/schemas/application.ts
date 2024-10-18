@@ -122,8 +122,8 @@ const Status = z.enum(["IN_REVIEW", "ACCEPTED", "REJECTED", "WAITLISTED"]);
 const YesNoUnsure = z.enum(["YES", "NO", "UNSURE"]);
 
 const dh11schema = z.object({
-  firstName: z.string().min(1).max(255),
-  lastName: z.string().min(1).max(255),
+  firstName: z.string().min(1, "First name is required").max(255),
+  lastName: z.string().min(1, "Last name is required").max(255),
   birthday: z.coerce.date().refine(
     (date) => {
       const now = new Date();
@@ -180,7 +180,7 @@ const dh11schema = z.object({
     })
     .transform((string) => (!!string ? string : null))
     .nullish(),
-  linkToResume: z.string().url().nullish(),
+  linkToResume: z.string().url().nullable(),
   tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
   hackerKind: z.array(z.string()).default([]),
   alreadyHaveTeam: z.boolean(),
