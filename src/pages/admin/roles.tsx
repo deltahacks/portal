@@ -5,9 +5,9 @@ import {
   NextPage,
 } from "next";
 import { useState } from "react";
-import { rbac } from "../components/RBACWrapper";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { trpc } from "../utils/trpc";
+import { rbac } from "../../components/RBACWrapper";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
+import { trpc } from "../../utils/trpc";
 import {
   FiPlusCircle,
   FiMinusCircle,
