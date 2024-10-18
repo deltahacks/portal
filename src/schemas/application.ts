@@ -182,10 +182,12 @@ const dh11schema = z.object({
     .nullish(),
   linkToResume: z.string().url().nullable(),
   tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
-  hackerKind: z.array(z.string()).default([]),
+  hackerKind: z.array(z.string()).min(1, "At least one selection is required"),
   alreadyHaveTeam: z.boolean(),
   workshopChoices: z.array(z.string()).default([]),
-  discoverdFrom: z.array(z.string()).default([]),
+  discoverdFrom: z
+    .array(z.string())
+    .min(1, "At least one selection is required"),
   considerCoffee: z.boolean(),
   dietaryRestrictions: z.string().nullish(),
   underrepresented: YesNoUnsure,
