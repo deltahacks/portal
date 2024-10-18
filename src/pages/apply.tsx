@@ -780,6 +780,9 @@ const Apply: NextPage<
 
   const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
     retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   return (
