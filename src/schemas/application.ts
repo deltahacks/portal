@@ -194,11 +194,11 @@ const dh11schema = z.object({
   gender: z.string(),
   race: z.string(),
   orientation: z.string(),
-  emergencyContactName: z.string().min(1),
+  emergencyContactName: z.string().min(1, "This field is required"),
   emergencyContactPhone: z
     .string()
     .refine(isMobilePhone, "Invalid phone number"),
-  emergencyContactRelation: z.string().min(1),
+  emergencyContactRelation: z.string().min(1, "This field is required"),
   agreeToMLHCodeOfConduct: z.boolean().refine((value) => value === true, {
     message: "You must agree to the MLH Code of Conduct",
   }),
