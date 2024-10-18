@@ -122,8 +122,8 @@ const Status = z.enum(["IN_REVIEW", "ACCEPTED", "REJECTED", "WAITLISTED"]);
 const YesNoUnsure = z.enum(["YES", "NO", "UNSURE"]);
 
 const dh11schema = z.object({
-  firstName: z.string().min(1).max(255),
-  lastName: z.string().min(1).max(255),
+  firstName: z.string().min(1, "First name is required").max(255),
+  lastName: z.string().min(1, "Last name is required").max(255),
   birthday: z.coerce.date().refine(
     (date) => {
       const now = new Date();
@@ -180,23 +180,25 @@ const dh11schema = z.object({
     })
     .transform((string) => (!!string ? string : null))
     .nullish(),
-  linkToResume: z.string().url().nullish(),
+  linkToResume: z.string().url().nullable(),
   tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
-  hackerKind: z.array(z.string()).default([]),
+  hackerKind: z.array(z.string()).min(1, "At least one selection is required"),
   alreadyHaveTeam: z.boolean(),
   workshopChoices: z.array(z.string()).default([]),
-  discoverdFrom: z.array(z.string()).default([]),
+  discoverdFrom: z
+    .array(z.string())
+    .min(1, "At least one selection is required"),
   considerCoffee: z.boolean(),
   dietaryRestrictions: z.string().nullish(),
   underrepresented: YesNoUnsure,
   gender: z.string(),
   race: z.string(),
   orientation: z.string(),
-  emergencyContactName: z.string().min(1),
+  emergencyContactName: z.string().min(1, "This field is required"),
   emergencyContactPhone: z
     .string()
     .refine(isMobilePhone, "Invalid phone number"),
-  emergencyContactRelation: z.string().min(1),
+  emergencyContactRelation: z.string().min(1, "This field is required"),
   agreeToMLHCodeOfConduct: z.boolean().refine((value) => value === true, {
     message: "You must agree to the MLH Code of Conduct",
   }),
@@ -204,7 +206,6 @@ const dh11schema = z.object({
     message: "You must agree to the MLH Privacy Policy",
   }),
   agreeToMLHCommunications: z.boolean(),
-  status: Status,
 });
 
 export default dh11schema;

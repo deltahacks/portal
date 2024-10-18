@@ -232,7 +232,7 @@ const ApplicationContent = ({
       />
       <FormCheckbox
         id="considerCoffee"
-        label="Would you like to be considered for a coffee chat with a sponser?"
+        label="Would you like to be considered for a coffee chat with a sponsor?"
         checked={data?.considerCoffee}
         readOnly
       />

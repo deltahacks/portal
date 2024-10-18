@@ -13,13 +13,13 @@ const KillSwitch: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks X</title>
+        <title>Welcome - DeltaHacks XI</title>
       </Head>
       <Drawer>
         <div className="w-full">
           <button className="btn btn-error mx-auto max-w-4xl p-4 text-black dark:text-white md:w-1/2 md:p-0">
             {/* <h1 className="py-8 text-4xl font-bold text-black dark:text-white text-center md:text-left">
-              Apply to DeltaHacks X
+              Apply to DeltaHacks XI
             </h1> */}
             <div className="h-full w-full text-[#747FFF]">
               <svg

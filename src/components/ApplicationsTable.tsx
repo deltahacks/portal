@@ -71,7 +71,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   },
   {
     accessorKey: "dH10ApplicationId",
-    header: "DeltaHacks X Application",
+    header: "DeltaHacks XI Application",
     cell: ({ row }) => {
       return <ApplicationPopupButton applicationForReview={row.original} />;
     },

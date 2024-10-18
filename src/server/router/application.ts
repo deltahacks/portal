@@ -129,7 +129,7 @@ export const applicationRouter = router({
         await ctx.prisma.user.groupBy({
           by: ["status"],
           where: {
-            dH11ApplicationId: {
+            DH11ApplicationId: {
               not: null,
             },
           },
@@ -163,15 +163,12 @@ export const applicationRouter = router({
     .query(async ({ ctx }) => {
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
-        include: { dh11application: true },
+        include: { DH11Application: true },
       });
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
-      if (
-        user.dH11ApplicationId === null ||
-        user.dH11ApplicationId === undefined
-      ) {
+      if (user.DH11Application === null || user.DH11Application === undefined) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
@@ -467,14 +464,14 @@ export const applicationRouter = router({
       throw new TRPCError({ code: "NOT_FOUND" });
     }
     if (
-      user.dH11ApplicationId === null ||
-      user.dH11ApplicationId === undefined
+      user.DH11ApplicationId === null ||
+      user.DH11ApplicationId === undefined
     ) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
     try {
       await ctx.prisma.dH11Application.delete({
-        where: { id: user.dH11ApplicationId },
+        where: { id: user.DH11ApplicationId },
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
