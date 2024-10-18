@@ -276,7 +276,7 @@ const orientations: SelectChoice[] = [
   "Prefer not to say",
 ].map((v) => ({ value: v, label: v }));
 
-const represenation: SelectChoice[] = [
+const representation: SelectChoice[] = [
   { value: "YES", label: "Yes" },
   { value: "NO", label: "No" },
   { value: "UNSURE", label: "Unsure" },
@@ -294,6 +294,6 @@ export {
   heardFrom,
   studyYears,
   orientations,
-  represenation,
+  representation,
 };
 export type { workshopType, SelectChoice };

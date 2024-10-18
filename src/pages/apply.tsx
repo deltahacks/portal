@@ -36,7 +36,7 @@ import {
   SelectChoice,
   workshopType,
   orientations,
-  represenation,
+  representation,
 } from "../data/applicationSelectData";
 import { useEffect } from "react";
 
@@ -599,10 +599,10 @@ const ApplyForm = ({
           control={control}
           render={({ field: { onChange, value } }) => (
             <CustomSelect
-              options={represenation}
+              options={representation}
               isMulti={false}
               onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={represenation.find((val) => val.value === value)}
+              value={representation.find((val) => val.value === value)}
             />
           )}
         />
