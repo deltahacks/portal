@@ -59,8 +59,8 @@ model User {
   dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id])
   dH10ApplicationId String?          @unique
 
-  dh11application   DH11Application? @relation(fields: [dH11ApplicationId], references: [id])
-  dH11ApplicationId String?          @unique
+  DH11Application   DH11Application? @relation(fields: [DH11ApplicationId], references: [id])
+  DH11ApplicationId String?          @unique
 
   DH11Review DH11Review[]
 }

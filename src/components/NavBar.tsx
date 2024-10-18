@@ -23,9 +23,9 @@ const NavBar = () => {
         </Link>
         <div className="hidden font-montserrat md:inline-block">
           <h1 className="text-2xl">
-            <strong>Delta</strong>Hacks <strong>X</strong>
+            <strong>Delta</strong>Hacks <strong>XI</strong>
           </h1>
-          <p className="text-xs">January 12-14 | McMaster University</p>
+          <p className="text-xs">January 10-12 | McMaster University</p>
         </div>
       </div>
       <div className="hidden items-center md:flex">
@@ -35,7 +35,9 @@ const NavBar = () => {
           <div>
             <p className="mx-2 hidden font-inter text-sm lg:inline-block">
               Logged in as{" "}
-              <strong className="font-bold">{session?.user?.name}</strong>
+              <strong className="font-bold capitalize">
+                {session?.user?.name}
+              </strong>
             </p>
             <button
               onClick={() => signOut()}

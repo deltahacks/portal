@@ -512,9 +512,7 @@ const ApplyForm = ({
               onChange={(val: SelectChoice[] | null) =>
                 onChange(val?.map((v: SelectChoice) => v.value))
               }
-              value={workshops.filter((val) =>
-                value?.includes(val.value as workshopType)
-              )}
+              value={hackerTypes.filter((val) => value?.includes(val.value))}
               isMulti={true}
             />
           )}
@@ -726,13 +724,13 @@ const Apply: NextPage<
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks X</title>
+        <title>Welcome - DeltaHacks XI</title>
       </Head>
       <Drawer>
         <div className="w-full">
           <div className="mx-auto max-w-4xl p-4 text-black dark:text-white md:w-1/2 md:p-0">
             <h1 className="py-8 text-center text-4xl font-bold text-black dark:text-white md:text-left">
-              Apply to DeltaHacks X
+              Apply to DeltaHacks XI
             </h1>
 
             {!killed &&
@@ -758,8 +756,8 @@ const Apply: NextPage<
                     <span className="font-bold">tech@deltahacks.com</span>
                   </span> */}
                   <span>
-                    Applications are closed for Deltahcks X. If you did not get
-                    to apply, we hope to see you next year!
+                    Applications are closed for DeltaHacks XI. If you did not
+                    get to apply, we hope to see you next year!
                   </span>
                 </div>
               </div>
@@ -782,7 +780,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { dh11application: true },
+    include: { DH11Application: true },
   });
 
   const killedStr = await prisma.config.findFirst({
@@ -798,7 +796,7 @@ export const getServerSideProps = async (
   }
 
   // If submitted then go dashboard
-  if (userEntry && userEntry.dh11application !== null) {
+  if (userEntry && userEntry.DH11Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
