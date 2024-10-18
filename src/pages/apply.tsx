@@ -691,7 +691,7 @@ const ApplyForm = ({
       />
 
       <FormCheckbox
-        label="Would you like to be considered for a coffee chat with a sponser?"
+        label="Would you like to be considered for a coffee chat with a sponsor?"
         id="considerCoffee"
         errors={errors.considerCoffee}
         register={register}

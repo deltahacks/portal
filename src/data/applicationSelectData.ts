@@ -273,7 +273,7 @@ const orientations: SelectChoice[] = [
   "Gay or lesbian",
   "Bisexual",
   "Other",
-  "Prefer Not to Answer",
+  "Prefer not to say",
 ].map((v) => ({ value: v, label: v }));
 
 const represenation: SelectChoice[] = [
