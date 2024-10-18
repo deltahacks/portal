@@ -102,8 +102,10 @@ const ApplicationContent = ({
 }: {
   applicationForReview: ApplicationForReview;
 }) => {
-  const { dh11ApplicationId } = applicationForReview;
-  const { data } = trpc.reviewer.getApplication.useQuery({ dh11ApplicationId });
+  const { DH11ApplicationId } = applicationForReview;
+  const { data } = trpc.reviewer.getApplication.useQuery({
+    dh11ApplicationId: DH11ApplicationId,
+  });
 
   return (
     <>
@@ -111,10 +113,10 @@ const ApplicationContent = ({
       <div className="flex w-full flex-col lg:flex-row lg:gap-4">
         <FormInput
           label="First Name"
-          text={data?.lastName}
+          text={data?.firstName}
           placeholder="John"
         />
-        <FormInput label="Last Name" text={data?.firstName} placeholder="Doe" />
+        <FormInput label="Last Name" text={data?.lastName} placeholder="Doe" />
       </div>
       <FormInput id="birthday" label="Birthday" text={data?.birthday} />
       <FormInput
@@ -162,7 +164,6 @@ const ApplicationContent = ({
           />
         </div>
       )}
-      optional
       <FormInput
         label="Previous Hackathons Count"
         text={data?.previousHackathonsCount.toString()}
@@ -170,7 +171,7 @@ const ApplicationContent = ({
       <FormDivider label="Long Answer" />
       <FormTextArea
         id="longAnswerIncident"
-        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook."
+        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook"
         text={data?.longAnswerIncident}
       />
       <FormTextArea
@@ -194,12 +195,20 @@ const ApplicationContent = ({
         text={data?.longAnswerSocratica}
       />
       <FormDivider label="Survey" />
-      <FormInput
+      {/* <FormInput
         id="socialText"
         label="What are your social media links?"
         text={data?.socialText.toString() ?? ""} // FIXME: Make it nicer for reviewers
         optional
-      />
+      /> */}
+      {data?.socialText.map((social, idx) => (
+        <FormInput
+          key={idx}
+          id={`social ${idx}`}
+          label={`Social Link ${idx + 1}`}
+          text={social}
+        />
+      ))}
       <FormTextArea
         id="interests"
         label="Is there anything else interesting you want us to know or see?"
@@ -222,8 +231,6 @@ const ApplicationContent = ({
         label="How did you hear about DeltaHacks?"
         text={data?.discoverdFrom.join(", ")}
       />
-      <FormInput id="gender" label="Gender" text={data?.gender} />
-      <FormInput id="race" label="Race" text={data?.race} />
       <FormCheckbox
         id="alreadyHaveTeam"
         label="Do you already have a team?"
