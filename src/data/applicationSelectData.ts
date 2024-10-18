@@ -268,6 +268,20 @@ const heardFrom: SelectChoice[] = [
   "Other",
 ].map((v) => ({ value: v, label: v }));
 
+const orientations: SelectChoice[] = [
+  "Heterosexual or straight",
+  "Gay or lesbian",
+  "Bisexual",
+  "Other",
+  "Prefer not to say",
+].map((v) => ({ value: v, label: v }));
+
+const representation: SelectChoice[] = [
+  { value: "YES", label: "Yes" },
+  { value: "NO", label: "No" },
+  { value: "UNSURE", label: "Unsure" },
+];
+
 export {
   workshops,
   tshirtSizes,
@@ -279,5 +293,7 @@ export {
   ethnicities,
   heardFrom,
   studyYears,
+  orientations,
+  representation,
 };
 export type { workshopType, SelectChoice };

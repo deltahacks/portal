@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
 import applicationSchema from "../../schemas/application";
+import dh11schema from "../../schemas/application";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -123,11 +124,12 @@ export const applicationRouter = router({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
+      // TODO: Use Status from DH11 Application instaed of User
       const statusCount = (
         await ctx.prisma.user.groupBy({
           by: ["status"],
           where: {
-            dH10ApplicationId: {
+            DH11ApplicationId: {
               not: null,
             },
           },
@@ -161,15 +163,12 @@ export const applicationRouter = router({
     .query(async ({ ctx }) => {
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
-        include: { dh10application: true },
+        include: { DH11Application: true },
       });
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
-      if (
-        user.dH10ApplicationId === null ||
-        user.dH10ApplicationId === undefined
-      ) {
+      if (user.DH11Application === null || user.DH11Application === undefined) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
@@ -328,166 +327,106 @@ export const applicationRouter = router({
         role: user?.role,
       };
     }),
-  getPrevAutofill: protectedProcedure.query(async ({ ctx }) => {
-    // get the current user's typeform response id
-    const user = await ctx.prisma.user.findFirst({
-      where: { id: ctx.session.user.id },
-    });
+  getPrevAutofill: protectedProcedure
+    .output(dh11schema.partial())
+    .query(async ({ ctx }) => {
+      // Get the current user's DH10 application
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: ctx.session.user.id },
+        include: { dh10application: true },
+      });
 
-    if (
-      user?.typeform_response_id === null ||
-      user?.typeform_response_id === undefined
-    ) {
-      return {};
-    }
-
-    const url = `https://api.typeform.com/forms/MVo09hRB/responses?included_response_ids=${user.typeform_response_id}`;
-    const res = await fetch(url, options);
-    const data: TypeFormResponse = await res.json();
-
-    const converted = data.items.map((item) => {
-      const responsePreprocessing = new Map<string, TypeFormResponseField>();
-      for (const answer of item.answers) {
-        responsePreprocessing.set(answer.field.id, answer);
+      if (!user || !user.dh10application) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No previous application found for autofill",
+        });
       }
 
-      return {
-        response_id: item.response_id,
-        firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
-        lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
-        birthday: new Date(
-          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "2000-01-01"
-        ),
-        major: responsePreprocessing.get("PzclVTL14dsF")?.text ?? "N/A",
-        school: responsePreprocessing.get("63Wa2JCZ1N3R")?.text ?? "N/A",
-        willBeEnrolled:
-          responsePreprocessing.get("rG4lrpFoXXpL")?.boolean ?? false,
-        graduationYear: new Date(
-          responsePreprocessing.get("Ez47B6N0QzKY")?.date ?? "2000-01-01"
-        ),
-        degree: responsePreprocessing.get("035Ul4T9mldq")?.text ?? "N/A",
-        currentLevel: responsePreprocessing.get("3SPBWlps2PBj")?.text ?? "N/A",
-        hackathonCount:
-          responsePreprocessing.get("MyObNZSNMZOZ")?.text ?? "N/A",
-        longAnswer1: responsePreprocessing.get("rCIqmnIUzvAV")?.text ?? "N/A",
-        longAnswer2: responsePreprocessing.get("h084NVJ0kEsO")?.text ?? "N/A",
-        longAnswer3: responsePreprocessing.get("wq7KawPVuW4I")?.text ?? "N/A",
-        socialLinks: responsePreprocessing.get("CE5WnCcBNEtj")?.text ?? "N/A",
-        resume:
-          responsePreprocessing
-            .get("z8wTMK3lMO00")
-            ?.file_url?.replace(
-              "https://api.typeform.com/forms",
-              "/api/resumes"
-            ) ?? "N/A",
-        extra: responsePreprocessing.get("GUpky3mnQ3q5")?.text ?? "N/A",
-        tshirtSize: responsePreprocessing.get("Q9xv6pezGeSc")?.text ?? "N/A",
-        hackerType: responsePreprocessing.get("k9BrMbznssVX")?.text ?? "N/A",
-        hasTeam: responsePreprocessing.get("3h36sGge5G4X")?.boolean ?? false,
-        workShop: responsePreprocessing.get("Q3MisVaz3Ukw")?.text ?? "N/A",
-        gender: responsePreprocessing.get("b3sr6g16jGjj")?.text ?? "N/A",
-        considerSponserChat:
-          responsePreprocessing.get("LzF2H4Fjfwvq")?.boolean ?? false,
-        howDidYouHear: responsePreprocessing.get("OoutsXd4RFcR")?.text ?? "N/A",
-        background: responsePreprocessing.get("kGs2PWAnqBI3")?.text ?? "N/A",
-        emergencyContactInfo: {
-          firstName: responsePreprocessing.get("o5rMp5fj0BMa")?.text ?? "N/A",
-          lastName: responsePreprocessing.get("irlsiZFKVJKD")?.text ?? "N/A",
-          phoneNumber:
-            responsePreprocessing.get("ceNTt9oUhO6Q")?.phone_number ?? "N/A",
-          email: responsePreprocessing.get("onIT7bTImlRj")?.email ?? "N/A",
-        },
-        mlhAgreement:
-          responsePreprocessing.get("F3vbQhObxXFa")?.boolean ?? false,
-        mlhCoc: responsePreprocessing.get("f3ELfiV5gVSs")?.boolean ?? false,
+      const dh10App = user.dh10application;
+
+      // Create the autofill object based on DH10 data
+      const pt = dh11schema.partial();
+      type AutofillType = z.infer<typeof pt>;
+      const autofill: AutofillType = {
+        firstName: dh10App.firstName,
+        lastName: dh10App.lastName,
+        birthday: dh10App.birthday,
+        studyEnrolledPostSecondary: dh10App.studyEnrolledPostSecondary,
+        studyLocation: dh10App.studyLocation,
+        studyDegree: dh10App.studyDegree,
+        studyMajor: dh10App.studyMajor,
+        studyExpectedGraduation: dh10App.studyExpectedGraduation,
+        interests: dh10App.interests,
+        linkToResume: dh10App.linkToResume,
+        hackerKind: [dh10App.hackerKind], // Convert to array for DH11
+        workshopChoices: dh10App.workshopChoices,
+        discoverdFrom: dh10App.discoverdFrom,
+        considerCoffee: dh10App.considerCoffee,
+        gender: dh10App.gender,
+        race: dh10App.race,
+        emergencyContactName: dh10App.emergencyContactName,
+        emergencyContactPhone: dh10App.emergencyContactPhone,
+        emergencyContactRelation: dh10App.emergencyContactRelation,
       };
-    })[0];
 
-    if (converted === undefined) {
-      return {};
-    }
-
-    const pt = applicationSchema.partial();
-
-    type AutofillType = z.infer<typeof pt>;
-
-    const autofill: AutofillType = {};
-
-    if (converted.firstName !== "N/A") {
-      autofill["firstName"] = converted.firstName;
-    }
-    if (converted.lastName !== "N/A") {
-      autofill["lastName"] = converted.lastName;
-    }
-    if (converted.birthday !== undefined) {
-      autofill["birthday"] = new Date(
-        converted.birthday.toISOString().slice(0, 10)
-      );
-    }
-
-    if (converted.major !== "N/A") {
-      autofill["studyMajor"] = converted.major;
-    }
-    if (converted.school !== "N/A") {
-      autofill["studyLocation"] = converted.school;
-    }
-    if (converted.willBeEnrolled !== false) {
-      autofill["studyEnrolledPostSecondary"] = converted.willBeEnrolled;
-    }
-    if (converted.graduationYear !== undefined) {
-      autofill["studyExpectedGraduation"] = new Date(
-        converted.graduationYear.toISOString().slice(0, 10)
-      );
-    }
-    if (converted.degree !== "N/A") {
-      autofill["studyDegree"] = converted.degree;
-    }
-
-    if (converted.hackathonCount !== "N/A") {
-      autofill["previousHackathonsCount"] = parseInt(converted.hackathonCount);
-    }
-    // emergencyContact
-
-    if (converted.emergencyContactInfo.firstName !== "N/A") {
-      autofill["emergencyContactName"] =
-        converted.emergencyContactInfo.firstName;
-    }
-
-    if (converted.emergencyContactInfo.lastName !== "N/A") {
-      autofill["emergencyContactName"] =
-        autofill["emergencyContactName"] +
-        " " +
-        converted.emergencyContactInfo.lastName;
-    }
-
-    if (converted.emergencyContactInfo.phoneNumber !== "N/A") {
-      autofill["emergencyContactPhone"] =
-        converted.emergencyContactInfo.phoneNumber;
-    }
-
-    if (converted.socialLinks !== "N/A") {
-      autofill["socialText"] = converted.socialLinks;
-    }
-
-    if (converted.tshirtSize !== "N/A") {
-      if (z.enum(["XS", "S", "M", "L", "XL"]).parse(converted.tshirtSize)) {
-        autofill["tshirtSize"] = converted.tshirtSize as
-          | "XS"
-          | "S"
-          | "M"
-          | "L"
-          | "XL";
+      // Handle fields that don't have a direct mapping
+      if (dh10App.socialText) {
+        autofill.socialText = [dh10App.socialText];
       }
-    }
-    // console.log(autofill)
 
-    return autofill;
-  }),
-  submitDh10: protectedProcedure
+      return autofill;
+    }),
+  // submitDh10: protectedProcedure
+  //   .input(applicationSchema)
+  //   .mutation(async ({ ctx, input }) => {
+
+  //     // make sure there is no existing application
+
+  //     try {
+  //       let gradDate = null;
+  //       if (input.studyExpectedGraduation) {
+  //         const possible = new Date(input.studyExpectedGraduation);
+  //         if (!isNaN(possible.getTime())) {
+  //           gradDate = possible;
+  //         }
+  //       }
+
+  //       await ctx.prisma.dH10Application.create({
+  //         data: {
+  //           ...input,
+  //           birthday: new Date(input.birthday),
+  //           studyExpectedGraduation: gradDate,
+  //           User: { connect: { id: ctx.session.user.id } },
+  //         },
+  //       });
+  //     } catch (e) {
+  //       if (e instanceof Prisma.PrismaClientKnownRequestError) {
+  //         if (e.code === "P2002")
+  //           throw new TRPCError({
+  //             code: "FORBIDDEN",
+  //             message: "You have already submitted an application.",
+  //           });
+  //       }
+  //     }
+
+  //     const user = await ctx.prisma.user.update({
+  //       where: { id: ctx.session.user.id },
+  //       data: { status: Status.IN_REVIEW },
+  //     });
+
+  //     await ctx.logsnag.track({
+  //       channel: "applications",
+  //       event: "Application Submitted",
+  //       user_id: `${user.name} - ${user.email}`,
+  //       description: "A user has submitted an application.",
+  //       icon: "📝",
+  //     });
+  //   }),
+  submitDh11: protectedProcedure
     .input(applicationSchema)
     .mutation(async ({ ctx, input }) => {
-      // make sure there is no existing application
-
+      // aaaaaa
       try {
         let gradDate = null;
         if (input.studyExpectedGraduation) {
@@ -497,11 +436,12 @@ export const applicationRouter = router({
           }
         }
 
-        await ctx.prisma.dH10Application.create({
+        await ctx.prisma.dH11Application.create({
           data: {
             ...input,
             birthday: new Date(input.birthday),
             studyExpectedGraduation: gradDate,
+
             User: { connect: { id: ctx.session.user.id } },
           },
         });
@@ -514,19 +454,6 @@ export const applicationRouter = router({
             });
         }
       }
-
-      const user = await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW },
-      });
-
-      await ctx.logsnag.track({
-        channel: "applications",
-        event: "Application Submitted",
-        user_id: `${user.name} - ${user.email}`,
-        description: "A user has submitted an application.",
-        icon: "📝",
-      });
     }),
 
   deleteApplication: protectedProcedure.mutation(async ({ ctx }) => {
@@ -537,14 +464,14 @@ export const applicationRouter = router({
       throw new TRPCError({ code: "NOT_FOUND" });
     }
     if (
-      user.dH10ApplicationId === null ||
-      user.dH10ApplicationId === undefined
+      user.DH11ApplicationId === null ||
+      user.DH11ApplicationId === undefined
     ) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
     try {
-      await ctx.prisma.dH10Application.delete({
-        where: { id: user.dH10ApplicationId },
+      await ctx.prisma.dH11Application.delete({
+        where: { id: user.DH11ApplicationId },
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },

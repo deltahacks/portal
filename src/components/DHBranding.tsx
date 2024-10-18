@@ -10,10 +10,10 @@ const DHBranding = () => {
       </div>
       <div className="text-black dark:text-white">
         <h1 className="whitespace-nowrap font-montserrat text-4xl font-bold md:text-4xl lg:text-5xl">
-          Delta<span className="mr-2 font-normal">Hacks</span>X
+          Delta<span className="mr-2 font-normal">Hacks</span>XI
         </h1>
         <h2 className="md:text-md font-montserrat text-sm lg:text-lg">
-          January 12-14 | McMaster University
+          January 10-12 | McMaster University
         </h2>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import z from "zod";
 import isMobilePhone from "validator/lib/isMobilePhone";
 
-const schema = z.object({
+const dh10schema = z.object({
   firstName: z.string().min(1).max(255),
   lastName: z.string().min(1).max(255),
   birthday: z.coerce.date().refine(
@@ -118,4 +118,94 @@ const schema = z.object({
   agreeToMLHCommunications: z.boolean(),
 });
 
-export default schema;
+const Status = z.enum(["IN_REVIEW", "ACCEPTED", "REJECTED", "WAITLISTED"]);
+const YesNoUnsure = z.enum(["YES", "NO", "UNSURE"]);
+
+const dh11schema = z.object({
+  firstName: z.string().min(1, "First name is required").max(255),
+  lastName: z.string().min(1, "Last name is required").max(255),
+  birthday: z.coerce.date().refine(
+    (date) => {
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      const age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+      return age >= 13;
+    },
+    {
+      message: "You must be at least 13 years old",
+    }
+  ),
+  studyEnrolledPostSecondary: z.boolean(),
+  studyLocation: z.string().min(1).max(255).nullish(),
+  studyDegree: z.string().min(1).max(255).nullish(),
+  studyMajor: z.string().min(1).max(255).nullish(),
+  studyYearOfStudy: z.string().nullish(),
+  studyExpectedGraduation: z.coerce.date().nullish(),
+  previousHackathonsCount: z.coerce.number().int().min(0),
+  longAnswerIncident: z
+    .string()
+    .min(1, "An answer is required for this question")
+    .refine((value) => value.split(/\s/g).length <= 150, {
+      message: "Must be less than 150 words",
+    }),
+  longAnswerGoals: z
+    .string()
+    .min(1, "An answer is required for this question")
+    .refine((value) => value.split(/\s/g).length <= 150, {
+      message: "Must be less than 150 words",
+    }),
+  longAnswerFood: z
+    .string()
+    .min(1, "An answer is required for this question")
+    .refine((value) => value.split(/\s/g).length <= 150, {
+      message: "Must be less than 150 words",
+    }),
+  longAnswerTravel: z
+    .string()
+    .min(1, "An answer is required for this question")
+    .refine((value) => value.split(/\s/g).length <= 150, {
+      message: "Must be less than 150 words",
+    }),
+  longAnswerSocratica: z
+    .string()
+    .min(1, "An answer is required for this question")
+    .refine((value) => value.split(/\s/g).length <= 150, {
+      message: "Must be less than 150 words",
+    }),
+  socialText: z.array(z.string()).default([]),
+  interests: z
+    .string()
+    .refine((value) => value.split(/\s/g).length <= 150, {
+      message: "Must be less than 150 words",
+    })
+    .transform((string) => (!!string ? string : null))
+    .nullish(),
+  linkToResume: z.string().url().nullable(),
+  tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
+  hackerKind: z.array(z.string()).min(1, "At least one selection is required"),
+  alreadyHaveTeam: z.boolean(),
+  workshopChoices: z.array(z.string()).default([]),
+  discoverdFrom: z
+    .array(z.string())
+    .min(1, "At least one selection is required"),
+  considerCoffee: z.boolean(),
+  dietaryRestrictions: z.string().nullish(),
+  underrepresented: YesNoUnsure,
+  gender: z.string(),
+  race: z.string(),
+  orientation: z.string(),
+  emergencyContactName: z.string().min(1, "This field is required"),
+  emergencyContactPhone: z
+    .string()
+    .refine(isMobilePhone, "Invalid phone number"),
+  emergencyContactRelation: z.string().min(1, "This field is required"),
+  agreeToMLHCodeOfConduct: z.boolean().refine((value) => value === true, {
+    message: "You must agree to the MLH Code of Conduct",
+  }),
+  agreeToMLHPrivacyPolicy: z.boolean().refine((value) => value === true, {
+    message: "You must agree to the MLH Privacy Policy",
+  }),
+  agreeToMLHCommunications: z.boolean(),
+});
+
+export default dh11schema;
