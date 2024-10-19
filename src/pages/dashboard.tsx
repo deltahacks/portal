@@ -239,20 +239,23 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
           </Button>
 
           <dialog
-            className="modal modal-bottom sm:modal-middle"
+            className="modal modal-bottom sm:modal-middle  "
             ref={dialogRef}
           >
-            <div className="modal-box">
-              <h3 className="text-lg font-bold">Are you sure ?</h3>
+            <div className="modal-box dark:bg-[#1F1F1F]">
+              <h3 className="text-lg font-bold dark:text-white">
+                Are you sure?
+              </h3>
               <p className="py-4">
-                You will lose all and have to start from scratch.
+                By proceeding, you are withdrawing your application from
+                DeltaHacks and must apply again to be considered for the event.
               </p>
               <div className="modal-action">
                 <form method="dialog">
                   {/* if there is a button in form, it will close the modal */}
                   <div className="flex gap-5">
                     <button
-                      className="btn btn-outline btn-error"
+                      className="btn btn-error dark:text-white"
                       onClick={() => deleteApplication.mutateAsync()}
                     >
                       Proceed
