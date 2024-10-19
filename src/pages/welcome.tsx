@@ -5,6 +5,7 @@ import Drawer from "../components/Drawer";
 import SocialButtons from "../components/SocialButtons";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
+import { Button } from "../components/Button";
 
 const Content = () => {
   return (
@@ -28,16 +29,22 @@ const Content = () => {
         </a>
       </div>
       <div className="flex flex-col gap-3 pt-6 md:flex-row lg:pt-8 2xl:pt-10">
-        <Link href="/apply">
-          <button className="btn btn-primary w-48 text-base font-medium capitalize">
+        <Button
+          asChild
+          className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
+        >
+          <Link href="/apply">
+            {/* <button className="btn btn-primary w-48 text-base font-medium capitalize"> */}
             Apply
-          </button>
-        </Link>
-        <Link href="https://deltahacks.com/#FAQ">
-          <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
-            FAQ
-          </button>
-        </Link>
+            {/* </button> */}
+          </Link>
+        </Button>
+        <Button
+          asChild
+          className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize"
+        >
+          <Link href="https://deltahacks.com/#FAQ">FAQ</Link>
+        </Button>
       </div>
     </main>
   );
