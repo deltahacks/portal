@@ -120,23 +120,23 @@ export const getServerSideProps = async (
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };
 
-  const session = await getServerAuthSession(context);
+  // const session = await getServerAuthSession(context);
 
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
-  }
+  // if (!session || !session.user) {
+  //   return { redirect: { destination: "/login", permanent: false } };
+  // }
 
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-  });
+  // const userEntry = await prisma.user.findFirst({
+  //   where: { id: session.user.id },
+  // });
 
-  if (
-    userEntry &&
-    (userEntry.qrcode === null || userEntry.qrcode === undefined)
-  ) {
-    return { redirect: { destination: "/checkin", permanent: false } };
-  }
-  return { props: {} };
+  // if (
+  //   userEntry &&
+  //   (userEntry.qrcode === null || userEntry.qrcode === undefined)
+  // ) {
+  //   return { redirect: { destination: "/checkin", permanent: false } };
+  // }
+  // return { props: {} };
 };
 
 export default Me;

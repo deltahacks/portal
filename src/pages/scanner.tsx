@@ -555,12 +555,12 @@ export const getServerSideProps = async (
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };
 
-  const session = await getServerAuthSession(context);
+  // const session = await getServerAuthSession(context);
 
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
-  }
-  return { props: {} };
+  // if (!session || !session.user) {
+  //   return { redirect: { destination: "/login", permanent: false } };
+  // }
+  // return { props: {} };
 };
 
 export default Scanner;

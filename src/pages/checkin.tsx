@@ -227,25 +227,25 @@ export const getServerSideProps = async (
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };
 
-  const session = await getServerAuthSession(context);
+  // const session = await getServerAuthSession(context);
 
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
-  }
+  // if (!session || !session.user) {
+  //   return { redirect: { destination: "/login", permanent: false } };
+  // }
 
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-  });
+  // const userEntry = await prisma.user.findFirst({
+  //   where: { id: session.user.id },
+  // });
 
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { redirect: { destination: "/welcome", permanent: false } };
-  }
+  // if (
+  //   userEntry &&
+  //   (userEntry.typeform_response_id === null ||
+  //     userEntry.typeform_response_id === undefined)
+  // ) {
+  //   return { redirect: { destination: "/welcome", permanent: false } };
+  // }
 
-  return { props: {} };
+  // return { props: {} };
 };
 
 export default Checkin;
