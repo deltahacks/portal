@@ -39,6 +39,7 @@ import {
   representation,
 } from "../data/applicationSelectData";
 import { useEffect } from "react";
+import SocialLinksFormInput from "../components/SocialLinkFormInput";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -228,7 +229,6 @@ const ApplyForm = ({
           Some fields were autofilled.
         </div>
       )}
-
       <FormDivider label="Personal Information" />
       <div className="flex flex-col w-full lg:flex-row lg:gap-4">
         <FormInput
@@ -262,7 +262,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.birthday.message}</span>
         )}
       </div>
-
       <FormInput
         label="Link to Resume"
         id="linkToResume"
@@ -271,16 +270,13 @@ const ApplyForm = ({
         register={register}
         optional
       />
-
       <FormDivider label="Education" />
-
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
         id="studyEnrolledPostSecondary"
         errors={errors.studyEnrolledPostSecondary}
         register={register}
       />
-
       {isSecondary && (
         <div>
           <div className="flex flex-col gap-2 pb-4">
@@ -424,9 +420,7 @@ const ApplyForm = ({
           </span>
         )}
       </div>
-
       <FormDivider label="Long Answer" />
-
       <FormTextArea
         id="longAnswerIncident"
         label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook."
@@ -434,7 +428,6 @@ const ApplyForm = ({
         register={register}
         currentLength={watch("longAnswerIncident")?.split(/\s/g).length ?? 0}
       />
-
       <FormTextArea
         id="longAnswerGoals"
         label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
@@ -442,7 +435,6 @@ const ApplyForm = ({
         register={register}
         currentLength={watch("longAnswerGoals")?.split(/\s/g).length ?? 0}
       />
-
       <FormTextArea
         id="longAnswerFood"
         label="What's your go-to comfort food?"
@@ -450,7 +442,6 @@ const ApplyForm = ({
         register={register}
         currentLength={watch("longAnswerFood")?.split(/\s/g).length ?? 0}
       />
-
       <FormTextArea
         id="longAnswerTravel"
         label="If you could travel anywhere in the universe, where would you go and why?"
@@ -458,7 +449,6 @@ const ApplyForm = ({
         register={register}
         currentLength={watch("longAnswerTravel")?.split(/\s/g).length ?? 0}
       />
-
       <FormTextArea
         id="longAnswerSocratica"
         label="If you did not have to worry about school/money/time, what is the one thing you would work on?"
@@ -466,17 +456,15 @@ const ApplyForm = ({
         register={register}
         currentLength={watch("longAnswerSocratica")?.split(/\s/g).length ?? 0}
       />
-
       <FormDivider label="Survey" />
-
-      <FormInput
+      {/* <FormInput
         label="What are your social media links?"
         id={"socialText"}
         errors={errors?.socialText && errors.socialText[0]}
         register={register}
         optional
-      />
-
+      /> */}
+      <SocialLinksFormInput register={register} errors={errors} watch={watch} />
       <FormTextArea
         label="Is there anything else interesting you want us to know or see?"
         id={"interests"}
@@ -485,7 +473,6 @@ const ApplyForm = ({
         currentLength={watch("interests")?.split(/\s/g).length ?? 0}
         optional
       />
-
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="tshirtSizeInput">
           T-shirt Size
@@ -529,7 +516,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.hackerKind.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -558,7 +544,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.workshopChoices.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -584,7 +569,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.discoverdFrom.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -611,7 +595,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.gender.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="genderInput">
           Gender
@@ -634,7 +617,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.gender.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -660,7 +642,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.orientation.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="raceInput">
           Race
@@ -682,23 +663,19 @@ const ApplyForm = ({
           <span className="text-error">{errors.race.message}</span>
         )}
       </div>
-
       <FormCheckbox
         label="Do you already have a team?"
         id="alreadyHaveTeam"
         errors={errors.alreadyHaveTeam}
         register={register}
       />
-
       <FormCheckbox
         label="Would you like to be considered for a coffee chat with a sponsor?"
         id="considerCoffee"
         errors={errors.considerCoffee}
         register={register}
       />
-
       <FormDivider label="Emergency Contact" />
-
       <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput
           label="Name of Emergency Contact"
@@ -722,9 +699,7 @@ const ApplyForm = ({
         placeholder="000-000-0000"
         register={register}
       />
-
       <FormDivider label="MLH Consent" />
-
       <FormCheckbox
         label="Agree to MLH Code of Conduct"
         id="agreeToMLHCodeOfConduct"
@@ -732,7 +707,6 @@ const ApplyForm = ({
         register={register}
         link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
       />
-
       <FormCheckbox
         label="Agree to MLH Privacy Policy"
         id="agreeToMLHPrivacyPolicy"
@@ -740,7 +714,6 @@ const ApplyForm = ({
         register={register}
         link="https://mlh.io/privacy"
       />
-
       <FormCheckbox
         label="Agree to MLH Communications"
         id="agreeToMLHCommunications"
@@ -748,7 +721,6 @@ const ApplyForm = ({
         register={register}
         optional
       />
-
       <button type="submit" className="mt-4 mb-4 btn btn-primary">
         Submit
       </button>

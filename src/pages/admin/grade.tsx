@@ -1,10 +1,10 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 import Head from "next/head";
 import { Role, Status } from "@prisma/client";
-import { trpc } from "../utils/trpc";
-import { ApplicationsTable } from "../components/ApplicationsTable";
-import Drawer from "../components/Drawer";
+import { trpc } from "../../utils/trpc";
+import { ApplicationsTable } from "../../components/ApplicationsTable";
+import Drawer from "../../components/Drawer";
 
 const GradingPortal: NextPage = () => {
   const { data: applications } = trpc.reviewer.getApplications.useQuery();

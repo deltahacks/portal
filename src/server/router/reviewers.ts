@@ -12,7 +12,7 @@ const ApplicationForReview = z.object({
     .nullable()
     .transform((v) => (v === null ? "" : v)),
   status: z.nativeEnum(Status),
-  dh11ApplicationId: z.string().cuid(),
+  DH11ApplicationId: z.string().cuid(),
 });
 
 const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
@@ -39,7 +39,7 @@ export const reviewerRouter = router({
 
       const users = await ctx.prisma.user.findMany({
         where: {
-          dH10ApplicationId: {
+          DH11ApplicationId: {
             not: null,
           },
         },
@@ -48,7 +48,7 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           status: true,
-          dH10ApplicationId: true,
+          DH11ApplicationId: true,
         },
       });
 
