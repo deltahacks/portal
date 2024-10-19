@@ -186,7 +186,7 @@ const ApplyForm = ({
     },
   });
 
-  useFormPersist(`applyForm:${persistId}`, {
+  useFormPersist(`dh11-applyForm:${persistId}`, {
     watch,
     setValue,
     storage: localStorage,
@@ -196,7 +196,6 @@ const ApplyForm = ({
     console.log(data);
     console.log("validating");
     const processed = applicationSchema.parse(data);
-
     console.log("validated");
 
     await submitAppAsync(processed);
@@ -569,100 +568,7 @@ const ApplyForm = ({
           <span className="text-error">{errors.discoverdFrom.message}</span>
         )}
       </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label
-          className="text-black dark:text-white"
-          htmlFor="underrepresentedInput"
-        >
-          Do you identify as part of an underrepresented group in the technology
-          industry?
-        </label>
 
-        <Controller
-          name="underrepresented"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <CustomSelect
-              options={representation}
-              isMulti={false}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={representation.find((val) => val.value === value)}
-            />
-          )}
-        />
-
-        {errors.gender && (
-          <span className="text-error">{errors.gender.message}</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="genderInput">
-          Gender
-        </label>
-
-        <Controller
-          name="gender"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <CustomSelect
-              options={genderTypes}
-              isMulti={false}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={genderTypes.find((val) => val.value === value)}
-            />
-          )}
-        />
-
-        {errors.gender && (
-          <span className="text-error">{errors.gender.message}</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label
-          className="text-black dark:text-white"
-          htmlFor="orientationInput"
-        >
-          Orientation
-        </label>
-
-        <Controller
-          name="orientation"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <CustomSelect
-              options={orientations}
-              isMulti={false}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={orientations.find((val) => val.value === value)}
-            />
-          )}
-        />
-
-        {errors.orientation && (
-          <span className="text-error">{errors.orientation.message}</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="raceInput">
-          Race
-        </label>
-
-        <Controller
-          name="race"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <CustomSelect
-              options={ethnicities}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={ethnicities.find((val) => val.value === value)}
-              defaultInputValue={autofillData.race ?? undefined}
-            />
-          )}
-        />
-        {errors.race && (
-          <span className="text-error">{errors.race.message}</span>
-        )}
-      </div>
       <FormCheckbox
         label="Do you already have a team?"
         id="alreadyHaveTeam"
@@ -687,7 +593,7 @@ const ApplyForm = ({
         <FormInput
           label="Relation to Emergency Contact"
           id="emergencyContactRelation"
-          errors={errors.emergencyContactName}
+          errors={errors.emergencyContactRelation}
           placeholder="Parent / Guardian / Friend / Spouse"
           register={register}
         />
@@ -699,7 +605,113 @@ const ApplyForm = ({
         placeholder="000-000-0000"
         register={register}
       />
-      <FormDivider label="MLH Consent" />
+      <FormDivider label="MLH Survey and Consent" />
+      <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="text-black dark:text-white"
+          htmlFor="underrepresentedInput"
+        >
+          Do you identify as part of an underrepresented group in the technology
+          industry?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        </label>
+
+        <Controller
+          name="underrepresented"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={representation}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={representation.find((val) => val.value === value)}
+            />
+          )}
+        />
+
+        {errors.underrepresented && (
+          <span className="text-error">{errors.underrepresented.message}</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-2 pb-4">
+        <label className="text-black dark:text-white" htmlFor="genderInput">
+          What&apos;s your gender?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        </label>
+
+        <Controller
+          name="gender"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={genderTypes}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={genderTypes.find((val) => val.value === value)}
+            />
+          )}
+        />
+
+        {errors.gender && (
+          <span className="text-error">{errors.gender.message}</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="text-black dark:text-white"
+          htmlFor="orientationInput"
+        >
+          Do you consider yourself to be any of the following?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        </label>
+
+        <Controller
+          name="orientation"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={orientations}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={orientations.find((val) => val.value === value)}
+            />
+          )}
+        />
+
+        {errors.orientation && (
+          <span className="text-error">{errors.orientation.message}</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-2 pb-4">
+        <label className="text-black dark:text-white" htmlFor="raceInput">
+          Which ethnic background do you identify with?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        </label>
+
+        <Controller
+          name="race"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={ethnicities}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={ethnicities.find((val) => val.value === value)}
+              defaultInputValue={autofillData.race ?? undefined}
+            />
+          )}
+        />
+        {errors.race && (
+          <span className="text-error">{errors.race.message}</span>
+        )}
+      </div>
       <FormCheckbox
         label="Agree to MLH Code of Conduct"
         id="agreeToMLHCodeOfConduct"
