@@ -637,7 +637,7 @@ const ApplyForm = ({
       </div>
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="genderInput">
-          What's your gender?{" "}
+          What&apos;s your gender?{" "}
           <span className="text-neutral-500 dark:text-neutral-400">
             (Optional)
           </span>

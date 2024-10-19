@@ -190,10 +190,10 @@ const dh11schema = z.object({
     .min(1, "At least one selection is required"),
   considerCoffee: z.boolean(),
   dietaryRestrictions: z.string().nullish(),
-  underrepresented: YesNoUnsure.nullish().default("UNSURE"),
-  gender: z.string().nullish().default("Prefer not to say"),
-  race: z.string().nullish().default("Prefer not to say"),
-  orientation: z.string().nullish().default("Prefer not to say"),
+  underrepresented: YesNoUnsure.default("UNSURE"),
+  gender: z.string().default("Prefer not to say"),
+  race: z.string().default("Prefer not to say"),
+  orientation: z.string().default("Prefer not to say"),
   emergencyContactName: z.string().min(1, "This field is required"),
   emergencyContactPhone: z
     .string()
