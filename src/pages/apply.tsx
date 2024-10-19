@@ -721,7 +721,10 @@ const ApplyForm = ({
         register={register}
         optional
       />
-      <button type="submit" className="mt-4 mb-4 btn btn-primary">
+      <button
+        type="submit"
+        className="mt-4 mb-4 btn btn-primary dark:text-white"
+      >
         Submit
       </button>
       {isError && (
