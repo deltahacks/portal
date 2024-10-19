@@ -224,6 +224,9 @@ const Checkin: NextPage = () => {
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
+  // FIXME: Disable this page temporarily
+  return { redirect: { destination: "/", permanent: false } };
+
   const session = await getServerAuthSession(context);
 
   if (!session || !session.user) {
