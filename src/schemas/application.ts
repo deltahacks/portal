@@ -103,7 +103,7 @@ const dh10schema = z.object({
     "Transgender",
     "Prefer not to say",
   ]),
-  race: z.string().min(1).max(255),
+  race: z.string().min(1).max(255).default("Prefer not to say"),
   emergencyContactName: z.string().min(1),
   emergencyContactPhone: z
     .string()
@@ -180,7 +180,7 @@ const dh11schema = z.object({
     })
     .transform((string) => (!!string ? string : null))
     .nullish(),
-  linkToResume: z.string().url().nullable(),
+  linkToResume: z.string().nullish(),
   tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
   hackerKind: z.array(z.string()).min(1, "At least one selection is required"),
   alreadyHaveTeam: z.boolean(),
@@ -190,10 +190,10 @@ const dh11schema = z.object({
     .min(1, "At least one selection is required"),
   considerCoffee: z.boolean(),
   dietaryRestrictions: z.string().nullish(),
-  underrepresented: YesNoUnsure,
-  gender: z.string(),
-  race: z.string(),
-  orientation: z.string(),
+  underrepresented: YesNoUnsure.nullish().default("UNSURE"),
+  gender: z.string().nullish().default("Prefer not to say"),
+  race: z.string().nullish().default("Prefer not to say"),
+  orientation: z.string().nullish().default("Prefer not to say"),
   emergencyContactName: z.string().min(1, "This field is required"),
   emergencyContactPhone: z
     .string()
