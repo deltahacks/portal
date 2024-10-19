@@ -16,7 +16,7 @@ const Content = () => {
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         At DeltaHacks, we believe change comes from dreaming big. Each year we
-        enable over 800 students from across North America, working hard over 36
+        enable over 800 students from across North America, working hard over 24
         hours, to bring their big ideas to life. Unleash your creativity and
         make something great, we{"'"}ll handle the rest! Make big ideas a
         reality at DeltaHacks XI!
