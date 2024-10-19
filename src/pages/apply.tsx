@@ -593,7 +593,7 @@ const ApplyForm = ({
         <FormInput
           label="Relation to Emergency Contact"
           id="emergencyContactRelation"
-          errors={errors.emergencyContactName}
+          errors={errors.emergencyContactRelation}
           placeholder="Parent / Guardian / Friend / Spouse"
           register={register}
         />
