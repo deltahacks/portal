@@ -207,7 +207,13 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Thanks for applying{session ? `, ${session.user?.name}` : ""}!
+        Thanks for applying
+        {session ? (
+          <span className="capitalize">, {session.user?.name}</span>
+        ) : (
+          ""
+        )}
+        !
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We have recieved your application. You will hear back from us on your
@@ -504,18 +510,11 @@ export const getServerSideProps = async (
   if (userEntry && userEntry.DH11Application !== null) {
     return {
       props: {
-        status: userEntry.status,
+        status: userEntry.DH11Application.status,
         killed: killed,
       },
     };
   }
-
-  return {
-    props: {
-      status: "ACCEPTED" as const,
-      killed: killed,
-    },
-  };
 
   return {
     redirect: { destination: "/welcome", permanent: false },
