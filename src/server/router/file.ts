@@ -8,17 +8,6 @@ import { env } from "../../env/server.mjs";
 const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_KEY_ID, R2_BUCKET_NAME } =
   env;
 
-if (
-  !R2_ACCOUNT_ID ||
-  !R2_ACCESS_KEY_ID ||
-  !R2_SECRET_KEY_ID ||
-  !R2_BUCKET_NAME
-) {
-  throw new Error(
-    "Missing required environment variables for R2 configuration"
-  );
-}
-
 const R2 = new S3Client({
   region: "auto",
   endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -42,7 +31,7 @@ export const fileUploadRouter = router({
           R2,
           new PutObjectCommand({
             Bucket: R2_BUCKET_NAME,
-            Key: `resources/${input.filename}`,
+            Key: `${input.filename}`,
             ContentType: input.contentType,
           }),
           { expiresIn: 3600 }
