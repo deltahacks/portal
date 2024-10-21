@@ -80,30 +80,18 @@ importers:
       '@trpc/server':
         specifier: ^10.38.5
         version: 10.43.1
-      '@uppy/aws-s3':
-        specifier: ^4.1.0
-        version: 4.1.0(@uppy/core@4.2.2)
       '@uppy/core':
         specifier: ^4.2.2
         version: 4.2.2
       '@uppy/dashboard':
         specifier: ^4.1.1
         version: 4.1.1(@uppy/core@4.2.2)
-      '@uppy/drag-drop':
-        specifier: ^4.0.3
-        version: 4.0.3(@uppy/core@4.2.2)
-      '@uppy/file-input':
-        specifier: ^4.0.2
-        version: 4.0.2(@uppy/core@4.2.2)
-      '@uppy/progress-bar':
-        specifier: ^4.0.0
-        version: 4.0.0(@uppy/core@4.2.2)
       '@uppy/react':
         specifier: ^4.0.2
         version: 4.0.2(@uppy/core@4.2.2)(@uppy/dashboard@4.1.1(@uppy/core@4.2.2))(@uppy/drag-drop@4.0.3(@uppy/core@4.2.2))(@uppy/file-input@4.0.2(@uppy/core@4.2.2))(@uppy/progress-bar@4.0.0(@uppy/core@4.2.2))(@uppy/status-bar@4.0.3(@uppy/core@4.2.2))(react@18.2.0)
-      '@zxing/browser':
-        specifier: ^0.1.1
-        version: 0.1.4(@zxing/library@0.18.6)
+      '@uppy/xhr-upload':
+        specifier: ^4.2.1
+        version: 4.2.1(@uppy/core@4.2.2)
       bootstrap:
         specifier: ^5.2.3
         version: 5.3.2(@popperjs/core@2.11.8)
@@ -116,9 +104,6 @@ importers:
       clsx:
         specifier: ^1.2.1
         version: 1.2.1
-      crypto-hash:
-        specifier: ^3.1.0
-        version: 3.1.0
       daisyui:
         specifier: ^4.0.9
         version: 4.0.9(postcss@8.4.31)
@@ -1509,11 +1494,6 @@ packages:
     resolution: {integrity: sha512-07ny+LHRzQXepkGg6w0mFY41fVUNBrL2Roj/++7V1txKugfjm/Ci/qSND03r2RhlJhJYMcTn9AhhSSqQp0Ysyw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@uppy/aws-s3@4.1.0':
-    resolution: {integrity: sha512-xRip1Lo3He+3J3fP/SooEFQJKWMCVADTl8J375PzvpaeNnDFKa6W2XLEEl/fGy/K7vI4sH8Znz4+omdtSFCPSQ==}
-    peerDependencies:
-      '@uppy/core': ^4.2.0
-
   '@uppy/companion-client@4.1.0':
     resolution: {integrity: sha512-nQ8CQfZcYVBNtFQ6ePj7FDIq38DXlH0YpzP/91LR9gnDVISJKKUuvWfr6tPktj1lRw9FZV8jLmlMKT2ituVKiw==}
     peerDependencies:
@@ -1590,15 +1570,15 @@ packages:
   '@uppy/utils@6.0.3':
     resolution: {integrity: sha512-GBVzyAIeVKNe/F3TT63rXR80MSL9ov/FG3BbApO+4wbIt4vai7xpOxGCeTXpW2JjEeOwEb50n1fn92zMCdV9Dg==}
 
+  '@uppy/xhr-upload@4.2.1':
+    resolution: {integrity: sha512-pafgk0vLr+FKDHo+xmBMwNncj68oRNoaTnj0por7LPND0QGXV7xwBZnGGkQhiHLooV2MNBEhFQtx93A76cEINg==}
+    peerDependencies:
+      '@uppy/core': ^4.2.2
+
   '@zxing/browser@0.0.7':
     resolution: {integrity: sha512-AepzMgDnD6EjxewqmXpHJsi4S3Gw9ilZJLIbTf6fWuWySEcHBodnGu3p7FWlgq1Sd5QyfPhTum5z3CBkkhMVng==}
     peerDependencies:
       '@zxing/library': ^0.18.3
-
-  '@zxing/browser@0.1.4':
-    resolution: {integrity: sha512-WYjaav7St4sj/u/Km2llE4NU2Pq3JFIWnczr0tmyCC1KUlp08rV3qpu7iiEB4kOx/CgcCzrSebNnSmFt5B3IFg==}
-    peerDependencies:
-      '@zxing/library': ^0.20.0
 
   '@zxing/library@0.18.6':
     resolution: {integrity: sha512-bulZ9JHoLFd9W36pi+7e7DnEYNJhljYjZ1UTsKPOoLMU3qtC+REHITeCRNx40zTRJZx18W5TBRXt5pq2Uopjsw==}
@@ -1844,10 +1824,6 @@ packages:
   cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
-
-  crypto-hash@3.1.0:
-    resolution: {integrity: sha512-HR8JlZ+Dn54Lc5gGWZJxJitWbOCUzWb9/AlyONGecBnYZ+n/ONvt0gQnEzDNpJMYeRrYO7KogQ4qwyTPKnWKEw==}
-    engines: {node: '>=18'}
 
   css-selector-tokenizer@0.8.0:
     resolution: {integrity: sha512-Jd6Ig3/pe62/qe5SBPTN8h8LeUg/pT4lLgtavPf7updwwHpvFzxvOQBHYj2LZDMjUnBzgvIUSjRcf6oT5HzHFg==}
@@ -5335,12 +5311,6 @@ snapshots:
       '@typescript-eslint/types': 5.62.0
       eslint-visitor-keys: 3.4.3
 
-  '@uppy/aws-s3@4.1.0(@uppy/core@4.2.2)':
-    dependencies:
-      '@uppy/companion-client': 4.1.0(@uppy/core@4.2.2)
-      '@uppy/core': 4.2.2
-      '@uppy/utils': 6.0.3
-
   '@uppy/companion-client@4.1.0(@uppy/core@4.2.2)':
     dependencies:
       '@uppy/core': 4.2.2
@@ -5380,12 +5350,14 @@ snapshots:
       '@uppy/core': 4.2.2
       '@uppy/utils': 6.0.3
       preact: 10.23.1
+    optional: true
 
   '@uppy/file-input@4.0.2(@uppy/core@4.2.2)':
     dependencies:
       '@uppy/core': 4.2.2
       '@uppy/utils': 6.0.3
       preact: 10.23.1
+    optional: true
 
   '@uppy/informer@4.1.0(@uppy/core@4.2.2)':
     dependencies:
@@ -5398,6 +5370,7 @@ snapshots:
       '@uppy/core': 4.2.2
       '@uppy/utils': 6.0.3
       preact: 10.23.1
+    optional: true
 
   '@uppy/provider-views@4.0.1(@uppy/core@4.2.2)':
     dependencies:
@@ -5442,13 +5415,13 @@ snapshots:
       lodash: 4.17.21
       preact: 10.23.1
 
-  '@zxing/browser@0.0.7(@zxing/library@0.18.6)':
+  '@uppy/xhr-upload@4.2.1(@uppy/core@4.2.2)':
     dependencies:
-      '@zxing/library': 0.18.6
-    optionalDependencies:
-      '@zxing/text-encoding': 0.9.0
+      '@uppy/companion-client': 4.1.0(@uppy/core@4.2.2)
+      '@uppy/core': 4.2.2
+      '@uppy/utils': 6.0.3
 
-  '@zxing/browser@0.1.4(@zxing/library@0.18.6)':
+  '@zxing/browser@0.0.7(@zxing/library@0.18.6)':
     dependencies:
       '@zxing/library': 0.18.6
     optionalDependencies:
@@ -5726,8 +5699,6 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  crypto-hash@3.1.0: {}
 
   css-selector-tokenizer@0.8.0:
     dependencies:
