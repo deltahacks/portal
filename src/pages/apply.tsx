@@ -87,7 +87,7 @@ const FormCheckbox: React.FC<
       <div className="flex items-center justify-between w-full gap-2 pt-4 pb-4 md:flex-row-reverse md:justify-end">
         <label className="text-black dark:text-white" htmlFor={id}>
           {link ? (
-            <a className="underline" href={link}>
+            <a className="underline" href={link} target="_blank">
               {label}
             </a>
           ) : (
