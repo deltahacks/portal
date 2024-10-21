@@ -284,6 +284,9 @@ const ApplyForm = ({
               htmlFor="studyLocationInput"
             >
               Study Location
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
 
             <Controller
@@ -309,6 +312,9 @@ const ApplyForm = ({
               htmlFor="studyDegreeInput"
             >
               Study Degree
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyDegree"
@@ -332,6 +338,9 @@ const ApplyForm = ({
               htmlFor="studyMajorInput"
             >
               Study Major
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyMajor"
@@ -356,6 +365,9 @@ const ApplyForm = ({
               htmlFor="studyYearOfStudyInput"
             >
               Year of Study
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyYearOfStudy"
@@ -381,6 +393,9 @@ const ApplyForm = ({
               htmlFor="studyExpectedGraduationInput"
             >
               Expected Graduation
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <input
               className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
@@ -402,6 +417,9 @@ const ApplyForm = ({
           htmlFor="previousHackathonsCountInput"
         >
           Previous Hackathons Count
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
         </label>
         <input
           className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
