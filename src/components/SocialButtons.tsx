@@ -6,24 +6,34 @@ const SocialButtons = () => {
       <a
         href="https://www.instagram.com/deltahacks/"
         className="invert filter hover:brightness-150 dark:invert-0"
+        target="_blank"
       >
         <SocialIcon src="/Instagram.svg" alt="Instgram.png" />
       </a>
-      <a
+      {/* <a
         href="https://www.facebook.com/thedeltahacks/"
         className="invert filter hover:brightness-150 dark:invert-0"
       >
         <SocialIcon src="/Facebook.svg" alt="Facebook.png" />
+      </a> */}
+      <a
+        href="https://www.tiktok.com/@deltahacks"
+        className="invert filter hover:brightness-150 dark:invert-0"
+        target="_blank"
+      >
+        <SocialIcon src="/Tiktok.svg" alt="TikTok.png" />
       </a>
       <a
         href="https://twitter.com/deltahacks"
         className="invert filter hover:brightness-150 dark:invert-0"
+        target="_blank"
       >
         <SocialIcon src="/Twitter.svg" alt="Twitter.png" />
       </a>
       <a
         href="https://www.linkedin.com/company/deltahacks/"
         className="invert filter hover:brightness-150 dark:invert-0"
+        target="_blank"
       >
         <SocialIcon src="/LinkedIn.svg" alt="LinkedIn.png" />
       </a>
