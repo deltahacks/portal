@@ -87,7 +87,7 @@ const FormCheckbox: React.FC<
       <div className="flex items-center justify-between w-full gap-2 pt-4 pb-4 md:flex-row-reverse md:justify-end">
         <label className="text-black dark:text-white" htmlFor={id}>
           {link ? (
-            <a className="underline" href={link}>
+            <a className="underline" href={link} target="_blank">
               {label}
             </a>
           ) : (
@@ -114,8 +114,12 @@ const FormCheckbox: React.FC<
 
 const FormTextArea: React.FC<
   FormInputProps &
-    React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
-> = ({ label, id, errors, optional, currentLength, register, ...props }) => {
+    React.HTMLProps<HTMLTextAreaElement> & {
+      value: string;
+    }
+> = ({ label, id, errors, optional, value, register, ...props }) => {
+  const wordLength = value?.trim()?.split(/\s/g).length ?? 0;
+  const currentLength = value?.trim()?.length ?? 0;
   return (
     <div className="flex flex-col flex-1 gap-2 pb-4">
       <label className="text-black dark:text-white" htmlFor={id}>
@@ -128,12 +132,12 @@ const FormTextArea: React.FC<
         <div
           className={
             "pt-4 " +
-            (currentLength > 150
+            (wordLength > 150
               ? "text-red-500"
               : "text-neutral-500 dark:text-neutral-400")
           }
         >
-          {150 + 1 - currentLength} words left
+          {151 - wordLength - (currentLength > 0 ? 1 : 0)} words left
         </div>
       </label>
       <textarea
@@ -284,6 +288,9 @@ const ApplyForm = ({
               htmlFor="studyLocationInput"
             >
               Study Location
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
 
             <Controller
@@ -309,6 +316,9 @@ const ApplyForm = ({
               htmlFor="studyDegreeInput"
             >
               Study Degree
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyDegree"
@@ -332,6 +342,9 @@ const ApplyForm = ({
               htmlFor="studyMajorInput"
             >
               Study Major
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyMajor"
@@ -356,6 +369,9 @@ const ApplyForm = ({
               htmlFor="studyYearOfStudyInput"
             >
               Year of Study
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyYearOfStudy"
@@ -381,6 +397,9 @@ const ApplyForm = ({
               htmlFor="studyExpectedGraduationInput"
             >
               Expected Graduation
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <input
               className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
@@ -402,6 +421,9 @@ const ApplyForm = ({
           htmlFor="previousHackathonsCountInput"
         >
           Previous Hackathons Count
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
         </label>
         <input
           className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
@@ -425,51 +447,44 @@ const ApplyForm = ({
         label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook."
         errors={errors.longAnswerIncident}
         register={register}
-        currentLength={watch("longAnswerIncident")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerIncident")}
       />
       <FormTextArea
         id="longAnswerGoals"
         label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
         errors={errors.longAnswerGoals}
         register={register}
-        currentLength={watch("longAnswerGoals")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerGoals")}
       />
       <FormTextArea
         id="longAnswerFood"
         label="What's your go-to comfort food?"
         errors={errors.longAnswerFood}
         register={register}
-        currentLength={watch("longAnswerFood")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerFood")}
       />
       <FormTextArea
         id="longAnswerTravel"
         label="If you could travel anywhere in the universe, where would you go and why?"
         errors={errors.longAnswerTravel}
         register={register}
-        currentLength={watch("longAnswerTravel")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerTravel")}
       />
       <FormTextArea
         id="longAnswerSocratica"
         label="If you did not have to worry about school/money/time, what is the one thing you would work on?"
         errors={errors.longAnswerSocratica}
         register={register}
-        currentLength={watch("longAnswerSocratica")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerSocratica")}
       />
       <FormDivider label="Survey" />
-      {/* <FormInput
-        label="What are your social media links?"
-        id={"socialText"}
-        errors={errors?.socialText && errors.socialText[0]}
-        register={register}
-        optional
-      /> */}
       <SocialLinksFormInput register={register} errors={errors} watch={watch} />
       <FormTextArea
         label="Is there anything else interesting you want us to know or see?"
         id={"interests"}
         errors={errors.interests}
         register={register}
-        currentLength={watch("interests")?.split(/\s/g).length ?? 0}
+        value={watch("interests") ?? ""}
         optional
       />
       <div className="flex flex-col gap-2 pb-4">

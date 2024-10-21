@@ -84,7 +84,7 @@ const FormTextArea: React.FC<
               : "text-neutral-500 dark:text-neutral-400")
           }
         >
-          {150 - currentLength} words left
+          Word count: {currentLength}
         </div>
       </label>
       <div
