@@ -7,12 +7,14 @@ import { eventsRouter } from "./events";
 import { userRouter } from "./users";
 import { router } from "./trpc";
 import { adminRouter } from "./admin";
+import { fileUploadRouter } from "./file";
 
 export const appRouter = router({
   application: applicationRouter,
   reviewer: reviewerRouter,
   user: userRouter,
   admin: adminRouter,
+  file: fileUploadRouter,
   // NOTE: Will be deprecated
   food: foodRouter,
   events: eventsRouter,
