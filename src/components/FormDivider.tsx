@@ -4,7 +4,7 @@ interface FormDividerProps {
 
 const FormDivider: React.FC<FormDividerProps> = ({ label }) => {
   return (
-    <span className="my-4 border-b-2 border-neutral-700  pb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-400">
+    <span className="my-4 border-b-2 border-neutral-700 dark:border-neutral-300  pb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
       {label}
     </span>
   );

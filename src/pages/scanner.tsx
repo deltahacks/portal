@@ -552,12 +552,15 @@ const Scanner: NextPage = () => {
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const session = await getServerAuthSession(context);
+  // FIXME: Disable this page temporarily
+  return { redirect: { destination: "/", permanent: false } };
 
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
-  }
-  return { props: {} };
+  // const session = await getServerAuthSession(context);
+
+  // if (!session || !session.user) {
+  //   return { redirect: { destination: "/login", permanent: false } };
+  // }
+  // return { props: {} };
 };
 
 export default Scanner;
