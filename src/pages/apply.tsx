@@ -38,7 +38,7 @@ import {
   orientations,
   representation,
 } from "../data/applicationSelectData";
-import { useEffect } from "react";
+import React, { useEffect, useId, useState } from "react";
 import SocialLinksFormInput from "../components/SocialLinkFormInput";
 
 export type InputsType = z.infer<typeof applicationSchema>;
@@ -148,6 +148,67 @@ const FormTextArea: React.FC<
   );
 };
 
+import Uppy from "@uppy/core";
+import { Dashboard } from "@uppy/react";
+import "@uppy/core/dist/style.min.css";
+import "@uppy/dashboard/dist/style.min.css";
+import XHR from "@uppy/xhr-upload";
+import { useSession } from "next-auth/react";
+
+interface FormUploadProps {
+  uploadUrl: string;
+}
+
+const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl }) => {
+  const id = useId();
+  const [uppy] = useState(() =>
+    new Uppy({
+      id: id,
+      allowMultipleUploadBatches: false,
+      restrictions: {
+        maxNumberOfFiles: 1,
+        maxFileSize: 1024 * 1024 * 5, // 5 MB
+        allowedFileTypes: [".pdf"],
+      },
+    }).use(XHR, {
+      endpoint: uploadUrl,
+      formData: false,
+      method: "PUT",
+      onBeforeRequest: (file) => {
+        console.log(file);
+        console.log("BEFOREEEEEE");
+      },
+      onAfterResponse: (response) => {
+        console.log(response);
+        console.log("DONEEEEEE");
+      },
+    })
+  );
+
+  if (!uploadUrl) {
+    return (
+      <div className="flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col flex-1 gap-2 pb-4">
+      <div className="text-black dark:text-white">
+        Resume{" "}
+        <span className="text-neutral-500 dark:text-neutral-400">
+          (Optional)
+        </span>
+      </div>
+
+      <div className="">
+        <Dashboard uppy={uppy} height={200} />
+      </div>
+    </div>
+  );
+};
+
 const ApplyForm = ({
   autofillData,
   persistId,
@@ -191,6 +252,23 @@ const ApplyForm = ({
     setValue,
     storage: localStorage,
   });
+
+  const [uploadUrl, setUploadUrl] = useState<string | null>(null);
+
+  const { mutate, data } = trpc.file.getUploadUrl.useMutation({
+    onSuccess: (data) => {
+      setUploadUrl(data?.url);
+    },
+  });
+
+  const user = useSession();
+
+  useEffect(() => {
+    mutate({
+      filename: `${user.data?.user?.id}-dh11.pdf`,
+      contentType: "application/pdf",
+    });
+  }, []);
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
     console.log(data);
@@ -261,14 +339,16 @@ const ApplyForm = ({
           <span className="text-error">{errors.birthday.message}</span>
         )}
       </div>
-      <FormInput
+
+      {uploadUrl ? <FormUpload uploadUrl={uploadUrl} /> : <div></div>}
+      {/* <FormInput
         label="Link to Resume"
         id="linkToResume"
         placeholder="https://example.com/resume.pdf"
         errors={errors.linkToResume}
         register={register}
         optional
-      />
+      /> */}
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
