@@ -157,9 +157,10 @@ import { useSession } from "next-auth/react";
 
 interface FormUploadProps {
   uploadUrl: string;
+  objectId: string;
 }
 
-const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl }) => {
+const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl, objectId }) => {
   const id = useId();
   const [uppy] = useState(() =>
     new Uppy({
@@ -170,17 +171,24 @@ const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl }) => {
         maxFileSize: 1024 * 1024 * 5, // 5 MB
         allowedFileTypes: [".pdf"],
       },
+      locale: {
+        strings: {
+          done: "Reset",
+        },
+        pluralize: (n) => n,
+      },
     }).use(XHR, {
       endpoint: uploadUrl,
       formData: false,
       method: "PUT",
       onBeforeRequest: (file) => {
         console.log(file);
-        console.log("BEFOREEEEEE");
       },
       onAfterResponse: (response) => {
         console.log(response);
-        console.log("DONEEEEEE");
+      },
+      getResponseData: (xhr) => {
+        return { url: objectId };
       },
     })
   );
@@ -203,7 +211,13 @@ const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl }) => {
       </div>
 
       <div className="">
-        <Dashboard uppy={uppy} height={200} />
+        <Dashboard
+          uppy={uppy}
+          height={200}
+          doneButtonHandler={() => {
+            uppy.resetProgress();
+          }}
+        />
       </div>
     </div>
   );
@@ -263,9 +277,10 @@ const ApplyForm = ({
 
   const user = useSession();
 
+  const objectId = `${user.data?.user?.id}-dh11.pdf`;
   useEffect(() => {
     mutate({
-      filename: `${user.data?.user?.id}-dh11.pdf`,
+      filename: objectId,
       contentType: "application/pdf",
     });
   }, []);
@@ -340,7 +355,11 @@ const ApplyForm = ({
         )}
       </div>
 
-      {uploadUrl ? <FormUpload uploadUrl={uploadUrl} /> : <div></div>}
+      {uploadUrl ? (
+        <FormUpload uploadUrl={uploadUrl} objectId={objectId} />
+      ) : (
+        <div></div>
+      )}
       {/* <FormInput
         label="Link to Resume"
         id="linkToResume"
