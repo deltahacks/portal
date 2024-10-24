@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { useRouter } from "next/router";
 import NavBar from "./NavBar";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 interface PageTab {
   pageName: string;
@@ -86,7 +87,10 @@ export const Drawer = ({
                     <strong className="font-bold">{session?.user?.name}</strong>
                   </a>
                   <button
-                    onClick={() => signOut()}
+                    onClick={() => {
+                      posthog.reset();
+                      signOut();
+                    }}
                     className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white dark:text-gray-300"
                   >
                     Sign Out

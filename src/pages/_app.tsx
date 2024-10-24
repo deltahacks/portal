@@ -11,6 +11,7 @@ import { env } from "../env/client.mjs";
 
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
+import { useEffect } from "react";
 
 if (typeof window !== "undefined") {
   // checks that we are client-side
@@ -28,6 +29,16 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   Component,
   pageProps: { session, ogImage, ...pageProps },
 }) => {
+  useEffect(() => {
+    if (session && session.user) {
+      posthog.identify(session.user.id, {
+        email: session.user.email,
+        name: session.user.name,
+        avatar: session.user.image,
+      });
+    }
+  }, [session]);
+
   return (
     <SessionProvider session={session}>
       <ThemeProvider>
