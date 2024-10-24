@@ -1,5 +1,5 @@
 // src/pages/_app.tsx
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import type { AppType } from "next/app";
 import type { Session } from "next-auth";
 import "../styles/globals.css";
@@ -25,13 +25,11 @@ if (typeof window !== "undefined") {
   });
 }
 
-const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
-  Component,
-  pageProps: { session, ogImage, ...pageProps },
-}) => {
+const PosthogIdentifer = () => {
+  const { data: session } = useSession();
   useEffect(() => {
     if (session && session.user) {
-      posthog.identify(session.user.id, {
+      posthog.identify(`${session.user.id} - ${session.user.email}`, {
         email: session.user.email,
         name: session.user.name,
         avatar: session.user.image,
@@ -39,6 +37,13 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
     }
   }, [session]);
 
+  return null;
+};
+
+const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
+  Component,
+  pageProps: { session, ogImage, ...pageProps },
+}) => {
   return (
     <SessionProvider session={session}>
       <ThemeProvider>
@@ -100,6 +105,7 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
               <meta name="robots" content="noindex" />
             ) : null}
           </Head>
+          <PosthogIdentifer />
           <Component {...pageProps} />
         </PostHogProvider>
       </ThemeProvider>
