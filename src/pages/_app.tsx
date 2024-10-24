@@ -29,7 +29,7 @@ const PosthogIdentifer = () => {
   const { data: session } = useSession();
   useEffect(() => {
     if (session && session.user) {
-      posthog.identify(`${session.user.id} - ${session.user.email}`, {
+      posthog.identify(session.user.id, {
         email: session.user.email,
         name: session.user.name,
         avatar: session.user.image,
