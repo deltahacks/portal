@@ -3,13 +3,10 @@ import type {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { getSession, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import Background from "../components/Background";
-import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
-import ThemeToggle from "../components/ThemeToggle";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
@@ -17,6 +14,7 @@ import { Status } from "@prisma/client";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
+import Drawer from "../components/Drawer";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -65,11 +63,11 @@ const Accepted: React.FC = () => {
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? session.user?.name : ""}, we can{"'"}t wait to see you at
-        Deltahacks X!
+        DeltaHacks XI!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
-        DeltaHacks X! Come hack for change and build something incredible with
+        DeltaHacks XI! Come hack for change and build something incredible with
         hundreds of other hackers from January 12 - 14, 2023! To confirm that
         you will be attending, please RSVP below.
       </h2>
@@ -133,7 +131,7 @@ const Rejected: React.FC = () => {
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? `${session.user?.name}` : ""}, thank you for submitting
-        your application to DeltaHacks X.
+        your application to DeltaHacks XI.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
@@ -209,11 +207,17 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Thanks for applying{session ? `, ${session.user?.name}` : ""}!
+        Thanks for applying
+        {session ? (
+          <span className="capitalize">, {session.user?.name}</span>
+        ) : (
+          ""
+        )}
+        !
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We have recieved your application. You will hear back from us on your
-        email. While you wait for DeltaHacks, lookout for other prep events by
+        email. While you wait for DeltaHacks, look out for other prep events by
         DeltaHacks on our social accounts.
       </h2>
       <h1>{killed}</h1>
@@ -235,20 +239,23 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
           </Button>
 
           <dialog
-            className="modal modal-bottom sm:modal-middle"
+            className="modal modal-bottom sm:modal-middle  "
             ref={dialogRef}
           >
-            <div className="modal-box">
-              <h3 className="text-lg font-bold">Are you sure ?</h3>
+            <div className="modal-box dark:bg-[#1F1F1F]">
+              <h3 className="text-lg font-bold dark:text-white">
+                Are you sure?
+              </h3>
               <p className="py-4">
-                You will lose all and have to start from scratch.
+                By proceeding, you are withdrawing your application from
+                DeltaHacks and must apply again to be considered for the event.
               </p>
               <div className="modal-action">
                 <form method="dialog">
                   {/* if there is a button in form, it will close the modal */}
                   <div className="flex gap-5">
                     <button
-                      className="btn btn-outline btn-error"
+                      className="btn btn-error dark:text-white"
                       onClick={() => deleteApplication.mutateAsync()}
                     >
                       Proceed
@@ -289,10 +296,10 @@ const RSVPed: React.FC = () => {
         you at the hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We are pleased to inform you that your registration for DeltaHacks X has
-        been confirmed. Please look for an Attendee Package in your email with
-        important information about the event in the coming days. Registration
-        will take place at{" "}
+        We are pleased to inform you that your registration for DeltaHacks XI
+        has been confirmed. Please look for an Attendee Package in your email
+        with important information about the event in the coming days.
+        Registration will take place at{" "}
         <a
           className="text-sky-400 hover:underline"
           href="https://www.google.com/maps/place/Peter+George+Centre+for+Living+and+Learning/@43.2654,-79.9208391,17z/data=!3m1!4b1!4m5!3m4!1s0x882c9b6596106407:0xf256463687b966a8!8m2!3d43.2654!4d-79.9182642?coh=164777&entry=tt&shorturl=1"
@@ -463,58 +470,16 @@ const Dashboard: NextPage<
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks X</title>
+        <title>Dashboard - DeltaHacks XI</title>
       </Head>
-      <Background />
-      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
-        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
-          <NavBar />
-          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            {stateMap[statusToUse]}
-          </main>
-        </div>
-
-        <div className="drawer-side md:hidden">
-          <label
-            htmlFor="my-drawer-3"
-            className="drawer-overlay md:hidden"
-          ></label>
-          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
-            <ul className="w-full">
-              {/* <li>Your application has not been received.</li> */}
-              {/* <!-- Sidebar content here --> */}
-              <li>
-                <Link
-                  className="mx-2 my-2 text-base font-bold"
-                  href="/dashboard"
-                >
-                  Dashboard
-                </Link>
-              </li>
-            </ul>
-            <div className="mx-1 mb-2 flex w-full items-center justify-between">
-              <ThemeToggle />
-              <div>
-                <a className="font-sub mx-2.5 text-sm">
-                  Hi,{" "}
-                  <strong className="font-bold">{session?.user?.name}</strong>
-                </a>
-                <button
-                  onClick={() => signOut()}
-                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
+        <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+          {stateMap[statusToUse]}
+        </main>
         <footer className=" bottom-0 right-0 p-5 md:absolute md:bottom-0">
           <SocialButtons />
         </footer>
-      </div>
+      </Drawer>
     </>
   );
 };
@@ -530,7 +495,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { dh10application: true },
+    include: { DH11Application: true },
   });
   const killedStr = await prisma.config.findFirst({
     where: { name: "killApplications" },
@@ -545,10 +510,10 @@ export const getServerSideProps = async (
   }
 
   // If submitted then do nothing
-  if (userEntry && userEntry.dh10application !== null) {
+  if (userEntry && userEntry.DH11Application !== null) {
     return {
       props: {
-        status: userEntry.status,
+        status: userEntry.DH11Application.status,
         killed: killed,
       },
     };

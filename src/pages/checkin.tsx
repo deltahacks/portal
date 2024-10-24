@@ -1,15 +1,7 @@
-import type {
-  GetServerSidePropsContext,
-  GetServerSidePropsResult,
-  NextPage,
-} from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
-import { getSession, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
-import ThemeToggle from "../components/ThemeToggle";
-import Link from "next/link";
-import Background from "../components/Background";
-import NavBar from "../components/NavBar";
 import SocialButtons from "../components/SocialButtons";
 import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
@@ -17,6 +9,7 @@ import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
 import { prisma } from "../server/db/client";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import Drawer from "../components/Drawer";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -39,7 +32,7 @@ const PreCheckedIn: React.FC = () => {
   return (
     <div>
       <div className="pb-6 pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        Welcome to DeltaHacks X! This year we are using a QR code system to
+        Welcome to DeltaHacks XI! This year we are using a QR code system to
         check you in to events, meals, and more. To link your account to the QR,
         please scan it with your camera.
       </div>
@@ -176,7 +169,7 @@ const PostCheckedIn: React.FC = () => {
 const NoRSVP: React.FC = () => {
   return (
     <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-      You have not RSVPed to DeltaHacks X. If you believe there is an issue
+      You have not RSVPed to DeltaHacks XI. If you believe there is an issue
       regarding this, contact us at{" "}
       <a href="mailto: tech@deltahacks.com" className="text-sky-400">
         tech@deltahacks.com
@@ -203,66 +196,26 @@ const Checkin: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks X</title>
+        <title>Check In - DeltaHacks XI</title>
       </Head>
-      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
-        <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
-          <Background />
-          <NavBar />
-          <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-              Check In
+      <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
+        <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+          <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
+            Check In
+          </h1>
+          {!isStatusLoading ? (
+            <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+              Loading...
             </h1>
-            {!isStatusLoading ? (
-              <h1 className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-                Loading...
-              </h1>
-            ) : (
-              stateMap[status as Status]
-            )}
-          </main>
+          ) : (
+            stateMap[status as Status]
+          )}
+        </main>
 
-          <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
-            <SocialButtons />
-          </footer>
-        </div>
-        <div className="drawer-side md:hidden">
-          <label
-            htmlFor="my-drawer-3"
-            className="drawer-overlay md:hidden"
-          ></label>
-          <div className="menu h-full w-80 flex-row content-between overflow-y-auto bg-white p-4 dark:bg-[#1F1F1F] md:hidden">
-            <ul className="w-full">
-              {/* <li>Your application has not been received.</li> */}
-              {/* <!-- Sidebar content here --> */}
-              <li>
-                <Link
-                  className="mx-2 my-2 text-base font-bold"
-                  href="/dashboard"
-                >
-                  Dashboard
-                </Link>
-              </li>
-            </ul>
-            <div className="mx-1 mb-2 flex w-full items-center justify-between">
-              <ThemeToggle />
-              <div>
-                <a className="font-sub mx-2.5 text-sm">
-                  Hi,{" "}
-                  <strong className="font-bold">{session?.user?.name}</strong>
-                </a>
-                <button
-                  onClick={() => signOut()}
-                  className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        <footer className="absolute bottom-0 right-0 p-5 md:absolute md:bottom-0">
+          <SocialButtons />
+        </footer>
+      </Drawer>
     </>
   );
 };
@@ -271,25 +224,28 @@ const Checkin: NextPage = () => {
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const session = await getServerAuthSession(context);
+  // FIXME: Disable this page temporarily
+  return { redirect: { destination: "/", permanent: false } };
 
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
-  }
+  // const session = await getServerAuthSession(context);
 
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-  });
+  // if (!session || !session.user) {
+  //   return { redirect: { destination: "/login", permanent: false } };
+  // }
 
-  if (
-    userEntry &&
-    (userEntry.typeform_response_id === null ||
-      userEntry.typeform_response_id === undefined)
-  ) {
-    return { redirect: { destination: "/welcome", permanent: false } };
-  }
+  // const userEntry = await prisma.user.findFirst({
+  //   where: { id: session.user.id },
+  // });
 
-  return { props: {} };
+  // if (
+  //   userEntry &&
+  //   (userEntry.typeform_response_id === null ||
+  //     userEntry.typeform_response_id === undefined)
+  // ) {
+  //   return { redirect: { destination: "/welcome", permanent: false } };
+  // }
+
+  // return { props: {} };
 };
 
 export default Checkin;

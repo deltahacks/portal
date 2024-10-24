@@ -5,10 +5,15 @@ import { getServerAuthSession } from "../../server/common/get-server-auth-sessio
 import { prisma } from "../db/client";
 import { LogSnag } from "@logsnag/node";
 import { env } from "../../env/server.mjs";
+import { PostHog } from "posthog-node";
 
 const logsnag = new LogSnag({
   token: env.LOGSNAG_TOKEN,
-  project: "deltahacks-portal",
+  project: "deltahacks-11",
+});
+
+const posthog = new PostHog(env.POSTHOG_KEY, {
+  host: "https://us.i.posthog.com",
 });
 
 type CreateContextOptions = {
@@ -24,6 +29,7 @@ export const createContextInner = async (opts: CreateContextOptions) => {
     session: opts.session,
     prisma,
     logsnag,
+    posthog,
   };
 };
 

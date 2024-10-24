@@ -8,7 +8,12 @@ const Background = ({ className }: { className?: string }) => {
         className
       )}
     >
-      <div className="pointer-events-none light-gradient dark:dark-gradient absolute inset-0 -left-[50%] -top-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg" />
+      {/* <img
+        src="https://i.imgur.com/WPKDZAT.png"
+        className="opacity-25 -rotate-6"
+        alt=""
+      /> */}
+      <div className="pointer-events-none light-gradient dark:dark-gradient absolute inset-0 -left-[50%] -top-[50%] h-[200%] w-[200%] -rotate-12 animate-slow-bg opacity-50 dark:opacity-25" />
     </div>
   );
 };

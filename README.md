@@ -8,7 +8,7 @@ DeltaHacks is an annual, 36-hour hackathon hosted at McMaster University. This i
 
 ## Philosophy
 
-In the past, the DeltaHacks team has used a variety of different tools to manage the hackathon. This included creating, updating and maintaining several dashboards for hackers, volunteers, judges, sponsers. This year, we are taking a different approach. We are building a single, unified portal that will be used by all of the different groups. This will allow us to have a single source of truth for all of the data and will allow us to build a more cohesive experience for all of the different groups.
+In the past, the DeltaHacks team has used a variety of different tools to manage the hackathon. This included creating, updating and maintaining several dashboards for hackers, volunteers, judges, sponsors. This year, we are taking a different approach. We are building a single, unified portal that will be used by all of the different groups. This will allow us to have a single source of truth for all of the data and will allow us to build a more cohesive experience for all of the different groups.
 
 ## Features / Roadmap
 

@@ -12,7 +12,7 @@ const ApplicationForReview = z.object({
     .nullable()
     .transform((v) => (v === null ? "" : v)),
   status: z.nativeEnum(Status),
-  dH10ApplicationId: z.string().cuid(),
+  DH11ApplicationId: z.string().cuid(),
 });
 
 const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
@@ -39,7 +39,7 @@ export const reviewerRouter = router({
 
       const users = await ctx.prisma.user.findMany({
         where: {
-          dH10ApplicationId: {
+          DH11ApplicationId: {
             not: null,
           },
         },
@@ -48,7 +48,7 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           status: true,
-          dH10ApplicationId: true,
+          DH11ApplicationId: true,
         },
       });
 
@@ -59,7 +59,7 @@ export const reviewerRouter = router({
   getApplication: protectedProcedure
     .input(
       z.object({
-        dH10ApplicationId: z.string().optional(),
+        dh11ApplicationId: z.string().optional(),
       })
     )
     .output(ApplicationSchemaWithStringDates)
@@ -73,10 +73,10 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const application = await ctx.prisma.dH10Application.findFirst({
+      const application = await ctx.prisma.dH11Application.findFirst({
         where: {
           id: {
-            equals: input.dH10ApplicationId,
+            equals: input.dh11ApplicationId,
           },
         },
       });

@@ -18,7 +18,7 @@ import useFormPersist from "react-hook-form-persist";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
-import { Drawer } from "../components/NavBar";
+import Drawer from "../components/Drawer";
 import applicationSchema from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
 import FormDivider from "../components/FormDivider";
@@ -35,8 +35,18 @@ import {
   heardFrom,
   SelectChoice,
   workshopType,
+  orientations,
+  representation,
 } from "../data/applicationSelectData";
-import { useEffect } from "react";
+import React, { useEffect, useId, useState } from "react";
+import SocialLinksFormInput from "../components/SocialLinkFormInput";
+import Uppy from "@uppy/core";
+import { Dashboard } from "@uppy/react";
+import "@uppy/core/dist/style.min.css";
+import "@uppy/dashboard/dist/style.min.css";
+import XHR from "@uppy/xhr-upload";
+import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -55,7 +65,7 @@ const FormInput: React.FC<
   FormInputProps & React.HTMLProps<HTMLInputElement>
 > = ({ label, id, errors, optional, register, ...props }) => {
   return (
-    <div className="flex flex-1 flex-col gap-2 pb-4">
+    <div className="flex flex-col flex-1 gap-2 pb-4">
       <label className="text-black dark:text-white" htmlFor={id}>
         {label}{" "}
         {optional && (
@@ -65,7 +75,7 @@ const FormInput: React.FC<
         )}
       </label>
       <input
-        className="input rounded-lg  border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+        className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         type="text"
         id={id}
         {...register(id)}
@@ -81,10 +91,10 @@ const FormCheckbox: React.FC<
 > = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
     <>
-      <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
+      <div className="flex items-center justify-between w-full gap-2 pt-4 pb-4 md:flex-row-reverse md:justify-end">
         <label className="text-black dark:text-white" htmlFor={id}>
           {link ? (
-            <a className="underline" href={link}>
+            <a className="underline" href={link} target="_blank">
               {label}
             </a>
           ) : (
@@ -97,7 +107,7 @@ const FormCheckbox: React.FC<
           )}
         </label>
         <input
-          className="checkbox-primary checkbox checkbox-lg rounded-sm bg-white p-2 dark:bg-neutral-800"
+          className="p-2 bg-white rounded-sm checkbox-primary checkbox checkbox-lg dark:bg-neutral-800"
           type="checkbox"
           id={id}
           {...register(id)}
@@ -111,10 +121,14 @@ const FormCheckbox: React.FC<
 
 const FormTextArea: React.FC<
   FormInputProps &
-    React.HTMLProps<HTMLTextAreaElement> & { currentLength: number }
-> = ({ label, id, errors, optional, currentLength, register, ...props }) => {
+    React.HTMLProps<HTMLTextAreaElement> & {
+      value: string;
+    }
+> = ({ label, id, errors, optional, value, register, ...props }) => {
+  const wordLength = value?.trim()?.split(/\s/g).length ?? 0;
+  const currentLength = value?.trim()?.length ?? 0;
   return (
-    <div className="flex flex-1 flex-col gap-2 pb-4">
+    <div className="flex flex-col flex-1 gap-2 pb-4">
       <label className="text-black dark:text-white" htmlFor={id}>
         {label}{" "}
         {optional && (
@@ -125,22 +139,92 @@ const FormTextArea: React.FC<
         <div
           className={
             "pt-4 " +
-            (currentLength > 150
+            (wordLength > 150
               ? "text-red-500"
               : "text-neutral-500 dark:text-neutral-400")
           }
         >
-          {150 - currentLength} words left
+          {151 - wordLength - (currentLength > 0 ? 1 : 0)} words left
         </div>
       </label>
       <textarea
-        className="textarea textarea-bordered rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+        className="text-black rounded-lg textarea textarea-bordered border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
         id={id}
         placeholder="Type here..."
         {...register(id)}
         {...props}
       />
       {errors && <span className="text-error">{errors.message}</span>}
+    </div>
+  );
+};
+
+interface FormUploadProps {
+  uploadUrl: string;
+  objectId: string;
+  setUploadValue: (value: string) => void;
+}
+
+const FormUpload: React.FC<FormUploadProps> = ({
+  uploadUrl,
+  objectId,
+  setUploadValue,
+}) => {
+  const { theme } = useTheme();
+
+  const id = useId();
+  const [uppy] = useState(() =>
+    new Uppy({
+      id: id,
+      allowMultipleUploadBatches: false,
+      restrictions: {
+        maxNumberOfFiles: 1,
+        maxFileSize: 1024 * 1024 * 5, // 5 MB
+        allowedFileTypes: [".pdf"],
+      },
+      locale: {
+        strings: {
+          done: "Reset",
+        },
+        pluralize: (n: number) => n,
+      },
+    }).use(XHR, {
+      endpoint: uploadUrl,
+      formData: false,
+      method: "PUT",
+      onAfterResponse: () => {
+        setUploadValue(objectId);
+      },
+      getResponseData: () => {
+        return { url: objectId };
+      },
+    })
+  );
+
+  if (!uploadUrl) {
+    return (
+      <div className="flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col flex-1 gap-2 pb-4">
+      <div className="text-black dark:text-white">
+        Resume{" "}
+        <span className="text-neutral-500 dark:text-neutral-400">
+          (Optional)
+        </span>
+      </div>
+      <Dashboard
+        uppy={uppy}
+        height={200}
+        doneButtonHandler={() => {
+          uppy.resetProgress();
+        }}
+        theme={theme === "dark" ? "dark" : "light"}
+      />
     </div>
   );
 };
@@ -177,39 +261,61 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh10.useMutation({
+  } = trpc.application.submitDh11.useMutation({
     onSuccess: async () => {
       await router.push("/dashboard");
     },
   });
 
-  useFormPersist(`applyForm:${persistId}`, {
+  useFormPersist(`dh11-applyForm:${persistId}`, {
     watch,
     setValue,
     storage: localStorage,
   });
 
+  const [uploadUrl, setUploadUrl] = useState<string | null>(null);
+
+  const { mutate, data } = trpc.file.getUploadUrl.useMutation({
+    onSuccess: (data) => {
+      setUploadUrl(data?.url);
+    },
+  });
+
+  const user = useSession();
+
+  const objectId = `${user.data?.user?.id}-dh11.pdf`;
+  useEffect(() => {
+    mutate({
+      filename: objectId,
+      contentType: "application/pdf",
+    });
+  }, []);
+
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
+    console.log(data);
+    console.log("validating");
     const processed = applicationSchema.parse(data);
+    console.log("validated");
 
     await submitAppAsync(processed);
   };
 
+  console.log("Errors", errors);
+
   const isSecondary = watch("studyEnrolledPostSecondary");
-  const isMacEv = watch("macEv");
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto flex flex-col pb-8"
+      className="flex flex-col pb-8 mx-auto"
     >
       {wasAutofilled && (
-        <div className="alert alert-success mb-4 justify-normal text-center">
+        <div className="mb-4 text-center alert alert-success justify-normal">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            className="h-6 w-6 shrink-0 stroke-current"
+            className="w-6 h-6 stroke-current shrink-0"
           >
             <path
               stroke-linecap="round"
@@ -221,9 +327,8 @@ const ApplyForm = ({
           Some fields were autofilled.
         </div>
       )}
-
       <FormDivider label="Personal Information" />
-      <div className="flex w-full flex-col lg:flex-row lg:gap-4">
+      <div className="flex flex-col w-full lg:flex-row lg:gap-4">
         <FormInput
           label="First Name"
           id="firstName"
@@ -245,7 +350,7 @@ const ApplyForm = ({
           Birthday
         </label>
         <input
-          className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+          className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
           id="birthdayInput"
           {...register("birthday", {})}
@@ -255,48 +360,22 @@ const ApplyForm = ({
           <span className="text-error">{errors.birthday.message}</span>
         )}
       </div>
-
-      <FormInput
-        label="Link to Resume"
-        id="linkToResume"
-        placeholder="https://example.com/resume.pdf"
-        errors={errors.linkToResume}
-        register={register}
-        optional
-      />
-
-      {persistId.endsWith("mcmaster.ca") && (
-        <FormCheckbox
-          label="Would you like to be a part of the McMaster Experience Ventures Program?"
-          id="macEv"
-          errors={errors.macEv}
-          register={register}
+      {uploadUrl ? (
+        <FormUpload
+          uploadUrl={uploadUrl}
+          objectId={objectId}
+          setUploadValue={(v) => setValue("linkToResume", v)}
         />
+      ) : (
+        <div></div>
       )}
-
-      {isMacEv && (
-        <div>
-          Please be sure to fill out this form for your application to be
-          considered:{" "}
-          <a
-            href="https://forms.office.com/r/59eVyQ2W4T"
-            className="text-blue-500"
-            target="_blank"
-          >
-            https://forms.office.com/r/Vf8wYec5JW
-          </a>
-        </div>
-      )}
-
       <FormDivider label="Education" />
-
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
         id="studyEnrolledPostSecondary"
         errors={errors.studyEnrolledPostSecondary}
         register={register}
       />
-
       {isSecondary && (
         <div>
           <div className="flex flex-col gap-2 pb-4">
@@ -305,6 +384,9 @@ const ApplyForm = ({
               htmlFor="studyLocationInput"
             >
               Study Location
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
 
             <Controller
@@ -330,6 +412,9 @@ const ApplyForm = ({
               htmlFor="studyDegreeInput"
             >
               Study Degree
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyDegree"
@@ -353,6 +438,9 @@ const ApplyForm = ({
               htmlFor="studyMajorInput"
             >
               Study Major
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyMajor"
@@ -377,6 +465,9 @@ const ApplyForm = ({
               htmlFor="studyYearOfStudyInput"
             >
               Year of Study
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <Controller
               name="studyYearOfStudy"
@@ -402,9 +493,12 @@ const ApplyForm = ({
               htmlFor="studyExpectedGraduationInput"
             >
               Expected Graduation
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
             </label>
             <input
-              className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+              className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
               type="date"
               id="studyExpectedGraduationInput"
               {...register("studyExpectedGraduation")}
@@ -422,10 +516,13 @@ const ApplyForm = ({
           className="text-black dark:text-white"
           htmlFor="previousHackathonsCountInput"
         >
-          Previous Hackathons Count
+          Previous Hackathons Count{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
         </label>
         <input
-          className="input rounded-lg border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+          className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="number"
           min="0"
           id="previousHackathonsCountInput"
@@ -440,60 +537,52 @@ const ApplyForm = ({
           </span>
         )}
       </div>
-
       <FormDivider label="Long Answer" />
-
       <FormTextArea
-        id="longAnswerChange"
-        label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
-        errors={errors.longAnswerChange}
+        id="longAnswerIncident"
+        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook."
+        errors={errors.longAnswerIncident}
         register={register}
-        currentLength={watch("longAnswerChange")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerIncident")}
       />
-
       <FormTextArea
-        id="longAnswerExperience"
-        label="How do you hope to make the most out of your experience at DH10?"
-        errors={errors.longAnswerExperience}
+        id="longAnswerGoals"
+        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
+        errors={errors.longAnswerGoals}
         register={register}
-        currentLength={watch("longAnswerExperience")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerGoals")}
       />
-
       <FormTextArea
-        id="longAnswerTech"
-        label="Which piece of future technology excites you most and where do you see it going?"
-        errors={errors.longAnswerTech}
+        id="longAnswerFood"
+        label="What's your go-to comfort food?"
+        errors={errors.longAnswerFood}
         register={register}
-        currentLength={watch("longAnswerTech")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerFood")}
       />
-
       <FormTextArea
-        id="longAnswerMagic"
-        label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
-        errors={errors.longAnswerMagic}
+        id="longAnswerTravel"
+        label="If you could travel anywhere in the universe, where would you go and why?"
+        errors={errors.longAnswerTravel}
         register={register}
-        currentLength={watch("longAnswerMagic")?.split(/\s/g).length ?? 0}
+        value={watch("longAnswerTravel")}
       />
-
+      <FormTextArea
+        id="longAnswerSocratica"
+        label="If you did not have to worry about school/money/time, what is the one thing you would work on?"
+        errors={errors.longAnswerSocratica}
+        register={register}
+        value={watch("longAnswerSocratica")}
+      />
       <FormDivider label="Survey" />
-
-      <FormInput
-        label="What are your social media links?"
-        id={"socialText"}
-        errors={errors.socialText}
-        register={register}
-        optional
-      />
-
+      <SocialLinksFormInput register={register} errors={errors} watch={watch} />
       <FormTextArea
         label="Is there anything else interesting you want us to know or see?"
         id={"interests"}
         errors={errors.interests}
         register={register}
-        currentLength={watch("interests")?.split(/\s/g).length ?? 0}
+        value={watch("interests") ?? ""}
         optional
       />
-
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="tshirtSizeInput">
           T-shirt Size
@@ -525,10 +614,11 @@ const ApplyForm = ({
           render={({ field: { onChange, value } }) => (
             <CustomSelect
               options={hackerTypes}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={hackerTypes.find((val) => val.value === value)}
-              isMulti={false}
-              defaultInputValue={autofillData.hackerKind ?? undefined}
+              onChange={(val: SelectChoice[] | null) =>
+                onChange(val?.map((v: SelectChoice) => v.value))
+              }
+              value={hackerTypes.filter((val) => value?.includes(val.value))}
+              isMulti={true}
             />
           )}
         />
@@ -536,7 +626,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.hackerKind.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -565,7 +654,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.workshopChoices.message}</span>
         )}
       </div>
-
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -591,10 +679,78 @@ const ApplyForm = ({
           <span className="text-error">{errors.discoverdFrom.message}</span>
         )}
       </div>
+      <FormCheckbox
+        label="Do you already have a team?"
+        id="alreadyHaveTeam"
+        errors={errors.alreadyHaveTeam}
+        register={register}
+      />
+      <FormCheckbox
+        label="Would you like to be considered for a coffee chat with a sponsor?"
+        id="considerCoffee"
+        errors={errors.considerCoffee}
+        register={register}
+      />
+      <FormDivider label="Emergency Contact" />
+      <div className="flex flex-col md:flex-row md:items-end md:gap-4">
+        <FormInput
+          label="Name of Emergency Contact"
+          id="emergencyContactName"
+          errors={errors.emergencyContactName}
+          placeholder="James Doe"
+          register={register}
+        />
+        <FormInput
+          label="Relation to Emergency Contact"
+          id="emergencyContactRelation"
+          errors={errors.emergencyContactRelation}
+          placeholder="Parent / Guardian / Friend / Spouse"
+          register={register}
+        />
+      </div>
+      <FormInput
+        id="emergencyContactPhone"
+        label="Emergency Contact Phone Number"
+        errors={errors.emergencyContactPhone}
+        placeholder="000-000-0000"
+        register={register}
+      />
+      <FormDivider label="MLH Survey and Consent" />
+      <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="text-black dark:text-white"
+          htmlFor="underrepresentedInput"
+        >
+          Do you identify as part of an underrepresented group in the technology
+          industry?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        </label>
 
+        <Controller
+          name="underrepresented"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={representation}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={representation.find((val) => val.value === value)}
+            />
+          )}
+        />
+
+        {errors.underrepresented && (
+          <span className="text-error">{errors.underrepresented.message}</span>
+        )}
+      </div>
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="genderInput">
-          Gender
+          What&apos;s your gender?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
         </label>
 
         <Controller
@@ -614,10 +770,40 @@ const ApplyForm = ({
           <span className="text-error">{errors.gender.message}</span>
         )}
       </div>
+      <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="text-black dark:text-white"
+          htmlFor="orientationInput"
+        >
+          Do you consider yourself to be any of the following?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
+        </label>
 
+        <Controller
+          name="orientation"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={orientations}
+              isMulti={false}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              value={orientations.find((val) => val.value === value)}
+            />
+          )}
+        />
+
+        {errors.orientation && (
+          <span className="text-error">{errors.orientation.message}</span>
+        )}
+      </div>
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="raceInput">
-          Race
+          Which ethnic background do you identify with?{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
         </label>
 
         <Controller
@@ -636,49 +822,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.race.message}</span>
         )}
       </div>
-
-      <FormCheckbox
-        label="Do you already have a team?"
-        id="alreadyHaveTeam"
-        errors={errors.alreadyHaveTeam}
-        register={register}
-      />
-
-      <FormCheckbox
-        label="Would you like to be considered for a coffee chat with a sponser?"
-        id="considerCoffee"
-        errors={errors.considerCoffee}
-        register={register}
-      />
-
-      <FormDivider label="Emergency Contact" />
-
-      <div className="flex flex-col md:flex-row md:items-end md:gap-4">
-        <FormInput
-          label="Name of Emergency Contact"
-          id="emergencyContactName"
-          errors={errors.emergencyContactName}
-          placeholder="James Doe"
-          register={register}
-        />
-        <FormInput
-          label="Relation to Emergency Contact"
-          id="emergencyContactRelation"
-          errors={errors.emergencyContactName}
-          placeholder="Parent / Guardian / Friend / Spouse"
-          register={register}
-        />
-      </div>
-      <FormInput
-        id="emergencyContactPhone"
-        label="Emergency Contact Phone Number"
-        errors={errors.emergencyContactPhone}
-        placeholder="000-000-0000"
-        register={register}
-      />
-
-      <FormDivider label="MLH Consent" />
-
       <FormCheckbox
         label="Agree to MLH Code of Conduct"
         id="agreeToMLHCodeOfConduct"
@@ -686,7 +829,6 @@ const ApplyForm = ({
         register={register}
         link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
       />
-
       <FormCheckbox
         label="Agree to MLH Privacy Policy"
         id="agreeToMLHPrivacyPolicy"
@@ -694,7 +836,6 @@ const ApplyForm = ({
         register={register}
         link="https://mlh.io/privacy"
       />
-
       <FormCheckbox
         label="Agree to MLH Communications"
         id="agreeToMLHCommunications"
@@ -702,12 +843,14 @@ const ApplyForm = ({
         register={register}
         optional
       />
-
-      <button type="submit" className="btn btn-primary mb-4 mt-4">
+      <button
+        type="submit"
+        className="mt-4 mb-4 btn btn-primary dark:text-white"
+      >
         Submit
       </button>
       {isError && (
-        <div className="alert alert-error mb-4 justify-normal text-center">
+        <div className="mb-4 text-center alert alert-error justify-normal">
           There was an error submitting your application. Please try again. If
           this error persists, please contact us at tech@deltahacks.com
         </div>
@@ -734,23 +877,26 @@ const Apply: NextPage<
 
   const autofillData = trpc.application.getPrevAutofill.useQuery(undefined, {
     retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks X</title>
+        <title>Welcome - DeltaHacks XI</title>
       </Head>
       <Drawer>
         <div className="w-full">
-          <div className="mx-auto max-w-4xl p-4 text-black dark:text-white md:w-1/2 md:p-0">
-            <h1 className="py-8 text-center text-4xl font-bold text-black dark:text-white md:text-left">
-              Apply to DeltaHacks X
+          <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
+            <h1 className="py-8 text-3xl font-bold text-center text-black dark:text-white md:text-left">
+              Apply to DeltaHacks XI
             </h1>
 
             {!killed &&
               (autofillData.isLoading ? (
-                <div className="flex h-full flex-col items-center justify-center py-4 text-center">
+                <div className="flex flex-col items-center justify-center h-full py-4 text-center">
                   Loading your application...
                   <div className="loading loading-infinity loading-lg"></div>
                 </div>
@@ -762,8 +908,8 @@ const Apply: NextPage<
               ))}
 
             {killed && (
-              <div className="flex h-full flex-col items-center justify-center py-4 text-center">
-                <div className="alert  bg-red-600 text-center text-2xl text-black dark:text-white md:text-left">
+              <div className="flex flex-col items-center justify-center h-full py-4 text-center">
+                <div className="text-2xl text-center text-black bg-red-600 alert dark:text-white md:text-left">
                   {/* <span>
                     Applications are currently closed due to technical
                     difficulties. Please check back later. If this error
@@ -771,8 +917,8 @@ const Apply: NextPage<
                     <span className="font-bold">tech@deltahacks.com</span>
                   </span> */}
                   <span>
-                    Applications are closed for Deltahcks X. If you did not get
-                    to apply, we hope to see you next year!
+                    Applications are closed for DeltaHacks XI. If you did not
+                    get to apply, we hope to see you next year!
                   </span>
                 </div>
               </div>
@@ -795,7 +941,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { dh10application: true },
+    include: { DH11Application: true },
   });
 
   const killedStr = await prisma.config.findFirst({
@@ -811,7 +957,7 @@ export const getServerSideProps = async (
   }
 
   // If submitted then go dashboard
-  if (userEntry && userEntry.dh10application !== null) {
+  if (userEntry && userEntry.DH11Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 

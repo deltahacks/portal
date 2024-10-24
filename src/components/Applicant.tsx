@@ -84,7 +84,7 @@ const FormTextArea: React.FC<
               : "text-neutral-500 dark:text-neutral-400")
           }
         >
-          {150 - currentLength} words left
+          Word count: {currentLength}
         </div>
       </label>
       <div
@@ -102,8 +102,10 @@ const ApplicationContent = ({
 }: {
   applicationForReview: ApplicationForReview;
 }) => {
-  const { dH10ApplicationId } = applicationForReview;
-  const { data } = trpc.reviewer.getApplication.useQuery({ dH10ApplicationId });
+  const { DH11ApplicationId } = applicationForReview;
+  const { data } = trpc.reviewer.getApplication.useQuery({
+    dh11ApplicationId: DH11ApplicationId,
+  });
 
   return (
     <>
@@ -111,10 +113,10 @@ const ApplicationContent = ({
       <div className="flex w-full flex-col lg:flex-row lg:gap-4">
         <FormInput
           label="First Name"
-          text={data?.lastName}
+          text={data?.firstName}
           placeholder="John"
         />
-        <FormInput label="Last Name" text={data?.firstName} placeholder="Doe" />
+        <FormInput label="Last Name" text={data?.lastName} placeholder="Doe" />
       </div>
       <FormInput id="birthday" label="Birthday" text={data?.birthday} />
       <FormInput
@@ -123,13 +125,6 @@ const ApplicationContent = ({
         placeholder="https://example.com/resume.pdf"
         optional
       />
-      {applicationForReview.email.endsWith("mcmaster.ca") && (
-        <FormCheckbox
-          label="Would you like to be a part of the McMaster Experience Ventures Program?"
-          checked={data?.macEv}
-          readOnly
-        />
-      )}
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
@@ -169,39 +164,51 @@ const ApplicationContent = ({
           />
         </div>
       )}
-      optional
       <FormInput
         label="Previous Hackathons Count"
         text={data?.previousHackathonsCount.toString()}
       />
       <FormDivider label="Long Answer" />
       <FormTextArea
-        id="longAnswerChange"
-        label="DeltaHacks is the annual Hackathon for Change. If you had the ability to change anything in the world, what would it be and why?"
-        text={data?.longAnswerChange}
+        id="longAnswerIncident"
+        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook"
+        text={data?.longAnswerIncident}
       />
       <FormTextArea
-        id="longAnswerExperience"
-        label="How do you hope to make the most out of your experience at DH10?"
-        text={data?.longAnswerExperience}
+        id="longAnswerGoals"
+        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
+        text={data?.longAnswerGoals}
       />
       <FormTextArea
-        id="longAnswerTech"
-        label="Which piece of future technology excites you most and where do you see it going?"
-        text={data?.longAnswerTech}
+        id="longAnswerFood"
+        label="What's your go-to comfort food?"
+        text={data?.longAnswerFood}
       />
       <FormTextArea
-        id="longAnswerMagic"
-        label="You've been transported to an island with no clue of where you are. You are allowed 3 objects of your choice which will magically appear in front of you. How would you escape the island in time for DeltaHacks 10?"
-        text={data?.longAnswerMagic}
+        id="longAnswerTravel"
+        label="If you could travel anywhere in the universe, where would you go and why?"
+        text={data?.longAnswerTravel}
+      />
+      <FormTextArea
+        id="longAnswerSocratica"
+        label="If you did not have to worry about school/money/time, what is the one thing you would work on?"
+        text={data?.longAnswerSocratica}
       />
       <FormDivider label="Survey" />
-      <FormInput
+      {/* <FormInput
         id="socialText"
         label="What are your social media links?"
-        text={data?.socialText ?? ""}
+        text={data?.socialText.toString() ?? ""} // FIXME: Make it nicer for reviewers
         optional
-      />
+      /> */}
+      {data?.socialText.map((social, idx) => (
+        <FormInput
+          key={idx}
+          id={`social ${idx}`}
+          label={`Social Link ${idx + 1}`}
+          text={social}
+        />
+      ))}
       <FormTextArea
         id="interests"
         label="Is there anything else interesting you want us to know or see?"
@@ -212,7 +219,7 @@ const ApplicationContent = ({
       <FormInput
         id="hackerKind"
         label="What kind of hacker are you?"
-        text={data?.hackerKind}
+        text={data?.hackerKind.toString()}
       />
       <FormInput
         id="workshopChoices"
@@ -224,8 +231,6 @@ const ApplicationContent = ({
         label="How did you hear about DeltaHacks?"
         text={data?.discoverdFrom.join(", ")}
       />
-      <FormInput id="gender" label="Gender" text={data?.gender} />
-      <FormInput id="race" label="Race" text={data?.race} />
       <FormCheckbox
         id="alreadyHaveTeam"
         label="Do you already have a team?"
@@ -234,7 +239,7 @@ const ApplicationContent = ({
       />
       <FormCheckbox
         id="considerCoffee"
-        label="Would you like to be considered for a coffee chat with a sponser?"
+        label="Would you like to be considered for a coffee chat with a sponsor?"
         checked={data?.considerCoffee}
         readOnly
       />
@@ -294,7 +299,7 @@ const ApplicationPopupButton = ({
   return (
     <>
       <Button variant="outline" onClick={() => setVisibility(true)}>
-        View Application
+        View
       </Button>
       {isVisible && (
         <>
