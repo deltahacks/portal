@@ -13,7 +13,7 @@ const logsnag = new LogSnag({
 });
 
 const posthog = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
-  host: "https://ui.i.posthog.com",
+  host: "https://us.i.posthog.com",
 });
 
 type CreateContextOptions = {
