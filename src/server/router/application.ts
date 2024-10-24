@@ -460,8 +460,7 @@ export const applicationRouter = router({
 
         await ctx.posthog.capture({
           distinctId: user.id,
-          event: "Application Submitted",
-          properties: { "Application Submitted": true },
+          event: "user submitted application",
         });
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
