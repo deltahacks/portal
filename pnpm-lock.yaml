@@ -86,6 +86,15 @@ importers:
       '@uppy/dashboard':
         specifier: ^4.1.1
         version: 4.1.1(@uppy/core@4.2.2)
+      '@uppy/drag-drop':
+        specifier: ^4.0.3
+        version: 4.0.3(@uppy/core@4.2.2)
+      '@uppy/file-input':
+        specifier: ^4.0.2
+        version: 4.0.2(@uppy/core@4.2.2)
+      '@uppy/progress-bar':
+        specifier: ^4.0.0
+        version: 4.0.0(@uppy/core@4.2.2)
       '@uppy/react':
         specifier: ^4.0.2
         version: 4.0.2(@uppy/core@4.2.2)(@uppy/dashboard@4.1.1(@uppy/core@4.2.2))(@uppy/drag-drop@4.0.3(@uppy/core@4.2.2))(@uppy/file-input@4.0.2(@uppy/core@4.2.2))(@uppy/progress-bar@4.0.0(@uppy/core@4.2.2))(@uppy/status-bar@4.0.3(@uppy/core@4.2.2))(react@18.2.0)
@@ -5358,14 +5367,12 @@ snapshots:
       '@uppy/core': 4.2.2
       '@uppy/utils': 6.0.3
       preact: 10.23.1
-    optional: true
 
   '@uppy/file-input@4.0.2(@uppy/core@4.2.2)':
     dependencies:
       '@uppy/core': 4.2.2
       '@uppy/utils': 6.0.3
       preact: 10.23.1
-    optional: true
 
   '@uppy/informer@4.1.0(@uppy/core@4.2.2)':
     dependencies:
@@ -5378,7 +5385,6 @@ snapshots:
       '@uppy/core': 4.2.2
       '@uppy/utils': 6.0.3
       preact: 10.23.1
-    optional: true
 
   '@uppy/provider-views@4.0.1(@uppy/core@4.2.2)':
     dependencies:
