@@ -202,6 +202,13 @@ export const applicationRouter = router({
       description: `${user.name} has submitted their RSVP.`,
       icon: "🎉",
     });
+    // await ctx.posthog.capture("RSVP Submitted", {
+    //   user_id: `${user.name} - ${user.email}`,
+    //   description: `${user.name} has submitted their RSVP.`,
+    //   $set: {
+    //     "RSVP Submitted": true,
+    //   },
+    // });
   }),
   submit: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -445,6 +452,17 @@ export const applicationRouter = router({
             User: { connect: { id: ctx.session.user.id } },
           },
         });
+
+        const user = await ctx.prisma.user.update({
+          where: { id: ctx.session.user.id },
+          data: { status: Status.IN_REVIEW },
+        });
+
+        await ctx.posthog.capture({
+          distinctId: user.id,
+          event: "Application Submitted",
+          properties: { "Application Submitted": true },
+        });
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           if (e.code === "P2002")
@@ -485,6 +503,13 @@ export const applicationRouter = router({
         description: "A user has deleted their application.",
         icon: "🗑️",
       });
+      // await ctx.posthog.capture("Application Deleted", {
+      //   user_id: `${user.name} - ${user.email}`,
+      //   description: "A user has deleted their application.",
+      //   $set: {
+      //     "Application Deleted": true,
+      //   },
+      // });
     } catch (error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
