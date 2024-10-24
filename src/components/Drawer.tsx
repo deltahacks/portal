@@ -34,7 +34,7 @@ export const Drawer = ({
           ref={drawer}
         />
 
-        <div className="drawer-content flex flex-col">
+        <div className="drawer-content w-screen flex flex-col">
           <NavBar />
           {children}
         </div>

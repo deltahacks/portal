@@ -890,7 +890,7 @@ const Apply: NextPage<
       <Drawer>
         <div className="w-full">
           <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
-            <h1 className="py-8 text-4xl font-bold text-center text-black dark:text-white md:text-left">
+            <h1 className="py-8 text-3xl font-bold text-center text-black dark:text-white md:text-left">
               Apply to DeltaHacks XI
             </h1>
 
