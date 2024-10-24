@@ -186,19 +186,16 @@ const FormUpload: React.FC<FormUploadProps> = ({
         strings: {
           done: "Reset",
         },
-        pluralize: (n) => n,
+        pluralize: (n: number) => n,
       },
     }).use(XHR, {
       endpoint: uploadUrl,
       formData: false,
       method: "PUT",
-      onBeforeRequest: (file) => {
-        console.log(file);
-      },
-      onAfterResponse: (response) => {
+      onAfterResponse: () => {
         setUploadValue(objectId);
       },
-      getResponseData: (xhr) => {
+      getResponseData: () => {
         return { url: objectId };
       },
     })
@@ -372,7 +369,6 @@ const ApplyForm = ({
       ) : (
         <div></div>
       )}
-      placeholder="https://example.com/resume.pdf"
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"

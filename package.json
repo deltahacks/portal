@@ -39,6 +39,7 @@
     "@uppy/dashboard": "^4.1.1",
     "@uppy/react": "^4.0.2",
     "@uppy/xhr-upload": "^4.2.1",
+    "@zxing/browser": "^0.1.5",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "class-variance-authority": "^0.7.0",
