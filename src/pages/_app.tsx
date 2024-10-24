@@ -61,10 +61,10 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
               content="#181818" // TODO: add light/dark mode
             />
             {/* open graph image */}
-            <meta
+            {/* <meta
               property="og:image"
               content={env.NEXT_PUBLIC_URL + "/og.png"}
-            />
+            /> */}
 
             {/* <!-- HTML Meta Tags --> */}
             <title>DeltaHacks XI</title>
