@@ -24,6 +24,10 @@ export const serverSchema = z.object({
   AZURE_AD_CLIENT_SECRET: z.string(),
   AZURE_AD_TENANT_ID: z.string(),
   LOGSNAG_TOKEN: z.string(),
+  R2_ACCOUNT_ID: z.string(),
+  R2_ACCESS_KEY_ID: z.string(),
+  R2_SECRET_KEY_ID: z.string(),
+  R2_BUCKET_NAME: z.string(),
 });
 
 /**

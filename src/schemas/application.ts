@@ -140,7 +140,11 @@ const dh11schema = z.object({
   studyDegree: z.string().min(1).max(255).nullish(),
   studyMajor: z.string().min(1).max(255).nullish(),
   studyYearOfStudy: z.string().nullish(),
-  studyExpectedGraduation: z.coerce.date().nullish(),
+  studyExpectedGraduation: z.coerce
+    .date()
+    .or(z.string())
+    .transform((s) => (typeof s === "string" ? null : s)) // if the coerce.date fails, this value is null
+    .nullish(),
   previousHackathonsCount: z.coerce.number().int().min(0),
   longAnswerIncident: z
     .string()

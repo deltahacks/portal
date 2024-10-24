@@ -38,8 +38,15 @@ import {
   orientations,
   representation,
 } from "../data/applicationSelectData";
-import { useEffect } from "react";
+import React, { useEffect, useId, useState } from "react";
 import SocialLinksFormInput from "../components/SocialLinkFormInput";
+import Uppy from "@uppy/core";
+import { Dashboard } from "@uppy/react";
+import "@uppy/core/dist/style.min.css";
+import "@uppy/dashboard/dist/style.min.css";
+import XHR from "@uppy/xhr-upload";
+import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -152,6 +159,76 @@ const FormTextArea: React.FC<
   );
 };
 
+interface FormUploadProps {
+  uploadUrl: string;
+  objectId: string;
+  setUploadValue: (value: string) => void;
+}
+
+const FormUpload: React.FC<FormUploadProps> = ({
+  uploadUrl,
+  objectId,
+  setUploadValue,
+}) => {
+  const { theme } = useTheme();
+
+  const id = useId();
+  const [uppy] = useState(() =>
+    new Uppy({
+      id: id,
+      allowMultipleUploadBatches: false,
+      restrictions: {
+        maxNumberOfFiles: 1,
+        maxFileSize: 1024 * 1024 * 5, // 5 MB
+        allowedFileTypes: [".pdf"],
+      },
+      locale: {
+        strings: {
+          done: "Reset",
+        },
+        pluralize: (n: number) => n,
+      },
+    }).use(XHR, {
+      endpoint: uploadUrl,
+      formData: false,
+      method: "PUT",
+      onAfterResponse: () => {
+        setUploadValue(objectId);
+      },
+      getResponseData: () => {
+        return { url: objectId };
+      },
+    })
+  );
+
+  if (!uploadUrl) {
+    return (
+      <div className="flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col flex-1 gap-2 pb-4">
+      <div className="text-black dark:text-white">
+        Resume{" "}
+        <span className="text-neutral-500 dark:text-neutral-400">
+          (Optional)
+        </span>
+      </div>
+      <Dashboard
+        uppy={uppy}
+        height={200}
+        doneButtonHandler={() => {
+          uppy.resetProgress();
+        }}
+        theme={theme === "dark" ? "dark" : "light"}
+      />
+    </div>
+  );
+};
+
 const ApplyForm = ({
   autofillData,
   persistId,
@@ -195,6 +272,24 @@ const ApplyForm = ({
     setValue,
     storage: localStorage,
   });
+
+  const [uploadUrl, setUploadUrl] = useState<string | null>(null);
+
+  const { mutate, data } = trpc.file.getUploadUrl.useMutation({
+    onSuccess: (data) => {
+      setUploadUrl(data?.url);
+    },
+  });
+
+  const user = useSession();
+
+  const objectId = `${user.data?.user?.id}-dh11.pdf`;
+  useEffect(() => {
+    mutate({
+      filename: objectId,
+      contentType: "application/pdf",
+    });
+  }, []);
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
     console.log(data);
@@ -265,14 +360,15 @@ const ApplyForm = ({
           <span className="text-error">{errors.birthday.message}</span>
         )}
       </div>
-      <FormInput
-        label="Link to Resume"
-        id="linkToResume"
-        placeholder="https://example.com/resume.pdf"
-        errors={errors.linkToResume}
-        register={register}
-        optional
-      />
+      {uploadUrl ? (
+        <FormUpload
+          uploadUrl={uploadUrl}
+          objectId={objectId}
+          setUploadValue={(v) => setValue("linkToResume", v)}
+        />
+      ) : (
+        <div></div>
+      )}
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
@@ -583,7 +679,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.discoverdFrom.message}</span>
         )}
       </div>
-
       <FormCheckbox
         label="Do you already have a team?"
         id="alreadyHaveTeam"
@@ -795,7 +890,7 @@ const Apply: NextPage<
       <Drawer>
         <div className="w-full">
           <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
-            <h1 className="py-8 text-4xl font-bold text-center text-black dark:text-white md:text-left">
+            <h1 className="py-8 text-3xl font-bold text-center text-black dark:text-white md:text-left">
               Apply to DeltaHacks XI
             </h1>
 
