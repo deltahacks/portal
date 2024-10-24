@@ -363,7 +363,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.birthday.message}</span>
         )}
       </div>
-
       {uploadUrl ? (
         <FormUpload
           uploadUrl={uploadUrl}
@@ -373,7 +372,7 @@ const ApplyForm = ({
       ) : (
         <div></div>
       )}
-        placeholder="https://example.com/resume.pdf"
+      placeholder="https://example.com/resume.pdf"
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
@@ -684,7 +683,6 @@ const ApplyForm = ({
           <span className="text-error">{errors.discoverdFrom.message}</span>
         )}
       </div>
-
       <FormCheckbox
         label="Do you already have a team?"
         id="alreadyHaveTeam"
