@@ -516,7 +516,7 @@ const ApplyForm = ({
           className="text-black dark:text-white"
           htmlFor="previousHackathonsCountInput"
         >
-          Previous Hackathons Count
+          Previous Hackathons Count{" "}
           <span className="text-neutral-500 dark:text-neutral-400">
             (Optional)
           </span>

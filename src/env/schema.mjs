@@ -28,6 +28,7 @@ export const serverSchema = z.object({
   R2_ACCESS_KEY_ID: z.string(),
   R2_SECRET_KEY_ID: z.string(),
   R2_BUCKET_NAME: z.string(),
+  POSTHOG_KEY: z.string(),
 });
 
 /**

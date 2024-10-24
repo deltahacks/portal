@@ -1,5 +1,5 @@
 // src/pages/_app.tsx
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import type { AppType } from "next/app";
 import type { Session } from "next-auth";
 import "../styles/globals.css";
@@ -11,6 +11,7 @@ import { env } from "../env/client.mjs";
 
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
+import { useEffect } from "react";
 
 if (typeof window !== "undefined") {
   // checks that we are client-side
@@ -23,6 +24,21 @@ if (typeof window !== "undefined") {
     },
   });
 }
+
+const PosthogIdentifer = () => {
+  const { data: session } = useSession();
+  useEffect(() => {
+    if (session && session.user) {
+      posthog.identify(session.user.id, {
+        email: session.user.email,
+        name: session.user.name,
+        avatar: session.user.image,
+      });
+    }
+  }, [session]);
+
+  return null;
+};
 
 const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
   Component,
@@ -89,6 +105,7 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
               <meta name="robots" content="noindex" />
             ) : null}
           </Head>
+          <PosthogIdentifer />
           <Component {...pageProps} />
         </PostHogProvider>
       </ThemeProvider>

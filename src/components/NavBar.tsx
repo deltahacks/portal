@@ -2,6 +2,7 @@ import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import posthog from "posthog-js";
 
 const NavBar = () => {
   const { data: session } = useSession();
@@ -40,7 +41,10 @@ const NavBar = () => {
               </strong>
             </p>
             <button
-              onClick={() => signOut()}
+              onClick={() => {
+                posthog.reset();
+                signOut();
+              }}
               className="mx-2 rounded bg-primary px-5 py-2.5 font-inter text-sm font-bold text-white md:px-7"
             >
               Sign Out

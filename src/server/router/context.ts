@@ -12,8 +12,8 @@ const logsnag = new LogSnag({
   project: "deltahacks-11",
 });
 
-const posthog = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
-  host: "https://ui.i.posthog.com",
+const posthog = new PostHog(env.POSTHOG_KEY, {
+  host: "https://us.i.posthog.com",
 });
 
 type CreateContextOptions = {
