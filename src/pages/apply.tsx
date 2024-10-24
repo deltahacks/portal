@@ -40,6 +40,13 @@ import {
 } from "../data/applicationSelectData";
 import React, { useEffect, useId, useState } from "react";
 import SocialLinksFormInput from "../components/SocialLinkFormInput";
+import Uppy from "@uppy/core";
+import { Dashboard } from "@uppy/react";
+import "@uppy/core/dist/style.min.css";
+import "@uppy/dashboard/dist/style.min.css";
+import XHR from "@uppy/xhr-upload";
+import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -148,19 +155,19 @@ const FormTextArea: React.FC<
   );
 };
 
-import Uppy from "@uppy/core";
-import { Dashboard } from "@uppy/react";
-import "@uppy/core/dist/style.min.css";
-import "@uppy/dashboard/dist/style.min.css";
-import XHR from "@uppy/xhr-upload";
-import { useSession } from "next-auth/react";
-
 interface FormUploadProps {
   uploadUrl: string;
   objectId: string;
+  setUploadValue: (value: string) => void;
 }
 
-const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl, objectId }) => {
+const FormUpload: React.FC<FormUploadProps> = ({
+  uploadUrl,
+  objectId,
+  setUploadValue,
+}) => {
+  const { theme } = useTheme();
+
   const id = useId();
   const [uppy] = useState(() =>
     new Uppy({
@@ -185,7 +192,7 @@ const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl, objectId }) => {
         console.log(file);
       },
       onAfterResponse: (response) => {
-        console.log(response);
+        setUploadValue(objectId);
       },
       getResponseData: (xhr) => {
         return { url: objectId };
@@ -209,16 +216,14 @@ const FormUpload: React.FC<FormUploadProps> = ({ uploadUrl, objectId }) => {
           (Optional)
         </span>
       </div>
-
-      <div className="">
-        <Dashboard
-          uppy={uppy}
-          height={200}
-          doneButtonHandler={() => {
-            uppy.resetProgress();
-          }}
-        />
-      </div>
+      <Dashboard
+        uppy={uppy}
+        height={200}
+        doneButtonHandler={() => {
+          uppy.resetProgress();
+        }}
+        theme={theme === "dark" ? "dark" : "light"}
+      />
     </div>
   );
 };
@@ -356,18 +361,15 @@ const ApplyForm = ({
       </div>
 
       {uploadUrl ? (
-        <FormUpload uploadUrl={uploadUrl} objectId={objectId} />
+        <FormUpload
+          uploadUrl={uploadUrl}
+          objectId={objectId}
+          setUploadValue={(v) => setValue("linkToResume", v)}
+        />
       ) : (
         <div></div>
       )}
-      {/* <FormInput
-        label="Link to Resume"
-        id="linkToResume"
         placeholder="https://example.com/resume.pdf"
-        errors={errors.linkToResume}
-        register={register}
-        optional
-      /> */}
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
