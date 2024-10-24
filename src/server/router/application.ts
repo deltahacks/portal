@@ -458,6 +458,14 @@ export const applicationRouter = router({
           data: { status: Status.IN_REVIEW },
         });
 
+        await ctx.logsnag.track({
+          channel: "applications",
+          event: "Application Submitted",
+          user_id: `${user.name} - ${user.email}`,
+          description: "A user has submitted an application.",
+          icon: "📝",
+        });
+
         await ctx.posthog.capture({
           distinctId: user.id,
           event: "user submitted application",
