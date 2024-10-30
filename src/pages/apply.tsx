@@ -177,6 +177,7 @@ const FormUpload: React.FC<FormUploadProps> = ({
     new Uppy({
       id: id,
       allowMultipleUploadBatches: false,
+      autoProceed: true,
       restrictions: {
         maxNumberOfFiles: 1,
         maxFileSize: 1024 * 1024 * 5, // 5 MB
