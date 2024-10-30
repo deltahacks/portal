@@ -365,7 +365,7 @@ export const applicationRouter = router({
         studyMajor: dh10App.studyMajor,
         studyExpectedGraduation: dh10App.studyExpectedGraduation,
         interests: dh10App.interests,
-        linkToResume: dh10App.linkToResume,
+        // linkToResume: dh10App.linkToResume,
         hackerKind: [dh10App.hackerKind], // Convert to array for DH11
         workshopChoices: dh10App.workshopChoices,
         discoverdFrom: dh10App.discoverdFrom,
