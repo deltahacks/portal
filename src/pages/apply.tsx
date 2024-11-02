@@ -38,6 +38,8 @@ import {
   orientations,
   representation,
 } from "../data/applicationSelectData";
+import { iso31661 } from "iso-3166";
+
 import React, { useEffect, useId, useState } from "react";
 import SocialLinksFormInput from "../components/SocialLinkFormInput";
 import Uppy from "@uppy/core";
@@ -345,6 +347,43 @@ const ApplyForm = ({
           register={register}
         />
       </div>
+
+      <FormInput
+        id="phone"
+        label="Phone Number"
+        errors={errors.phone}
+        placeholder="000-000-0000"
+        register={register}
+      />
+
+      <div className="flex flex-col gap-2 pb-4">
+        <label className="text-black dark:text-white" htmlFor="tshirtSizeInput">
+          Country of Residence
+        </label>
+        <Controller
+          name="country"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={[
+                { value: "Canada", label: "Canada" },
+                ...iso31661
+                  .filter((e) => e.name !== "Canada")
+                  .map((e) => ({ value: e.name, label: e.name }))
+                  .sort((a, b) => a.value.localeCompare(b.value)),
+              ]}
+              onChange={(val: SelectChoice | null) => onChange(val?.value)}
+              // value={iso3115.find((val) => val.value === value)}
+              isMulti={false}
+              defaultInputValue={autofillData.tshirtSize ?? undefined}
+            />
+          )}
+        />
+        {errors.tshirtSize && (
+          <span className="text-error">{errors.tshirtSize.message}</span>
+        )}
+      </div>
+
       {/* Birthday Input */}
       <div className="flex flex-col gap-2 pb-4">
         <label className="text-black dark:text-white" htmlFor="birthdayInput">
