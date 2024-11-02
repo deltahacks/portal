@@ -756,6 +756,7 @@ const ApplyForm = ({
         register={register}
       />
       <FormDivider label="MLH Survey and Consent" />
+
       <div className="flex flex-col gap-2 pb-4">
         <label
           className="text-black dark:text-white"
@@ -862,22 +863,27 @@ const ApplyForm = ({
           <span className="text-error">{errors.race.message}</span>
         )}
       </div>
+      <p className="opacity-50 py-8">
+        We are currently in the process of partnering with MLH. The following 3
+        checkboxes are for this partnership. If we do not end up partnering with
+        MLH, your information will not be shared
+      </p>
       <FormCheckbox
-        label="Agree to MLH Code of Conduct"
+        label="I have read and agree to the MLH Code of Conduct. (https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md)"
         id="agreeToMLHCodeOfConduct"
         errors={errors.agreeToMLHCodeOfConduct}
         register={register}
         link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
       />
       <FormCheckbox
-        label="Agree to MLH Privacy Policy"
+        label="I authorize you to share my application/registration information with Major League Hacking for event administration, ranking, and MLH administration in-line with the MLH Privacy Policy (https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md). I further agree to the terms of both the MLH Contest Terms and Conditions (https://github.com/MLH/mlh-policies/blob/main/contest-terms.md) and the MLH Privacy Policy (https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md)"
         id="agreeToMLHPrivacyPolicy"
         errors={errors.agreeToMLHPrivacyPolicy}
         register={register}
         link="https://mlh.io/privacy"
       />
       <FormCheckbox
-        label="Agree to MLH Communications"
+        label="I authorize MLH to send me occasional emails about relevant events, career opportunities, and community announcements."
         id="agreeToMLHCommunications"
         errors={errors.agreeToMLHCommunications}
         register={register}
