@@ -170,8 +170,9 @@ model DH11Application {
 
   firstName String
   lastName  String
-
-  birthday DateTime
+  phone     String?
+  country   String?
+  birthday  DateTime
 
   // School
   studyEnrolledPostSecondary Boolean

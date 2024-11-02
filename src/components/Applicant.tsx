@@ -125,6 +125,14 @@ const ApplicationContent = ({
         placeholder="https://example.com/resume.pdf"
         optional
       />
+      {/* add phone number and country */}
+      <FormInput
+        label="Phone Number"
+        text={data?.phone}
+        placeholder="000-000-0000"
+      />
+      <FormInput label="Country" text={data?.country} placeholder="N/A" />
+
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"

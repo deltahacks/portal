@@ -135,6 +135,8 @@ const dh11schema = z.object({
       message: "You must be at least 13 years old",
     }
   ),
+  phone: z.string().refine(isMobilePhone, "Invalid phone number").nullish(),
+  country: z.string().nullish(),
   studyEnrolledPostSecondary: z.boolean(),
   studyLocation: z.string().min(1).max(255).nullish(),
   studyDegree: z.string().min(1).max(255).nullish(),
