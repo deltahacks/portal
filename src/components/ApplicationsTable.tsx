@@ -70,21 +70,10 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: "dH10ApplicationId",
-    header: "DeltaHacks XI Application",
-    cell: ({ row }) => {
-      return <ApplicationPopupButton applicationForReview={row.original} />;
-    },
-    enableColumnFilter: false,
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
     accessorKey: "status",
     header: ({ column }) => {
       return (
         <Button
-          className="float-right"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -99,6 +88,40 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     },
     enableSorting: true,
     enableColumnFilter: true,
+  },
+  {
+    accessorKey: "reviewCount",
+    header: ({ column }) => {
+      return (
+        <Button
+          className="text-left"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Number of Reviews
+          <ArrowUpDown className="pl-2 h-4 w-6" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="pl-4 py-2">{row.getValue("reviewCount")}</div>
+    ),
+    enableColumnFilter: true,
+    enableSorting: true,
+  },
+  {
+    accessorKey: "dH10ApplicationId",
+    header: () => <div className="float-right">DH XI Application</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="float-right">
+          <ApplicationPopupButton applicationForReview={row.original} />
+        </div>
+      );
+    },
+    enableColumnFilter: false,
+    enableSorting: false,
+    enableHiding: true,
   },
 ];
 
@@ -224,7 +247,7 @@ export const ApplicationsTable = ({
         <div className="flex items-center justify-between py-4">
           <SearchBarFilter
             columns={table.getAllColumns()}
-            defaultColumnToFilter={table.getColumn("status")}
+            defaultColumnToFilter={table.getColumn("reviewCount")}
             defaultFilterValue={Status.IN_REVIEW}
           />
           <ColumnFilterDropdown columns={table.getAllColumns()} />

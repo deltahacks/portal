@@ -9,6 +9,7 @@ import {
 import { trpc } from "../utils/trpc";
 import { Button } from "./Button";
 import { cn } from "../utils/mergeTailwind";
+import { useSession } from "next-auth/react";
 
 const UpdateStatusDropdown = ({
   id,
@@ -19,6 +20,9 @@ const UpdateStatusDropdown = ({
   className?: string;
   position?: string;
 }) => {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role.includes("ADMIN");
+
   const utils = trpc.useUtils();
   const { data } = trpc.reviewer.getStatus.useQuery({ id });
   const updateStatus = trpc.reviewer.updateStatus.useMutation({
@@ -41,6 +45,17 @@ const UpdateStatusDropdown = ({
       console.log(e);
     }
   };
+
+  // If the user is not an admin, they should not be able to update the status
+  if (!isAdmin) {
+    return (
+      <div className={position}>
+        <Button className={className} variant="outline" disabled>
+          <div>{srcStatus}</div>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className={position}>
