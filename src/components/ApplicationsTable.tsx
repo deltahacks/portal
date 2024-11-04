@@ -104,7 +104,10 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="pl-4 py-2">{row.getValue("reviewCount")}</div>
+      <div className="pl-4 py-2">
+        {row.getValue("reviewCount")}{" "}
+        {Number(row.getValue("reviewCount")) === 1 ? "review" : "reviews"}
+      </div>
     ),
     enableColumnFilter: true,
     enableSorting: true,

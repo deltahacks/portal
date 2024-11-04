@@ -182,12 +182,7 @@ export const reviewerRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 

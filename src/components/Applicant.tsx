@@ -376,11 +376,7 @@ const ReviewForm = ({
   );
 };
 
-const ReviewScores = ({
-  applicationId: applicationId,
-}: {
-  applicationId: string;
-}) => {
+const ReviewScores = ({ applicationId }: { applicationId: string }) => {
   const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
     {
       applicationId: applicationId,
@@ -397,15 +393,14 @@ const ReviewScores = ({
           /17
         </div>
       </div>
-      {reviewsData &&
-        reviewsData.map((review, idx) => (
-          <div key={idx} className="flex flex-col">
-            <div className="">
-              <b>{review.reviewer.name}</b>: {review.score}/17
-            </div>
-            <div>{review.comment}</div>
+      {reviewsData?.map((review, idx) => (
+        <div key={idx} className="flex flex-col">
+          <div className="">
+            <b>{review.reviewer.name}</b>: {review.score}/17
           </div>
-        ))}
+          <div>{review.comment}</div>
+        </div>
+      ))}
     </>
   );
 };
