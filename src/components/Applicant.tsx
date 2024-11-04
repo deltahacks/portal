@@ -418,7 +418,7 @@ const ApplicationPopupButton = ({
   const [isVisible, setVisibility] = useState(false);
 
   const { data: session } = useSession();
-  const isAdmin = session?.user?.role.includes("ADMIN");
+  const isAdmin = session?.user?.role?.includes?.("ADMIN") ?? false;
 
   const {
     data: applicationData,

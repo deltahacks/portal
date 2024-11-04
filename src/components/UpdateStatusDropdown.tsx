@@ -21,7 +21,7 @@ const UpdateStatusDropdown = ({
   position?: string;
 }) => {
   const { data: session } = useSession();
-  const isAdmin = session?.user?.role.includes("ADMIN");
+  const isAdmin = session?.user?.role?.includes?.("ADMIN") ?? false;
 
   const utils = trpc.useUtils();
   const { data } = trpc.reviewer.getStatus.useQuery({ id });

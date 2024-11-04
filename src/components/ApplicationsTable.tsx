@@ -110,7 +110,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: "dH10ApplicationId",
+    accessorKey: "DH11ApplicationId",
     header: () => <div className="float-right">DH XI Application</div>,
     cell: ({ row }) => {
       return (
@@ -248,7 +248,7 @@ export const ApplicationsTable = ({
           <SearchBarFilter
             columns={table.getAllColumns()}
             defaultColumnToFilter={table.getColumn("reviewCount")}
-            defaultFilterValue={Status.IN_REVIEW}
+            defaultFilterValue={"0"}
           />
           <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>

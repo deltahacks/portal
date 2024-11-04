@@ -296,7 +296,7 @@ export const reviewerRouter = router({
       });
       if (existingReview) {
         throw new TRPCError({
-          code: "FORBIDDEN",
+          code: "CONFLICT",
           message: "You have already reviewed this application",
         });
       }
@@ -348,13 +348,6 @@ export const reviewerRouter = router({
         where: { applicationId: input.applicationId },
         include: { reviewer: true },
       });
-
-      if (!reviews.length) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "No reviews found for this application",
-        });
-      }
 
       return reviews;
     }),
