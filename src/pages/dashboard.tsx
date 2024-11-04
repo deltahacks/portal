@@ -216,7 +216,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
         !
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We have recieved your application. You will hear back from us on your
+        We have received your application. You will hear back from us on your
         email. While you wait for DeltaHacks, look out for other prep events by
         DeltaHacks on our social accounts.
       </h2>
