@@ -17,4 +17,11 @@ export const adminRouter = router({
         create: { name: "killApplications", value: JSON.stringify(input) },
       });
     }),
+  getApplicationCount: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.session.user.role.includes(Role.ADMIN)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+    const applicantCount = await ctx.prisma.dH11Application.count();
+    return { applicantCount };
+  }),
 });
