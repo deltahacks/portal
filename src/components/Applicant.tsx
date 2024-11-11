@@ -421,7 +421,6 @@ const ApplicationPopupButton = ({
     error: applicationError,
   } = trpc.reviewer.getApplication.useQuery({
     dh11ApplicationId: applicationForReview.DH11ApplicationId,
-    includeHasReviewed: true,
   });
 
   return (
