@@ -88,8 +88,13 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { id } = row.original;
-      return <UpdateStatusDropdown id={id} position="float-right" />;
+      const { DH11ApplicationId } = row.original;
+      return (
+        <UpdateStatusDropdown
+          dh11ApplicationId={DH11ApplicationId}
+          position="float-right"
+        />
+      );
     },
     enableSorting: true,
     enableColumnFilter: true,

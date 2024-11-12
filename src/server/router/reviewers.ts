@@ -87,7 +87,6 @@ export const reviewerRouter = router({
     .input(
       z.object({
         dh11ApplicationId: z.string().optional(),
-        includeHasReviewed: z.boolean().optional(),
       })
     )
     .output(
@@ -123,30 +122,26 @@ export const reviewerRouter = router({
           .substring(0, 10),
       };
 
-      if (input.includeHasReviewed) {
-        const review = await ctx.prisma.dH11Review.findFirst({
-          where: {
-            applicationId: input.dh11ApplicationId,
-            reviewerId: ctx.session.user.id,
-          },
-        });
-        return ApplicationSchemaWithStringDates.merge(
-          z.object({
-            hasReviewed: z.boolean(),
-          })
-        ).parse({
-          ...applicationWithStringDates,
-          hasReviewed: !!review,
-        });
-      }
-
-      return ApplicationSchemaWithStringDates.parse(applicationWithStringDates);
+      const review = await ctx.prisma.dH11Review.findFirst({
+        where: {
+          applicationId: input.dh11ApplicationId,
+          reviewerId: ctx.session.user.id,
+        },
+      });
+      return ApplicationSchemaWithStringDates.merge(
+        z.object({
+          hasReviewed: z.boolean(),
+        })
+      ).parse({
+        ...applicationWithStringDates,
+        hasReviewed: !!review,
+      });
     }),
 
   getStatus: protectedProcedure
     .input(
       z.object({
-        id: z.string().cuid().optional(),
+        dh11ApplicationId: z.string().cuid(),
       })
     )
     .output(z.object({ status: z.nativeEnum(Status) }))
@@ -160,24 +155,29 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const user = await ctx.prisma.user.findFirst({
+      const application = await ctx.prisma.dH11Application.findFirst({
         where: {
-          id: {
-            equals: input.id,
-          },
+          id: input.dh11ApplicationId,
         },
-        select: {
-          status: true,
+        include: {
+          User: true,
         },
       });
 
-      return { status: z.nativeEnum(Status).parse(user?.status) };
+      if (!application) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Application not found",
+        });
+      }
+
+      return { status: application.status };
     }),
 
   updateStatus: protectedProcedure
     .input(
       z.object({
-        id: z.string().cuid().optional(),
+        dh11ApplicationId: z.string().cuid(),
         status: z.nativeEnum(Status),
       })
     )
@@ -186,17 +186,23 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const user = await ctx.prisma.user.update({
-        where: { id: input.id },
+      const application = await ctx.prisma.dH11Application.update({
+        where: { id: input.dh11ApplicationId },
         data: {
           status: input.status,
         },
+        include: {
+          User: true,
+        },
       });
+
       await ctx.logsnag.track({
         channel: "reviews",
         event: "Status Changed",
-        user_id: `${user.name} - ${user.email}`,
-        description: `${ctx.session.user.name} changed ${user.name}'s status to ${input.status}`,
+        user_id: `${application.User?.name ?? "Unknown"} - ${
+          application.User?.email ?? "No email"
+        }`,
+        description: `${ctx.session.user.name} changed application status to ${input.status}`,
         tags: {
           status: input.status,
           reviewer: ctx.session.user.email ?? "",
@@ -213,46 +219,6 @@ export const reviewerRouter = router({
             : "🤔",
       });
     }),
-  // submit: protectedProcedure
-  //   .input(z.object({ mark: z.number(), hackerId: z.string() }))
-  //   .mutation(async ({ ctx, input }) => {
-  //     if (
-  //       !(
-  //         ctx.session.user.role.includes(Role.ADMIN) ||
-  //         ctx.session.user.role.includes(Role.REVIEWER)
-  //       )
-  //     ) {
-  //       throw new TRPCError({ code: "UNAUTHORIZED" });
-  //     }
-
-  //     // count reviews for a hacker.
-  //     // if we have 3 already, deny making any more reviews
-  //     const reviewCount = await ctx.prisma.review.count({
-  //       where: {
-  //         hackerId: input.hackerId,
-  //       },
-  //     });
-  //     if (reviewCount >= 3) {
-  //       throw new TRPCError({ code: "CONFLICT" });
-  //     }
-
-  //     const res = await ctx.prisma.review.findFirst({
-  //       where: {
-  //         hackerId: input.hackerId,
-  //         reviewerId: ctx.session.user.id,
-  //       },
-  //     });
-  //     if (res) {
-  //       throw new TRPCError({ code: "CONFLICT", message: "Duplicate Review" });
-  //     }
-  //     await ctx.prisma.review.create({
-  //       data: {
-  //         hackerId: input.hackerId,
-  //         reviewerId: ctx.session.user.id,
-  //         mark: input.mark,
-  //       },
-  //     });
-  //   }),
 
   submitScore: protectedProcedure
     .input(ReviewScoreSchema)
@@ -316,7 +282,7 @@ export const reviewerRouter = router({
         description: `${ctx.session.user.name} scored application with ${input.score}/17`,
         tags: {
           score: input.score.toString(),
-          reviewer: ctx.session.user.email ?? "",
+          reviewer: ctx.session.user.email ?? ctx.session.user.id,
           feedback: input.comment ?? "No feedback provided",
         },
         icon: "📝",
