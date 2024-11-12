@@ -231,12 +231,12 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
       </div>
       {!killed ? (
         <div className="flex gap-5 pt-6">
-          <Button
+          {/* <Button
             onClick={() => dialogRef.current?.showModal()}
             className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
           >
             Redo Application
-          </Button>
+          </Button> */}
 
           <dialog
             className="modal modal-bottom sm:modal-middle  "
