@@ -31,6 +31,11 @@ import { Status } from "@prisma/client";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
+    accessorKey: "index",
+    header: "Index",
+    cell: ({ row }) => <div className="pl-4 py-2">{row.index}</div>,
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => {
       return (
