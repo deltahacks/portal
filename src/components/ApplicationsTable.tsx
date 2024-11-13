@@ -31,6 +31,11 @@ import { Status } from "@prisma/client";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
+    accessorKey: "index",
+    header: "Index",
+    cell: ({ row }) => <div className="pl-4 py-2">{row.index}</div>,
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => {
       return (
@@ -70,21 +75,10 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: "dH10ApplicationId",
-    header: "DeltaHacks XI Application",
-    cell: ({ row }) => {
-      return <ApplicationPopupButton applicationForReview={row.original} />;
-    },
-    enableColumnFilter: false,
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
     accessorKey: "status",
     header: ({ column }) => {
       return (
         <Button
-          className="float-right"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -94,11 +88,53 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { id } = row.original;
-      return <UpdateStatusDropdown id={id} position="float-right" />;
+      const { DH11ApplicationId } = row.original;
+      return (
+        <UpdateStatusDropdown
+          dh11ApplicationId={DH11ApplicationId}
+          position="float-right"
+        />
+      );
     },
     enableSorting: true,
     enableColumnFilter: true,
+  },
+  {
+    accessorKey: "reviewCount",
+    header: ({ column }) => {
+      return (
+        <Button
+          className="text-left"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Number of Reviews
+          <ArrowUpDown className="pl-2 h-4 w-6" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="pl-4 py-2">
+        {row.getValue("reviewCount")}{" "}
+        {Number(row.getValue("reviewCount")) === 1 ? "review" : "reviews"}
+      </div>
+    ),
+    enableColumnFilter: true,
+    enableSorting: true,
+  },
+  {
+    accessorKey: "DH11ApplicationId",
+    header: () => <div className="float-right">DH XI Application</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="float-right">
+          <ApplicationPopupButton applicationForReview={row.original} />
+        </div>
+      );
+    },
+    enableColumnFilter: false,
+    enableSorting: false,
+    enableHiding: true,
   },
 ];
 
@@ -224,8 +260,8 @@ export const ApplicationsTable = ({
         <div className="flex items-center justify-between py-4">
           <SearchBarFilter
             columns={table.getAllColumns()}
-            defaultColumnToFilter={table.getColumn("status")}
-            defaultFilterValue={Status.IN_REVIEW}
+            defaultColumnToFilter={table.getColumn("reviewCount")}
+            defaultFilterValue={"0"}
           />
           <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>

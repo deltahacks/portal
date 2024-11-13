@@ -13,7 +13,9 @@ const ApplicationForReview = z.object({
     .transform((v) => (v === null ? "" : v)),
   status: z.nativeEnum(Status),
   DH11ApplicationId: z.string().cuid(),
+  reviewCount: z.number().default(0),
 });
+export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
 const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
   z.object({
@@ -21,8 +23,15 @@ const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
     studyExpectedGraduation: z.string().nullish(),
   })
 );
+export type ApplicationSchemaWithStringDates = z.infer<
+  typeof ApplicationSchemaWithStringDates
+>;
 
-export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
+const ReviewScoreSchema = z.object({
+  applicationId: z.string().cuid(),
+  score: z.number().min(0).max(17),
+  comment: z.string(),
+});
 
 export const reviewerRouter = router({
   getApplications: protectedProcedure
@@ -54,15 +63,39 @@ export const reviewerRouter = router({
 
       const parsed = ApplicationForReview.array().parse(users);
 
-      return parsed;
+      const reviewCounts = await ctx.prisma.dH11Review.groupBy({
+        by: ["applicationId"],
+        _count: {
+          applicationId: true,
+        },
+      });
+
+      const reviewCountMap = reviewCounts.reduce((acc, curr) => {
+        acc[curr.applicationId] = curr._count.applicationId;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const applicationsWithReviewCount = parsed.map((application) => ({
+        ...application,
+        reviewCount: reviewCountMap[application.DH11ApplicationId] || 0,
+      }));
+
+      return applicationsWithReviewCount;
     }),
+
   getApplication: protectedProcedure
     .input(
       z.object({
         dh11ApplicationId: z.string().optional(),
       })
     )
-    .output(ApplicationSchemaWithStringDates)
+    .output(
+      ApplicationSchemaWithStringDates.merge(
+        z.object({
+          hasReviewed: z.boolean().optional(),
+        })
+      )
+    )
     .query(async ({ ctx, input }) => {
       if (
         !(
@@ -89,12 +122,26 @@ export const reviewerRouter = router({
           .substring(0, 10),
       };
 
-      return ApplicationSchemaWithStringDates.parse(applicationWithStringDates);
+      const review = await ctx.prisma.dH11Review.findFirst({
+        where: {
+          applicationId: input.dh11ApplicationId,
+          reviewerId: ctx.session.user.id,
+        },
+      });
+      return ApplicationSchemaWithStringDates.merge(
+        z.object({
+          hasReviewed: z.boolean(),
+        })
+      ).parse({
+        ...applicationWithStringDates,
+        hasReviewed: !!review,
+      });
     }),
+
   getStatus: protectedProcedure
     .input(
       z.object({
-        id: z.string().cuid().optional(),
+        dh11ApplicationId: z.string().cuid(),
       })
     )
     .output(z.object({ status: z.nativeEnum(Status) }))
@@ -108,47 +155,54 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const user = await ctx.prisma.user.findFirst({
+      const application = await ctx.prisma.dH11Application.findFirst({
         where: {
-          id: {
-            equals: input.id,
-          },
+          id: input.dh11ApplicationId,
         },
-        select: {
-          status: true,
+        include: {
+          User: true,
         },
       });
 
-      return { status: z.nativeEnum(Status).parse(user?.status) };
+      if (!application) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Application not found",
+        });
+      }
+
+      return { status: application.status };
     }),
+
   updateStatus: protectedProcedure
     .input(
       z.object({
-        id: z.string().cuid().optional(),
+        dh11ApplicationId: z.string().cuid(),
         status: z.nativeEnum(Status),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const user = await ctx.prisma.user.update({
-        where: { id: input.id },
+      const application = await ctx.prisma.dH11Application.update({
+        where: { id: input.dh11ApplicationId },
         data: {
           status: input.status,
         },
+        include: {
+          User: true,
+        },
       });
+
       await ctx.logsnag.track({
         channel: "reviews",
         event: "Status Changed",
-        user_id: `${user.name} - ${user.email}`,
-        description: `${ctx.session.user.name} changed ${user.name}'s status to ${input.status}`,
+        user_id: `${application.User?.name ?? "Unknown"} - ${
+          application.User?.email ?? "No email"
+        }`,
+        description: `${ctx.session.user.name} changed application status to ${input.status}`,
         tags: {
           status: input.status,
           reviewer: ctx.session.user.email ?? "",
@@ -165,9 +219,11 @@ export const reviewerRouter = router({
             : "🤔",
       });
     }),
-  submit: protectedProcedure
-    .input(z.object({ mark: z.number(), hackerId: z.string() }))
+
+  submitScore: protectedProcedure
+    .input(ReviewScoreSchema)
     .mutation(async ({ ctx, input }) => {
+      // Check authorization
       if (
         !(
           ctx.session.user.role.includes(Role.ADMIN) ||
@@ -177,32 +233,83 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      // count reviews for a hacker.
-      // if we have 3 already, deny making any more reviews
-      const reviewCount = await ctx.prisma.review.count({
+      // Get application
+      const application = await ctx.prisma.dH11Application.findFirst({
         where: {
-          hackerId: input.hackerId,
+          id: input.applicationId,
         },
+        include: { User: true },
       });
-      if (reviewCount >= 3) {
-        throw new TRPCError({ code: "CONFLICT" });
+
+      if (!application) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Application not found",
+        });
       }
 
-      const res = await ctx.prisma.review.findFirst({
+      // Check if reviewer already scored this application
+      const existingReview = await ctx.prisma.dH11Review.findFirst({
         where: {
-          hackerId: input.hackerId,
+          applicationId: input.applicationId,
           reviewerId: ctx.session.user.id,
         },
       });
-      if (res) {
-        throw new TRPCError({ code: "CONFLICT", message: "Duplicate Review" });
+      if (existingReview) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "You have already reviewed this application",
+        });
       }
-      await ctx.prisma.review.create({
+
+      // Create new review
+      const review = await ctx.prisma.dH11Review.create({
         data: {
-          hackerId: input.hackerId,
+          applicationId: input.applicationId,
           reviewerId: ctx.session.user.id,
-          mark: input.mark,
+          score: input.score,
+          comment: input.comment,
         },
       });
+
+      // Log review
+      await ctx.logsnag.track({
+        channel: "reviews",
+        event: "Application Scored",
+        user_id: `${application.User?.name ?? "Unknown"} - ${
+          application.User?.email ?? "No email"
+        }`,
+        description: `${ctx.session.user.name} scored application with ${input.score}/17`,
+        tags: {
+          score: input.score.toString(),
+          reviewer: ctx.session.user.email ?? ctx.session.user.id,
+          feedback: input.comment ?? "No feedback provided",
+        },
+        icon: "📝",
+      });
+
+      return review;
+    }),
+
+  getReviewsForApplication: protectedProcedure
+    .input(z.object({ applicationId: z.string().cuid() }))
+    .query(async ({ ctx, input }) => {
+      // Check authorization
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.REVIEWER)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // Fetch reviews
+      const reviews = await ctx.prisma.dH11Review.findMany({
+        where: { applicationId: input.applicationId },
+        include: { reviewer: true },
+      });
+
+      return reviews;
     }),
 });

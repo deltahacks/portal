@@ -9,21 +9,25 @@ import {
 import { trpc } from "../utils/trpc";
 import { Button } from "./Button";
 import { cn } from "../utils/mergeTailwind";
+import { useSession } from "next-auth/react";
 
 const UpdateStatusDropdown = ({
-  id,
+  dh11ApplicationId,
   className,
   position,
 }: {
-  id: string;
+  dh11ApplicationId: string;
   className?: string;
   position?: string;
 }) => {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role?.includes?.("ADMIN") ?? false;
+
   const utils = trpc.useUtils();
-  const { data } = trpc.reviewer.getStatus.useQuery({ id });
+  const { data } = trpc.reviewer.getStatus.useQuery({ dh11ApplicationId });
   const updateStatus = trpc.reviewer.updateStatus.useMutation({
     onSettled() {
-      utils.reviewer.getStatus.invalidate({ id });
+      utils.reviewer.getStatus.invalidate({ dh11ApplicationId });
       utils.application.getStatusCount.invalidate();
     },
   });
@@ -34,13 +38,24 @@ const UpdateStatusDropdown = ({
   const handleUpdateStatus = async (status: Status) => {
     try {
       await updateStatus.mutateAsync({
-        id,
+        dh11ApplicationId,
         status,
       });
     } catch (e) {
       console.log(e);
     }
   };
+
+  // If the user is not an admin, they should not be able to update the status
+  if (!isAdmin) {
+    return (
+      <div className={position}>
+        <Button className={className} variant="outline" disabled>
+          <div>{srcStatus}</div>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className={position}>
