@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { trpc } from "../utils/trpc";
-import { ApplicationForReview } from "../server/router/reviewers";
+import {
+  ApplicationForReview,
+  ApplicationSchemaWithStringDates,
+} from "../server/router/reviewers";
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
-import UpdateStatusDropdown from "./UpdateStatusDropdown";
+import { useSession } from "next-auth/react";
 
 interface FormInputProps {
   label: string;
@@ -98,15 +101,10 @@ const FormTextArea: React.FC<
 };
 
 const ApplicationContent = ({
-  applicationForReview,
+  applicationData: data,
 }: {
-  applicationForReview: ApplicationForReview;
+  applicationData: ApplicationSchemaWithStringDates;
 }) => {
-  const { DH11ApplicationId } = applicationForReview;
-  const { data } = trpc.reviewer.getApplication.useQuery({
-    dh11ApplicationId: DH11ApplicationId,
-  });
-
   return (
     <>
       <FormDivider label="Personal Information" />
@@ -298,12 +296,133 @@ const ApplicationContent = ({
   );
 };
 
+const ReviewForm = ({
+  applicationForReview,
+}: {
+  applicationForReview: ApplicationForReview;
+}) => {
+  const [score, setScore] = useState("");
+  const [comments, setComments] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const utils = trpc.useUtils();
+  const submitScore = trpc.reviewer.submitScore.useMutation({
+    onSettled() {
+      utils.application.getStatusCount.invalidate();
+      utils.reviewer.getApplication.invalidate();
+      utils.reviewer.getApplications.invalidate();
+    },
+  });
+
+  const handleSubmitReview = async () => {
+    const scoreValue = Number(score);
+    if (
+      score === "" ||
+      isNaN(scoreValue) ||
+      scoreValue < 0 ||
+      scoreValue > 17
+    ) {
+      setError("Please enter a valid score between 0 and 17");
+      return;
+    }
+
+    try {
+      await submitScore.mutateAsync({
+        applicationId: applicationForReview.DH11ApplicationId,
+        score: scoreValue,
+        comment: comments,
+      });
+      setError(null);
+    } catch (error) {
+      console.error("Failed to submit review", error);
+      setError("Failed to submit review. Please try again later.");
+    }
+  };
+
+  return (
+    <>
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+      <div>
+        <label className="text-black dark:text-white font-bold">Score</label>
+        <input
+          type="number"
+          min="0"
+          max="17"
+          value={score}
+          onChange={(e) => setScore(e.target.value)}
+          className="w-full h-12 mt-2 p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          placeholder="Enter score (0-17)"
+        />
+      </div>
+      <div>
+        <label className="text-black dark:text-white font-bold">Comments</label>
+        <textarea
+          value={comments}
+          onChange={(e) => setComments(e.target.value)}
+          className="w-full min-h-[10rem] mt-2 p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white resize-none"
+          placeholder="Enter comments..."
+        />
+      </div>
+      <button
+        onClick={handleSubmitReview}
+        className={`rounded-lg px-7 py-2.5 text-sm font-bold whitespace-nowrap dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80 ${
+          score === "" ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        disabled={score === ""}
+      >
+        Submit Review
+      </button>
+    </>
+  );
+};
+
+const ReviewScores = ({ applicationId }: { applicationId: string }) => {
+  const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
+    {
+      applicationId: applicationId,
+    }
+  );
+
+  return (
+    <>
+      <div className="text-black dark:text-white font-bold">
+        <div>
+          Average Score:{" "}
+          {(reviewsData || []).reduce((acc, review) => acc + review.score, 0) /
+            (reviewsData?.length || 1)}
+          /17
+        </div>
+      </div>
+      {reviewsData?.map((review, idx) => (
+        <div key={idx} className="flex flex-col">
+          <div className="">
+            <b>{review.reviewer.name}</b>: {review.score}/17
+          </div>
+          <div>{review.comment}</div>
+        </div>
+      ))}
+    </>
+  );
+};
+
 const ApplicationPopupButton = ({
   applicationForReview,
 }: {
   applicationForReview: ApplicationForReview;
 }) => {
   const [isVisible, setVisibility] = useState(false);
+
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role?.includes?.("ADMIN") ?? false;
+
+  const {
+    data: applicationData,
+    isLoading: applicationIsLoading,
+    error: applicationError,
+  } = trpc.reviewer.getApplication.useQuery({
+    dh11ApplicationId: applicationForReview.DH11ApplicationId,
+  });
+
   return (
     <>
       <Button variant="outline" onClick={() => setVisibility(true)}>
@@ -315,27 +434,37 @@ const ApplicationPopupButton = ({
             className="fixed z-0 top-0 left-0 w-screen h-screen bg-black/50"
             onClick={() => setVisibility(false)}
           />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700 bg-white dark:bg-[#171717]">
-            <div className="relative flex flex-col w-full h-full">
-              <Button
-                variant="destructive"
-                className="md:absolute top-8 right-8 bg-red-500"
-                onClick={() => setVisibility(false)}
-              >
-                Close
-              </Button>
-              <div className="w-full flex-auto flex flex-col p-8 overflow-y-scroll">
-                <ApplicationContent
-                  applicationForReview={applicationForReview}
-                />
-              </div>
-              <div className="w-full md:w-auto flex-inital flex justify-center p-4 md:p-0 rounded-md md:absolute bottom-8 right-8">
-                <UpdateStatusDropdown
-                  id={applicationForReview.id}
-                  className="h-14 w-40 bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
-                />
-              </div>
-            </div>
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700 bg-white dark:bg-[#171717] flex">
+            <Button
+              variant="destructive"
+              className="md:absolute top-4 right-4 bg-red-500"
+              onClick={() => setVisibility(false)}
+            >
+              Close
+            </Button>
+            {applicationError ? (
+              <div>{applicationError.message}</div>
+            ) : applicationIsLoading ? (
+              <div>Loading...</div>
+            ) : (
+              <>
+                <div className="relative flex flex-col w-full h-full">
+                  <div className="w-full flex-auto flex flex-col p-4 overflow-y-scroll">
+                    <ApplicationContent applicationData={applicationData} />
+                  </div>
+                </div>
+                <div className="w-[1px] bg-zinc-700 my-4" />
+                <div className="m-4 flex flex-col justify-end w-96 gap-4">
+                  {applicationData.hasReviewed || isAdmin ? (
+                    <ReviewScores
+                      applicationId={applicationForReview.DH11ApplicationId}
+                    />
+                  ) : (
+                    <ReviewForm applicationForReview={applicationForReview} />
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </>
       )}
