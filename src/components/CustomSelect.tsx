@@ -1,4 +1,10 @@
-import Select, { MultiValue, SingleValue, ActionMeta } from "react-select";
+import Select, {
+  MultiValue,
+  SingleValue,
+  ActionMeta,
+  ControlProps,
+  GroupBase,
+} from "react-select";
 
 interface SelectChoice {
   value: string;
@@ -29,7 +35,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       isMulti={isMulti}
       // placeholder="Please select one"
       classNames={{
-        control: (state) => {
+        control: (
+          state: ControlProps<SelectChoice, boolean, GroupBase<SelectChoice>>
+        ) => {
           return state.menuIsOpen
             ? "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border"
             : "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border";
