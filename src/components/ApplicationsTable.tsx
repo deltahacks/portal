@@ -252,6 +252,7 @@ export const ApplicationsTable = ({
       columnVisibility,
       rowSelection,
     },
+    autoResetPageIndex: false,
   });
 
   return (
