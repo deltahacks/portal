@@ -307,6 +307,17 @@ const ReviewForm = ({
 
   const utils = trpc.useUtils();
   const submitScore = trpc.reviewer.submitScore.useMutation({
+    onMutate: async () => {
+      // Optimistically update the review count
+      utils.reviewer.getApplications.setData(undefined, (old) => {
+        if (!old) return old;
+        return old.map((app) =>
+          app.DH11ApplicationId === applicationForReview.DH11ApplicationId
+            ? { ...app, reviewCount: app.reviewCount + 1 }
+            : app
+        );
+      });
+    },
     onSettled() {
       utils.application.getStatusCount.invalidate();
       utils.reviewer.getApplication.invalidate();
