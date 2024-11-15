@@ -310,7 +310,6 @@ const ReviewForm = ({
     onSettled() {
       utils.application.getStatusCount.invalidate();
       utils.reviewer.getApplication.invalidate();
-      utils.reviewer.getApplications.invalidate();
     },
   });
 
