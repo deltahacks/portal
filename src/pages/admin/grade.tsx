@@ -10,7 +10,12 @@ const GradingPortal: NextPage = () => {
   const { data: applications } = trpc.reviewer.getApplications.useQuery();
   const { data: statusCount } = trpc.application.getStatusCount.useQuery();
 
-  const numberReviewed = statusCount?.reduce((acc, val) => {
+  const numberGrades =
+    applications?.reduce((acc, application) => {
+      return acc + application.reviewCount;
+    }, 0) ?? 0;
+
+  const numberDecisioned = statusCount?.reduce((acc, val) => {
     return val.status != Status.IN_REVIEW ? acc + val.count : acc;
   }, 0);
 
@@ -31,7 +36,11 @@ const GradingPortal: NextPage = () => {
           </h1>
           <div className="py-4">
             <div className="font-bold">
-              Applications Reviewed: {numberReviewed} / {applications?.length}{" "}
+              Applications Decisioned: {numberDecisioned} /{" "}
+              {applications?.length} <br />
+            </div>
+            <div className="font-bold">
+              Grades Given: {numberGrades}
               <br />
             </div>
             {statusCount?.map(({ status, count }, i) => {
