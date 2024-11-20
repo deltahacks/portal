@@ -40,7 +40,7 @@ const GradingPortal: NextPage = () => {
               {applications?.length} <br />
             </div>
             <div className="font-bold">
-              Grades Given: {numberGrades}
+              Total Grades Given: {numberGrades}
               <br />
             </div>
             {statusCount?.map(({ status, count }, i) => {
