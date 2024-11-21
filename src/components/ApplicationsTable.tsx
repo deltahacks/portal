@@ -118,8 +118,9 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   },
   {
     accessorKey: "reviewCount",
-    filterFn: (row, columnId, filterValue) => {
-      return Number(row.getValue(columnId)) <= Number(filterValue);
+    filterFn: (row, columnId, value) => {
+      const rowValue = row.getValue(columnId);
+      return rowValue === Number(value);
     },
     header: ({ column }) => {
       return (
@@ -141,10 +142,6 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     ),
     enableColumnFilter: true,
     enableSorting: true,
-    filterFn: (row, columnId, value) => {
-      const rowValue = row.getValue(columnId);
-      return rowValue === Number(value);
-    },
   },
   {
     accessorKey: "DH11ApplicationId",
