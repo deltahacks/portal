@@ -32,8 +32,25 @@ import { Status } from "@prisma/client";
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
     accessorKey: "index",
-    header: "Index",
-    cell: ({ row }) => <div className="pl-4 py-2">{row.index}</div>,
+    accessorFn: (_row, index) => index,
+    filterFn: (row, columnId, filterValue) => {
+      return row.getValue(columnId) === Number(filterValue);
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          className="text-left"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          #
+          <ArrowUpDown className="pl-2 h-4 w-6" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <div className="pl-4 py-2">{row.getValue("index")}</div>,
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     accessorKey: "name",
@@ -101,6 +118,9 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   },
   {
     accessorKey: "reviewCount",
+    filterFn: (row, columnId, filterValue) => {
+      return Number(row.getValue(columnId)) <= Number(filterValue);
+    },
     header: ({ column }) => {
       return (
         <Button
@@ -261,8 +281,8 @@ export const ApplicationsTable = ({
         <div className="flex items-center justify-between py-4">
           <SearchBarFilter
             columns={table.getAllColumns()}
-            defaultColumnToFilter={table.getColumn("reviewCount")}
-            defaultFilterValue={"0"}
+            defaultColumnToFilter={table.getColumn("index")}
+            defaultFilterValue={""}
           />
           <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>
