@@ -49,6 +49,10 @@ const hackerTypes: SelectChoice[] = [
   { value: "Game Development", label: "Game Development" },
   { value: "Writer", label: "Writer" },
   { value: "Product Manager", label: "Product Manager" },
+  {
+    value: "Experience Ventures (McMaster Only)",
+    label: "Experience Ventures (McMaster Only)",
+  },
   { value: "Other", label: "Other" },
 ];
 
