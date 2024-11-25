@@ -118,8 +118,9 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   },
   {
     accessorKey: "reviewCount",
-    filterFn: (row, columnId, filterValue) => {
-      return Number(row.getValue(columnId)) <= Number(filterValue);
+    filterFn: (row, columnId, value) => {
+      const rowValue = row.getValue(columnId);
+      return rowValue === Number(value);
     },
     header: ({ column }) => {
       return (
@@ -274,6 +275,18 @@ export const ApplicationsTable = ({
     },
     autoResetPageIndex: false,
   });
+
+  useEffect(() => {
+    if (
+      table.getRowModel().rows.length === 0 &&
+      table.getFilteredRowModel().rows.length !== 0
+    ) {
+      table.setPageIndex(0);
+    }
+  }, [
+    table.getRowModel().rows.length,
+    table.getFilteredRowModel().rows.length,
+  ]);
 
   return (
     <div className="bg-white dark:border-zinc-700 dark:bg-zinc-950 p-10 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border">
