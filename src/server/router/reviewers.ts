@@ -14,6 +14,7 @@ const ApplicationForReview = z.object({
   status: z.nativeEnum(Status),
   DH11ApplicationId: z.string().cuid(),
   reviewCount: z.number().default(0),
+  avgScore: z.number().default(-1),
 });
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
@@ -63,21 +64,30 @@ export const reviewerRouter = router({
 
       const parsed = ApplicationForReview.array().parse(users);
 
-      const reviewCounts = await ctx.prisma.dH11Review.groupBy({
+      // add review counts
+      const reviewStats = await ctx.prisma.dH11Review.groupBy({
         by: ["applicationId"],
         _count: {
           applicationId: true,
         },
+        _avg: {
+          score: true,
+        },
       });
 
-      const reviewCountMap = reviewCounts.reduce((acc, curr) => {
-        acc[curr.applicationId] = curr._count.applicationId;
+      const reviewStatsMap = reviewStats.reduce((acc, curr) => {
+        acc[curr.applicationId] = {
+          reviewCount: curr._count.applicationId,
+          avgScore: curr._avg.score ?? 0,
+        };
         return acc;
-      }, {} as Record<string, number>);
+      }, {} as Record<string, { reviewCount: number; avgScore: number }>);
 
       const applicationsWithReviewCount = parsed.map((application) => ({
         ...application,
-        reviewCount: reviewCountMap[application.DH11ApplicationId] || 0,
+        reviewCount:
+          reviewStatsMap[application.DH11ApplicationId]?.reviewCount || 0,
+        avgScore: reviewStatsMap[application.DH11ApplicationId]?.avgScore || 0,
       }));
 
       return applicationsWithReviewCount;
