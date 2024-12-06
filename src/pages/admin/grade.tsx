@@ -49,8 +49,11 @@ const GradingPortal: NextPage = () => {
     );
   });
 
-  const { mutate: updateApplicationStatusByScoreRange } =
-    trpc.reviewer.updateApplicationStatusByScoreRange.useMutation();
+  const {
+    mutate: updateApplicationStatusByScoreRange,
+    isLoading,
+    isSuccess,
+  } = trpc.reviewer.updateApplicationStatusByScoreRange.useMutation();
 
   return (
     <>
@@ -139,9 +142,9 @@ const GradingPortal: NextPage = () => {
                         });
                       }
                     }}
-                    disabled={!selectedStatus}
+                    disabled={!selectedStatus || isLoading}
                   >
-                    Apply Status Change
+                    {isLoading ? "Applying..." : "Apply Status Change"}
                   </Button>
                 </div>
               </div>
