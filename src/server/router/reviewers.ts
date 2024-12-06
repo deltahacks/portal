@@ -419,7 +419,7 @@ export const reviewerRouter = router({
             ? "❌"
             : input.status === Status.WAITLISTED
             ? "🕰️"
-            : input.status === Status.RSVP
+            : input.status === Status.IN_REVIEW
             ? "🎟️"
             : "🤔",
       });
