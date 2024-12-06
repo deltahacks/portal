@@ -172,7 +172,8 @@ export const applicationRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      return user.status;
+      // return user.DH11Application.status; // TODO: Enable this after RSVP consent is implemented
+      return Status.IN_REVIEW;
     }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
