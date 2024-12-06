@@ -322,4 +322,106 @@ export const reviewerRouter = router({
 
       return reviews;
     }),
+
+  updateApplicationStatusByScoreRange: protectedProcedure
+    .input(
+      z.object({
+        status: z.enum([
+          Status.ACCEPTED,
+          Status.REJECTED,
+          Status.WAITLISTED,
+          Status.IN_REVIEW,
+        ]),
+        minRange: z.number().min(0),
+        maxRange: z.number().max(17),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const users = await ctx.prisma.user.findMany({
+        where: {
+          DH11ApplicationId: {
+            not: null,
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          status: true,
+          DH11ApplicationId: true,
+        },
+      });
+
+      const parsed = ApplicationForReview.array().parse(users);
+
+      // add review counts
+      const reviewStats = await ctx.prisma.dH11Review.groupBy({
+        by: ["applicationId"],
+        _count: {
+          applicationId: true,
+        },
+        _avg: {
+          score: true,
+        },
+      });
+
+      const reviewStatsMap = reviewStats.reduce((acc, curr) => {
+        acc[curr.applicationId] = {
+          reviewCount: curr._count.applicationId,
+          avgScore: curr._avg.score ?? 0,
+        };
+        return acc;
+      }, {} as Record<string, { reviewCount: number; avgScore: number }>);
+
+      const applicationsWithReviewCount = parsed.map((application) => ({
+        ...application,
+        reviewCount:
+          reviewStatsMap[application.DH11ApplicationId]?.reviewCount || 0,
+        avgScore: reviewStatsMap[application.DH11ApplicationId]?.avgScore || 0,
+      }));
+
+      const applicationsToUpdate = applicationsWithReviewCount.filter(
+        (application) =>
+          application.avgScore >= input.minRange &&
+          application.avgScore <= input.maxRange
+      );
+
+      // use an updateMany query to update all application statuses
+      await ctx.prisma.dH11Application.updateMany({
+        where: {
+          id: {
+            in: applicationsToUpdate.map((app) => app.DH11ApplicationId),
+          },
+        },
+        data: {
+          status: input.status,
+        },
+      });
+
+      // track it in logsnag
+      await ctx.logsnag.track({
+        channel: "status",
+        event: "Status Changed",
+        user_id: `${ctx.session.user.name} - ${ctx.session.user.email}`,
+        description: `${ctx.session.user.name} changed application status to ${input.status} for applications with scores between ${input.minRange} and ${input.maxRange}`,
+        tags: {
+          status: input.status,
+          reviewer: ctx.session.user.email ?? "",
+        },
+        icon:
+          input.status === Status.ACCEPTED
+            ? "✅"
+            : input.status === Status.REJECTED
+            ? "❌"
+            : input.status === Status.WAITLISTED
+            ? "🕰️"
+            : input.status === Status.RSVP
+            ? "🎟️"
+            : "🤔",
+      });
+    }),
 });
