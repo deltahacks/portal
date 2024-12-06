@@ -49,11 +49,17 @@ const GradingPortal: NextPage = () => {
     );
   });
 
+  const utils = trpc.useUtils();
+
   const {
     mutate: updateApplicationStatusByScoreRange,
     isLoading,
     isSuccess,
-  } = trpc.reviewer.updateApplicationStatusByScoreRange.useMutation();
+  } = trpc.reviewer.updateApplicationStatusByScoreRange.useMutation({
+    onSettled(data, error, variables, context) {
+      utils.invalidate();
+    },
+  });
 
   return (
     <>
