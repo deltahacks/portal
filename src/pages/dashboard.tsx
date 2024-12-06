@@ -452,7 +452,12 @@ const WalkIns: React.FC = () => {
 const Dashboard: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = (props) => {
-  const { data: status, isSuccess } = trpc.application.status.useQuery();
+  // const { data: status, isSuccess } = trpc.application.status.useQuery();
+  // FIXME: After RSVP is implemented, uncomment this and use the correct stauts
+
+  const status = Status.IN_REVIEW;
+
+  // console.log(isSuccess, status);
 
   const { data: session } = useSession();
 
@@ -465,7 +470,9 @@ const Dashboard: NextPage<
     [Status.CHECKED_IN]: <CheckedIn />,
   };
 
-  const statusToUse = isSuccess ? status : props.status;
+  // FIXME: After RSVP is implemented, uncomment this and use the correct stauts
+  // const statusToUse = isSuccess ? status : props.status;
+  const statusToUse = status;
 
   return (
     <>
