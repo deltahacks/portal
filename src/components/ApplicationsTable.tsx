@@ -144,6 +144,31 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableSorting: true,
   },
   {
+    accessorKey: "avgScore",
+    filterFn: (row, columnId, value) => {
+      const rowValue = row.getValue(columnId);
+      return rowValue === Number(value);
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          className="text-left"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Average Score
+          <ArrowUpDown className="pl-2 h-4 w-6" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const score = row.getValue<number>("avgScore");
+      return <div className="pl-4 py-2">{score.toFixed(2)}</div>;
+    },
+    enableColumnFilter: true,
+    enableSorting: true,
+  },
+  {
     accessorKey: "DH11ApplicationId",
     header: () => <div className="float-right">DH XI Application</div>,
     cell: ({ row }) => {
