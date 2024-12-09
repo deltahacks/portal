@@ -124,15 +124,9 @@ export const applicationRouter = router({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      // TODO: Use Status from DH11 Application instaed of User
       const statusCount = (
-        await ctx.prisma.user.groupBy({
+        await ctx.prisma.dH11Application.groupBy({
           by: ["status"],
-          where: {
-            DH11ApplicationId: {
-              not: null,
-            },
-          },
           _count: {
             status: true,
           },
