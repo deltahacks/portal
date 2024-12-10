@@ -15,6 +15,7 @@ import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
 import Drawer from "../components/Drawer";
+import { Checkbox } from "../components/Checkbox";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -59,16 +60,19 @@ const Accepted: React.FC = () => {
     },
   });
 
+  const [shareResume, setShareResume] = React.useState(false);
+
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? session.user?.name : ""}, we can{"'"}t wait to see you at
-        DeltaHacks XI!
+        Hey{" "}
+        <span className="capitalize">{session ? session.user?.name : ""}</span>,
+        we can{"'"}t wait to see you at DeltaHacks XI!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         DeltaHacks XI! Come hack for change and build something incredible with
-        hundreds of other hackers from January 12 - 14, 2023! To confirm that
+        hundreds of other hackers from January 11 - 12, 2025! To confirm that
         you will be attending, please RSVP below.
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
@@ -82,10 +86,26 @@ const Accepted: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
+      <div className="flex items-center gap-4 pt-4">
+        <Checkbox
+          id="shareResume"
+          checked={shareResume}
+          onCheckedChange={(checked) => setShareResume(!!checked)}
+          className="w-6 h-6"
+        />
+        <label
+          htmlFor="shareResume"
+          className="text-xl font-normal dark:text-white sm:text-2xl lg:text-3xl lg:leading-tight 2xl:text-4xl"
+        >
+          Share my resume with sponsors
+        </label>
+      </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
         <Button
           onClick={async () => {
-            await doRsvp.mutateAsync();
+            await doRsvp.mutateAsync({
+              rsvpCheck: shareResume,
+            });
           }}
           className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
         >
@@ -130,8 +150,11 @@ const Rejected: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, thank you for submitting
-        your application to DeltaHacks XI.
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , thank you for submitting your application to DeltaHacks XI.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
@@ -162,8 +185,11 @@ const Waitlisted: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, thank you for your
-        application to participate in our hackathon!
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , thank you for your application to participate in our hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Due to the high volume of submissions we have received, we are unable to
@@ -292,8 +318,11 @@ const RSVPed: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, looking forward to seeing
-        you at the hackathon!
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , looking forward to seeing you at the hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to inform you that your registration for DeltaHacks XI
@@ -337,19 +366,19 @@ const RSVPed: React.FC = () => {
           </Link>
         </Button>
 
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
-        </Button>
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        </Button> */}
+        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="/DeltaHacks_X_2024_Attendees_Package.pdf"
           >
             Attendee Package
           </Link>
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
@@ -452,12 +481,7 @@ const WalkIns: React.FC = () => {
 const Dashboard: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = (props) => {
-  // const { data: status, isSuccess } = trpc.application.status.useQuery();
-  // FIXME: After RSVP is implemented, uncomment this and use the correct stauts
-
-  const status = Status.IN_REVIEW;
-
-  // console.log(isSuccess, status);
+  const { data: status, isSuccess } = trpc.application.status.useQuery();
 
   const { data: session } = useSession();
 
@@ -470,9 +494,7 @@ const Dashboard: NextPage<
     [Status.CHECKED_IN]: <CheckedIn />,
   };
 
-  // FIXME: After RSVP is implemented, uncomment this and use the correct stauts
-  // const statusToUse = isSuccess ? status : props.status;
-  const statusToUse = status;
+  const statusToUse = isSuccess ? status : props.status;
 
   return (
     <>
