@@ -65,8 +65,9 @@ const Accepted: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? session.user?.name : ""}, we can{"'"}t wait to see you at
-        DeltaHacks XI!
+        Hey{" "}
+        <span className="capitalize">{session ? session.user?.name : ""}</span>,
+        we can{"'"}t wait to see you at DeltaHacks XI!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
@@ -85,18 +86,26 @@ const Accepted: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
+      <div className="flex items-center gap-4 pt-4">
         <Checkbox
           id="shareResume"
           checked={shareResume}
-          onCheckedChange={(checked) => setShareResume(checked)}
-          className="text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:text-3xl lg:leading-tight 2xl:text-4xl"
+          onCheckedChange={(checked) => setShareResume(!!checked)}
+          className="w-6 h-6"
+        />
+        <label
+          htmlFor="shareResume"
+          className="text-xl font-normal dark:text-white sm:text-2xl lg:text-3xl lg:leading-tight 2xl:text-4xl"
         >
           Share my resume with sponsors
-        </Checkbox>
+        </label>
+      </div>
+      <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
         <Button
           onClick={async () => {
-            await doRsvp.mutateAsync();
+            await doRsvp.mutateAsync({
+              rsvpCheck: shareResume,
+            });
           }}
           className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
         >
@@ -141,8 +150,11 @@ const Rejected: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, thank you for submitting
-        your application to DeltaHacks XI.
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , thank you for submitting your application to DeltaHacks XI.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
@@ -173,8 +185,11 @@ const Waitlisted: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, thank you for your
-        application to participate in our hackathon!
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , thank you for your application to participate in our hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Due to the high volume of submissions we have received, we are unable to
@@ -303,8 +318,11 @@ const RSVPed: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, looking forward to seeing
-        you at the hackathon!
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , looking forward to seeing you at the hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to inform you that your registration for DeltaHacks XI
