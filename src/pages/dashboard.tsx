@@ -15,6 +15,7 @@ import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
 import Drawer from "../components/Drawer";
+import { Checkbox } from "../components/Checkbox";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -59,6 +60,8 @@ const Accepted: React.FC = () => {
     },
   });
 
+  const [shareResume, setShareResume] = React.useState(false);
+
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
@@ -68,7 +71,7 @@ const Accepted: React.FC = () => {
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         DeltaHacks XI! Come hack for change and build something incredible with
-        hundreds of other hackers from January 12 - 14, 2023! To confirm that
+        hundreds of other hackers from January 11 - 12, 2025! To confirm that
         you will be attending, please RSVP below.
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
@@ -83,6 +86,14 @@ const Accepted: React.FC = () => {
         </a>
       </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
+        <Checkbox
+          id="shareResume"
+          checked={shareResume}
+          onCheckedChange={(checked) => setShareResume(checked)}
+          className="text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:text-3xl lg:leading-tight 2xl:text-4xl"
+        >
+          Share my resume with sponsors
+        </Checkbox>
         <Button
           onClick={async () => {
             await doRsvp.mutateAsync();
@@ -337,19 +348,19 @@ const RSVPed: React.FC = () => {
           </Link>
         </Button>
 
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
-        </Button>
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        </Button> */}
+        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="/DeltaHacks_X_2024_Attendees_Package.pdf"
           >
             Attendee Package
           </Link>
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
@@ -452,12 +463,7 @@ const WalkIns: React.FC = () => {
 const Dashboard: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = (props) => {
-  // const { data: status, isSuccess } = trpc.application.status.useQuery();
-  // FIXME: After RSVP is implemented, uncomment this and use the correct stauts
-
-  const status = Status.IN_REVIEW;
-
-  // console.log(isSuccess, status);
+  const { data: status, isSuccess } = trpc.application.status.useQuery();
 
   const { data: session } = useSession();
 
@@ -470,9 +476,7 @@ const Dashboard: NextPage<
     [Status.CHECKED_IN]: <CheckedIn />,
   };
 
-  // FIXME: After RSVP is implemented, uncomment this and use the correct stauts
-  // const statusToUse = isSuccess ? status : props.status;
-  const statusToUse = status;
+  const statusToUse = isSuccess ? status : props.status;
 
   return (
     <>

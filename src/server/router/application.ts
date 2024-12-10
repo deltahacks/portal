@@ -183,19 +183,22 @@ export const applicationRouter = router({
 
     return qr;
   }),
-  rsvp: protectedProcedure.mutation(async ({ ctx }) => {
+  rsvp: protectedProcedure.mutation(async ({ ctx, input }) => {
     const user = await ctx.prisma?.user.findFirst({
       where: { id: ctx.session.user.id },
+      include: { DH11Application: true },
     });
 
     if (user?.status != Status.ACCEPTED) {
       throw new Error("Unauthorized call");
     }
 
-    await ctx.prisma?.user.update({
-      where: { id: ctx.session.user.id },
-      data: { status: Status.RSVP },
+    await ctx.prisma?.dH11Application.update({
+      where: { id: user.DH11Application?.id },
+      data: { status: Status.RSVP, rsvpCheck: input.rsvpCheck },
     });
+
+
     await ctx.logsnag.track({
       channel: "rsvps",
       event: "RSVP Submitted",
