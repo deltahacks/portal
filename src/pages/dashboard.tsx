@@ -72,8 +72,8 @@ const Accepted: React.FC = () => {
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         DeltaHacks XI! Come hack for change and build something incredible with
-        hundreds of other hackers from January 11 - 12, 2025! To confirm that
-        you will be attending, please RSVP below.
+        hundreds of other hackers on January 11 - 12, 2025! To confirm that you
+        will be attending, please RSVP below.
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Sorry, RSVPs are now closed. Thank you so much for your interest in
@@ -158,9 +158,10 @@ const Rejected: React.FC = () => {
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
-        many talented, enthusiastic individuals. Unfortunately, we can’t accept
-        everyone and are unable to offer you a spot at the hackathon at this
-        time. We really hope you’ll apply again next year!
+        many talented, enthusiastic individuals. Unfortunately we were not able
+        to accommodate all applicants this year and are unable to offer you a
+        spot at the hackathon at this time. We really hope you’ll apply again
+        next year!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
