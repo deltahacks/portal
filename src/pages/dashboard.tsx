@@ -61,6 +61,7 @@ const Accepted: React.FC = () => {
   });
 
   const [shareResume, setShareResume] = React.useState(false);
+  const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
 
   return (
     <div>
@@ -86,28 +87,13 @@ const Accepted: React.FC = () => {
           hello@deltahacks.com
         </a>
       </div>
-      <div className="flex items-center gap-4 pt-4">
-        <Checkbox
-          id="shareResume"
-          checked={shareResume}
-          onCheckedChange={(checked) => setShareResume(!!checked)}
-          className="w-6 h-6"
-        />
-        <label
-          htmlFor="shareResume"
-          className="text-xl font-normal dark:text-white sm:text-2xl lg:text-3xl lg:leading-tight 2xl:text-4xl"
-        >
-          Share my resume with sponsors
-        </label>
-      </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
+        {/* When the user clicks this button, open the modal to ask about sharing resume */}
         <Button
-          onClick={async () => {
-            await doRsvp.mutateAsync({
-              rsvpCheck: shareResume,
-            });
+          onClick={() => {
+            rsvpDialogRef.current?.showModal();
           }}
-          className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
+          className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none text-base font-medium capitalize"
         >
           RSVP
         </Button>
@@ -116,13 +102,64 @@ const Accepted: React.FC = () => {
             FAQ
           </Link>
         </Button>
+      </div>
 
-        {/* <Button>
+      {/* RSVP Modal to confirm sharing resume */}
+      <dialog
+        className="modal modal-bottom sm:modal-middle"
+        ref={rsvpDialogRef}
+      >
+        <div className="modal-box dark:bg-[#1F1F1F]">
+          <h3 className="text-lg font-bold dark:text-white">
+            Complete Your RSVP
+          </h3>
+          <p className="py-4">
+            Would you like to share your resume with our sponsors?
+          </p>
+          <div className="flex items-center gap-4 py-4">
+            <Checkbox
+              id="shareResume"
+              checked={shareResume}
+              onCheckedChange={(checked) => setShareResume(!!checked)}
+              className="w-6 h-6"
+            />
+            <label
+              htmlFor="shareResume"
+              className=" font-normal dark:text-white  lg:leading-tight"
+            >
+              Share my resume with sponsors
+            </label>
+          </div>
+          <div className="modal-action">
+            <form method="dialog">
+              <div className="flex gap-5">
+                <button
+                  className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
+                  onClick={async () => {
+                    await doRsvp.mutateAsync({ rsvpCheck: shareResume });
+                    rsvpDialogRef.current?.close();
+                  }}
+                >
+                  Confirm
+                </button>
+                <button
+                  className="btn bg-zinc-700 dark:text-white border-none text-base font-medium capitalize hover:bg-zinc-800"
+                  onClick={() => rsvpDialogRef.current?.close()}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      {/* <Button>
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
         </Button> */}
-      </div>
+      {/* </div> */}
       {/* <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
         <button
           className="btn btn-primary w-48 border-none text-base font-medium capitalize"
@@ -224,6 +261,7 @@ type InReviewProps = {
 const InReview: React.FC<InReviewProps> = ({ killed }) => {
   const { data: session } = useSession();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+
   const router = useRouter();
   // call deleteApplication endpoint
   const deleteApplication = trpc.application.deleteApplication.useMutation({
