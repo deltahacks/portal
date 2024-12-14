@@ -217,6 +217,8 @@ model DH11Application {
   agreeToMLHPrivacyPolicy  Boolean
   agreeToMLHCommunications Boolean
 
+  rsvpCheck Boolean @default(false)
+
   User User?
 
   DH11Review DH11Review[]
