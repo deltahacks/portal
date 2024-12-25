@@ -245,11 +245,13 @@ enum YesNoUnsure {
   UNSURE
 }
 
+// Glossary:
+// Track: Different topic/categories used to classify projects
 model ProjectTrack {
   id        String  @id @default(cuid())
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
-  track     Track   @relation(fields: [trackId], references: [id])
+  track     Track   @relation(fields: [trackId], references: [id], onDelete: Cascade)
   trackId   String
 
   @@unique([projectId, trackId])
@@ -259,26 +261,28 @@ model Track {
   id           String         @id @default(cuid())
   name         String         @unique
   ProjectTrack ProjectTrack[]
+  Table        Table[]
 }
 
 model JudgingResult {
-  id        String  @id @default(cuid())
-  judgeId   String
-  project   Project @relation(fields: [projectId], references: [id]) // Relation with Project
+  id String @id @default(cuid())
+
+  judgeId String
+  judge   User   @relation("judge", fields: [judgeId], references: [id], onDelete: Cascade)
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
-  judge     User    @relation("judge", fields: [judgeId], references: [id]) // Match relation name in User
   comment   String
 
   @@unique([judgeId, projectId])
 }
 
 model Table {
-  id        String  @id @default(cuid())
-  number    Int
-  project   Project @relation(fields: [projectId], references: [id])
-  projectId String  @unique
-
-  @@unique([number, projectId])
+  id       String     @id @default(cuid())
+  number   Int        @unique
+  trackId  String
+  track    Track      @relation(fields: [trackId], references: [id])
+  TimeSlot TimeSlot[]
 }
 
 model Project {
@@ -288,5 +292,18 @@ model Project {
   link           String
   tracks         ProjectTrack[]
   judgingResults JudgingResult[]
-  Table          Table[]
+  TimeSlot       TimeSlot[]
+}
+
+model TimeSlot {
+  id        String   @id @default(cuid())
+  startTime DateTime
+  endTime   DateTime
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  table     Table    @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  tableId   String
+
+  @@unique([projectId, startTime])
+  @@unique([tableId, startTime])
 }
