@@ -124,15 +124,9 @@ export const applicationRouter = router({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      // TODO: Use Status from DH11 Application instaed of User
       const statusCount = (
-        await ctx.prisma.user.groupBy({
+        await ctx.prisma.dH11Application.groupBy({
           by: ["status"],
-          where: {
-            DH11ApplicationId: {
-              not: null,
-            },
-          },
           _count: {
             status: true,
           },
@@ -172,7 +166,7 @@ export const applicationRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      return user.status;
+      return user.DH11Application.status;
     }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
@@ -182,34 +176,42 @@ export const applicationRouter = router({
 
     return qr;
   }),
-  rsvp: protectedProcedure.mutation(async ({ ctx }) => {
-    const user = await ctx.prisma?.user.findFirst({
-      where: { id: ctx.session.user.id },
-    });
+  rsvp: protectedProcedure
+    .input(
+      z.object({
+        rsvpCheck: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.prisma?.user.findFirst({
+        where: { id: ctx.session.user.id },
+        include: { DH11Application: true },
+      });
 
-    if (user?.status != Status.ACCEPTED) {
-      throw new Error("Unauthorized call");
-    }
+      if (user?.DH11Application?.status != Status.ACCEPTED) {
+        throw new Error("Unauthorized call");
+      }
 
-    await ctx.prisma?.user.update({
-      where: { id: ctx.session.user.id },
-      data: { status: Status.RSVP },
-    });
-    await ctx.logsnag.track({
-      channel: "rsvps",
-      event: "RSVP Submitted",
-      user_id: `${user.name} - ${user.email}`,
-      description: `${user.name} has submitted their RSVP.`,
-      icon: "🎉",
-    });
-    // await ctx.posthog.capture("RSVP Submitted", {
-    //   user_id: `${user.name} - ${user.email}`,
-    //   description: `${user.name} has submitted their RSVP.`,
-    //   $set: {
-    //     "RSVP Submitted": true,
-    //   },
-    // });
-  }),
+      await ctx.prisma?.dH11Application.update({
+        where: { id: user.DH11Application?.id },
+        data: { status: Status.RSVP, rsvpCheck: input.rsvpCheck },
+      });
+
+      await ctx.logsnag.track({
+        channel: "rsvps",
+        event: "RSVP Submitted",
+        user_id: `${user.name} - ${user.email}`,
+        description: `${user.name} has submitted their RSVP.`,
+        icon: "🎉",
+      });
+      // await ctx.posthog.capture("RSVP Submitted", {
+      //   user_id: `${user.name} - ${user.email}`,
+      //   description: `${user.name} has submitted their RSVP.`,
+      //   $set: {
+      //     "RSVP Submitted": true,
+      //   },
+      // });
+    }),
   submit: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {

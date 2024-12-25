@@ -15,6 +15,7 @@ import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
 import Drawer from "../components/Drawer";
+import { Checkbox } from "../components/Checkbox";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -59,17 +60,21 @@ const Accepted: React.FC = () => {
     },
   });
 
+  const [shareResume, setShareResume] = React.useState(false);
+  const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
+
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? session.user?.name : ""}, we can{"'"}t wait to see you at
-        DeltaHacks XI!
+        Hey{" "}
+        <span className="capitalize">{session ? session.user?.name : ""}</span>,
+        we can{"'"}t wait to see you at DeltaHacks XI!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         DeltaHacks XI! Come hack for change and build something incredible with
-        hundreds of other hackers from January 12 - 14, 2023! To confirm that
-        you will be attending, please RSVP below.
+        hundreds of other hackers on January 11 - 12, 2025! To confirm that you
+        will be attending, please RSVP below.
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Sorry, RSVPs are now closed. Thank you so much for your interest in
@@ -83,11 +88,12 @@ const Accepted: React.FC = () => {
         </a>
       </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
+        {/* When the user clicks this button, open the modal to ask about sharing resume */}
         <Button
-          onClick={async () => {
-            await doRsvp.mutateAsync();
+          onClick={() => {
+            rsvpDialogRef.current?.showModal();
           }}
-          className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
+          className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none text-base font-medium capitalize"
         >
           RSVP
         </Button>
@@ -96,13 +102,64 @@ const Accepted: React.FC = () => {
             FAQ
           </Link>
         </Button>
+      </div>
 
-        {/* <Button>
+      {/* RSVP Modal to confirm sharing resume */}
+      <dialog
+        className="modal modal-bottom sm:modal-middle"
+        ref={rsvpDialogRef}
+      >
+        <div className="modal-box dark:bg-[#1F1F1F]">
+          <h3 className="text-lg font-bold dark:text-white">
+            Complete Your RSVP
+          </h3>
+          <p className="py-4">
+            Would you like to share your resume with our sponsors?
+          </p>
+          <div className="flex items-center gap-4 py-4">
+            <Checkbox
+              id="shareResume"
+              checked={shareResume}
+              onCheckedChange={(checked) => setShareResume(!!checked)}
+              className="w-6 h-6"
+            />
+            <label
+              htmlFor="shareResume"
+              className=" font-normal dark:text-white  lg:leading-tight"
+            >
+              Share my resume with sponsors
+            </label>
+          </div>
+          <div className="modal-action">
+            <form method="dialog">
+              <div className="flex gap-5">
+                <button
+                  className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
+                  onClick={async () => {
+                    await doRsvp.mutateAsync({ rsvpCheck: shareResume });
+                    rsvpDialogRef.current?.close();
+                  }}
+                >
+                  Confirm
+                </button>
+                <button
+                  className="btn bg-zinc-700 dark:text-white border-none text-base font-medium capitalize hover:bg-zinc-800"
+                  onClick={() => rsvpDialogRef.current?.close()}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      {/* <Button>
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
         </Button> */}
-      </div>
+      {/* </div> */}
       {/* <div className="flex flex-col gap-4 pt-6 sm:flex-row md:gap-8">
         <button
           className="btn btn-primary w-48 border-none text-base font-medium capitalize"
@@ -130,14 +187,18 @@ const Rejected: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, thank you for submitting
-        your application to DeltaHacks XI.
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , thank you for submitting your application to DeltaHacks XI.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
-        many talented, enthusiastic individuals. Unfortunately, we can’t accept
-        everyone and are unable to offer you a spot at the hackathon at this
-        time. We really hope you’ll apply again next year!
+        many talented, enthusiastic individuals. Unfortunately we were not able
+        to accommodate all applicants this year and are unable to offer you a
+        spot at the hackathon at this time. We really hope you’ll apply again
+        next year!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -162,8 +223,11 @@ const Waitlisted: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, thank you for your
-        application to participate in our hackathon!
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , thank you for your application to participate in our hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Due to the high volume of submissions we have received, we are unable to
@@ -197,6 +261,7 @@ type InReviewProps = {
 const InReview: React.FC<InReviewProps> = ({ killed }) => {
   const { data: session } = useSession();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+
   const router = useRouter();
   // call deleteApplication endpoint
   const deleteApplication = trpc.application.deleteApplication.useMutation({
@@ -292,8 +357,11 @@ const RSVPed: React.FC = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-        Hey {session ? `${session.user?.name}` : ""}, looking forward to seeing
-        you at the hackathon!
+        Hey{" "}
+        <span className="capitalize">
+          {session ? `${session.user?.name}` : ""}
+        </span>
+        , looking forward to seeing you at the hackathon!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to inform you that your registration for DeltaHacks XI
@@ -337,19 +405,19 @@ const RSVPed: React.FC = () => {
           </Link>
         </Button>
 
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
-        </Button>
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        </Button> */}
+        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="/DeltaHacks_X_2024_Attendees_Package.pdf"
           >
             Attendee Package
           </Link>
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

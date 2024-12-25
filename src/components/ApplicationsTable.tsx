@@ -32,8 +32,25 @@ import { Status } from "@prisma/client";
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
     accessorKey: "index",
-    header: "Index",
-    cell: ({ row }) => <div className="pl-4 py-2">{row.index}</div>,
+    accessorFn: (_row, index) => index,
+    filterFn: (row, columnId, filterValue) => {
+      return row.getValue(columnId) === Number(filterValue);
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          className="text-left"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          #
+          <ArrowUpDown className="pl-2 h-4 w-6" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <div className="pl-4 py-2">{row.getValue("index")}</div>,
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     accessorKey: "name",
@@ -101,6 +118,10 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   },
   {
     accessorKey: "reviewCount",
+    filterFn: (row, columnId, value) => {
+      const rowValue = row.getValue(columnId);
+      return rowValue === Number(value);
+    },
     header: ({ column }) => {
       return (
         <Button
@@ -119,6 +140,31 @@ const columns: ColumnDef<ApplicationForReview>[] = [
         {Number(row.getValue("reviewCount")) === 1 ? "review" : "reviews"}
       </div>
     ),
+    enableColumnFilter: true,
+    enableSorting: true,
+  },
+  {
+    accessorKey: "avgScore",
+    filterFn: (row, columnId, value) => {
+      const rowValue = row.getValue(columnId);
+      return rowValue === Number(value);
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          className="text-left"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Average Score
+          <ArrowUpDown className="pl-2 h-4 w-6" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const score = row.getValue<number>("avgScore");
+      return <div className="pl-4 py-2">{score.toFixed(2)}</div>;
+    },
     enableColumnFilter: true,
     enableSorting: true,
   },
@@ -255,14 +301,26 @@ export const ApplicationsTable = ({
     autoResetPageIndex: false,
   });
 
+  useEffect(() => {
+    if (
+      table.getRowModel().rows.length === 0 &&
+      table.getFilteredRowModel().rows.length !== 0
+    ) {
+      table.setPageIndex(0);
+    }
+  }, [
+    table.getRowModel().rows.length,
+    table.getFilteredRowModel().rows.length,
+  ]);
+
   return (
     <div className="bg-white dark:border-zinc-700 dark:bg-zinc-950 p-10 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border">
       <div className="w-full">
         <div className="flex items-center justify-between py-4">
           <SearchBarFilter
             columns={table.getAllColumns()}
-            defaultColumnToFilter={table.getColumn("reviewCount")}
-            defaultFilterValue={"0"}
+            defaultColumnToFilter={table.getColumn("index")}
+            defaultFilterValue={""}
           />
           <ColumnFilterDropdown columns={table.getAllColumns()} />
         </div>
