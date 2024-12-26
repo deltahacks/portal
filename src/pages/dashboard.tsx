@@ -405,11 +405,11 @@ const RSVPed: React.FC = () => {
           </Link>
         </Button>
 
-        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
-        </Button> */}
+        </Button>
         {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"

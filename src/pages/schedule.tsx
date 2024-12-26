@@ -221,7 +221,7 @@ export default Schedule;
 // add netlify cache control
 // https://docs.netlify.com/routing/headers/#syntax-for-the-headers-file
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  // FIXME: Disable this page temporarily
+  // For disabling this page temporarily
   // return { redirect: { destination: "/", permanent: false } };
 
   ctx.res.setHeader("Netlify-Vary", "cookie=next-auth.session-token");
