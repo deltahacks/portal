@@ -17,7 +17,13 @@ export const projectRouter = router({
     .mutation(async ({ ctx, input }) => {
       // delete existing data since we are replacing it
       await ctx.prisma.project.deleteMany();
+      await ctx.prisma.table.deleteMany();
       await ctx.prisma.track.deleteMany();
+
+      // Create or get the General track
+      const generalTrack = await ctx.prisma.track.create({
+        data: { name: "General" },
+      });
 
       // Process and save projects to the database
       for (const project of input) {
@@ -29,7 +35,15 @@ export const projectRouter = router({
           },
         });
 
-        // Process tracks and create project-track relations
+        // Add General track to every project
+        await ctx.prisma.projectTrack.create({
+          data: {
+            projectId: createdProject.id,
+            trackId: generalTrack.id,
+          },
+        });
+
+        // Process other tracks and create project-track relations
         for (const trackName of project.tracks) {
           const createdTrack = await ctx.prisma.track.upsert({
             where: { name: trackName },
