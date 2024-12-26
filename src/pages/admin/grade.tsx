@@ -70,6 +70,7 @@ const GradingPortal: NextPage = () => {
         pageTabs={[
           { pageName: "Dashboard", link: "/dashboard" },
           { pageName: "Review", link: "" },
+          { pageName: "Schedule", link: "/schedule" },
         ]}
       >
         <main className="px-14 py-16">

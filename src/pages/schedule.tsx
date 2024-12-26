@@ -199,7 +199,12 @@ const ScheduleComponent = ({
 // docs for the calendar component https://js.devexpress.com/React/Documentation/Guide/UI_Components/Scheduler/Getting_Started_with_Scheduler/
 const Schedule: NextPage = () => {
   return (
-    <Drawer>
+    <Drawer
+      pageTabs={[
+        { pageName: "Dashboard", link: "/dashboard" },
+        { pageName: "Schedule", link: "/schedule" },
+      ]}
+    >
       <div className="flex-auto overflow-hidden">
         {/* mobile view */}
         <div className="h-full pt-5 sm:hidden">
