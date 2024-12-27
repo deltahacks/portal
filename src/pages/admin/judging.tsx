@@ -80,7 +80,7 @@ const JudgingPage: React.FC = () => {
           </h1>
 
           {/* CSV Upload Section */}
-          <section className="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-lg shadow-sm">
+          <section className="mb-8 p-6 bg-base-100 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold mb-4 text-center">
               Import Project Data
             </h2>
@@ -90,7 +90,7 @@ const JudgingPage: React.FC = () => {
           </section>
 
           {/* Schedule Configuration Section */}
-          <section className="p-6 bg-white dark:bg-zinc-800 rounded-lg shadow-sm">
+          <section className="p-6 bg-base-100 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold mb-4 text-center">
               Schedule Configuration
             </h2>
@@ -102,19 +102,17 @@ const JudgingPage: React.FC = () => {
                   Time Settings
                 </h3>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Start Time
-                  </label>
+                  <label className="text-sm font-medium">Start Time</label>
                   <input
                     type="datetime-local"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full rounded-md border px-3 py-2 dark:bg-gray-700 dark:border-gray-600"
+                    className="input input-bordered w-full"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="text-sm font-medium">
                     Duration per Project: {durationMinutes} minutes
                   </label>
                   <input
@@ -124,7 +122,7 @@ const JudgingPage: React.FC = () => {
                     step="5"
                     value={durationMinutes}
                     onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-600"
+                    className="range range-primary"
                   />
                 </div>
               </div>
@@ -135,7 +133,7 @@ const JudgingPage: React.FC = () => {
                   Table Settings
                 </h3>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="text-sm font-medium">
                     Projects per Table: {projectsPerTable}
                   </label>
                   <input
@@ -146,7 +144,7 @@ const JudgingPage: React.FC = () => {
                     onChange={(e) =>
                       setProjectsPerTable(Number(e.target.value))
                     }
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-600"
+                    className="range range-primary"
                   />
                 </div>
               </div>
@@ -176,7 +174,7 @@ const JudgingPage: React.FC = () => {
               </div>
 
               {(status === "success" || status === "loading") && (
-                <div className="mt-6 space-y-2 text-center text-sm text-gray-600 dark:text-gray-300">
+                <div className="mt-6 space-y-2 text-center text-sm">
                   {judgingDuration && (
                     <p>Total Judging Duration: {judgingDuration}</p>
                   )}
