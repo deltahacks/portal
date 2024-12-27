@@ -15,7 +15,9 @@ export const projectRouter = router({
       )
     )
     .mutation(async ({ ctx, input }) => {
+      try {
       // delete existing data since we are replacing it
+        await ctx.prisma.projectTrack.deleteMany();
       await ctx.prisma.project.deleteMany();
       await ctx.prisma.table.deleteMany();
       await ctx.prisma.track.deleteMany();
@@ -27,6 +29,7 @@ export const projectRouter = router({
 
       // Process and save projects to the database
       for (const project of input) {
+          try {
         const createdProject = await ctx.prisma.project.create({
           data: {
             name: project.name,
@@ -45,22 +48,47 @@ export const projectRouter = router({
 
         // Process other tracks and create project-track relations
         for (const trackName of project.tracks) {
-          const createdTrack = await ctx.prisma.track.upsert({
-            where: { name: trackName },
-            update: {},
-            create: { name: trackName },
-          });
+              const normalizedTrackName = trackName
+                .toUpperCase()
+                .includes("MLH")
+                ? "MLH"
+                : trackName;
 
-          await ctx.prisma.projectTrack.create({
-            data: {
+          const createdTrack = await ctx.prisma.track.upsert({
+                where: { name: normalizedTrackName },
+            update: {},
+                create: { name: normalizedTrackName },
+          });
+              // use upsert to avoid duplicate entries
+              await ctx.prisma.projectTrack.upsert({
+                where: {
+                  projectId_trackId: {
+                    projectId: createdProject.id,
+                    trackId: createdTrack.id,
+                  },
+                },
+                update: {},
+                create: {
               projectId: createdProject.id,
               trackId: createdTrack.id,
             },
           });
         }
+          } catch (projectError) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: `Failed to process project ${project.name}: ${projectError}`,
+            });
+          }
       }
 
       return { message: "Projects uploaded successfully" };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to upload projects: ${error}`,
+        });
+      }
     }),
   createTables: protectedProcedure
     .input(z.object({ projectsPerTable: z.number().min(1).max(20) }))
@@ -74,6 +102,17 @@ export const projectRouter = router({
 
       // Create tables for each track
       for (const track of tracks) {
+        // Special handling for MLH track - only create one table
+        if (track.name === "MLH") {
+          await ctx.prisma.table.create({
+            data: {
+              number: tableCounter++,
+              trackId: track.id,
+            },
+          });
+          continue;
+        }
+
         const projectCount = await ctx.prisma.projectTrack.count({
           where: { trackId: track.id },
         });
