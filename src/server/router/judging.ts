@@ -16,49 +16,49 @@ export const projectRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-      // delete existing data since we are replacing it
+        // delete existing data since we are replacing it
         await ctx.prisma.projectTrack.deleteMany();
-      await ctx.prisma.project.deleteMany();
-      await ctx.prisma.table.deleteMany();
-      await ctx.prisma.track.deleteMany();
+        await ctx.prisma.project.deleteMany();
+        await ctx.prisma.table.deleteMany();
+        await ctx.prisma.track.deleteMany();
 
-      // Create or get the General track
-      const generalTrack = await ctx.prisma.track.create({
-        data: { name: "General" },
-      });
+        // Create or get the General track
+        const generalTrack = await ctx.prisma.track.create({
+          data: { name: "General" },
+        });
 
-      // Process and save projects to the database
-      for (const project of input) {
+        // Process and save projects to the database
+        for (const project of input) {
           try {
-        const createdProject = await ctx.prisma.project.create({
-          data: {
-            name: project.name,
-            description: project.description,
-            link: project.link,
-          },
-        });
+            const createdProject = await ctx.prisma.project.create({
+              data: {
+                name: project.name,
+                description: project.description,
+                link: project.link,
+              },
+            });
 
-        // Add General track to every project
-        await ctx.prisma.projectTrack.create({
-          data: {
-            projectId: createdProject.id,
-            trackId: generalTrack.id,
-          },
-        });
+            // Add General track to every project
+            await ctx.prisma.projectTrack.create({
+              data: {
+                projectId: createdProject.id,
+                trackId: generalTrack.id,
+              },
+            });
 
-        // Process other tracks and create project-track relations
-        for (const trackName of project.tracks) {
+            // Process other tracks and create project-track relations
+            for (const trackName of project.tracks) {
               const normalizedTrackName = trackName
                 .toUpperCase()
                 .includes("MLH")
                 ? "MLH"
                 : trackName;
 
-          const createdTrack = await ctx.prisma.track.upsert({
+              const createdTrack = await ctx.prisma.track.upsert({
                 where: { name: normalizedTrackName },
-            update: {},
+                update: {},
                 create: { name: normalizedTrackName },
-          });
+              });
               // use upsert to avoid duplicate entries
               await ctx.prisma.projectTrack.upsert({
                 where: {
@@ -69,20 +69,20 @@ export const projectRouter = router({
                 },
                 update: {},
                 create: {
-              projectId: createdProject.id,
-              trackId: createdTrack.id,
-            },
-          });
-        }
+                  projectId: createdProject.id,
+                  trackId: createdTrack.id,
+                },
+              });
+            }
           } catch (projectError) {
             throw new TRPCError({
               code: "INTERNAL_SERVER_ERROR",
               message: `Failed to process project ${project.name}: ${projectError}`,
             });
           }
-      }
+        }
 
-      return { message: "Projects uploaded successfully" };
+        return { message: "Projects uploaded successfully" };
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -308,16 +308,33 @@ export const timeSlotRouter = router({
         });
       }
 
-      const projectTracks = await ctx.prisma.projectTrack.findMany({
+      const allProjectTracks = await ctx.prisma.projectTrack.findMany({
         include: {
           project: true,
           track: true,
         },
       });
-      if (projectTracks.length === 0) {
+      if (allProjectTracks.length === 0) {
         return {
           message: "No projectTrack entries found. Nothing to schedule.",
         };
+      }
+
+      // Separate MLH and non-MLH tracks
+      const mlhProjectTracks = allProjectTracks.filter(
+        (pt) => pt.track.name === "MLH"
+      );
+      const projectTracks = allProjectTracks.filter(
+        (pt) => pt.track.name !== "MLH"
+      );
+
+      // Find the existing MLH table instead of creating a new one
+      const mlhTable = tables.find((table) => table.track.name === "MLH");
+      if (!mlhTable) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "MLH table not found.",
+        });
       }
 
       // Create a map to track how many times each project has been skipped
@@ -332,7 +349,7 @@ export const timeSlotRouter = router({
       while (projectTracks.length > 0) {
         // main time loop
 
-        const busyProjects = new Set<string>();
+        const busyProjects = new Set<string>(); // projects already assigned for this time chunk
 
         for (const table of tables) {
           const tableTrack = table.track;
@@ -376,9 +393,102 @@ export const timeSlotRouter = router({
             starvingProjects.set(pt.projectId, currentStarvation + 1);
           });
         }
+
+        // find projects that are not in the busyProjects set
+        const availableForMlh = mlhProjectTracks.filter(
+          (pt) => !busyProjects.has(pt.projectId)
+        );
+
+        // Schedule MLH judging slots
+        const mlhSlotsToSchedule = Math.floor(input.slotDurationMinutes / 5);
+        let mlhStartTime = currentTimeChunk;
+
+        for (
+          let i = 0;
+          i < mlhSlotsToSchedule && availableForMlh.length > 0;
+          i++
+        ) {
+          // Find project with highest starvation value among available MLH projects
+          const chosenProject = availableForMlh.reduce(
+            (mostStarved, current) => {
+              const currentStarvation =
+                starvingProjects.get(current.projectId) || 0;
+              const mostStarvedValue =
+                starvingProjects.get(mostStarved?.projectId ?? "") || 0;
+              return currentStarvation > mostStarvedValue
+                ? current
+                : mostStarved;
+            },
+            availableForMlh[0]
+          );
+
+          if (chosenProject) {
+            await ctx.prisma.timeSlot.create({
+              data: {
+                tableId: mlhTable.id,
+                projectId: chosenProject.projectId,
+                startTime: mlhStartTime,
+                endTime: new Date(
+                  new Date(mlhStartTime).setMinutes(
+                    mlhStartTime.getMinutes() + 5
+                  )
+                ),
+              },
+            });
+
+            // Remove scheduled project from MLH pool and reset its starvation
+            const indexInMlh = mlhProjectTracks.findIndex(
+              (p) => p.projectId === chosenProject.projectId
+            );
+            if (indexInMlh > -1) {
+              mlhProjectTracks.splice(indexInMlh, 1);
+            }
+
+            // Also remove from availableForMlh
+            const indexInAvailable = availableForMlh.findIndex(
+              (p) => p.projectId === chosenProject.projectId
+            );
+            if (indexInAvailable > -1) {
+              availableForMlh.splice(indexInAvailable, 1);
+            }
+
+            starvingProjects.set(chosenProject.projectId, 0);
+          }
+
+          // Increment starvation counter for remaining MLH projects
+          mlhProjectTracks.forEach((pt) => {
+            const currentStarvation = starvingProjects.get(pt.projectId) || 0;
+            starvingProjects.set(pt.projectId, currentStarvation + 1);
+          });
+
+          mlhStartTime = new Date(
+            new Date(mlhStartTime).setMinutes(mlhStartTime.getMinutes() + 5)
+          );
+        }
         currentTimeChunk = new Date(
           new Date(currentTimeChunk).setMinutes(
             currentTimeChunk.getMinutes() + input.slotDurationMinutes
+          )
+        );
+      }
+      // Handle remaining MLH projects if any left
+      for (const mlhProject of mlhProjectTracks) {
+        await ctx.prisma.timeSlot.create({
+          data: {
+            tableId: mlhTable.id,
+            projectId: mlhProject.projectId,
+            startTime: currentTimeChunk,
+            endTime: new Date(
+              new Date(currentTimeChunk).setMinutes(
+                currentTimeChunk.getMinutes() + 5 // 5 minute slots for MLH
+              )
+            ),
+          },
+        });
+
+        currentTimeChunk = new Date(
+          new Date(currentTimeChunk).setMinutes(
+            currentTimeChunk.getMinutes() + 5
           )
         );
       }
