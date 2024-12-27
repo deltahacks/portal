@@ -17,7 +17,7 @@ const JudgingPage: React.FC = () => {
   const [startTime, setStartTime] = React.useState<string>(
     new Date().toISOString().slice(0, 16)
   );
-  const [durationMinutes, setDurationMinutes] = React.useState(15);
+  const [durationMinutes, setDurationMinutes] = React.useState(10);
   const [judgingDuration, setJudgingDuration] = React.useState<string>("");
   const [endTime, setEndTime] = React.useState<string>("");
   const [numTables, setNumTables] = React.useState<number | null>(null);
