@@ -512,6 +512,36 @@ export const timeSlotRouter = router({
     });
     return timeSlots;
   }),
+  getJudgingDuration: protectedProcedure.query(async ({ ctx }) => {
+    // Get first non-MLH timeslot to find start time
+    const firstSlot = await ctx.prisma.timeSlot.findFirst({
+      where: {
+        table: {
+          track: {
+            name: {
+              not: "MLH",
+            },
+          },
+        },
+      },
+      orderBy: {
+        startTime: "asc",
+      },
+      include: {
+        table: {
+          include: {
+            track: true,
+          },
+        },
+      },
+    });
+    if (firstSlot) {
+      return (
+        (firstSlot.endTime.getTime() - firstSlot.startTime.getTime()) /
+        (1000 * 60)
+      );
+    }
+  }),
   getAssignmentsAtTime: protectedProcedure
     .input(z.object({ time: z.string() }))
     .query(async ({ ctx, input }) => {

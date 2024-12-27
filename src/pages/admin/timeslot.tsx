@@ -11,71 +11,279 @@ import type {
   NextPage,
 } from "next";
 
+/**
+ * Helper to step through time in X-minute increments from start to end.
+ */
+const generateTimeChunks = (
+  start: Date,
+  end: Date,
+  stepMinutes: number
+): Date[] => {
+  const chunks: Date[] = [];
+  let current = new Date(start);
+
+  while (current <= end) {
+    chunks.push(new Date(current));
+    current = new Date(current.getTime() + stepMinutes * 60_000);
+  }
+  return chunks;
+};
+
 const TimeSlotPage: NextPage = () => {
   const [currentTimeIndex, setCurrentTimeIndex] = useState(0);
   const [showOverview, setShowOverview] = useState(false);
 
+  // 1) Grab relevant data
   const { data: timeSlots } = trpc.timeSlot.getAllTimeSlots.useQuery();
   const { data: tables } = trpc.table.getTables.useQuery();
 
-  const currentTime = timeSlots?.[currentTimeIndex]?.startTime;
+  // We'll derive all 15-minute chunk boundaries from the earliest to the latest time.
+  const [fifteenMinuteChunks, setFifteenMinuteChunks] = useState<Date[]>([]);
 
-  const { data: tableAssignments } =
-    trpc.timeSlot.getAssignmentsAtTime.useQuery(
-      { time: currentTime?.toISOString() ?? "" },
-      { enabled: !!currentTime }
-    );
+  // Add this query to get the judging duration
+  const { data: judgingDuration } = trpc.timeSlot.getJudgingDuration.useQuery();
 
-  if (!timeSlots || !tables) return <div>Loading...</div>;
+  useEffect(() => {
+    if (timeSlots && timeSlots.length > 0) {
+      const earliestStart = new Date(timeSlots[0]?.startTime || Date.now());
+      // Use the last entry's startTime as the final boundary
+      const latestEnd = new Date(
+        timeSlots[timeSlots.length - 1]?.startTime ??
+          (timeSlots[0]?.startTime || Date.now())
+      );
+      // Use judgingDuration instead of hardcoded 15
+      setFifteenMinuteChunks(
+        generateTimeChunks(earliestStart, latestEnd, judgingDuration ?? 10)
+      );
+    }
+  }, [timeSlots, judgingDuration]);
 
-  const TableOverview: React.FC = () => {
+  // If we have some 15-min chunk boundaries, pick the one at currentTimeIndex
+  const currentTime = fifteenMinuteChunks[currentTimeIndex];
+
+  // For the timeline mode (not the overview), we need up to 3 sets of MLH assignments:
+  //  - From currentTime
+  //  - currentTime + 5 min
+  //  - currentTime + 10 min
+  // We fetch these only if currentTime is defined
+  const timesToQuery = currentTime
+    ? [
+        currentTime,
+        new Date(currentTime.getTime() + 5 * 60_000),
+        new Date(currentTime.getTime() + 10 * 60_000),
+      ]
+    : [];
+  // We'll grab the three assignment sets in parallel.
+  // For normal tables, we'll only use index 0's data.
+  // For MLH, we'll gather from all three.
+  const firstAssignment = trpc.timeSlot.getAssignmentsAtTime.useQuery(
+    { time: timesToQuery[0]?.toISOString() ?? "" },
+    {
+      enabled: !!currentTime && !!timeSlots && timesToQuery.length > 0,
+      keepPreviousData: true,
+    }
+  );
+
+  const secondAssignment = trpc.timeSlot.getAssignmentsAtTime.useQuery(
+    { time: timesToQuery[1]?.toISOString() ?? "" },
+    {
+      enabled: !!currentTime && !!timeSlots && timesToQuery.length > 1,
+      keepPreviousData: true,
+    }
+  );
+
+  const thirdAssignment = trpc.timeSlot.getAssignmentsAtTime.useQuery(
+    { time: timesToQuery[2]?.toISOString() ?? "" },
+    {
+      enabled: !!currentTime && !!timeSlots && timesToQuery.length > 2,
+      keepPreviousData: true,
+    }
+  );
+
+  const assignmentQueries = [
+    firstAssignment,
+    secondAssignment,
+    thirdAssignment,
+  ];
+
+  // Now we can unify them in a helper function:
+  const getAssignmentsForTable = (tableId: string, isMlh: boolean) => {
+    if (!isMlh) {
+      // For non-MLH tables, just use the first query result
+      return assignmentQueries[0]?.data?.[tableId] ?? null;
+    } else {
+      // For MLH, gather all three
+      const first = assignmentQueries[0]?.data?.[tableId] ?? null;
+      const second = assignmentQueries[1]?.data?.[tableId] ?? null;
+      const third = assignmentQueries[2]?.data?.[tableId] ?? null;
+
+      // Return an array of projects (some might be null if no assignment at that 5-min block)
+      const mlhProjects = [first, second, third].filter(Boolean);
+      return mlhProjects;
+    }
+  };
+
+  // If the queries or data isn't ready, we show a loading state
+  if (!timeSlots || !tables || fifteenMinuteChunks.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 px-8">
-        {[...(tables ?? [])]
-          .sort((a, b) => (a.number > b.number ? 1 : -1))
-          .map((table) => {
-            return (
-              <div key={table.id}>
-                <div className="font-bold p-4 bg-white dark:bg-neutral-900 border dark:border-neutral-800">
-                  Table {table.number}
-                  <br />
-                  {table.track.name}
-                </div>
-                {timeSlots?.map((slot) => {
-                  const project = tableAssignments?.[table.id];
-                  const { data: assignmentsForSlot } =
-                    trpc.timeSlot.getAssignmentsAtTime.useQuery(
-                      { time: slot.startTime.toISOString() },
-                      { enabled: !!slot.startTime }
-                    );
-                  const projectForSlot = assignmentsForSlot?.[table.id];
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
-                  return (
-                    <div
-                      key={`${table.id}-${slot.startTime.toISOString()}`}
-                      className="border dark:border-neutral-800 p-4 bg-gray-50 dark:bg-neutral-950"
-                    >
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {slot.startTime.toLocaleTimeString("en-US", {
+  /**
+   * TableOverview:
+   * Shows two sections:
+   *  -- Non-MLH tables (15-min increments)
+   *  -- MLH table (5-min increments)
+   * Each section is displayed as a table with rows indicating time chunks.
+   */
+  const TableOverview: React.FC = () => {
+    if (!timeSlots?.length) {
+      return <div>No time slots found.</div>;
+    }
+
+    // Separate the MLH table from the rest
+    const mlhTable = tables.find((t) => t.track.name === "MLH");
+    const nonMlhTables = tables.filter((t) => t.track.name !== "MLH");
+
+    // Derive an earliest start and latest end from timeSlots.
+    const earliestStartTime = timeSlots[0]?.startTime ?? new Date();
+    const latestEndTime =
+      timeSlots[timeSlots.length - 1]?.endTime ?? new Date();
+
+    // Generate the increments
+    const nonMlhChunks = generateTimeChunks(
+      earliestStartTime,
+      latestEndTime,
+      15
+    );
+    const mlhChunks = generateTimeChunks(earliestStartTime, latestEndTime, 5);
+
+    /**
+     * A small row component that grabs the assignment for the given time/table.
+     * For demonstration, we do a separate query per row/time/table.
+     * (In a large-scale scenario, you'd likely want a combined approach
+     *  to avoid many repeated queries. This is simplified for illustration.)
+     */
+    const TimeRowCell: React.FC<{
+      chunk: Date;
+      tableId: string;
+    }> = ({ chunk, tableId }) => {
+      const { data: assignments } = trpc.timeSlot.getAssignmentsAtTime.useQuery(
+        { time: chunk.toISOString() },
+        { enabled: !!chunk }
+      );
+      const project = assignments?.[tableId];
+      return (
+        <td className="border dark:border-neutral-800 p-3 text-sm bg-white dark:bg-neutral-900 transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">
+          {project ? (
+            <span className="font-medium text-gray-900 dark:text-white">
+              {project.name}
+            </span>
+          ) : (
+            <span className="text-gray-400 dark:text-gray-600">—</span>
+          )}
+        </td>
+      );
+    };
+
+    return (
+      <div className="flex flex-col gap-8 px-8 max-w-[95%] mx-auto">
+        {/* Non-MLH tables */}
+        <section>
+          <h2 className="text-xl font-semibold mb-6 text-black dark:text-white border-b pb-2 dark:border-neutral-800">
+            Non-MLH Tables (15-minute increments)
+          </h2>
+          {nonMlhTables.length === 0 ? (
+            <div className="text-gray-500 italic">No non-MLH tables found.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse shadow-sm rounded-lg overflow-hidden">
+                <thead>
+                  <tr className="bg-gray-100 dark:bg-neutral-800">
+                    <th className="border dark:border-neutral-700 p-3 text-left font-semibold text-gray-900 dark:text-white">
+                      Time
+                    </th>
+                    {nonMlhTables.map((table) => (
+                      <th
+                        key={table.id}
+                        className="border dark:border-neutral-700 p-3 text-left font-semibold text-gray-900 dark:text-white"
+                      >
+                        Table {table.number} - {table.track.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {nonMlhChunks.map((chunk) => (
+                    <tr key={chunk.toISOString()}>
+                      {/* Time label */}
+                      <td className="border dark:border-neutral-800 p-2 text-sm bg-gray-100 dark:bg-neutral-900">
+                        {chunk.toLocaleTimeString("en-US", {
                           hour: "numeric",
                           minute: "2-digit",
                         })}
-                      </p>
-                      {projectForSlot ? (
-                        <h3 className="font-medium text-gray-900 dark:text-white">
-                          {projectForSlot.name}
-                        </h3>
-                      ) : (
-                        <p className="text-gray-500 dark:text-gray-400 italic">
-                          No project
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
+                      </td>
+                      {/* One cell per non-MLH table */}
+                      {nonMlhTables.map((table) => (
+                        <TimeRowCell
+                          key={`${table.id}-${chunk.toISOString()}`}
+                          chunk={chunk}
+                          tableId={table.id}
+                        />
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* MLH table (if it exists) */}
+        <section>
+          <h2 className="text-xl font-semibold mb-6 text-black dark:text-white border-b pb-2 dark:border-neutral-800">
+            MLH Table (5-minute increments)
+          </h2>
+          {!mlhTable ? (
+            <div className="text-gray-500 italic">No MLH table found.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse shadow-sm rounded-lg overflow-hidden">
+                <thead>
+                  <tr className="bg-gray-100 dark:bg-neutral-800">
+                    <th className="border dark:border-neutral-700 p-3 text-left font-semibold text-gray-900 dark:text-white">
+                      Time
+                    </th>
+                    <th className="border dark:border-neutral-700 p-3 text-left font-semibold text-gray-900 dark:text-white">
+                      Table {mlhTable.number} - MLH
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mlhChunks.map((chunk) => (
+                    <tr key={chunk.toISOString()}>
+                      {/* Time label */}
+                      <td className="border dark:border-neutral-800 p-2 text-sm bg-gray-100 dark:bg-neutral-900">
+                        {chunk.toLocaleTimeString("en-US", {
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                      <TimeRowCell
+                        key={`${mlhTable.id}-${chunk.toISOString()}`}
+                        chunk={chunk}
+                        tableId={mlhTable.id}
+                      />
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </div>
     );
   };
@@ -94,29 +302,29 @@ const TimeSlotPage: NextPage = () => {
             <div className="container mx-auto">
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
-                  Project Timeline
+                  {showOverview ? "Project Overview" : "Project Timeline"}
                 </h1>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Timeline View</span>
-                  <button
-                    onClick={() => setShowOverview(!showOverview)}
-                    className={`px-4 py-2 rounded-md ${
-                      showOverview
-                        ? "bg-primary text-white"
-                        : "bg-neutral-700 text-gray-200"
-                    }`}
-                  >
-                    {showOverview ? "Overview" : "Timeline"}
-                  </button>
+                  <span className="text-sm text-gray-500">Overview</span>
+                  <input
+                    type="checkbox"
+                    className="toggle toggle-primary"
+                    checked={showOverview}
+                    onChange={() => setShowOverview(!showOverview)}
+                  />
+                  <span className="text-sm text-gray-500">Timeline</span>
                 </div>
               </div>
 
+              {/* Timeline view is the new 15-min slider approach; 
+                  Overview view is the existing chunk-based schedule. */}
               {!showOverview ? (
                 <>
+                  {/* -- Timeline (revamped) -- */}
                   <div className="mb-8">
                     <div className="mb-2">
                       {currentTime && (
-                        <span className="text-xl font-normal text-gray-900 dark:text-[#c1c1c1] sm:text-2xl">
+                        <span className="text-2xl font-light text-gray-900 dark:text-white">
                           {currentTime.toLocaleTimeString("en-US", {
                             hour: "numeric",
                             minute: "2-digit",
@@ -127,53 +335,113 @@ const TimeSlotPage: NextPage = () => {
                     <input
                       type="range"
                       min={0}
-                      max={Math.max(0, timeSlots.length - 1)}
+                      max={Math.max(0, fifteenMinuteChunks.length - 1)}
                       value={currentTimeIndex}
                       onChange={(e) =>
                         setCurrentTimeIndex(Number(e.target.value))
                       }
-                      className="w-full max-w-2xl"
+                      className="range range-primary w-full max-w-2xl"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {tables.map((table) => (
-                      <div
-                        key={table.id}
-                        className="card bg-white dark:bg-base-200 shadow-xl"
-                      >
-                        <div className="card-body">
-                          <h3 className="card-title text-gray-900 dark:text-white">
-                            Table {table.number} - {table.track.name}
-                          </h3>
-                          {tableAssignments?.[table.id] ? (
-                            <div className="p-3 bg-gray-100 dark:bg-neutral-900 rounded border dark:border-neutral-800">
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {tableAssignments?.[table.id]?.name}
-                              </p>
-                              <p className="text-sm text-gray-600 dark:text-[#c1c1c1]">
-                                {currentTime?.toLocaleTimeString("en-US", {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                })}{" "}
-                                -{" "}
-                                {(
-                                  timeSlots[currentTimeIndex]?.endTime ??
-                                  currentTime
-                                )?.toLocaleTimeString("en-US", {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                })}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-gray-500 dark:text-[#c1c1c1] italic">
-                              No project scheduled
-                            </p>
-                          )}
+                    {tables.map((table) => {
+                      const isMlh = table.track.name === "MLH";
+                      const assignmentData = getAssignmentsForTable(
+                        table.id,
+                        isMlh
+                      );
+
+                      return (
+                        <div
+                          key={table.id}
+                          className="card bg-white dark:bg-base-200 shadow-xl"
+                        >
+                          <div className="card-body">
+                            <h3 className="card-title text-gray-900 dark:text-white">
+                              Table {table.number} - {table.track.name}
+                            </h3>
+                            {/* If MLH, array of up to 3 projects. Otherwise, single project. */}
+                            {!isMlh ? (
+                              <>
+                                {Array.isArray(assignmentData)
+                                  ? assignmentData.map(
+                                      (project, idx) =>
+                                        project && (
+                                          <div
+                                            key={`${project.id}-${idx}`}
+                                            className="p-3 my-2 bg-gray-100 dark:bg-neutral-900 rounded border dark:border-neutral-800"
+                                          >
+                                            <p className="font-medium text-gray-900 dark:text-white">
+                                              {project.name}
+                                            </p>
+                                            {/* Add time range display logic here if needed */}
+                                          </div>
+                                        )
+                                    )
+                                  : assignmentData && (
+                                      <div className="p-3 bg-gray-100 dark:bg-neutral-900 rounded border dark:border-neutral-800">
+                                        <p className="font-medium text-gray-900 dark:text-white">
+                                          {assignmentData.name}
+                                        </p>
+                                        {/* Shows the relevant 15-min window */}
+                                      </div>
+                                    )}
+                              </>
+                            ) : (
+                              // MLH => up to 3 assignments
+                              <>
+                                {Array.isArray(assignmentData) &&
+                                assignmentData.length > 0 ? (
+                                  assignmentData.map((project, idx) => {
+                                    // each project covers a 5-min sub-slot in this 15-min chunk
+                                    const subSlotStart = new Date(
+                                      currentTime?.getTime() ??
+                                        Date.now() + idx * 5 * 60_000
+                                    );
+                                    const subSlotEnd = new Date(
+                                      subSlotStart.getTime() + 5 * 60_000
+                                    );
+
+                                    return (
+                                      <div
+                                        key={project?.id ?? idx}
+                                        className="p-3 my-2 bg-gray-100 dark:bg-neutral-900 rounded border dark:border-neutral-800"
+                                      >
+                                        <p className="font-medium text-gray-900 dark:text-white">
+                                          {project?.name}
+                                        </p>
+                                        <p className="text-sm text-gray-600 dark:text-[#c1c1c1]">
+                                          {subSlotStart.toLocaleTimeString(
+                                            "en-US",
+                                            {
+                                              hour: "numeric",
+                                              minute: "2-digit",
+                                            }
+                                          )}
+                                          {" - "}
+                                          {subSlotEnd.toLocaleTimeString(
+                                            "en-US",
+                                            {
+                                              hour: "numeric",
+                                              minute: "2-digit",
+                                            }
+                                          )}
+                                        </p>
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <p className="text-gray-500 dark:text-[#c1c1c1] italic">
+                                    No project scheduled
+                                  </p>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               ) : (
