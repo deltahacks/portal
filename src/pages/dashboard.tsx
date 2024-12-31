@@ -405,11 +405,11 @@ const RSVPed: React.FC = () => {
           </Link>
         </Button>
 
-        {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
-        </Button> */}
+        </Button>
         {/* <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
@@ -540,7 +540,12 @@ const Dashboard: NextPage<
       <Head>
         <title>Dashboard - DeltaHacks XI</title>
       </Head>
-      <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
+      <Drawer
+        pageTabs={[
+          { pageName: "Dashboard", link: "/dashboard" },
+          { pageName: "Schedule", link: "/schedule" },
+        ]}
+      >
         <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
           {stateMap[statusToUse]}
         </main>
