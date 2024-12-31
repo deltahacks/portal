@@ -47,7 +47,7 @@ const getData = async (_: any, requestOptions: any) => {
   const GOOGLE_CALENDAR_URL =
     "https://www.googleapis.com/calendar/v3/calendars/";
   const CALENDAR_ID =
-    "c_92d6993e1372148dd97f599a8cafdb44e2447818ee8f15b1faea783753e2e54c@group.calendar.google.com";
+    "c_54f72353fe8b6d9a474ba47ea768e372311c2365c69030509cd80b650ffb883b@group.calendar.google.com";
   const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
 
   const dataUrl = [
@@ -92,7 +92,7 @@ const ScheduleComponent = ({
   defaultCurrentView: string;
 }) => {
   // If the user is out of range of the event default them to the start date
-  const curDate = new Date(2024, 0, 12);
+  const curDate = new Date(2025, 0, 10);
   const defaultCurrentDate = curDate;
   const [view, setView] = useState(
     defaultCurrentView == "day" ? "Calendar View" : "List View"
@@ -199,7 +199,12 @@ const ScheduleComponent = ({
 // docs for the calendar component https://js.devexpress.com/React/Documentation/Guide/UI_Components/Scheduler/Getting_Started_with_Scheduler/
 const Schedule: NextPage = () => {
   return (
-    <Drawer>
+    <Drawer
+      pageTabs={[
+        { pageName: "Dashboard", link: "/dashboard" },
+        { pageName: "Schedule", link: "/schedule" },
+      ]}
+    >
       <div className="flex-auto overflow-hidden">
         {/* mobile view */}
         <div className="h-full pt-5 sm:hidden">
@@ -221,8 +226,8 @@ export default Schedule;
 // add netlify cache control
 // https://docs.netlify.com/routing/headers/#syntax-for-the-headers-file
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  // FIXME: Disable this page temporarily
-  return { redirect: { destination: "/", permanent: false } };
+  // For disabling this page temporarily
+  // return { redirect: { destination: "/", permanent: false } };
 
   ctx.res.setHeader("Netlify-Vary", "cookie=next-auth.session-token");
   ctx.res.setHeader("Cache-Control", "public, max-age=7200");
