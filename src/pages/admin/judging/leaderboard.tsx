@@ -11,8 +11,13 @@ import { rbac } from "../../../components/RBACWrapper";
 import { Role } from "@prisma/client";
 
 const LeaderboardPage: NextPage = () => {
-  const { data: leaderboard, isLoading } =
-    trpc.judging.getLeaderboard.useQuery();
+  const { data: leaderboard, isLoading } = trpc.judging.getLeaderboard.useQuery(
+    undefined,
+    {
+      refetchInterval: 30 * 1000,
+      refetchIntervalInBackground: true,
+    }
+  );
 
   if (isLoading) {
     return (
