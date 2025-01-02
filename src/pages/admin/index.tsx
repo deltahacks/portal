@@ -10,6 +10,7 @@ import { getServerAuthSession } from "../../server/common/get-server-auth-sessio
 import { trpc } from "../../utils/trpc";
 import Head from "next/head";
 import Drawer from "../../components/Drawer";
+import { useState, useEffect } from "react";
 
 const AdminCard = ({
   title,
@@ -31,7 +32,30 @@ const AdminCard = ({
 );
 
 const Admin: NextPage = () => {
-  const { mutateAsync } = trpc.admin.setKillSwitch.useMutation();
+  const { mutateAsync: setKillSwitch } = trpc.admin.setKillSwitch.useMutation();
+  const { mutateAsync: setDhYear } = trpc.admin.setDhYear.useMutation();
+  const { data: currentConfig } = trpc.admin.getConfig.useQuery();
+  const { data: currentDhYear, error: dhYearError } =
+    trpc.admin.getDhYear.useQuery();
+  const [year, setYear] = useState<string>("DH11");
+  const utils = trpc.useUtils();
+
+  useEffect(() => {
+    if (currentDhYear) {
+      setYear(currentDhYear);
+    }
+  }, [currentDhYear]);
+
+  const handleYearChange = async () => {
+    try {
+      await setDhYear(year);
+      await utils.admin.getDhYear.invalidate();
+    } catch (error) {
+      console.error("Failed to update DH year:", error);
+    }
+  };
+
+  const dhYears = Array.from({ length: 15 }, (_, i) => `DH${i + 11}`);
 
   return (
     <>
@@ -69,19 +93,50 @@ const Admin: NextPage = () => {
 
           <div className="card bg-base-200 shadow-xl p-6">
             <h2 className="text-xl font-semibold mb-4">System Controls</h2>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                className="btn btn-primary"
-                onClick={async () => await mutateAsync(true)}
-              >
-                Kill Switch
-              </button>
-              <button
-                className="btn btn-error"
-                onClick={async () => await mutateAsync(false)}
-              >
-                Revive System
-              </button>
+
+            <div className="flex flex-col gap-6">
+              {/* Kill Switch Controls */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  className="btn btn-primary"
+                  onClick={async () => await setKillSwitch(true)}
+                >
+                  Kill Switch
+                </button>
+                <button
+                  className="btn btn-error"
+                  onClick={async () => await setKillSwitch(false)}
+                >
+                  Revive System
+                </button>
+              </div>
+
+              {/* DH Year Configuration */}
+              <div className="divider">DeltaHacks Year Configuration</div>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">DeltaHacks Year</span>
+                  </label>
+                  <select
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="select select-bordered w-full max-w-xs"
+                  >
+                    {dhYears.map((dhYear) => (
+                      <option key={dhYear} value={dhYear}>
+                        {dhYear}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  className="btn btn-primary self-end"
+                  onClick={handleYearChange}
+                >
+                  Update Year
+                </button>
+              </div>
             </div>
           </div>
         </main>
