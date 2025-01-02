@@ -13,6 +13,7 @@ import { Project, Role } from "@prisma/client";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { z } from "zod";
+import ReactMarkdown from "react-markdown";
 
 const TableOptionSchema = z.object({
   value: z.string(),
@@ -20,6 +21,9 @@ const TableOptionSchema = z.object({
 });
 
 type TableOption = z.infer<typeof TableOptionSchema>;
+
+// Add this type for better type safety
+type ScoreType = 0 | 1 | 2 | 3;
 
 const Judging: NextPage = () => {
   const { control, handleSubmit, reset, register } = useForm();
@@ -35,6 +39,13 @@ const Judging: NextPage = () => {
       { tableId: selectedTable?.value || "" },
       { enabled: !!selectedTable }
     );
+  const { data: rubricQuestions } = trpc.judging.getRubricQuestions.useQuery(
+    {
+      trackId:
+        tables?.find((t) => t.id === selectedTable?.value)?.trackId || "",
+    },
+    { enabled: !!selectedTable }
+  );
 
   useEffect(() => {
     if (nextProject) {
@@ -45,10 +56,17 @@ const Judging: NextPage = () => {
   }, [nextProject]);
 
   const onSubmit = (data: any) => {
+    if (!currentProject?.id) return;
+
     submitJudgment(
       {
-        projectId: currentProject?.id,
-        ...data,
+        projectId: currentProject.id,
+        responses: Object.entries(data.scores || {}).map(
+          ([questionId, score]) => ({
+            questionId,
+            score: Number(score),
+          })
+        ),
       },
       {
         onSuccess: () => {
@@ -95,10 +113,19 @@ const Judging: NextPage = () => {
                         field.onChange(option);
                         setSelectedTable(option as TableOption);
                       }}
+                      unstyled={true}
                       classNames={{
-                        control: () => "input input-bordered",
-                        menu: () => "bg-base-200",
-                        option: () => "hover:bg-base-300",
+                        control: (state) =>
+                          state.menuIsOpen
+                            ? "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border"
+                            : "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border",
+                        menu: () =>
+                          "dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border -mt-1 rounded-b-lg overflow-hidden",
+                        option: () =>
+                          "p-2 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:hover:bg-neutral-900",
+                        valueContainer: () =>
+                          "dark:text-neutral-500 text-neutral-700 gap-2",
+                        singleValue: () => "dark:text-white text-black",
                       }}
                     />
                   )}
@@ -106,9 +133,11 @@ const Judging: NextPage = () => {
               </div>
 
               {currentProject && (
-                <div className="card bg-base-200 shadow-xl">
-                  <div className="card-body">
-                    <h2 className="card-title">{currentProject.name}</h2>
+                <div className="rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
+                  <div className="p-4">
+                    <h2 className="text-xl font-bold mb-2">
+                      {currentProject.name}
+                    </h2>
                     <p className="line-clamp-4">{currentProject.description}</p>
                     <a
                       href={currentProject.link}
@@ -119,22 +148,66 @@ const Judging: NextPage = () => {
                       Project Link
                     </a>
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text">Comment</span>
-                        </label>
-                        <textarea
-                          {...register("comment", { required: true })}
-                          className="textarea textarea-bordered h-24"
-                          placeholder="Enter your judgment here"
-                        ></textarea>
+                    {rubricQuestions && rubricQuestions.length > 0 ? (
+                      <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
+                        {rubricQuestions.map((question) => (
+                          <div key={question.id} className="form-control mb-4">
+                            <label className="label">
+                              <span className="label-text">
+                                <ReactMarkdown className="prose">
+                                  {question.question}
+                                </ReactMarkdown>
+                              </span>
+                              <span className="label-text-alt">
+                                Score: {question.points}/3
+                              </span>
+                            </label>
+                            <div className="rating rating-lg">
+                              <Controller
+                                name={`scores.${question.id}`}
+                                control={control}
+                                defaultValue={0}
+                                rules={{ required: true }}
+                                render={({ field: { onChange, value } }) => (
+                                  <>
+                                    <div className="flex gap-2">
+                                      {[0, 1, 2, 3].map((score) => (
+                                        <button
+                                          key={score}
+                                          type="button"
+                                          className={`btn ${
+                                            value === score
+                                              ? "btn-primary"
+                                              : "btn-outline"
+                                          }`}
+                                          onClick={() => onChange(score)}
+                                        >
+                                          {score}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    <div className="mt-2 text-sm text-neutral-500">
+                                      {value === 0 && "0 - Ineffective / Bad"}
+                                      {value === 1 && "1 - Limited / Okay"}
+                                      {value === 2 && "2 - Functional / Good"}
+                                      {value === 3 &&
+                                        "3 - Exceptional / Phenomenal"}
+                                    </div>
+                                  </>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                        <button type="submit" className="btn btn-primary mt-4">
+                          Submit Judgment
+                        </button>
+                      </form>
+                    ) : (
+                      <div className="mt-4 text-error">
+                        No rubric questions available for this track.
                       </div>
-
-                      <button type="submit" className="btn btn-primary mt-4">
-                        Submit Judgment
-                      </button>
-                    </form>
+                    )}
                   </div>
                 </div>
               )}
