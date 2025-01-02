@@ -16,11 +16,29 @@ export const projectRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // delete existing data since we are replacing it
-        await ctx.prisma.projectTrack.deleteMany();
-        await ctx.prisma.project.deleteMany();
-        await ctx.prisma.table.deleteMany();
-        await ctx.prisma.track.deleteMany();
+        // Get current dhYear from Config
+        const dhYearConfig = await ctx.prisma.config.findUnique({
+          where: { name: "dhYear" },
+        });
+
+        if (!dhYearConfig) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "dhYear not configured",
+          });
+        }
+
+        // delete existing data for this year
+        await ctx.prisma.projectTrack.deleteMany({
+          where: {
+            project: {
+              dhYear: dhYearConfig.value,
+            },
+          },
+        });
+        await ctx.prisma.project.deleteMany({
+          where: { dhYear: dhYearConfig.value },
+        });
 
         // Create or get the General track
         const generalTrack = await ctx.prisma.track.create({
@@ -35,6 +53,7 @@ export const projectRouter = router({
                 name: project.name,
                 description: project.description,
                 link: project.link,
+                dhYear: dhYearConfig.value,
               },
             });
 
@@ -135,6 +154,17 @@ export const projectRouter = router({
   getNextProject: protectedProcedure
     .input(z.object({ tableId: z.string() }))
     .query(async ({ ctx, input }) => {
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
       const table = await ctx.prisma.table.findUnique({
         where: { id: input.tableId },
         include: { track: true },
@@ -144,13 +174,17 @@ export const projectRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Table not found" });
 
       const judgedProjects = await ctx.prisma.judgingResult.findMany({
-        where: { judgeId: ctx.session.user.id },
+        where: {
+          judgeId: ctx.session.user.id,
+          dhYear: dhYearConfig.value,
+        },
         select: { projectId: true },
       });
 
       // Find projects in this track that haven't been judged
       return ctx.prisma.project.findFirst({
         where: {
+          dhYear: dhYearConfig.value,
           tracks: {
             some: {
               trackId: table.trackId,
@@ -169,7 +203,14 @@ export const projectRouter = router({
       });
     }),
   getAllProjects: protectedProcedure.query(async ({ ctx }) => {
+    const dhYearConfig = await ctx.prisma.config.findUnique({
+      where: { name: "dhYear" },
+    });
+
     return ctx.prisma.project.findMany({
+      where: {
+        dhYear: dhYearConfig?.value,
+      },
       select: {
         id: true,
         name: true,
@@ -255,18 +296,176 @@ export const judgingRouter = router({
     .input(
       z.object({
         projectId: z.string(),
-        comment: z.string(),
+        responses: z.array(
+          z.object({
+            questionId: z.string(),
+            score: z.number().min(0),
+          })
+        ),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.judgingResult.create({
+      // Get current dhYear from Config
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
+      // Check if this judge has already judged this project
+      const existingResult = await ctx.prisma.judgingResult.findUnique({
+        where: {
+          judgeId_projectId: {
+            judgeId: ctx.session.user.id,
+            projectId: input.projectId,
+          },
+        },
+      });
+
+      if (existingResult) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You have already judged this project",
+        });
+      }
+
+      // Create the judging result and its responses in a transaction
+      return ctx.prisma.$transaction(async (tx) => {
+        // Create the judging result
+        const judgingResult = await tx.judgingResult.create({
+          data: {
+            judgeId: ctx.session.user.id,
+            projectId: input.projectId,
+            dhYear: dhYearConfig.value,
+          },
+        });
+
+        // Create all rubric responses
+        await tx.rubricResponse.createMany({
+          data: input.responses.map((response) => ({
+            judgingResultId: judgingResult.id,
+            questionId: response.questionId,
+            score: response.score,
+          })),
+        });
+
+        return judgingResult;
+      });
+    }),
+  createRubricQuestion: protectedProcedure
+    .input(
+      z.object({
+        question: z.string(),
+        points: z.number().min(0).max(100),
+        title: z.string(),
+        trackId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Verify user is an admin
+      if (!ctx.session.user.role?.includes("ADMIN")) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only admins can create rubric questions",
+        });
+      }
+
+      // Create the rubric question
+      const rubricQuestion = await ctx.prisma.rubricQuestion.create({
         data: {
-          projectId: input.projectId,
-          judgeId: ctx.session.user.id,
-          comment: input.comment,
+          question: input.question,
+          points: input.points,
+          title: input.title,
+          trackId: input.trackId,
+        },
+        include: {
+          track: true, // Include track details in the response
+        },
+      });
+
+      return rubricQuestion;
+    }),
+  getRubricQuestions: protectedProcedure
+    .input(z.object({ trackId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.rubricQuestion.findMany({
+        where: {
+          trackId: input.trackId,
+        },
+        orderBy: {
+          id: "asc",
         },
       });
     }),
+  getLeaderboard: protectedProcedure.query(async ({ ctx }) => {
+    // Get current dhYear from Config
+    const dhYearConfig = await ctx.prisma.config.findUnique({
+      where: { name: "dhYear" },
+    });
+
+    if (!dhYearConfig) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "dhYear not configured",
+      });
+    }
+
+    // Get all projects with their judging results and responses
+    const projectScores = await ctx.prisma.project.findMany({
+      where: {
+        dhYear: dhYearConfig.value,
+      },
+      select: {
+        id: true,
+        name: true,
+        judgingResults: {
+          select: {
+            responses: {
+              select: {
+                score: true,
+                question: {
+                  select: {
+                    points: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Calculate total score for each project
+    const leaderboard = projectScores.map((project) => {
+      let totalScore = 0;
+      const numberOfJudges = project.judgingResults.length;
+
+      // Sum up scores from all judges
+      project.judgingResults.forEach((result) => {
+        result.responses.forEach((response) => {
+          totalScore += response.score * response.question.points;
+        });
+      });
+
+      // Calculate average score if project was judged by multiple judges
+      const averageScore = numberOfJudges > 0 ? totalScore / numberOfJudges : 0;
+
+      return {
+        projectId: project.id,
+        projectName: project.name,
+        score: averageScore,
+        numberOfJudges,
+      };
+    });
+
+    // Sort by score in descending order
+    return leaderboard.sort((a, b) => b.score - a.score);
+  }),
 });
 
 export const timeSlotRouter = router({
@@ -293,8 +492,22 @@ export const timeSlotRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // 1) Clear existing timeslots
-      await ctx.prisma.timeSlot.deleteMany();
+      // Get current dhYear from Config
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
+      // 1) Clear existing timeslots for this year
+      await ctx.prisma.timeSlot.deleteMany({
+        where: { dhYear: dhYearConfig.value },
+      });
 
       // 2) Fetch tables & projectTracks
       const tables = await ctx.prisma.table.findMany({
@@ -381,6 +594,7 @@ export const timeSlotRouter = router({
                     currentTimeChunk.getMinutes() + input.slotDurationMinutes
                   )
                 ),
+                dhYear: dhYearConfig.value,
               },
             });
             projectTracks.splice(projectTracks.indexOf(chosenProject), 1);
@@ -433,6 +647,7 @@ export const timeSlotRouter = router({
                     mlhStartTime.getMinutes() + 5
                   )
                 ),
+                dhYear: dhYearConfig.value,
               },
             });
 
@@ -483,6 +698,7 @@ export const timeSlotRouter = router({
                 currentTimeChunk.getMinutes() + 5 // 5 minute slots for MLH
               )
             ),
+            dhYear: dhYearConfig.value,
           },
         });
 
