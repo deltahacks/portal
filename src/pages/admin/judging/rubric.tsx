@@ -18,7 +18,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import dynamic from "next/dynamic";
 
-const MDEditor = dynamic(
+const MDEditor = dynamic<any>(
   () => import("@uiw/react-md-editor").then((mod) => mod.default),
   { ssr: false }
 );
@@ -146,7 +146,7 @@ const RubricPage: NextPage = () => {
                       <div data-color-mode="dark">
                         <MDEditor
                           value={markdownValue}
-                          onChange={(val) => {
+                          onChange={(val: string | undefined) => {
                             setMarkdownValue(val || "");
                             setValue("question", val || "");
                           }}

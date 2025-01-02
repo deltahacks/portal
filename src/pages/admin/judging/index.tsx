@@ -7,6 +7,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { Role } from "@prisma/client";
 import { rbac } from "../../../components/RBACWrapper";
 import { getServerAuthSession } from "../../../server/common/get-server-auth-session";
+import Link from "next/link";
 
 const JudgingPage: React.FC = () => {
   const [status, setStatus] = React.useState<
@@ -81,12 +82,15 @@ const JudgingPage: React.FC = () => {
 
           {/* Navigation Buttons */}
           <div className="flex justify-center gap-4 mb-12">
-            <a href="/admin/judging/rubric" className="btn btn-accent">
+            <Link href="/admin/judging/rubric" className="btn btn-accent">
               Manage Judging Rubric
-            </a>
-            <a href="/admin/judging/leaderboard" className="btn btn-secondary">
+            </Link>
+            <Link
+              href="/admin/judging/leaderboard"
+              className="btn btn-secondary"
+            >
               View Leaderboard
-            </a>
+            </Link>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
