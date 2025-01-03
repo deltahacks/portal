@@ -185,17 +185,17 @@ const JudgingPage: React.FC = () => {
                     createTimeSlots.isLoading) && (
                     <div className="mt-4 space-y-2 text-center">
                       {judgingDuration && (
-                        <div className="stat-value text-lg">
+                        <div className="text-base font-semibold">
                           Total Duration: {judgingDuration}
                         </div>
                       )}
                       {endTime && (
-                        <div className="stat-value text-lg">
+                        <div className="text-base font-semibold">
                           End Time: {endTime}
                         </div>
                       )}
                       {numTables && (
-                        <div className="stat-value text-lg">
+                        <div className="text-base font-semibold">
                           Number of Tables: {numTables}
                         </div>
                       )}
