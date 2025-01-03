@@ -33,14 +33,17 @@ const AdminCard = ({
 
 const Admin: NextPage = () => {
   const { mutateAsync: setKillSwitch } = trpc.admin.setKillSwitch.useMutation();
-  const { mutateAsync: setDhYear } = trpc.admin.setDhYear.useMutation();
+  const { mutateAsync: setDhYear } = trpc.admin.setDhYear.useMutation({
+    onSuccess: () => {
+      utils.admin.getDhYear.invalidate();
+    },
+  });
   const { data: currentDhYear } = trpc.admin.getDhYear.useQuery();
   const utils = trpc.useUtils();
 
   const handleYearChange = async (newYear: string) => {
     try {
       await setDhYear(newYear);
-      await utils.admin.getDhYear.invalidate();
     } catch (error) {
       console.error("Failed to update DH year:", error);
     }
