@@ -34,21 +34,12 @@ const AdminCard = ({
 const Admin: NextPage = () => {
   const { mutateAsync: setKillSwitch } = trpc.admin.setKillSwitch.useMutation();
   const { mutateAsync: setDhYear } = trpc.admin.setDhYear.useMutation();
-  const { data: currentConfig } = trpc.admin.getConfig.useQuery();
-  const { data: currentDhYear, error: dhYearError } =
-    trpc.admin.getDhYear.useQuery();
-  const [year, setYear] = useState<string>("DH11");
+  const { data: currentDhYear } = trpc.admin.getDhYear.useQuery();
   const utils = trpc.useUtils();
 
-  useEffect(() => {
-    if (currentDhYear) {
-      setYear(currentDhYear);
-    }
-  }, [currentDhYear]);
-
-  const handleYearChange = async () => {
+  const handleYearChange = async (newYear: string) => {
     try {
-      await setDhYear(year);
+      await setDhYear(newYear);
       await utils.admin.getDhYear.invalidate();
     } catch (error) {
       console.error("Failed to update DH year:", error);
@@ -119,8 +110,8 @@ const Admin: NextPage = () => {
                     <span className="label-text">DeltaHacks Year</span>
                   </label>
                   <select
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
+                    value={currentDhYear ?? "DH11"}
+                    onChange={(e) => handleYearChange(e.target.value)}
                     className="select select-bordered w-full max-w-xs"
                   >
                     {dhYears.map((dhYear) => (
@@ -132,7 +123,7 @@ const Admin: NextPage = () => {
                 </div>
                 <button
                   className="btn btn-primary self-end"
-                  onClick={handleYearChange}
+                  onClick={() => handleYearChange(currentDhYear ?? "DH11")}
                 >
                   Update Year
                 </button>
