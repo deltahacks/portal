@@ -3,23 +3,7 @@ import { trpc } from "../utils/trpc";
 import Papa from "papaparse";
 
 export const CSVUploader: React.FC = () => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<
-    "idle" | "success" | "error"
-  >("idle");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const uploadProjectsMutation = trpc.project.uploadProjects.useMutation({
-    onSuccess: () => {
-      setUploadStatus("success");
-      setIsUploading(false);
-    },
-    onError: (error) => {
-      setUploadStatus("error");
-      setErrorMessage(error.message);
-      setIsUploading(false);
-    },
-  });
+  const uploadProjectsMutation = trpc.project.uploadProjects.useMutation({});
 
   const processCSVData = (data: any[]) => {
     return data.map((row) => ({
@@ -53,10 +37,6 @@ export const CSVUploader: React.FC = () => {
   };
 
   const handleFileUpload = (file: File) => {
-    setIsUploading(true);
-    setUploadStatus("idle");
-    setErrorMessage(null);
-
     Papa.parse(file, {
       header: true,
       complete: function (results) {
@@ -80,9 +60,7 @@ export const CSVUploader: React.FC = () => {
         uploadProjectsMutation.mutate(data);
       },
       error: function (error) {
-        setUploadStatus("error");
-        setErrorMessage(`CSV parsing error: ${error.message}`);
-        setIsUploading(false);
+        console.error(`CSV parsing error: ${error.message}`);
       },
     });
   };
@@ -113,25 +91,25 @@ export const CSVUploader: React.FC = () => {
             accept=".csv"
             onChange={handleFileChange}
             className="shadow appearance-none border border-gray-600 dark:border-gray-300 rounded w-full py-2 px-3 text-white dark:text-gray-900 bg-neutral-800 dark:bg-white leading-tight focus:outline-none focus:shadow-outline"
-            disabled={isUploading}
+            disabled={uploadProjectsMutation.isLoading}
           />
         </div>
-        {isUploading && (
+        {uploadProjectsMutation.isLoading && (
           <div className="mb-4">
             <p className="text-blue-400 dark:text-blue-500">Uploading...</p>
           </div>
         )}
-        {uploadStatus === "success" && (
+        {uploadProjectsMutation.isSuccess && (
           <div className="mb-4">
             <p className="text-green-400 dark:text-green-500">
               Upload successful!
             </p>
           </div>
         )}
-        {uploadStatus === "error" && (
+        {uploadProjectsMutation.isError && (
           <div className="mb-4">
             <p className="text-red-400 dark:text-red-500">
-              Error: {errorMessage}
+              Error: {uploadProjectsMutation.error?.message}
             </p>
           </div>
         )}
