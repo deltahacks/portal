@@ -10,10 +10,6 @@ import { getServerAuthSession } from "../../../server/common/get-server-auth-ses
 import Link from "next/link";
 
 const JudgingPage: React.FC = () => {
-  const [status, setStatus] = React.useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
-  const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [projectsPerTable, setProjectsPerTable] = React.useState<number>(10);
   const [startTime, setStartTime] = React.useState<string>(
     new Date().toISOString().slice(0, 16)
@@ -30,16 +26,10 @@ const JudgingPage: React.FC = () => {
         startTime: new Date(startTime).toISOString(),
       });
     },
-    onError: (error) => {
-      setStatus("error");
-      setErrorMessage(error.message);
-      setTimeout(() => setStatus("idle"), 3000);
-    },
   });
 
   const createTimeSlots = trpc.timeSlot.createTimeSlots.useMutation({
     onSuccess: (data) => {
-      setStatus("success");
       if (data.endTime) {
         const start = new Date(startTime);
         const end = new Date(data.endTime);
@@ -61,11 +51,6 @@ const JudgingPage: React.FC = () => {
       if (data.numTables) {
         setNumTables(data.numTables);
       }
-    },
-    onError: (error) => {
-      setStatus("error");
-      setErrorMessage(error.message);
-      setTimeout(() => setStatus("idle"), 3000);
     },
   });
 
@@ -169,31 +154,35 @@ const JudgingPage: React.FC = () => {
 
                   {/* Action Button */}
                   <button
-                    onClick={() => {
-                      setStatus("loading");
-                      createTables.mutate({ projectsPerTable });
-                    }}
-                    disabled={status === "loading"}
+                    onClick={() => createTables.mutate({ projectsPerTable })}
+                    disabled={
+                      createTables.isLoading || createTimeSlots.isLoading
+                    }
                     className={`btn w-full ${
-                      status === "idle"
-                        ? "btn-primary"
-                        : status === "loading"
-                        ? "btn-disabled loading"
-                        : status === "success"
+                      createTables.isLoading || createTimeSlots.isLoading
+                        ? "bg-white" // Removed btn-disabled
+                        : createTables.isSuccess && createTimeSlots.isSuccess
                         ? "btn-success"
-                        : "btn-error"
+                        : createTables.isError || createTimeSlots.isError
+                        ? "btn-error"
+                        : "btn-primary"
                     }`}
-                    title={status === "error" ? errorMessage : ""}
+                    title={
+                      createTables.error?.message ||
+                      createTimeSlots.error?.message ||
+                      ""
+                    }
                   >
-                    {status === "loading"
+                    {createTables.isLoading || createTimeSlots.isLoading
                       ? "Creating Schedule..."
-                      : status === "success"
+                      : createTables.isSuccess && createTimeSlots.isSuccess
                       ? "Schedule Created!"
                       : "Create Schedule"}
                   </button>
-
                   {/* Status Information */}
-                  {(status === "success" || status === "loading") && (
+                  {(createTimeSlots.isSuccess ||
+                    createTables.isLoading ||
+                    createTimeSlots.isLoading) && (
                     <div className="mt-4 space-y-2 text-center">
                       {judgingDuration && (
                         <div className="stat-value text-lg">
