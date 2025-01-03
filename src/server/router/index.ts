@@ -8,6 +8,13 @@ import { userRouter } from "./users";
 import { router } from "./trpc";
 import { adminRouter } from "./admin";
 import { fileUploadRouter } from "./file";
+import {
+  tableRouter,
+  trackRouter,
+  projectRouter,
+  judgingRouter,
+  timeSlotRouter,
+} from "./judging";
 
 export const appRouter = router({
   application: applicationRouter,
@@ -15,6 +22,11 @@ export const appRouter = router({
   user: userRouter,
   admin: adminRouter,
   file: fileUploadRouter,
+  table: tableRouter,
+  track: trackRouter,
+  project: projectRouter,
+  judging: judgingRouter,
+  timeSlot: timeSlotRouter,
   // NOTE: Will be deprecated
   food: foodRouter,
   events: eventsRouter,

@@ -12,17 +12,21 @@ function defineNextConfig(config) {
   return config;
 }
 
-export default defineNextConfig({
-  reactStrictMode: true,
-  swcMinify: true,
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-        port: "",
-        pathname: "/**",
-      },
-    ],
-  },
-});
+import removeImports from "next-remove-imports";
+
+export default defineNextConfig(
+  removeImports({
+    reactStrictMode: true,
+    swcMinify: true,
+    images: {
+      remotePatterns: [
+        {
+          protocol: "https",
+          hostname: "lh3.googleusercontent.com",
+          port: "",
+          pathname: "/**",
+        },
+      ],
+    },
+  })
+);

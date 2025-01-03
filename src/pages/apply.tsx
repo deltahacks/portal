@@ -49,6 +49,7 @@ import "@uppy/dashboard/dist/style.min.css";
 import XHR from "@uppy/xhr-upload";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
+import FormInput from "../components/CustomInput";
 
 export type InputsType = z.infer<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -62,31 +63,6 @@ interface FormInputProps {
   register: UseFormRegister<InputsType>;
   link?: string | undefined;
 }
-
-const FormInput: React.FC<
-  FormInputProps & React.HTMLProps<HTMLInputElement>
-> = ({ label, id, errors, optional, register, ...props }) => {
-  return (
-    <div className="flex flex-col flex-1 gap-2 pb-4">
-      <label className="text-black dark:text-white" htmlFor={id}>
-        {label}{" "}
-        {optional && (
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        )}
-      </label>
-      <input
-        className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
-        type="text"
-        id={id}
-        {...register(id)}
-        {...props}
-      />
-      {errors && <span className="text-error">{errors.message}</span>}
-    </div>
-  );
-};
 
 const FormCheckbox: React.FC<
   FormInputProps & React.HTMLProps<HTMLInputElement>
