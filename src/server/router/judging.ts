@@ -41,8 +41,10 @@ export const projectRouter = router({
         });
 
         // Create or get the General track
-        const generalTrack = await ctx.prisma.track.create({
-          data: { name: "General" },
+        const generalTrack = await ctx.prisma.track.upsert({
+          where: { name: "General" },
+          update: {},
+          create: { name: "General" },
         });
 
         // Process and save projects to the database
