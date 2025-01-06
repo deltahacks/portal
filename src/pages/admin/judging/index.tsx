@@ -8,6 +8,10 @@ import { Role } from "@prisma/client";
 import { rbac } from "../../../components/RBACWrapper";
 import { getServerAuthSession } from "../../../server/common/get-server-auth-session";
 import Link from "next/link";
+import {
+  DevpostCSVProcessor,
+  DoraHacksCSVProcessor,
+} from "../../../utils/csvProcessors";
 
 const JudgingPage: React.FC = () => {
   const [startTime, setStartTime] = React.useState<string>(
@@ -82,7 +86,7 @@ const JudgingPage: React.FC = () => {
                 <h2 className="card-title justify-center mb-4">
                   Import Project Data
                 </h2>
-                <CSVUploader />
+                <CSVUploader csvProcessor={new DoraHacksCSVProcessor()} />
               </div>
             </section>
 

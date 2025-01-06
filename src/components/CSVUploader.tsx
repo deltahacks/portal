@@ -1,53 +1,21 @@
 import React, { useState } from "react";
 import { trpc } from "../utils/trpc";
 import Papa from "papaparse";
+import { CSVProcessor } from "../utils/csvProcessors";
 
-export const CSVUploader: React.FC = () => {
+interface CSVUploaderProps {
+  csvProcessor: CSVProcessor;
+}
+
+export const CSVUploader: React.FC<CSVUploaderProps> = ({ csvProcessor }) => {
   const uploadProjectsMutation = trpc.project.uploadProjects.useMutation({});
-
-  const processCSVData = (data: any[]) => {
-    return data.map((row) => ({
-      name: row["Project Title"],
-      description: row["About The Project"],
-      link: row["Submission Url"],
-      status: row["Project Status"],
-      judgingStatus: row["Judging Status"],
-      highestStepCompleted: row["Highest Step Completed"],
-      createdAt: row["Project Created At"],
-      tryItOutLinks: row["Try it out Links"],
-      videoDemo: row["Video Demo Link"],
-      tracks: row["Opt-In Prizes"],
-      builtWith: row["Built With"],
-      notes: row["Notes"],
-      team: {
-        colleges: row["Team Colleges/Universities"],
-        additionalMemberCount: parseInt(
-          row["Additional Team Member Count"],
-          10
-        ),
-      },
-    }));
-  };
-
-  const getTrackList = (data: string) => {
-    if (!data) {
-      return [];
-    }
-    return data.split(",").map((track) => track.trim());
-  };
 
   const handleFileUpload = (file: File) => {
     Papa.parse(file, {
       header: true,
       complete: function (results) {
-        const processedData = processCSVData(results.data);
+        const processedData = csvProcessor.processCSVData(results.data);
         const data = processedData
-          .map(({ name, description, link, tracks }) => ({
-            name,
-            description,
-            link,
-            tracks: getTrackList(tracks),
-          }))
           .filter((obj) => {
             return Object.values(obj).some(
               (value) => value !== "" && value !== undefined && value !== null
