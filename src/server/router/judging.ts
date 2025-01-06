@@ -167,14 +167,6 @@ export const projectRouter = router({
         });
       }
 
-      const table = await ctx.prisma.table.findUnique({
-        where: { id: input.tableId },
-        include: { track: true },
-      });
-
-      if (!table)
-        throw new TRPCError({ code: "NOT_FOUND", message: "Table not found" });
-
       const judgedProjects = await ctx.prisma.judgingResult.findMany({
         where: {
           judgeId: ctx.session.user.id,
@@ -184,25 +176,24 @@ export const projectRouter = router({
       });
 
       // Find projects in this track that haven't been judged
-      return ctx.prisma.project.findFirst({
+
+      const timeSlot = await ctx.prisma.timeSlot.findFirst({
         where: {
+          tableId: input.tableId,
           dhYear: dhYearConfig.value,
-          tracks: {
-            some: {
-              trackId: table.trackId,
-            },
-          },
-          id: {
+          projectId: {
             notIn: judgedProjects.map((jp) => jp.projectId),
           },
-          // Only show projects that are scheduled at this table
-          TimeSlot: {
-            some: {
-              tableId: input.tableId,
-            },
-          },
+        },
+        orderBy: {
+          startTime: "asc",
+        },
+        include: {
+          project: true,
         },
       });
+
+      return timeSlot?.project;
     }),
   getAllProjects: protectedProcedure.query(async ({ ctx }) => {
     const dhYearConfig = await ctx.prisma.config.findUnique({

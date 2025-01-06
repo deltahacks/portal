@@ -1,4 +1,4 @@
-import {
+import next, {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
   NextPage,
@@ -27,18 +27,21 @@ type ScoreType = 0 | 1 | 2 | 3;
 
 const Judging: NextPage = () => {
   const { control, handleSubmit, reset, register } = useForm();
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  // const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
 
   const { data: tables, isLoading: tablesLoading } =
     trpc.table.getTables.useQuery();
   const { mutate: submitJudgment } =
     trpc.judging.createJudgingResult.useMutation();
-  const { data: nextProject, refetch: refetchNextProject } =
-    trpc.project.getNextProject.useQuery(
-      { tableId: selectedTable?.value || "" },
-      { enabled: !!selectedTable }
-    );
+  const {
+    data: nextProject,
+    refetch: refetchNextProject,
+    isSuccess: projectSuccess,
+  } = trpc.project.getNextProject.useQuery(
+    { tableId: selectedTable?.value || "" },
+    { enabled: !!selectedTable }
+  );
   const generalTrackId = tables?.find(
     (t) => t.track.name.toLowerCase() === "general"
   )?.trackId;
@@ -73,20 +76,12 @@ const Judging: NextPage = () => {
       : []) || []),
   ];
 
-  useEffect(() => {
-    if (nextProject) {
-      setCurrentProject(nextProject);
-    } else {
-      setCurrentProject(null);
-    }
-  }, [nextProject]);
-
   const onSubmit = (data: any) => {
-    if (!currentProject?.id) return;
+    if (!nextProject?.id) return;
 
     submitJudgment(
       {
-        projectId: currentProject.id,
+        projectId: nextProject.id,
         responses: Object.entries(data.scores || {}).map(
           ([questionId, score]) => ({
             questionId,
@@ -158,15 +153,15 @@ const Judging: NextPage = () => {
                 />
               </div>
 
-              {currentProject && (
+              {projectSuccess && nextProject && (
                 <div className="rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
                   <div className="p-4">
                     <h2 className="text-xl font-bold mb-2">
-                      {currentProject.name}
+                      {nextProject.name}
                     </h2>
-                    <p className="line-clamp-4">{currentProject.description}</p>
+                    <p className="line-clamp-4">{nextProject.description}</p>
                     <a
-                      href={currentProject.link}
+                      href={nextProject.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="link"
@@ -347,7 +342,7 @@ const Judging: NextPage = () => {
                   </div>
                 </div>
               )}
-              {!currentProject && <p>No project left😔</p>}
+              {!nextProject && <p>No project left😔</p>}
             </div>
           </main>
         </Drawer>
