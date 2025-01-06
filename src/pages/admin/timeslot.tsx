@@ -14,13 +14,10 @@ import type {
 /**
  * Helper to step through time in X-minute increments from start to end.
  */
-const generateTimeChunks = (
-  start: Date,
-  end: Date,
-  stepMinutes: number
-): Date[] => {
+const generateTimeChunks = (start: Date, end: Date): Date[] => {
   const chunks: Date[] = [];
   let current = new Date(start);
+  const stepMinutes = 10;
 
   while (current <= end) {
     chunks.push(new Date(current));
@@ -37,29 +34,23 @@ const TimeSlotPage: NextPage = () => {
   const { data: timeSlots } = trpc.timeSlot.getAllTimeSlots.useQuery();
   const { data: tables } = trpc.table.getTables.useQuery();
 
-  // We'll derive all 15-minute chunk boundaries from the earliest to the latest time.
-  const [fifteenMinuteChunks, setFifteenMinuteChunks] = useState<Date[]>([]);
-
-  // Add this query to get the judging duration
-  const { data: judgingDuration } = trpc.timeSlot.getJudgingDuration.useQuery();
+  // We'll derive all 10-minute chunk boundaries from the earliest to the latest time.
+  const [tenMinuteChunks, setTenMinuteChunks] = useState<Date[]>([]);
 
   useEffect(() => {
     if (timeSlots && timeSlots.length > 0) {
       const earliestStart = new Date(timeSlots[0]?.startTime || Date.now());
-      // Use the last entry's startTime as the final boundary
       const latestEnd = new Date(
         timeSlots[timeSlots.length - 1]?.startTime ??
           (timeSlots[0]?.startTime || Date.now())
       );
-      // Use judgingDuration instead of hardcoded 15
-      setFifteenMinuteChunks(
-        generateTimeChunks(earliestStart, latestEnd, judgingDuration ?? 10)
-      );
+      // Always use 10-minute chunks
+      setTenMinuteChunks(generateTimeChunks(earliestStart, latestEnd));
     }
-  }, [timeSlots, judgingDuration]);
+  }, [timeSlots]);
 
-  // If we have some 15-min chunk boundaries, pick the one at currentTimeIndex
-  const currentTime = fifteenMinuteChunks[currentTimeIndex];
+  // If we have some 10-min chunk boundaries, pick the one at currentTimeIndex
+  const currentTime = tenMinuteChunks[currentTimeIndex];
 
   // For the timeline mode (not the overview), we need up to 3 sets of MLH assignments:
   //  - From currentTime
@@ -124,7 +115,7 @@ const TimeSlotPage: NextPage = () => {
   };
 
   // If the queries or data isn't ready, we show a loading state
-  if (!timeSlots || !tables || fifteenMinuteChunks.length === 0) {
+  if (!timeSlots || !tables || tenMinuteChunks.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
@@ -135,8 +126,8 @@ const TimeSlotPage: NextPage = () => {
   /**
    * TableOverview:
    * Shows two sections:
-   *  -- Non-MLH tables (15-min increments)
-   *  -- MLH table (5-min increments)
+   *  -- Non-MLH tables (10-minute increments)
+   *  -- MLH table (5-minute increments)
    * Each section is displayed as a table with rows indicating time chunks.
    */
   const TableOverview: React.FC = () => {
@@ -153,13 +144,8 @@ const TimeSlotPage: NextPage = () => {
     const latestEndTime =
       timeSlots[timeSlots.length - 1]?.endTime ?? new Date();
 
-    // Generate the increments
-    const nonMlhChunks = generateTimeChunks(
-      earliestStartTime,
-      latestEndTime,
-      15
-    );
-    const mlhChunks = generateTimeChunks(earliestStartTime, latestEndTime, 5);
+    // Generate the increments with fixed 10-minute chunks
+    const chunks = generateTimeChunks(earliestStartTime, latestEndTime);
 
     /**
      * A small row component that grabs the assignment for the given time/table.
@@ -194,7 +180,7 @@ const TimeSlotPage: NextPage = () => {
         {/* Non-MLH tables */}
         <section>
           <h2 className="text-xl font-semibold mb-6 text-black dark:text-white border-b pb-2 dark:border-neutral-800">
-            Non-MLH Tables (15-minute increments)
+            Non-MLH Tables (10-minute increments)
           </h2>
           {nonMlhTables.length === 0 ? (
             <div className="text-gray-500 italic">No non-MLH tables found.</div>
@@ -217,7 +203,7 @@ const TimeSlotPage: NextPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {nonMlhChunks.map((chunk) => (
+                  {chunks.map((chunk) => (
                     <tr key={chunk.toISOString()}>
                       {/* Time label */}
                       <td className="border dark:border-neutral-800 p-2 text-sm bg-gray-100 dark:bg-neutral-900">
@@ -263,22 +249,28 @@ const TimeSlotPage: NextPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {mlhChunks.map((chunk) => (
-                    <tr key={chunk.toISOString()}>
-                      {/* Time label */}
-                      <td className="border dark:border-neutral-800 p-2 text-sm bg-gray-100 dark:bg-neutral-900">
-                        {chunk.toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
-                      </td>
-                      <TimeRowCell
-                        key={`${mlhTable.id}-${chunk.toISOString()}`}
-                        chunk={chunk}
-                        tableId={mlhTable.id}
-                      />
-                    </tr>
-                  ))}
+                  {chunks
+                    .flatMap((chunk) => [
+                      // For each 10-minute chunk, create two 5-minute rows
+                      new Date(chunk),
+                      new Date(chunk.getTime() + 5 * 60_000),
+                    ])
+                    .map((chunk) => (
+                      <tr key={chunk.toISOString()}>
+                        {/* Time label */}
+                        <td className="border dark:border-neutral-800 p-2 text-sm bg-gray-100 dark:bg-neutral-900">
+                          {chunk.toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </td>
+                        <TimeRowCell
+                          key={`${mlhTable.id}-${chunk.toISOString()}`}
+                          chunk={chunk}
+                          tableId={mlhTable.id}
+                        />
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -316,7 +308,7 @@ const TimeSlotPage: NextPage = () => {
                 </div>
               </div>
 
-              {/* Timeline view is the new 15-min slider approach; 
+              {/* Timeline view is the new 10-min slider approach; 
                   Overview view is the existing chunk-based schedule. */}
               {!showOverview ? (
                 <>
@@ -335,7 +327,7 @@ const TimeSlotPage: NextPage = () => {
                     <input
                       type="range"
                       min={0}
-                      max={Math.max(0, fifteenMinuteChunks.length - 1)}
+                      max={Math.max(0, tenMinuteChunks.length - 1)}
                       value={currentTimeIndex}
                       onChange={(e) =>
                         setCurrentTimeIndex(Number(e.target.value))
@@ -384,7 +376,7 @@ const TimeSlotPage: NextPage = () => {
                                         <p className="font-medium text-gray-900 dark:text-white">
                                           {assignmentData.name}
                                         </p>
-                                        {/* Shows the relevant 15-min window */}
+                                        {/* Shows the relevant 10-min window */}
                                       </div>
                                     )}
                               </>
@@ -394,7 +386,7 @@ const TimeSlotPage: NextPage = () => {
                                 {Array.isArray(assignmentData) &&
                                 assignmentData.length > 0 ? (
                                   assignmentData.map((project, idx) => {
-                                    // each project covers a 5-min sub-slot in this 15-min chunk
+                                    // each project covers a 5-min sub-slot in this 10-min chunk
                                     const subSlotStart = new Date(
                                       currentTime?.getTime() ??
                                         Date.now() + idx * 5 * 60_000

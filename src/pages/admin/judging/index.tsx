@@ -10,11 +10,9 @@ import { getServerAuthSession } from "../../../server/common/get-server-auth-ses
 import Link from "next/link";
 
 const JudgingPage: React.FC = () => {
-  const [projectsPerTable, setProjectsPerTable] = React.useState<number>(10);
   const [startTime, setStartTime] = React.useState<string>(
     new Date().toISOString().slice(0, 16)
   );
-  const [durationMinutes, setDurationMinutes] = React.useState(10);
   const [judgingDuration, setJudgingDuration] = React.useState<string>("");
   const [endTime, setEndTime] = React.useState<string>("");
   const [numTables, setNumTables] = React.useState<number | null>(null);
@@ -22,7 +20,6 @@ const JudgingPage: React.FC = () => {
   const createTables = trpc.project.createTables.useMutation({
     onSuccess: () => {
       createTimeSlots.mutate({
-        slotDurationMinutes: durationMinutes,
         startTime: new Date(startTime).toISOString(),
       });
     },
@@ -112,49 +109,11 @@ const JudgingPage: React.FC = () => {
                         className="input input-bordered w-full"
                       />
                     </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">
-                          Duration per Project: {durationMinutes} minutes
-                        </span>
-                      </label>
-                      <input
-                        type="range"
-                        min="5"
-                        max="30"
-                        step="5"
-                        value={durationMinutes}
-                        onChange={(e) =>
-                          setDurationMinutes(Number(e.target.value))
-                        }
-                        className="range range-primary"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Table Configuration */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Projects per Table: {projectsPerTable}
-                      </span>
-                    </label>
-                    <input
-                      type="range"
-                      min="1"
-                      max="20"
-                      value={projectsPerTable}
-                      onChange={(e) =>
-                        setProjectsPerTable(Number(e.target.value))
-                      }
-                      className="range range-primary"
-                    />
                   </div>
 
                   {/* Action Button */}
                   <button
-                    onClick={() => createTables.mutate({ projectsPerTable })}
+                    onClick={() => createTables.mutate({})}
                     disabled={
                       createTables.isLoading || createTimeSlots.isLoading
                     }

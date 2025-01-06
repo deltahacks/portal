@@ -112,7 +112,9 @@ export const projectRouter = router({
       }
     }),
   createTables: protectedProcedure
-    .input(z.object({ projectsPerTable: z.number().min(1).max(20) }))
+    .input(
+      z.object({ projectsPerTable: z.number().min(1).max(20).default(10) })
+    )
     .mutation(async ({ ctx, input }) => {
       // First, clear existing tables and time slots
       await ctx.prisma.timeSlot.deleteMany();
@@ -480,7 +482,7 @@ export const timeSlotRouter = router({
   createTimeSlots: protectedProcedure
     .input(
       z.object({
-        slotDurationMinutes: z.number().min(1),
+        slotDurationMinutes: z.number().min(1).default(10),
         startTime: z.string().datetime(),
       })
     )
