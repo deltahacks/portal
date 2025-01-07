@@ -16,7 +16,7 @@ const NavBar = () => {
             <picture>
               <img
                 className="inline-block h-10 w-12 md:h-16 md:w-20"
-                src="logo.svg"
+                src="/logo.svg"
                 alt="logo"
               />
             </picture>
