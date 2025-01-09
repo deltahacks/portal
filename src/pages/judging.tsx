@@ -105,6 +105,76 @@ const Judging: NextPage = () => {
       label: `Table ${table.number} - ${table.track.name}`,
     })) || [];
 
+  const QuestionSection = ({
+    title,
+    questions,
+    control,
+    borderColor,
+  }: {
+    title: string;
+    questions: typeof rubricQuestions;
+    control: any;
+    borderColor: string;
+  }) => (
+    <div className="mb-8">
+      <h3
+        className={`text-lg font-bold mb-4 p-3 border-l-4 border-${borderColor} bg-base-200 rounded-r`}
+      >
+        {title}
+      </h3>
+      {questions?.map((question, index) => (
+        <div key={question.id}>
+          {index > 0 && <hr className="my-6 border-neutral-700" />}
+          <div className="form-control mb-4">
+            <label className="label">
+              <span className="label-text">
+                <div className="mb-1">
+                  <span className="font-bold">{question.title}</span>
+                  <span> • {question.points} points</span>
+                </div>
+                <ReactMarkdown className="prose">
+                  {question.question}
+                </ReactMarkdown>
+              </span>
+            </label>
+            <div className="rating rating-lg">
+              <Controller
+                name={`scores.${question.id}`}
+                control={control}
+                defaultValue={0}
+                rules={{ required: true }}
+                render={({ field: { onChange, value } }) => (
+                  <div className="flex flex-col">
+                    <div className="flex gap-2">
+                      {[0, 1, 2, 3].map((score) => (
+                        <button
+                          key={score}
+                          type="button"
+                          className={`btn aspect-square rounded-xl p-0 ${
+                            value === score ? "btn-primary" : "btn-outline"
+                          }`}
+                          onClick={() => onChange(score)}
+                        >
+                          {score}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-2 text-sm text-neutral-500">
+                      {value === 0 && "0 - Ineffective / Bad"}
+                      {value === 1 && "1 - Limited / Okay"}
+                      {value === 2 && "2 - Functional / Good"}
+                      {value === 3 && "3 - Exceptional / Phenomenal"}
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <>
       <Head>
@@ -172,168 +242,49 @@ const Judging: NextPage = () => {
 
                     {allQuestions && allQuestions.length > 0 ? (
                       <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
-                        {/* Track-specific questions section */}
+                        {/* Track-specific questions */}
                         {rubricQuestions &&
                           rubricQuestions.length > 0 &&
                           tables
                             ?.find((t) => t.id === selectedTable?.value)
                             ?.track.name.toLowerCase() !== "general" && (
-                            <div className="mb-8">
-                              <h3 className="text-lg font-bold mb-4 p-3 border-l-4 border-primary bg-base-200 rounded-r">
-                                {
-                                  tables?.find(
-                                    (t) => t.id === selectedTable?.value
-                                  )?.track.name
-                                }{" "}
-                                Track Questions
-                              </h3>
-                              {rubricQuestions.map((question, index) => (
-                                <div key={question.id}>
-                                  {index > 0 && (
-                                    <hr className="my-6 border-neutral-700" />
-                                  )}
-                                  <div className="form-control mb-4">
-                                    <label className="label">
-                                      <span className="label-text">
-                                        <div className="mb-1">
-                                          <span className="font-bold">
-                                            {question.title}
-                                          </span>
-                                          <span>
-                                            {" "}
-                                            • {question.points} points
-                                          </span>
-                                        </div>
-                                        <ReactMarkdown className="prose">
-                                          {question.question}
-                                        </ReactMarkdown>
-                                      </span>
-                                    </label>
-                                    <div className="rating rating-lg">
-                                      <Controller
-                                        name={`scores.${question.id}`}
-                                        control={control}
-                                        defaultValue={0}
-                                        rules={{ required: true }}
-                                        render={({
-                                          field: { onChange, value },
-                                        }) => (
-                                          <div className="flex flex-col">
-                                            <div className="flex gap-2">
-                                              {[0, 1, 2, 3].map((score) => (
-                                                <button
-                                                  key={score}
-                                                  type="button"
-                                                  className={`btn ${
-                                                    value === score
-                                                      ? "btn-primary"
-                                                      : "btn-outline"
-                                                  }`}
-                                                  onClick={() =>
-                                                    onChange(score)
-                                                  }
-                                                >
-                                                  {score}
-                                                </button>
-                                              ))}
-                                            </div>
-                                            <div className="mt-2 text-sm text-neutral-500">
-                                              {value === 0 &&
-                                                "0 - Ineffective / Bad"}
-                                              {value === 1 &&
-                                                "1 - Limited / Okay"}
-                                              {value === 2 &&
-                                                "2 - Functional / Good"}
-                                              {value === 3 &&
-                                                "3 - Exceptional / Phenomenal"}
-                                            </div>
-                                          </div>
-                                        )}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                            <QuestionSection
+                              title={`${
+                                tables?.find(
+                                  (t) => t.id === selectedTable?.value
+                                )?.track.name
+                              } Track Questions`}
+                              questions={rubricQuestions}
+                              control={control}
+                              borderColor="primary"
+                            />
                           )}
 
-                        {/* General questions section */}
-                        <div className="mb-8">
-                          <h3 className="text-lg font-bold mb-4 p-3 border-l-4 border-secondary bg-base-200 rounded-r">
-                            {tables
-                              ?.find((t) => t.id === selectedTable?.value)
-                              ?.track.name.toLowerCase() === "general"
-                              ? "General Track Questions"
-                              : "General Questions"}
-                          </h3>
-                          {(tables
-                            ?.find((t) => t.id === selectedTable?.value)
-                            ?.track.name.toLowerCase() === "general"
-                            ? rubricQuestions
-                            : generalQuestions
-                          )?.map((question, index) => (
-                            <div key={question.id}>
-                              {index > 0 && (
-                                <hr className="my-6 border-neutral-700" />
-                              )}
-                              <div className="form-control mb-4">
-                                <label className="label">
-                                  <span className="label-text">
-                                    <div className="mb-1">
-                                      <span className="font-bold">
-                                        {question.title}
-                                      </span>
-                                      <span> • {question.points} points</span>
-                                    </div>
-
-                                    <ReactMarkdown className="prose">
-                                      {question.question}
-                                    </ReactMarkdown>
-                                  </span>
-                                </label>
-                                <div className="rating rating-lg">
-                                  <Controller
-                                    name={`scores.${question.id}`}
-                                    control={control}
-                                    defaultValue={0}
-                                    rules={{ required: true }}
-                                    render={({
-                                      field: { onChange, value },
-                                    }) => (
-                                      <div className="flex flex-col">
-                                        <div className="flex gap-2">
-                                          {[0, 1, 2, 3].map((score) => (
-                                            <button
-                                              key={score}
-                                              type="button"
-                                              className={`btn ${
-                                                value === score
-                                                  ? "btn-primary"
-                                                  : "btn-outline"
-                                              }`}
-                                              onClick={() => onChange(score)}
-                                            >
-                                              {score}
-                                            </button>
-                                          ))}
-                                        </div>
-                                        <div className="mt-2 text-sm text-neutral-500">
-                                          {value === 0 &&
-                                            "0 - Ineffective / Bad"}
-                                          {value === 1 && "1 - Limited / Okay"}
-                                          {value === 2 &&
-                                            "2 - Functional / Good"}
-                                          {value === 3 &&
-                                            "3 - Exceptional / Phenomenal"}
-                                        </div>
-                                      </div>
-                                    )}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                        {/* General questions */}
+                        {(tables
+                          ?.find((t) => t.id === selectedTable?.value)
+                          ?.track.name.toLowerCase() === "general"
+                          ? rubricQuestions
+                          : generalQuestions) && (
+                          <QuestionSection
+                            title={
+                              tables
+                                ?.find((t) => t.id === selectedTable?.value)
+                                ?.track.name.toLowerCase() === "general"
+                                ? "General Track Questions"
+                                : "General Questions"
+                            }
+                            questions={
+                              tables
+                                ?.find((t) => t.id === selectedTable?.value)
+                                ?.track.name.toLowerCase() === "general"
+                                ? rubricQuestions
+                                : generalQuestions
+                            }
+                            control={control}
+                            borderColor="secondary"
+                          />
+                        )}
 
                         <button type="submit" className="btn btn-primary mt-4">
                           Submit Judgment
