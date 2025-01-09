@@ -93,6 +93,7 @@ const Judging: NextPage = () => {
         onSuccess: () => {
           reset();
           refetchNextProject();
+          window.scrollTo({ top: 0, behavior: "smooth" });
         },
       }
     );
@@ -110,12 +111,12 @@ const Judging: NextPage = () => {
         <title>Dashboard - DeltaHacks XI</title>
       </Head>
 
-      <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
+      <div className="drawer drawer-end relative min-h-screen w-full overflow-x-hidden font-montserrat">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
         <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
-          <main className="-transform-x-1/2  static left-1/2 top-1/2 flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20 ">
-            <div className="container mx-auto p-4">
+          <main className="static flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+            <div className="w-full p-4">
               <h1 className="text-2xl font-bold mb-4">Project Judging</h1>
 
               <div className="mb-4">
@@ -194,15 +195,18 @@ const Judging: NextPage = () => {
                                   <div className="form-control mb-4">
                                     <label className="label">
                                       <span className="label-text">
-                                        <div className="font-bold mb-1">
-                                          {question.title}
+                                        <div className="mb-1">
+                                          <span className="font-bold">
+                                            {question.title}
+                                          </span>
+                                          <span>
+                                            {" "}
+                                            • {question.points} points
+                                          </span>
                                         </div>
                                         <ReactMarkdown className="prose">
                                           {question.question}
                                         </ReactMarkdown>
-                                      </span>
-                                      <span className="label-text-alt">
-                                        Points: {question.points}
                                       </span>
                                     </label>
                                     <div className="rating rating-lg">
@@ -214,7 +218,7 @@ const Judging: NextPage = () => {
                                         render={({
                                           field: { onChange, value },
                                         }) => (
-                                          <>
+                                          <div className="flex flex-col">
                                             <div className="flex gap-2">
                                               {[0, 1, 2, 3].map((score) => (
                                                 <button
@@ -243,7 +247,7 @@ const Judging: NextPage = () => {
                                               {value === 3 &&
                                                 "3 - Exceptional / Phenomenal"}
                                             </div>
-                                          </>
+                                          </div>
                                         )}
                                       />
                                     </div>
@@ -275,15 +279,16 @@ const Judging: NextPage = () => {
                               <div className="form-control mb-4">
                                 <label className="label">
                                   <span className="label-text">
-                                    <div className="font-bold mb-1">
-                                      {question.title}
+                                    <div className="mb-1">
+                                      <span className="font-bold">
+                                        {question.title}
+                                      </span>
+                                      <span> • {question.points} points</span>
                                     </div>
+
                                     <ReactMarkdown className="prose">
                                       {question.question}
                                     </ReactMarkdown>
-                                  </span>
-                                  <span className="label-text-alt">
-                                    Points: {question.points}
                                   </span>
                                 </label>
                                 <div className="rating rating-lg">
@@ -295,7 +300,7 @@ const Judging: NextPage = () => {
                                     render={({
                                       field: { onChange, value },
                                     }) => (
-                                      <>
+                                      <div className="flex flex-col">
                                         <div className="flex gap-2">
                                           {[0, 1, 2, 3].map((score) => (
                                             <button
@@ -321,7 +326,7 @@ const Judging: NextPage = () => {
                                           {value === 3 &&
                                             "3 - Exceptional / Phenomenal"}
                                         </div>
-                                      </>
+                                      </div>
                                     )}
                                   />
                                 </div>
