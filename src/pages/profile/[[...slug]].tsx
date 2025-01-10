@@ -1,5 +1,10 @@
 import { useRouter } from "next/router";
-import { NextApiRequest, NextApiResponse, NextPage } from "next";
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+  NextPage,
+} from "next";
 import Head from "next/head";
 import Drawer from "../../components/Drawer";
 import SocialButtons from "../../components/SocialButtons";
@@ -12,6 +17,7 @@ import Image from "next/image";
 
 interface ProfilePageProps {
   initialState: any; // FIX THIS
+  sesssionUserId: string;
 }
 
 const ProfilePage: NextPage<ProfilePageProps> = (props) => {
@@ -47,6 +53,8 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
 
     initialData: props?.initialState,
   });
+
+  const qrCodeId = id ?? session.data?.user?.id ?? props.sesssionUserId;
 
   return (
     <>
@@ -102,7 +110,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
             <div className="flex flex-col gap-4 w-full md:w-auto ">
               <div className="w-full flex justify-center items-center bg-white rounded-lg p-4 shadow-lg shadow-black/50">
                 <QRCode
-                  value={`${env.NEXT_PUBLIC_URL}/profile/${session.data?.user?.id}`}
+                  value={`${env.NEXT_PUBLIC_URL}/profile/${qrCodeId}`}
                   className="w-full aspect-square h-auto"
                 />
               </div>
@@ -121,7 +129,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   <div className="flex-1 relative">
                     <Link
                       className=" block aspect-[110/35] w-full"
-                      href={`/api/wallet/apple/${id}`}
+                      href={`/api/wallet/apple/${qrCodeId}`}
                     >
                       <Image
                         src="/wallet/apple-badge-en.svg"
@@ -169,8 +177,15 @@ import { Role, User } from "@prisma/client";
 import { Button } from "../../components/Button";
 import Link from "next/link";
 import { ArrowUpLeftIcon, ArrowUpRightIcon } from "lucide-react";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const session = await getServerAuthSession(ctx);
+
+  if (!session || !session.user) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
+
   const id =
     typeof ctx.params?.slug === "string"
       ? ctx.params.slug
@@ -191,6 +206,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   return {
     props: {
       initialState: data,
+      sesssionUserId: session.user.id,
     },
   };
 };
