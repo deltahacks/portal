@@ -47,6 +47,8 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
     initialData: props?.initialState,
   });
 
+  const showCode = id === undefined || id === session.data?.user?.id;
+
   return (
     <>
       <Head>
@@ -64,12 +66,22 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               {user?.DH11Application?.firstName}{" "}
               {user?.DH11Application?.lastName}
             </h1>
-            <ul>
+            <div className="mb-8">
+              {user?.DH11Application?.studyYearOfStudy}{" "}
+              {user?.DH11Application?.studyDegree} <br />
+              {user?.DH11Application?.studyMajor} <br />
+              {user?.DH11Application?.studyLocation}
+            </div>
+            <h2 className="font-bold text-lg text-white">Socials</h2>
+            <ul className="flex flex-col gap-2 mb-8">
               {user?.DH11Application?.socialText.map((socialText, i) => {
                 return (
-                  <li key={i} className="text-white/90 p-2 underline">
-                    <Link href={socialText}>
-                      {socialText.replace("https://", "")}
+                  <li
+                    key={i}
+                    className="dark:text-black/90 text-white/90 bg-black dark:bg-white underline p-2 rounded-md"
+                  >
+                    <Link href={socialText} className="flex items-start gap-1">
+                      {socialText.replace("https://", "")} <ArrowUpRightIcon />
                     </Link>
                   </li>
                 );
@@ -78,34 +90,19 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
           </section>
 
           {/* if they can act, show them action buttons to check-in */}
-          {canAct && (
-            <div>
-              <Button
-                onClick={() => {
-                  alert("This was never implemented ABHAHAHAHAHHAHAHAHAHHAHA");
-                  // trpc.user.checkIn.mutation(id);
-                }}
-              >
-                Check In
-              </Button>
-            </div>
-          )}
 
-          {id === undefined || id === session.data?.user?.id ? (
-            <div className="flex flex-col gap-4 w-full ">
+          {showCode ? (
+            <div className="flex flex-col gap-4 w-full md:w-auto bg-white p-8 ">
               <div className="w-full flex justify-center items-center">
                 <QRCode
                   value={`${env.NEXT_PUBLIC_URL}/profile/${session.data?.user?.id}`}
-                  className="w-full"
+                  className="w-full aspect-square h-auto"
                 />
               </div>
               <div>
-                <div className="flex h-24 w-full gap-4 px-8 *:select-none">
-                  <div className="flex-1">
-                    <Link
-                      className="relative block aspect-[110/35] w-full"
-                      href="#"
-                    >
+                <div className="flex  w-full gap-4 px-8 *:select-none flex-col">
+                  <div className="flex-1 relative">
+                    <Link className=" block aspect-[110/35] w-full" href="#">
                       <Image
                         src="/wallet/google-badge-en.svg"
                         alt="Add to Google Wallet"
@@ -114,9 +111,9 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                       />
                     </Link>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 relative">
                     <Link
-                      className="relative block aspect-[110/35] w-full"
+                      className=" block aspect-[110/35] w-full"
                       href={`/api/wallet/apple/${id}`}
                     >
                       <Image
@@ -131,6 +128,21 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               </div>
             </div>
           ) : null}
+
+          {canAct && (
+            <div className="my-8">
+              Scanner Actions
+              <Button
+                className="w-full my-2"
+                onClick={() => {
+                  alert("This was never implemented ABHAHAHAHAHHAHAHAHAHHAHA");
+                  // trpc.user.checkIn.mutation(id);
+                }}
+              >
+                Check In
+              </Button>
+            </div>
+          )}
         </main>
         <footer className=" bottom-0 right-0 p-5 md:absolute md:bottom-0">
           {/* <SocialButtons /> */}
@@ -149,6 +161,7 @@ import { createContext } from "../../server/router/context";
 import { Role, User } from "@prisma/client";
 import { Button } from "../../components/Button";
 import Link from "next/link";
+import { ArrowUpLeftIcon, ArrowUpRightIcon } from "lucide-react";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const id =
