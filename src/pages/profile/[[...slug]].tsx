@@ -36,7 +36,9 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
   console.log(id);
 
   const session = useSession();
-  const canAct = session.data?.user?.role.includes(Role.GENERAL_SCANNER);
+  const canAct =
+    session.data?.user?.role.includes(Role.GENERAL_SCANNER) ||
+    session.data?.user?.role.includes(Role.ADMIN);
   const showCode = id === undefined || id === session.data?.user?.id;
 
   // fetch details about this user
@@ -53,6 +55,14 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
 
     initialData: props?.initialState,
   });
+
+  const utils = trpc.useUtils();
+  const checkInMutation = trpc.user.checkIn.useMutation({
+    onSettled: () => {
+      utils.user.getProfile.invalidate();
+    },
+  });
+  const userStatus = trpc;
 
   const qrCodeId = id ?? session.data?.user?.id ?? props.sesssionUserId;
 
@@ -148,13 +158,21 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
             <div className="my-8">
               Scanner Actions
               <Button
-                className="w-full my-2"
+                className={clsx("w-full my-2", {
+                  "opacity-50 ": user?.DH11Application?.status === "CHECKED_IN",
+                })}
                 onClick={() => {
-                  alert("This was never implemented ABHAHAHAHAHHAHAHAHAHHAHA");
-                  // trpc.user.checkIn.mutation(id);
+                  checkInMutation.mutate(qrCodeId);
                 }}
+                disabled={user?.DH11Application?.status === "CHECKED_IN"}
               >
-                Check In
+                {checkInMutation.isLoading ? (
+                  <span className="animate-spin">⌛</span>
+                ) : user?.DH11Application?.status === "CHECKED_IN" ? (
+                  "Already Checked In"
+                ) : (
+                  "Check In"
+                )}
               </Button>
             </div>
           )}
@@ -178,6 +196,7 @@ import { Button } from "../../components/Button";
 import Link from "next/link";
 import { ArrowUpLeftIcon, ArrowUpRightIcon } from "lucide-react";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
+import clsx from "clsx";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(ctx);

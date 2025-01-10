@@ -25,12 +25,43 @@ export const userRouter = router({
               studyDegree: true,
               studyYearOfStudy: true,
               studyMajor: true,
+              status: true,
             },
           },
         },
       });
 
       return userData;
+    }),
+
+  checkIn: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // update the DH11Application status to checked in
+
+      // get user
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: input },
+        include: {
+          DH11Application: true,
+        },
+      });
+
+      if (user == null || user == undefined) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      // update the DH11Application status to checked in
+      await ctx.prisma.dH11Application.update({
+        where: { id: user.DH11Application?.id },
+        data: {
+          status: "CHECKED_IN",
+        },
+      });
     }),
 
   byRole: protectedProcedure
