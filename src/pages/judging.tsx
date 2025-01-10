@@ -25,10 +25,20 @@ type TableOption = z.infer<typeof TableOptionSchema>;
 // Add this type for better type safety
 type ScoreType = 0 | 1 | 2 | 3;
 
+const formatTime = (date: Date) => {
+  return new Date(date).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const Judging: NextPage = () => {
   const { control, handleSubmit, reset, register } = useForm();
   // const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null
+  );
 
   const { data: tables, isLoading: tablesLoading } =
     trpc.table.getTables.useQuery();
@@ -38,9 +48,16 @@ const Judging: NextPage = () => {
     data: nextProject,
     refetch: refetchNextProject,
     isSuccess: projectSuccess,
+    isLoading: isProjectLoading,
   } = trpc.project.getNextProject.useQuery(
-    { tableId: selectedTable?.value || "" },
-    { enabled: !!selectedTable }
+    {
+      tableId: selectedTable?.value || "",
+      projectId: selectedProjectId,
+    },
+    {
+      enabled: !!selectedTable,
+      keepPreviousData: true,
+    }
   );
   const generalTrackId = tables?.find(
     (t) => t.track.name.toLowerCase() === "general"
@@ -76,6 +93,32 @@ const Judging: NextPage = () => {
       : []) || []),
   ];
 
+  const { data: tableProjects, refetch: refetchTableProjects } =
+    trpc.table.getTableProjects.useQuery(
+      { tableId: selectedTable?.value || "" },
+      { enabled: !!selectedTable }
+    );
+
+  const { data: existingScores, refetch: refetchExistingScores } =
+    trpc.judging.getProjectScores.useQuery(
+      { projectId: nextProject?.id || "" },
+      { enabled: !!nextProject }
+    );
+
+  useEffect(() => {
+    if (existingScores && nextProject) {
+      // Reset form with existing scores
+      const scores: Record<string, number> = {};
+      existingScores.forEach((response) => {
+        scores[response.questionId] = response.score;
+      });
+      reset({ scores });
+    } else {
+      // Reset form when switching to a new project
+      reset({ scores: {} });
+    }
+  }, [existingScores, nextProject, reset]);
+
   const onSubmit = (data: any) => {
     if (!nextProject?.id) return;
 
@@ -91,8 +134,18 @@ const Judging: NextPage = () => {
       },
       {
         onSuccess: () => {
-          reset();
+          // Only clear selectedProjectId if there are more unjudged projects
+          const hasMoreUnjudgedProjects = tableProjects?.some(
+            (p) => !p.isJudged && p.id !== nextProject.id
+          );
+          if (hasMoreUnjudgedProjects) {
+            setSelectedProjectId(null);
+          }
+          refetchExistingScores();
           refetchNextProject();
+          refetchTableProjects();
+          reset({ scores: {} });
+          // Scroll to top of page
           window.scrollTo({ top: 0, behavior: "smooth" });
         },
       }
@@ -185,120 +238,180 @@ const Judging: NextPage = () => {
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
         <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
-          <main className="static flex flex-col items-center justify-center px-7 py-16 sm:px-14 md:flex-row md:gap-4 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-            <div className="w-full p-4">
-              <h1 className="text-2xl font-bold mb-4">Project Judging</h1>
-
-              <div className="mb-4">
-                <label className="label">
-                  <span className="label-text">Select your table:</span>
-                </label>
-                <Controller
-                  name="table"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      options={tableOptions}
-                      isLoading={tablesLoading}
-                      onChange={(option) => {
-                        field.onChange(option);
-                        setSelectedTable(option as TableOption);
-                      }}
-                      unstyled={true}
-                      classNames={{
-                        control: (state) =>
-                          state.menuIsOpen
-                            ? "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border"
-                            : "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border",
-                        menu: () =>
-                          "dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border -mt-1 rounded-b-lg overflow-hidden",
-                        option: () =>
-                          "p-2 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:hover:bg-neutral-900",
-                        valueContainer: () =>
-                          "dark:text-neutral-500 text-neutral-700 gap-2",
-                        singleValue: () => "dark:text-white text-black",
-                      }}
-                    />
-                  )}
-                />
-              </div>
-
-              {projectSuccess && nextProject && (
-                <div className="rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
-                  <div className="p-4">
-                    <h2 className="text-xl font-bold mb-2">
-                      {nextProject.name}
-                    </h2>
-                    <p className="line-clamp-4">{nextProject.description}</p>
-                    <a
-                      href={nextProject.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link"
-                    >
-                      Project Link
-                    </a>
-
-                    {allQuestions && allQuestions.length > 0 ? (
-                      <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
-                        {/* Track-specific questions */}
-                        {rubricQuestions &&
-                          rubricQuestions.length > 0 &&
-                          tables
-                            ?.find((t) => t.id === selectedTable?.value)
-                            ?.track.name.toLowerCase() !== "general" && (
-                            <QuestionSection
-                              title={`${
-                                tables?.find(
-                                  (t) => t.id === selectedTable?.value
-                                )?.track.name
-                              } Track Questions`}
-                              questions={rubricQuestions}
-                              control={control}
-                              borderColor="primary"
-                            />
-                          )}
-
-                        {/* General questions */}
-                        {(tables
-                          ?.find((t) => t.id === selectedTable?.value)
-                          ?.track.name.toLowerCase() === "general"
-                          ? rubricQuestions
-                          : generalQuestions) && (
-                          <QuestionSection
-                            title={
-                              tables
-                                ?.find((t) => t.id === selectedTable?.value)
-                                ?.track.name.toLowerCase() === "general"
-                                ? "General Track Questions"
-                                : "General Questions"
-                            }
-                            questions={
-                              tables
-                                ?.find((t) => t.id === selectedTable?.value)
-                                ?.track.name.toLowerCase() === "general"
-                                ? rubricQuestions
-                                : generalQuestions
-                            }
-                            control={control}
-                            borderColor="secondary"
-                          />
-                        )}
-
-                        <button type="submit" className="btn btn-primary mt-4">
-                          Submit Judgment
-                        </button>
-                      </form>
-                    ) : (
-                      <div className="mt-4 text-error">
-                        No rubric questions available for this track.
-                      </div>
+          <main className="static flex flex-col items-center justify-center px-7 py-16 sm:px-14 lg:pl-20">
+            <div className="w-full lg:flex lg:gap-8">
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold mb-4">Project Judging</h1>
+                {/* Table selection */}
+                <div className="mb-4">
+                  <label className="label">
+                    <span className="label-text">Select your table:</span>
+                  </label>
+                  <Controller
+                    name="table"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={tableOptions}
+                        isLoading={tablesLoading}
+                        onChange={(option) => {
+                          field.onChange(option);
+                          setSelectedTable(option as TableOption);
+                        }}
+                        unstyled={true}
+                        classNames={{
+                          control: (state) =>
+                            state.menuIsOpen
+                              ? "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border"
+                              : "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border",
+                          menu: () =>
+                            "dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border -mt-1 rounded-b-lg overflow-hidden",
+                          option: () =>
+                            "p-2 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:hover:bg-neutral-900",
+                          valueContainer: () =>
+                            "dark:text-neutral-500 text-neutral-700 gap-2",
+                          singleValue: () => "dark:text-white text-black",
+                        }}
+                      />
                     )}
-                  </div>
+                  />
                 </div>
-              )}
-              {!nextProject && <p>No project left😔</p>}
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Project judging form */}
+                  {selectedTable && nextProject && (
+                    <div className="flex-1 rounded-md h-fit p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
+                      <div
+                        className={`p-4 ${
+                          isProjectLoading ? "opacity-50" : ""
+                        }`}
+                      >
+                        <h2 className="text-xl font-bold mb-2">
+                          {nextProject.name}
+                        </h2>
+                        <p className="line-clamp-4">
+                          {nextProject.description}
+                        </p>
+                        <a
+                          href={nextProject.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="link"
+                        >
+                          Project Link
+                        </a>
+
+                        {allQuestions && allQuestions.length > 0 ? (
+                          <form
+                            onSubmit={handleSubmit(onSubmit)}
+                            className="mt-4"
+                          >
+                            {/* Track-specific questions */}
+                            {rubricQuestions &&
+                              rubricQuestions.length > 0 &&
+                              tables
+                                ?.find((t) => t.id === selectedTable?.value)
+                                ?.track.name.toLowerCase() !== "general" && (
+                                <QuestionSection
+                                  title={`${
+                                    tables?.find(
+                                      (t) => t.id === selectedTable?.value
+                                    )?.track.name
+                                  } Track Questions`}
+                                  questions={rubricQuestions}
+                                  control={control}
+                                  borderColor="primary"
+                                />
+                              )}
+
+                            {/* General questions */}
+                            {(tables
+                              ?.find((t) => t.id === selectedTable?.value)
+                              ?.track.name.toLowerCase() === "general"
+                              ? rubricQuestions
+                              : generalQuestions) && (
+                              <QuestionSection
+                                title={
+                                  tables
+                                    ?.find((t) => t.id === selectedTable?.value)
+                                    ?.track.name.toLowerCase() === "general"
+                                    ? "General Track Questions"
+                                    : "General Questions"
+                                }
+                                questions={
+                                  tables
+                                    ?.find((t) => t.id === selectedTable?.value)
+                                    ?.track.name.toLowerCase() === "general"
+                                    ? rubricQuestions
+                                    : generalQuestions
+                                }
+                                control={control}
+                                borderColor="secondary"
+                              />
+                            )}
+
+                            <button
+                              type="submit"
+                              className="btn btn-primary mt-4"
+                            >
+                              Submit Judgment
+                            </button>
+                          </form>
+                        ) : (
+                          <div className="mt-4 text-error">
+                            No rubric questions available for this track.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Projects list */}
+                  {selectedTable && (
+                    <div className="lg:w-80 h-fit rounded-md border dark:border-neutral-700 divide-y dark:divide-neutral-700 bg-white dark:bg-neutral-800">
+                      {tableProjects?.map((project, index) => (
+                        <button
+                          key={project.id}
+                          onClick={() => {
+                            if (project.id !== nextProject?.id) {
+                              setSelectedProjectId(project.id);
+                            }
+                          }}
+                          className={`w-full p-3 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors
+                            ${index === 0 ? "rounded-t-md" : ""}
+                            ${
+                              index === tableProjects.length - 1
+                                ? "rounded-b-md"
+                                : ""
+                            }
+                            ${
+                              project.id === nextProject?.id
+                                ? "bg-neutral-100 dark:bg-neutral-900"
+                                : ""
+                            }`}
+                        >
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center justify-between">
+                              <span>{project.name}</span>
+                              {project.isJudged && (
+                                <div className="badge badge-success">
+                                  Judged
+                                </div>
+                              )}
+                            </div>
+                            {project.TimeSlot?.[0] && (
+                              <div className="text-sm text-neutral-500">
+                                {formatTime(project.TimeSlot[0].startTime)} -{" "}
+                                {formatTime(project.TimeSlot[0].endTime)}
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </main>
         </Drawer>

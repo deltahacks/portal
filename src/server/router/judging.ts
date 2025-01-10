@@ -156,7 +156,12 @@ export const projectRouter = router({
       return { message: "Tables created successfully" };
     }),
   getNextProject: protectedProcedure
-    .input(z.object({ tableId: z.string() }))
+    .input(
+      z.object({
+        tableId: z.string(),
+        projectId: z.string().nullable(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const dhYearConfig = await ctx.prisma.config.findUnique({
         where: { name: "dhYear" },
@@ -169,6 +174,22 @@ export const projectRouter = router({
         });
       }
 
+      // If a specific project is requested, return it if it belongs to the table
+      if (input.projectId) {
+        const project = await ctx.prisma.project.findFirst({
+          where: {
+            id: input.projectId,
+            TimeSlot: {
+              some: {
+                tableId: input.tableId,
+              },
+            },
+          },
+        });
+        if (project) return project;
+      }
+
+      // Get already judged projects
       const judgedProjects = await ctx.prisma.judgingResult.findMany({
         where: {
           judgeId: ctx.session.user.id,
@@ -177,8 +198,7 @@ export const projectRouter = router({
         select: { projectId: true },
       });
 
-      // Find projects in this track that haven't been judged
-
+      // Find the next unjudged project by time slot order
       const timeSlot = await ctx.prisma.timeSlot.findFirst({
         where: {
           tableId: input.tableId,
@@ -247,7 +267,25 @@ export const tableRouter = router({
   getTableProjects: protectedProcedure
     .input(z.object({ tableId: z.string() }))
     .query(async ({ ctx, input }) => {
-      return ctx.prisma.project.findMany({
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      const judgedProjects = await ctx.prisma.judgingResult.findMany({
+        where: {
+          judgeId: ctx.session.user.id,
+          dhYear: dhYearConfig?.value,
+        },
+        select: {
+          projectId: true,
+        },
+      });
+
+      const judgedProjectIds = new Set(
+        judgedProjects.map((jp) => jp.projectId)
+      );
+
+      const projects = await ctx.prisma.project.findMany({
         where: {
           TimeSlot: {
             some: {
@@ -260,12 +298,24 @@ export const tableRouter = router({
             where: {
               tableId: input.tableId,
             },
+            orderBy: {
+              startTime: "asc",
+            },
           },
         },
-        orderBy: {
-          id: "asc",
-        },
       });
+
+      // Sort projects by their first TimeSlot's startTime
+      const sortedProjects = projects.sort((a, b) => {
+        const aTime = a.TimeSlot[0]?.startTime.getTime() ?? 0;
+        const bTime = b.TimeSlot[0]?.startTime.getTime() ?? 0;
+        return aTime - bTime;
+      });
+
+      return sortedProjects.map((project) => ({
+        ...project,
+        isJudged: judgedProjectIds.has(project.id),
+      }));
     }),
 });
 
@@ -322,16 +372,25 @@ export const judgingRouter = router({
         },
       });
 
-      if (existingResult) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "You have already judged this project",
-        });
-      }
-
-      // Create the judging result and its responses in a transaction
       return ctx.prisma.$transaction(async (tx) => {
-        // Create the judging result
+        if (existingResult) {
+          // Update existing responses
+          await tx.rubricResponse.deleteMany({
+            where: { judgingResultId: existingResult.id },
+          });
+
+          await tx.rubricResponse.createMany({
+            data: input.responses.map((response) => ({
+              judgingResultId: existingResult.id,
+              questionId: response.questionId,
+              score: response.score,
+            })),
+          });
+
+          return existingResult;
+        }
+
+        // Create new judgment if none exists
         const judgingResult = await tx.judgingResult.create({
           data: {
             judgeId: ctx.session.user.id,
@@ -340,7 +399,6 @@ export const judgingRouter = router({
           },
         });
 
-        // Create all rubric responses
         await tx.rubricResponse.createMany({
           data: input.responses.map((response) => ({
             judgingResultId: judgingResult.id,
@@ -351,6 +409,25 @@ export const judgingRouter = router({
 
         return judgingResult;
       });
+    }),
+
+  // Get existing scores
+  getProjectScores: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.prisma.judgingResult.findUnique({
+        where: {
+          judgeId_projectId: {
+            judgeId: ctx.session.user.id,
+            projectId: input.projectId,
+          },
+        },
+        include: {
+          responses: true,
+        },
+      });
+
+      return result?.responses || [];
     }),
   createRubricQuestion: protectedProcedure
     .input(
