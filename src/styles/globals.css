@@ -64,7 +64,11 @@ video {
 .checked-checkbox {
   background-repeat: no-repeat;
   animation: checkmark var(--animation-input, 0.2s) ease-out;
-  background-image: linear-gradient(-45deg, transparent 65%, var(--chkbg) 65.99%),
+  background-image: linear-gradient(
+      -45deg,
+      transparent 65%,
+      var(--chkbg) 65.99%
+    ),
     linear-gradient(45deg, transparent 75%, var(--chkbg) 75.99%),
     linear-gradient(-45deg, var(--chkbg) 40%, transparent 40.99%),
     linear-gradient(
@@ -75,4 +79,32 @@ video {
       transparent 40.99%
     ),
     linear-gradient(-45deg, var(--chkfg) 50%, var(--chkbg) 50.99%);
+}
+
+/* -Cool rainbow button border */
+
+.rainbow-border {
+  position: relative;
+  border-image: linear-gradient(
+      90deg,
+      #0099ff 0%,
+      #ffbb00 49%,
+      #ff3333 80%,
+      #0099ff 100%
+    )
+    1;
+  animation: slidebg 2s linear infinite;
+}
+
+@keyframes slidebg {
+  to {
+    border-image: linear-gradient(
+        90deg,
+        #0099ff 100%,
+        #0099ff 0%,
+        #ffbb00 49%,
+        #ff3333 80%
+      )
+      1;
+  }
 }

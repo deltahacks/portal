@@ -363,7 +363,8 @@ const RSVPed: React.FC = () => {
         </span>
         , looking forward to seeing you at the hackathon!
       </h1>
-      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+
+      {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to inform you that your registration for DeltaHacks XI
         has been confirmed. Please look for an Attendee Package in your email
         with important information about the event in the coming days.
@@ -381,21 +382,25 @@ const RSVPed: React.FC = () => {
         </span>{" "}
         Please regularly check your email for updates and more information. We
         look forward to seeing you there!
-      </h2>
+      </h2> */}
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        If you have any questions, you can <br />
-        reach us at{" "}
+        If you have any questions, you can reach us at{" "}
         <a href="mailto: hello@deltahacks.com" className="text-sky-400">
           hello@deltahacks.com
         </a>
       </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        <Button className="btn rainbow-border border-4 rounded-sm w-full mb-4 md:w-48 hover:bg-zinc-700 text-base font-medium capitalize">
+          <Link className="w-full md:w-48 " href="/profile">
+            Check-In QR Code
+          </Link>
+        </Button>
+        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
             FAQ
           </Link>
         </Button>
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="https://discord.gg/22ddpvfwXn"
@@ -404,12 +409,12 @@ const RSVPed: React.FC = () => {
             Discord
           </Link>
         </Button>
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
         </Button>
-        <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="https://drive.google.com/file/d/1MzRExOJT-OasMVAaDxbvb1kTNmFzJ28E/view?usp=sharing"

@@ -5,6 +5,30 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
 
 export const userRouter = router({
+  getProfile: protectedProcedure
+    .input(z.string().optional())
+    .query(async ({ ctx, input: id }) => {
+      if (id == null) {
+        id = ctx.session.user.id;
+      }
+
+      const userData = await ctx.prisma?.user.findFirst({
+        where: { id },
+        include: {
+          DH11Application: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              socialText: true,
+            },
+          },
+        },
+      });
+
+      return userData;
+    }),
+
   byRole: protectedProcedure
     .input(z.object({ role: z.nullable(z.nativeEnum(Role)) }))
     .query(async ({ ctx, input }) => {
