@@ -162,69 +162,70 @@ const Judging: NextPage = () => {
     title,
     questions,
     control,
-    borderColor,
   }: {
     title: string;
     questions: typeof rubricQuestions;
     control: any;
-    borderColor: string;
   }) => (
-    <div className="mb-8">
-      <h3
-        className={`text-lg font-bold mb-4 p-3 border-l-4 border-${borderColor} bg-base-200 rounded-r`}
-      >
-        {title}
-      </h3>
-      {questions?.map((question, index) => (
-        <div key={question.id}>
-          {index > 0 && <hr className="my-6 border-neutral-700" />}
-          <div className="form-control mb-4">
-            <label className="label">
-              <span className="label-text">
-                <div className="mb-1">
-                  <span className="font-bold">{question.title}</span>
-                  <span> • {question.points} points</span>
+    <div className="mt-6">
+      <h3 className="text-xl font-bold mb-2">{title}</h3>
+      <div className="space-y-4">
+        {questions?.map((question) => (
+          <div key={question.id} className="card bg-base-200 shadow-sm">
+            <div className="card-body p-4 sm:p-8 gap-4">
+              {/* Question header with points */}
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold">{question.title}</h4>
+                <div className="badge badge-neutral whitespace-nowrap">
+                  {question.points} points
                 </div>
-                <ReactMarkdown className="prose">
-                  {question.question}
-                </ReactMarkdown>
-              </span>
-            </label>
-            <div className="rating rating-lg">
-              <Controller
-                name={`scores.${question.id}`}
-                control={control}
-                defaultValue={0}
-                rules={{ required: true }}
-                render={({ field: { onChange, value } }) => (
-                  <div className="flex flex-col">
-                    <div className="flex gap-2">
-                      {[0, 1, 2, 3].map((score) => (
-                        <button
-                          key={score}
-                          type="button"
-                          className={`btn aspect-square rounded-xl p-0 ${
-                            value === score ? "btn-primary" : "btn-outline"
-                          }`}
-                          onClick={() => onChange(score)}
-                        >
-                          {score}
-                        </button>
-                      ))}
+              </div>
+
+              {/* Main question text */}
+              <div className="prose prose-lg max-w-none">
+                <ReactMarkdown>{question.question}</ReactMarkdown>
+              </div>
+
+              {/* Scoring section */}
+              <div className="pt-2">
+                <div className="text-sm font-semibold text-neutral-500 mb-2">
+                  Score:
+                </div>
+                <Controller
+                  name={`scores.${question.id}`}
+                  control={control}
+                  defaultValue={0}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <div className="flex flex-col">
+                      <div className="flex gap-2 sm:gap-3">
+                        {[0, 1, 2, 3].map((score) => (
+                          <button
+                            key={score}
+                            type="button"
+                            className={`btn sm:btn-md aspect-square rounded-xl p-0 ${
+                              value === score ? "btn-primary" : "btn-outline"
+                            }`}
+                            onClick={() => onChange(score)}
+                          >
+                            {score}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mt-2 text-sm text-neutral-500">
+                        {value === 0 && "0 - Ineffective / Bad"}
+                        {value === 1 && "1 - Limited / Okay"}
+                        {value === 2 && "2 - Functional / Good"}
+                        {value === 3 && "3 - Exceptional / Phenomenal"}
+                      </div>
                     </div>
-                    <div className="mt-2 text-sm text-neutral-500">
-                      {value === 0 && "0 - Ineffective / Bad"}
-                      {value === 1 && "1 - Limited / Okay"}
-                      {value === 2 && "2 - Functional / Good"}
-                      {value === 3 && "3 - Exceptional / Phenomenal"}
-                    </div>
-                  </div>
-                )}
-              />
+                  )}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 
@@ -238,7 +239,7 @@ const Judging: NextPage = () => {
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
         <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
-          <main className="static flex flex-col items-center justify-center px-7 py-16 sm:px-14 lg:pl-20">
+          <main className="static flex flex-col items-center justify-center px-4 py-8 sm:px-14 lg:pl-20 sm:py-16">
             <div className="w-full lg:flex lg:gap-8">
               <div className="flex-1">
                 <h1 className="text-2xl font-bold mb-4">Project Judging</h1>
@@ -280,32 +281,48 @@ const Judging: NextPage = () => {
                 <div className="flex flex-col lg:flex-row gap-4">
                   {/* Project judging form */}
                   {selectedTable && nextProject && (
-                    <div className="flex-1 rounded-md h-fit p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
+                    <div className="flex-1 rounded-md h-fit p-3 sm:p-6 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
                       <div
-                        className={`p-4 ${
-                          isProjectLoading ? "opacity-50" : ""
-                        }`}
+                        className={`${isProjectLoading ? "opacity-50" : ""}`}
                       >
-                        <h2 className="text-xl font-bold mb-2">
-                          {nextProject.name}
-                        </h2>
-                        <p className="line-clamp-4">
-                          {nextProject.description}
-                        </p>
-                        <a
-                          href={nextProject.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="link"
-                        >
-                          Project Link
-                        </a>
+                        <div className="card bg-base-200">
+                          <div className="card-body p-4 sm:p-8">
+                            <div>
+                              <div className="text-sm font-semibold text-neutral-500">
+                                Project Name
+                              </div>
+                              <h2 className="card-title text-2xl">
+                                {nextProject.name}
+                              </h2>
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold text-neutral-500">
+                                Project Link
+                              </div>
+                              <a
+                                href={nextProject.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="link break-all"
+                              >
+                                {nextProject.link || "No link available"}
+                              </a>
+                            </div>
+                            <div className="">
+                              <div className="text-sm font-semibold text-neutral-500">
+                                Project Description
+                              </div>
+                              <p className="">
+                                {nextProject.description ||
+                                  "No description available"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
 
+                        {/* Rest of the form */}
                         {allQuestions && allQuestions.length > 0 ? (
-                          <form
-                            onSubmit={handleSubmit(onSubmit)}
-                            className="mt-4"
-                          >
+                          <form onSubmit={handleSubmit(onSubmit)}>
                             {/* Track-specific questions */}
                             {rubricQuestions &&
                               rubricQuestions.length > 0 &&
@@ -320,7 +337,6 @@ const Judging: NextPage = () => {
                                   } Track Questions`}
                                   questions={rubricQuestions}
                                   control={control}
-                                  borderColor="primary"
                                 />
                               )}
 
@@ -346,13 +362,12 @@ const Judging: NextPage = () => {
                                     : generalQuestions
                                 }
                                 control={control}
-                                borderColor="secondary"
                               />
                             )}
 
                             <button
                               type="submit"
-                              className="btn btn-primary mt-4"
+                              className="btn btn-primary mt-8"
                             >
                               Submit Judgment
                             </button>
