@@ -99,6 +99,7 @@ const Judging: NextPage = () => {
       { tableId: selectedTable?.value || "" },
       { enabled: !!selectedTable }
     );
+  console.log(tableProjects);
 
   const { data: existingScores, refetch: refetchExistingScores } =
     trpc.judging.getProjectScores.useQuery(
@@ -381,7 +382,11 @@ const Judging: NextPage = () => {
                               type="submit"
                               className="btn btn-primary mt-8"
                             >
-                              Submit Judgment
+                              {tableProjects?.find(
+                                (t) => t.id === selectedProjectId
+                              )?.isJudged
+                                ? "Update Judgment"
+                                : "Submit Judgement"}
                             </button>
                           </form>
                         ) : (
