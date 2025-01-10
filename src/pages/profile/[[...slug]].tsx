@@ -31,6 +31,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
 
   const session = useSession();
   const canAct = session.data?.user?.role.includes(Role.GENERAL_SCANNER);
+  const showCode = id === undefined || id === session.data?.user?.id;
 
   // fetch details about this user
 
@@ -47,8 +48,6 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
     initialData: props?.initialState,
   });
 
-  const showCode = id === undefined || id === session.data?.user?.id;
-
   return (
     <>
       <Head>
@@ -60,9 +59,9 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
           { pageName: "Schedule", link: "/schedule" },
         ]}
       >
-        <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
+        <main className="px-7 py-8 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
           <section>
-            <h1 className="font-bold text-2xl text-white">
+            <h1 className="font-bold text-2xl dark:text-white ">
               {user?.DH11Application?.firstName}{" "}
               {user?.DH11Application?.lastName}
             </h1>
@@ -72,35 +71,43 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               {user?.DH11Application?.studyMajor} <br />
               {user?.DH11Application?.studyLocation}
             </div>
-            <h2 className="font-bold text-lg text-white">Socials</h2>
-            <ul className="flex flex-col gap-2 mb-8">
-              {user?.DH11Application?.socialText.map((socialText, i) => {
-                return (
-                  <li
-                    key={i}
-                    className="dark:text-black/90 text-white/90 bg-black dark:bg-white underline p-2 rounded-md"
-                  >
-                    <Link href={socialText} className="flex items-start gap-1">
-                      {socialText.replace("https://", "")} <ArrowUpRightIcon />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            {!showCode ? (
+              <>
+                <h2 className="font-bold text-lg dark:text-white">Socials</h2>
+                <ul className="flex flex-col gap-2 mb-8">
+                  {user?.DH11Application?.socialText.map((socialText, i) => {
+                    return (
+                      <li
+                        key={i}
+                        className="dark:text-black/90 text-white/90 bg-black dark:bg-white underline p-2 rounded-md"
+                      >
+                        <Link
+                          href={socialText}
+                          className="flex items-start gap-1"
+                        >
+                          {socialText.replace("https://", "")}{" "}
+                          <ArrowUpRightIcon />
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            ) : null}
           </section>
 
           {/* if they can act, show them action buttons to check-in */}
 
           {showCode ? (
-            <div className="flex flex-col gap-4 w-full md:w-auto bg-white p-8 ">
-              <div className="w-full flex justify-center items-center">
+            <div className="flex flex-col gap-4 w-full md:w-auto ">
+              <div className="w-full flex justify-center items-center bg-white rounded-lg p-4 shadow-lg shadow-black/50">
                 <QRCode
                   value={`${env.NEXT_PUBLIC_URL}/profile/${session.data?.user?.id}`}
                   className="w-full aspect-square h-auto"
                 />
               </div>
               <div>
-                <div className="flex  w-full gap-4 px-8 *:select-none flex-col">
+                <div className="flex  w-full gap-4  *:select-none ">
                   <div className="flex-1 relative">
                     <Link className=" block aspect-[110/35] w-full" href="#">
                       <Image
