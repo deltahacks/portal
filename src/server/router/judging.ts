@@ -215,6 +215,19 @@ export const projectRouter = router({
         },
       });
 
+      // If all projects have been judged, return the first project
+      if (!timeSlot) {
+        return ctx.prisma.project.findFirst({
+          where: {
+            TimeSlot: {
+              some: {
+                tableId: input.tableId,
+              },
+            },
+          },
+        });
+      }
+
       return timeSlot?.project;
     }),
   getAllProjects: protectedProcedure.query(async ({ ctx }) => {
