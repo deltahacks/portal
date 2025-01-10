@@ -44,6 +44,7 @@ const Judging: NextPage = () => {
     trpc.table.getTables.useQuery();
   const { mutate: submitJudgment } =
     trpc.judging.createJudgingResult.useMutation();
+  // TODO: Change this endpoint to only handle one thing, not filtering on projectId
   const {
     data: nextProject,
     refetch: refetchNextProject,
@@ -280,7 +281,18 @@ const Judging: NextPage = () => {
                 </div>
                 <div className="flex flex-col lg:flex-row gap-4">
                   {/* Project judging form */}
-                  {selectedTable && nextProject && (
+                  {!nextProject && (
+                    /* Placeholder for no projects */
+
+                    <div className="flex-1 rounded-md h-fit p-3 sm:p-6 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
+                      <h1>No projects available</h1>
+                      <p className="text-neutral-500">
+                        There are no more projects available for judging at this
+                        time.
+                      </p>
+                    </div>
+                  )}
+                  {nextProject && selectedTable && (
                     <div className="flex-1 rounded-md h-fit p-3 sm:p-6 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
                       <div
                         className={`${isProjectLoading ? "opacity-50" : ""}`}
