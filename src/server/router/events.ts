@@ -8,7 +8,7 @@ export const eventsRouter = router({
   checkin: protectedProcedure
     .input(
       z.object({
-        qrcode: z.number(),
+        userId: z.string(),
         eventName: z.string(),
       })
     )
@@ -22,7 +22,7 @@ export const eventsRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const user = await ctx.prisma.user.findFirst({
-        where: { qrcode: input.qrcode },
+        where: { id: input.userId },
       });
 
       if (user === null || user === undefined) {
