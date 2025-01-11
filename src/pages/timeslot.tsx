@@ -16,7 +16,7 @@ const TimeslotPage: NextPage = () => {
     { projectId: selectedProject?.value ?? "" },
     { enabled: !!selectedProject }
   );
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   const projectOptions =
     projects?.map((project) => ({
@@ -25,6 +25,8 @@ const TimeslotPage: NextPage = () => {
     })) || [];
 
   useEffect(() => {
+    setCurrentTime(new Date());
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -45,7 +47,7 @@ const TimeslotPage: NextPage = () => {
                 Find Your Presentation Time
               </h1>
               <span className="text-lg md:text-2xl text-gray-600 dark:text-gray-400">
-                {currentTime.toLocaleTimeString("en-US", {
+                {currentTime?.toLocaleTimeString("en-US", {
                   hour: "numeric",
                   minute: "2-digit",
                   second: "2-digit",
