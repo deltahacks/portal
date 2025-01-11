@@ -43,10 +43,83 @@ export const GET = async (
   try {
     /** Each, but last, can be either a string or a Buffer. See API Documentation for more */
 
-    const wwdr = env.APPLE_WWDR;
-    const signerCert = env.APPLE_SIGNER_CERT;
-    const signerKey = env.APPLE_SIGNER_KEY;
-    const signerKeyPassphrase = env.APPLE_SIGNER_KEY_PASSPHRASE;
+    // const wwdr = env.APPLE_WWDR;
+    // const signerCert = env.APPLE_SIGNER_CERT;
+    // const signerKey = env.APPLE_SIGNER_KEY;
+    // const signerKeyPassphrase = env.APPLE_SIGNER_KEY_PASSPHRASE;
+
+    // await prisma.config.create({
+    //   data: {
+    //     name: "APPLE_WWDR",
+    //     value: wwdr,
+    //   },
+    // });
+
+    // await prisma.config.create({
+    //   data: {
+    //     name: "APPLE_SIGNER_CERT",
+    //     value: signerCert,
+    //   },
+    // });
+
+    // await prisma.config.create({
+    //   data: {
+    //     name: "APPLE_SIGNER_KEY",
+    //     value: signerKey,
+    //   },
+    // });
+
+    // await prisma.config.create({
+    //   data: {
+    //     name: "APPLE_SIGNER_KEY_PASSPHRASE",
+    //     value: signerKeyPassphrase,
+    //   },
+    // });
+
+    // throw new Error("Not implemented");
+
+    const wwdr = (
+      await prisma.config.findFirst({
+        where: {
+          name: "APPLE_WWDR",
+        },
+      })
+    )?.value;
+
+    const signerCert = (
+      await prisma.config.findFirst({
+        where: {
+          name: "APPLE_SIGNER_CERT",
+        },
+      })
+    )?.value;
+
+    const signerKey = (
+      await prisma.config.findFirst({
+        where: {
+          name: "APPLE_SIGNER_KEY",
+        },
+      })
+    )?.value;
+
+    const signerKeyPassphrase = (
+      await prisma.config.findFirst({
+        where: {
+          name: "APPLE_SIGNER_KEY_PASSPHRASE",
+        },
+      })
+    )?.value;
+
+    console.log("IS WWDR SAME?", wwdr === env.APPLE_WWDR);
+    console.log(wwdr);
+    console.log(env.APPLE_WWDR);
+    console.log("=================================");
+    console.log("IS SIGNER CERT SAME?", signerCert === env.APPLE_SIGNER_CERT);
+    console.log("IS SIGNER KEY SAME?", signerKey === env.APPLE_SIGNER_KEY);
+    console.log(
+      "IS SIGNER KEY PASS SAME?",
+      signerKeyPassphrase === env.APPLE_SIGNER_KEY_PASSPHRASE
+    );
 
     // const { wwdr, signerCert, signerKey, signerKeyPassphrase } = getCertificatesContentsSomehow();
 

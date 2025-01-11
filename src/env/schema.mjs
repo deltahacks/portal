@@ -42,10 +42,10 @@ export const serverSchema = z.object({
   R2_BUCKET_NAME: z.string(),
 
   // Apple Wallet Configuration
-  APPLE_WWDR: z.string(),
-  APPLE_SIGNER_CERT: z.string(),
-  APPLE_SIGNER_KEY: z.string(),
-  APPLE_SIGNER_KEY_PASSPHRASE: z.string(),
+  // APPLE_WWDR: z.string(),
+  // APPLE_SIGNER_CERT: z.string(),
+  // APPLE_SIGNER_KEY: z.string(),
+  // APPLE_SIGNER_KEY_PASSPHRASE: z.string(),
 });
 
 /**
