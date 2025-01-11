@@ -99,7 +99,6 @@ const Judging: NextPage = () => {
       { tableId: selectedTable?.value || "" },
       { enabled: !!selectedTable }
     );
-  console.log(tableProjects);
 
   const { data: existingScores, refetch: refetchExistingScores } =
     trpc.judging.getProjectScores.useQuery(
