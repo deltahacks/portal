@@ -401,18 +401,18 @@ const EventsView: React.FC = () => {
 
   const eCheckIn = trpc.events.checkin.useMutation();
 
-  useEffect(() => {
-    const asdf = async () => {
-      console.log(QRCode, selected);
-      if (!Number.isNaN(parseInt(QRCode)) && selected) {
-        await eCheckIn.mutateAsync({
-          qrcode: parseInt(QRCode),
-          eventName: selected,
-        });
-      }
-    };
-    asdf();
-  }, [QRCode, selected, eCheckIn]);
+  // useEffect(() => {
+  //   const asdf = async () => {
+  //     console.log(QRCode, selected);
+  //     if (!Number.isNaN(parseInt(QRCode)) && selected) {
+  //       await eCheckIn.mutateAsync({
+  //         qrcode: parseInt(QRCode),
+  //         eventName: selected,
+  //       });
+  //     }
+  //   };
+  //   asdf();
+  // }, [QRCode, selected, eCheckIn]);
 
   return (
     <div>

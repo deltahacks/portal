@@ -14,14 +14,20 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",
     "next-auth.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "**/*.js"
+    "**/*.js",
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

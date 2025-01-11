@@ -259,44 +259,6 @@ export const applicationRouter = router({
         },
       });
     }),
-  getUser: protectedProcedure.query(async ({ ctx }) => {
-    // find their typeform response id
-    const user = await ctx.prisma.user.findFirst({
-      where: { id: ctx.session.user.id },
-    });
-
-    if (
-      user?.typeform_response_id === null ||
-      user?.typeform_response_id === undefined
-    ) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
-
-    const url = `https://api.typeform.com/forms/MVo09hRB/responses?included_response_ids=${user.typeform_response_id}`;
-    const res = await fetch(url, options);
-    const data: TypeFormResponse = await res.json();
-
-    const converted: TypeFormSubmissionTruncated[] = data.items.map((item) => {
-      const responsePreprocessing = new Map<string, TypeFormResponseField>();
-      for (const answer of item.answers) {
-        responsePreprocessing.set(answer.field.id, answer);
-      }
-
-      return {
-        response_id: item.response_id,
-        firstName: responsePreprocessing.get("nfGel41KT3dP")?.text ?? "N/A",
-        lastName: responsePreprocessing.get("mwP5oTr2JHgD")?.text ?? "N/A",
-        birthday: new Date(
-          responsePreprocessing.get("m7lNzS2BDhp1")?.date ?? "1000-01-01"
-        ),
-      };
-    });
-    // Convert from TypeFormResponse to TypeFormSubmission
-    return {
-      typeform: converted[0],
-      mealData: { lastMeal: user.lastMealTaken, mealsTaken: user.mealsTaken },
-    };
-  }),
   socialInfo: protectedProcedure
     .input(z.number())
     .query(async ({ ctx, input }) => {

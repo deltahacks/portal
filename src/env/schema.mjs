@@ -6,10 +6,17 @@ import { z } from "zod";
  * This way you can ensure the app isn't built with invalid env vars.
  */
 export const serverSchema = z.object({
+  // Database
   DATABASE_URL: z.string().url(),
+
+  // Environment
   NODE_ENV: z.enum(["development", "test", "production"]),
+
+  // Authentication
   NEXTAUTH_SECRET: z.string(),
   NEXTAUTH_URL: z.string().url(),
+
+  // OAuth Providers
   DISCORD_CLIENT_ID: z.string(),
   DISCORD_CLIENT_SECRET: z.string(),
   GOOGLE_CLIENT_ID: z.string(),
@@ -18,17 +25,27 @@ export const serverSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string(),
   LINKEDIN_CLIENT_ID: z.string(),
   LINKEDIN_CLIENT_SECRET: z.string(),
-  TYPEFORM_API_KEY: z.string(),
-  SENDGRID_API_KEY: z.string(),
   AZURE_AD_CLIENT_ID: z.string(),
   AZURE_AD_CLIENT_SECRET: z.string(),
   AZURE_AD_TENANT_ID: z.string(),
+
+  // External Services
+  TYPEFORM_API_KEY: z.string(),
+  SENDGRID_API_KEY: z.string(),
   LOGSNAG_TOKEN: z.string(),
+  POSTHOG_KEY: z.string(),
+
+  // Cloud Storage (R2)
   R2_ACCOUNT_ID: z.string(),
   R2_ACCESS_KEY_ID: z.string(),
   R2_SECRET_KEY_ID: z.string(),
   R2_BUCKET_NAME: z.string(),
-  POSTHOG_KEY: z.string(),
+
+  // Apple Wallet Configuration
+  // APPLE_WWDR: z.string(),
+  // APPLE_SIGNER_CERT: z.string(),
+  // APPLE_SIGNER_KEY: z.string(),
+  // APPLE_SIGNER_KEY_PASSPHRASE: z.string(),
 });
 
 /**
