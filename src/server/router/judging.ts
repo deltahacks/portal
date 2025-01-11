@@ -116,9 +116,7 @@ export const projectRouter = router({
       }
     }),
   createTables: protectedProcedure
-    .input(
-      z.object({ projectsPerTable: z.number().min(1).max(20).default(10) })
-    )
+    .input(z.object({ projectsPerTable: z.number().min(1).max(25) }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
