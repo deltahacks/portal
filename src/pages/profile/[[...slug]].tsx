@@ -213,7 +213,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               </div>
               <div>
                 <div className="flex  w-full gap-4  *:select-none ">
-                  <div className="flex-1 relative">
+                  {/* <div className="flex-1 relative">
                     <Link className=" block aspect-[110/35] w-full" href="#">
                       <Image
                         src="/wallet/google-badge-en.svg"
@@ -222,7 +222,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                         className="pointer-events-none"
                       />
                     </Link>
-                  </div>
+                  </div> */}
                   <div className="flex-1 relative">
                     <Link
                       className=" block aspect-[110/35] w-full"
