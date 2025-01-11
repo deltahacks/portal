@@ -5,6 +5,65 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./trpc";
 
 export const userRouter = router({
+  getProfile: protectedProcedure
+    .input(z.string().optional())
+    .query(async ({ ctx, input: id }) => {
+      if (id == null) {
+        id = ctx.session.user.id;
+      }
+
+      const userData = await ctx.prisma?.user.findFirst({
+        where: { id },
+        include: {
+          DH11Application: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              socialText: true,
+              studyLocation: true,
+              studyDegree: true,
+              studyYearOfStudy: true,
+              studyMajor: true,
+              status: true,
+            },
+          },
+        },
+      });
+
+      return userData;
+    }),
+
+  checkIn: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // update the DH11Application status to checked in
+
+      // get user
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: input },
+        include: {
+          DH11Application: true,
+        },
+      });
+
+      if (user == null || user == undefined) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      // update the DH11Application status to checked in
+      await ctx.prisma.dH11Application.update({
+        where: { id: user.DH11Application?.id },
+        data: {
+          status: "CHECKED_IN",
+        },
+      });
+    }),
+
   byRole: protectedProcedure
     .input(z.object({ role: z.nullable(z.nativeEnum(Role)) }))
     .query(async ({ ctx, input }) => {
