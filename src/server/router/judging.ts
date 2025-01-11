@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "./trpc";
 import { TRPCError } from "@trpc/server";
+import { Role } from "@prisma/client";
 
 export const projectRouter = router({
   uploadProjects: protectedProcedure
@@ -15,6 +16,9 @@ export const projectRouter = router({
       )
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       try {
         // Get current dhYear from Config
         const dhYearConfig = await ctx.prisma.config.findUnique({
@@ -116,6 +120,9 @@ export const projectRouter = router({
       z.object({ projectsPerTable: z.number().min(1).max(20).default(10) })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       // First, clear existing tables and time slots
       await ctx.prisma.timeSlot.deleteMany();
       await ctx.prisma.table.deleteMany();
@@ -163,6 +170,15 @@ export const projectRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.JUDGE)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
       const dhYearConfig = await ctx.prisma.config.findUnique({
         where: { name: "dhYear" },
       });
@@ -222,6 +238,7 @@ export const projectRouter = router({
       return timeSlot?.project;
     }),
   getAllProjects: protectedProcedure.query(async ({ ctx }) => {
+    // we should make sure only accepted users can access this
     const dhYearConfig = await ctx.prisma.config.findUnique({
       where: { name: "dhYear" },
     });
@@ -331,6 +348,9 @@ export const trackRouter = router({
   createTrack: protectedProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       const createdTrack = ctx.prisma.track.create({
         data: {
           name: input.name,
@@ -354,6 +374,14 @@ export const judgingRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.JUDGE)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       // Get current dhYear from Config
       const dhYearConfig = await ctx.prisma.config.findUnique({
         where: { name: "dhYear" },
@@ -419,6 +447,9 @@ export const judgingRouter = router({
   getProjectScores: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       const result = await ctx.prisma.judgingResult.findUnique({
         where: {
           judgeId_projectId: {
@@ -443,12 +474,8 @@ export const judgingRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Verify user is an admin
-      if (!ctx.session.user.role?.includes("ADMIN")) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Only admins can create rubric questions",
-        });
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
       // Create the rubric question
@@ -469,6 +496,14 @@ export const judgingRouter = router({
   getRubricQuestions: protectedProcedure
     .input(z.object({ trackId: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.JUDGE)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.prisma.rubricQuestion.findMany({
         where: {
           trackId: input.trackId,
@@ -479,6 +514,9 @@ export const judgingRouter = router({
       });
     }),
   getLeaderboard: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.session.user.role.includes(Role.ADMIN)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
     // Get current dhYear from Config
     const dhYearConfig = await ctx.prisma.config.findUnique({
       where: { name: "dhYear" },
@@ -548,9 +586,31 @@ export const timeSlotRouter = router({
   getTableTimeSlots: protectedProcedure
     .input(z.object({ tableId: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.JUDGE)
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // Get current dhYear from Config
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
       return ctx.prisma.timeSlot.findMany({
         where: {
           tableId: input.tableId,
+          dhYear: dhYearConfig.value,
         },
         include: {
           project: true,
@@ -568,6 +628,9 @@ export const timeSlotRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       // Get current dhYear from Config
       const dhYearConfig = await ctx.prisma.config.findUnique({
         where: { name: "dhYear" },
@@ -792,6 +855,14 @@ export const timeSlotRouter = router({
       };
     }),
   getAllTimeSlots: protectedProcedure.query(async ({ ctx }) => {
+    if (
+      !(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.JUDGE)
+      )
+    ) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
     const timeSlots = await ctx.prisma.timeSlot.findMany({
       select: {
         startTime: true,
@@ -804,39 +875,12 @@ export const timeSlotRouter = router({
     });
     return timeSlots;
   }),
-  getJudgingDuration: protectedProcedure.query(async ({ ctx }) => {
-    // Get first non-MLH timeslot to find start time
-    const firstSlot = await ctx.prisma.timeSlot.findFirst({
-      where: {
-        table: {
-          track: {
-            name: {
-              not: "MLH",
-            },
-          },
-        },
-      },
-      orderBy: {
-        startTime: "asc",
-      },
-      include: {
-        table: {
-          include: {
-            track: true,
-          },
-        },
-      },
-    });
-    if (firstSlot) {
-      return (
-        (firstSlot.endTime.getTime() - firstSlot.startTime.getTime()) /
-        (1000 * 60)
-      );
-    }
-  }),
   getAssignmentsAtTime: protectedProcedure
     .input(z.object({ time: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       const assignments = await ctx.prisma.timeSlot.findMany({
         where: {
           startTime: new Date(input.time),
