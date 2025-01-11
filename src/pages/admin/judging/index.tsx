@@ -20,6 +20,7 @@ const JudgingPage: React.FC = () => {
   const [judgingDuration, setJudgingDuration] = React.useState<string>("");
   const [endTime, setEndTime] = React.useState<string>("");
   const [numTables, setNumTables] = React.useState<number | null>(null);
+  const [projectsPerTable, setProjectsPerTable] = React.useState<number>(10);
 
   const createTables = trpc.project.createTables.useMutation({
     onSuccess: () => {
@@ -115,9 +116,28 @@ const JudgingPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Table Configuration */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium">
+                        Projects per Table: {projectsPerTable}
+                      </span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="25"
+                      value={projectsPerTable}
+                      onChange={(e) =>
+                        setProjectsPerTable(Number(e.target.value))
+                      }
+                      className="range range-primary"
+                    />
+                  </div>
+
                   {/* Action Button */}
                   <button
-                    onClick={() => createTables.mutate({})}
+                    onClick={() => createTables.mutate({ projectsPerTable })}
                     disabled={
                       createTables.isLoading || createTimeSlots.isLoading
                     }
