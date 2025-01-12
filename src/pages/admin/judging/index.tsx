@@ -87,7 +87,7 @@ const JudgingPage: React.FC = () => {
                 <h2 className="card-title justify-center mb-4">
                   Import Project Data
                 </h2>
-                <CSVUploader csvProcessor={new DoraHacksCSVProcessor()} />
+                <CSVUploader csvProcessor={new DevpostCSVProcessor()} />
               </div>
             </section>
 

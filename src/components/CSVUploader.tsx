@@ -22,7 +22,7 @@ export const CSVUploader: React.FC<CSVUploaderProps> = ({ csvProcessor }) => {
             );
           })
           .filter((obj) => {
-            return obj.name !== "Untitled" && obj.tracks.length > 0;
+            return obj.name !== "Untitled";
           });
 
         uploadProjectsMutation.mutate(data);

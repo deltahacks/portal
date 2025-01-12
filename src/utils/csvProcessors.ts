@@ -3,6 +3,7 @@ interface ProjectData {
   description: string;
   link: string;
   tracks: string[];
+  status: string;
   // Add other common fields as needed
 }
 
@@ -22,6 +23,7 @@ export class DevpostCSVProcessor implements CSVProcessor {
   processCSVData(data: any[]): ProjectData[] {
     return data.map((row) => ({
       name: row["Project Title"],
+      status: row["Project Status"],
       description: row["About The Project"],
       link: row["Submission Url"],
       tracks: getTrackList(row["Opt-In Prizes"]),
@@ -34,6 +36,7 @@ export class DoraHacksCSVProcessor implements CSVProcessor {
   processCSVData(data: any[]): ProjectData[] {
     return data.map((row) => ({
       name: row["BUIDL name"], // Different column name
+      status: "Submitted",
       description: "", // Dora hacks doesn't have a description bruh!
       link: row["BUIDL URL"], // Different column name
       tracks: getTrackList(row["Track"]), // Different column name
