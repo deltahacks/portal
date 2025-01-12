@@ -9,10 +9,10 @@ export const projectRouter = router({
       z.array(
         z.object({
           name: z.string(),
-          description: z.string(),
-          link: z.string(),
+          description: z.string().optional().default(""),
+          link: z.string().optional().default(""),
           tracks: z.array(z.string()),
-          status: z.string(),
+          status: z.string().optional().default("Draft"),
         })
       )
     )
@@ -586,6 +586,62 @@ export const judgingRouter = router({
     // Sort by score in descending order
     return leaderboard.sort((a, b) => b.score - a.score);
   }),
+  importRubricQuestions: protectedProcedure
+    .input(
+      z.object({
+        questions: z.record(
+          z.string(),
+          z.array(
+            z.object({
+              title: z.string(),
+              question: z.string(),
+              points: z.number().min(0).max(100),
+            })
+          )
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      return ctx.prisma.$transaction(async (tx) => {
+        const results = [];
+
+        for (const [trackName, questions] of Object.entries(input.questions)) {
+          // Create or get track
+          const track = await tx.track.upsert({
+            where: { name: trackName },
+            update: {},
+            create: { name: trackName },
+          });
+
+          // Delete existing questions for this track
+          await tx.rubricQuestion.deleteMany({
+            where: { trackId: track.id },
+          });
+
+          // Create new questions
+          for (const q of questions) {
+            const rubricQuestion = await tx.rubricQuestion.create({
+              data: {
+                title: q.title,
+                question: q.question,
+                points: q.points,
+                trackId: track.id,
+              },
+            });
+            results.push(rubricQuestion);
+          }
+        }
+
+        return {
+          message: "Rubric questions imported successfully",
+          count: results.length,
+        };
+      });
+    }),
 });
 
 export const timeSlotRouter = router({

@@ -324,7 +324,7 @@ const Judging: NextPage = () => {
                               <div className="text-sm font-semibold text-neutral-500">
                                 Project Description
                               </div>
-                              <p className="">
+                              <p className="text-base line-clamp-3 text-neutral-700 dark:text-neutral-300">
                                 {nextProject.description ||
                                   "No description available"}
                               </p>
