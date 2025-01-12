@@ -563,6 +563,7 @@ export const judgingRouter = router({
         select: {
           id: true,
           name: true,
+          link: true,
           tracks: {
             include: {
               track: true,
@@ -633,6 +634,7 @@ export const judgingRouter = router({
         return {
           projectId: project.id,
           projectName: project.name,
+          link: project.link,
           score: averageGeneralScore + averageTrackScore,
           numberOfJudges,
           trackName: project.tracks[0]?.track.name || "Unknown",
