@@ -9,10 +9,14 @@ import Drawer from "../../../components/Drawer";
 import { getServerAuthSession } from "../../../server/common/get-server-auth-session";
 import { rbac } from "../../../components/RBACWrapper";
 import { Role } from "@prisma/client";
+import { useState } from "react";
 
 const LeaderboardPage: NextPage = () => {
+  const [selectedTrackId, setSelectedTrackId] = useState<string>("all");
+
+  const { data: tracks } = trpc.track.getTracks.useQuery();
   const { data: leaderboard, isLoading } = trpc.judging.getLeaderboard.useQuery(
-    undefined,
+    { trackId: selectedTrackId === "all" ? undefined : selectedTrackId },
     {
       refetchInterval: 30 * 1000,
       refetchIntervalInBackground: true,
@@ -39,7 +43,21 @@ const LeaderboardPage: NextPage = () => {
 
         <Drawer pageTabs={[{ pageName: "Judging", link: "/judging" }]}>
           <main className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-8">Project Leaderboard</h1>
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-2xl font-bold">Project Leaderboard</h1>
+              <select
+                className="select select-bordered w-full max-w-xs"
+                value={selectedTrackId}
+                onChange={(e) => setSelectedTrackId(e.target.value)}
+              >
+                <option value="all">All Tracks</option>
+                {tracks?.map((track) => (
+                  <option key={track.id} value={track.id}>
+                    {track.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
               <table className="min-w-full">
@@ -57,6 +75,11 @@ const LeaderboardPage: NextPage = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Judges
                     </th>
+                    {selectedTrackId === "all" && (
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Track
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -85,6 +108,13 @@ const LeaderboardPage: NextPage = () => {
                           {project.numberOfJudges}
                         </div>
                       </td>
+                      {selectedTrackId === "all" && (
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {project.trackName}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

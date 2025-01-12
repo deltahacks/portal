@@ -121,11 +121,12 @@ const Judging: NextPage = () => {
   }, [existingScores, nextProject, reset]);
 
   const onSubmit = (data: any) => {
-    if (!nextProject?.id) return;
+    if (!nextProject?.id || !selectedTable?.value) return;
 
     submitJudgment(
       {
         projectId: nextProject.id,
+        tableId: selectedTable.value,
         responses: Object.entries(data.scores || {}).map(
           ([questionId, score]) => ({
             questionId,
