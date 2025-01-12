@@ -455,7 +455,12 @@ export const judgingRouter = router({
   getProjectScores: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+      if (
+        !(
+          ctx.session.user.role.includes(Role.ADMIN) ||
+          ctx.session.user.role.includes(Role.JUDGE)
+        )
+      ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const result = await ctx.prisma.judgingResult.findUnique({
