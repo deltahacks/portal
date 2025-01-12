@@ -371,6 +371,7 @@ export const judgingRouter = router({
     .input(
       z.object({
         projectId: z.string(),
+        tableId: z.string(),
         responses: z.array(
           z.object({
             questionId: z.string(),
@@ -433,6 +434,7 @@ export const judgingRouter = router({
           data: {
             judgeId: ctx.session.user.id,
             projectId: input.projectId,
+            tableId: input.tableId,
             dhYear: dhYearConfig.value,
           },
         });
@@ -519,73 +521,109 @@ export const judgingRouter = router({
         },
       });
     }),
-  getLeaderboard: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.session.user.role.includes(Role.ADMIN)) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    // Get current dhYear from Config
-    const dhYearConfig = await ctx.prisma.config.findUnique({
-      where: { name: "dhYear" },
-    });
-
-    if (!dhYearConfig) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "dhYear not configured",
+  getLeaderboard: protectedProcedure
+    .input(
+      z.object({
+        trackId: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      // Get current dhYear from Config
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
       });
-    }
 
-    // Get all projects with their judging results and responses
-    const projectScores = await ctx.prisma.project.findMany({
-      where: {
-        dhYear: dhYearConfig.value,
-      },
-      select: {
-        id: true,
-        name: true,
-        judgingResults: {
-          select: {
-            responses: {
-              select: {
-                score: true,
-                question: {
-                  select: {
-                    points: true,
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
+      // Get all projects with their judging results and responses
+      const projectScores = await ctx.prisma.project.findMany({
+        where: {
+          dhYear: dhYearConfig.value,
+          ...(input.trackId && {
+            tracks: {
+              some: {
+                trackId: input.trackId,
+              },
+            },
+          }),
+        },
+        select: {
+          id: true,
+          name: true,
+          tracks: {
+            include: {
+              track: true,
+            },
+          },
+          judgingResults: {
+            where: input.trackId
+              ? {
+                  table: {
+                    trackId: input.trackId,
+                  },
+                }
+              : undefined,
+            select: {
+              responses: {
+                select: {
+                  score: true,
+                  question: {
+                    select: {
+                      points: true,
+                    },
+                  },
+                },
+              },
+              table: {
+                select: {
+                  track: {
+                    select: {
+                      name: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
-
-    // Calculate total score for each project
-    const leaderboard = projectScores.map((project) => {
-      let totalScore = 0;
-      const numberOfJudges = project.judgingResults.length;
-
-      // Sum up scores from all judges
-      project.judgingResults.forEach((result) => {
-        result.responses.forEach((response) => {
-          totalScore += response.score * response.question.points;
-        });
       });
 
-      // Calculate average score if project was judged by multiple judges
-      const averageScore = numberOfJudges > 0 ? totalScore / numberOfJudges : 0;
+      // Calculate total score for each project
+      const leaderboard = projectScores.map((project) => {
+        let totalScore = 0;
+        const numberOfJudges = project.judgingResults.length;
 
-      return {
-        projectId: project.id,
-        projectName: project.name,
-        score: averageScore,
-        numberOfJudges,
-      };
-    });
+        // Sum up scores from all judges
+        project.judgingResults.forEach((result) => {
+          result.responses.forEach((response) => {
+            totalScore += response.score * response.question.points;
+          });
+        });
 
-    // Sort by score in descending order
-    return leaderboard.sort((a, b) => b.score - a.score);
-  }),
+        // Calculate average score if project was judged by multiple judges
+        const averageScore =
+          numberOfJudges > 0 ? totalScore / numberOfJudges : 0;
+
+        return {
+          projectId: project.id,
+          projectName: project.name,
+          score: averageScore,
+          numberOfJudges,
+          trackName: project.tracks[0]?.track.name || "Unknown",
+        };
+      });
+
+      // Sort by score in descending order
+      return leaderboard.sort((a, b) => b.score - a.score);
+    }),
   importRubricQuestions: protectedProcedure
     .input(
       z.object({
