@@ -11,7 +11,7 @@ import Drawer from "../../../components/Drawer";
 import { rbac } from "../../../components/RBACWrapper";
 import { Role } from "@prisma/client";
 import Select from "react-select";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 
 import "@uiw/react-md-editor/markdown-editor.css";
@@ -28,6 +28,62 @@ type RubricFormData = {
   points: number;
   trackId: string;
   title: string;
+};
+
+const JSONUploader: React.FC = () => {
+  const importRubricMutation = trpc.judging.importRubricQuestions.useMutation();
+
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target?.result as string);
+          importRubricMutation.mutate({ questions: json });
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+        }
+      };
+      reader.readAsText(file);
+    },
+    [importRubricMutation]
+  );
+
+  return (
+    <div className="card bg-base-200 shadow-xl mb-8">
+      <div className="card-body">
+        <h2 className="card-title">Import Rubric Questions</h2>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Upload JSON file</span>
+          </label>
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleFileChange}
+            className="file-input file-input-bordered w-full"
+            disabled={importRubricMutation.isLoading}
+          />
+        </div>
+        {importRubricMutation.isLoading && (
+          <div className="text-info">Importing questions...</div>
+        )}
+        {importRubricMutation.isSuccess && (
+          <div className="text-success">
+            Successfully imported {importRubricMutation.data?.count} questions!
+          </div>
+        )}
+        {importRubricMutation.isError && (
+          <div className="text-error">
+            Error: {importRubricMutation.error.message}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 const RubricPage: NextPage = () => {
@@ -76,6 +132,8 @@ const RubricPage: NextPage = () => {
         <Drawer pageTabs={[{ pageName: "Judging", link: "/judging" }]}>
           <main className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-8">Rubric Management</h1>
+
+            <JSONUploader />
 
             <div className="grid gap-8 md:grid-cols-3">
               {/* Create New Question Form */}
