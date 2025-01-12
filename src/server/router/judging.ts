@@ -12,6 +12,7 @@ export const projectRouter = router({
           description: z.string(),
           link: z.string(),
           tracks: z.array(z.string()),
+          status: z.string(),
         })
       )
     )
@@ -53,6 +54,9 @@ export const projectRouter = router({
 
         // Process and save projects to the database
         for (const project of input) {
+          if (project.status === "Draft") {
+            continue;
+          }
           try {
             const createdProject = await ctx.prisma.project.create({
               data: {
