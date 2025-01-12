@@ -564,13 +564,6 @@ export const judgingRouter = router({
             },
           },
           judgingResults: {
-            where: input.trackId
-              ? {
-                  table: {
-                    trackId: input.trackId,
-                  },
-                }
-              : undefined,
             select: {
               responses: {
                 select: {
@@ -578,19 +571,12 @@ export const judgingRouter = router({
                   question: {
                     select: {
                       points: true,
+                      trackId: true,
                     },
                   },
                 },
               },
-              table: {
-                select: {
-                  track: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
+              judgeId: true,
             },
           },
         },
@@ -598,24 +584,51 @@ export const judgingRouter = router({
 
       // Calculate total score for each project
       const leaderboard = projectScores.map((project) => {
-        let totalScore = 0;
-        const numberOfJudges = project.judgingResults.length;
+        const judgeScores = new Map<
+          string,
+          { general: number; track: number }
+        >();
 
-        // Sum up scores from all judges
+        // Calculate scores per judge
         project.judgingResults.forEach((result) => {
+          let generalScore = 0;
+          let trackScore = 0;
+
           result.responses.forEach((response) => {
-            totalScore += response.score * response.question.points;
+            const weightedScore = response.score * response.question.points;
+            // If trackId matches input.trackId, it's a track-specific question
+            // Otherwise, it's a general question
+            if (input.trackId && response.question.trackId === input.trackId) {
+              trackScore += weightedScore;
+            } else if (!input.trackId || response.question.trackId === null) {
+              generalScore += weightedScore;
+            }
+          });
+
+          judgeScores.set(result.judgeId, {
+            general: generalScore,
+            track: trackScore,
           });
         });
 
-        // Calculate average score if project was judged by multiple judges
-        const averageScore =
-          numberOfJudges > 0 ? totalScore / numberOfJudges : 0;
+        // Calculate average scores across judges
+        let totalGeneralScore = 0;
+        let totalTrackScore = 0;
+        judgeScores.forEach((scores) => {
+          totalGeneralScore += scores.general;
+          totalTrackScore += scores.track;
+        });
+
+        const numberOfJudges = judgeScores.size;
+        const averageGeneralScore =
+          numberOfJudges > 0 ? totalGeneralScore / numberOfJudges : 0;
+        const averageTrackScore =
+          numberOfJudges > 0 ? totalTrackScore / numberOfJudges : 0;
 
         return {
           projectId: project.id,
           projectName: project.name,
-          score: averageScore,
+          score: averageGeneralScore + averageTrackScore,
           numberOfJudges,
           trackName: project.tracks[0]?.track.name || "Unknown",
         };
