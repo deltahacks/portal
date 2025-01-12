@@ -73,6 +73,10 @@ export const projectRouter = router({
 
             // Process other tracks and create project-track relations
             for (const trackName of project.tracks) {
+              if (trackName.toUpperCase().includes("GODADDY")) {
+                continue;
+              }
+
               const normalizedTrackName = trackName
                 .toUpperCase()
                 .includes("MLH")
