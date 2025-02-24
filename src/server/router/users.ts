@@ -82,6 +82,151 @@ export const userRouter = router({
         },
       });
     }),
+
+  countByRole: protectedProcedure
+    .input(z.object({ role: z.nullable(z.nativeEnum(Role)) }))
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      if (input.role === null) {
+        return await ctx.prisma?.user.count();
+      }
+      return await ctx.prisma?.user.count({
+        where: {
+          role: {
+            has: input.role,
+          },
+        },
+      });
+    }),
+
+  byRolePaginated: protectedProcedure
+    .input(
+      z.object({
+        role: z.nullable(z.nativeEnum(Role)),
+        skip: z.number().int().min(0),
+        take: z.number().int().min(1).max(50), // Limit to 50 users per page max
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      if (input.role === null) {
+        return await ctx.prisma?.user.findMany({
+          skip: input.skip,
+          take: input.take,
+          orderBy: {
+            name: "asc",
+          },
+        });
+      }
+      return await ctx.prisma?.user.findMany({
+        where: {
+          role: {
+            has: input.role,
+          },
+        },
+        skip: input.skip,
+        take: input.take,
+        orderBy: {
+          name: "asc",
+        },
+      });
+    }),
+
+  searchUsersByNameAndRole: protectedProcedure
+    .input(
+      z.object({
+        nameSearch: z.string().optional(),
+        role: z.nullable(z.nativeEnum(Role)),
+        skip: z.number().int().min(0),
+        take: z.number().int().min(1).max(50), // Limit to 50 users per page max
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // Build the where clause based on inputs
+      const whereClause: any = {};
+
+      // Add name search if provided
+      if (input.nameSearch && input.nameSearch.trim() !== "") {
+        whereClause.name = {
+          contains: input.nameSearch.trim(),
+          mode: "insensitive", // Case insensitive search
+        };
+      }
+
+      // Add role filter if provided
+      if (input.role !== null) {
+        whereClause.role = {
+          has: input.role,
+        };
+      }
+
+      // Get users with pagination
+      const users = await ctx.prisma.user.findMany({
+        where: whereClause,
+        skip: input.skip,
+        take: input.take,
+        orderBy: {
+          name: "asc",
+        },
+      });
+
+      // Count total users matching the criteria for pagination
+      const totalCount = await ctx.prisma.user.count({
+        where: whereClause,
+      });
+
+      return {
+        users,
+        totalCount,
+      };
+    }),
+
+  countSearchUsersByNameAndRole: protectedProcedure
+    .input(
+      z.object({
+        nameSearch: z.string().optional(),
+        role: z.nullable(z.nativeEnum(Role)),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      // Build the where clause based on inputs
+      const whereClause: any = {};
+
+      // Add name search if provided
+      if (input.nameSearch && input.nameSearch.trim() !== "") {
+        whereClause.name = {
+          contains: input.nameSearch.trim(),
+          mode: "insensitive", // Case insensitive search
+        };
+      }
+
+      // Add role filter if provided
+      if (input.role !== null) {
+        whereClause.role = {
+          has: input.role,
+        };
+      }
+
+      // Count total users matching the criteria
+      return await ctx.prisma.user.count({
+        where: whereClause,
+      });
+    }),
+
   addRole: protectedProcedure
     .input(z.object({ id: z.string().cuid(), role: z.nativeEnum(Role) }))
     .mutation(async ({ ctx, input }) => {
