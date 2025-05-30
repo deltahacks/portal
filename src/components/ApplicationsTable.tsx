@@ -105,10 +105,11 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { DH11ApplicationId } = row.original;
+      const { applicationId } = row.original; // Assuming ApplicationForReview now has applicationId
       return (
         <UpdateStatusDropdown
-          dh11ApplicationId={DH11ApplicationId}
+          applicationId={applicationId} // Pass generic applicationId
+          // TODO: UpdateStatusDropdown might need dhYear or similar if not derivable from applicationId
           position="float-right"
         />
       );
@@ -169,8 +170,8 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: "DH11ApplicationId",
-    header: () => <div className="float-right">DH XI Application</div>,
+    accessorKey: "applicationId", // Changed from DH11ApplicationId
+    header: () => <div className="float-right">Application Details</div>, // Generic header
     cell: ({ row }) => {
       return (
         <div className="float-right">

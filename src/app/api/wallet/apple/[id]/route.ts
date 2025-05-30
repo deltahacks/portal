@@ -31,6 +31,7 @@ export const GET = async (
     },
     include: {
       DH11Application: true,
+      DH12Application: true,
     },
   });
 
@@ -93,13 +94,13 @@ export const GET = async (
     pass.backFields.push({
       key: "ticket-buyer-name",
       label: "For",
-      value: `${user.DH11Application?.firstName} ${user.DH11Application?.lastName}`,
+      value: `${user.DH12Application?.firstName || user.DH11Application?.firstName} ${user.DH12Application?.lastName || user.DH11Application?.lastName}`,
     });
 
     pass.primaryFields.push({
       key: "ticket-for",
       label: "Ticket for",
-      value: `${user.DH11Application?.firstName} ${user.DH11Application?.lastName}                                  `,
+      value: `${user.DH12Application?.firstName || user.DH11Application?.firstName} ${user.DH12Application?.lastName || user.DH11Application?.lastName}                                  `,
     });
 
     // add a background color

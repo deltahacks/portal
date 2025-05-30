@@ -156,7 +156,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks XI</title>
+        <title>Profile - DeltaHacks</title> {/* Corrected and Generic Title */}
       </Head>
       <Drawer
         pageTabs={[
@@ -166,15 +166,16 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
       >
         <main className="px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-8">
           <section>
+            {/* Assuming user.application will be populated by the backend with DH12 or DH11 data */}
             <h1 className="font-bold text-2xl dark:text-white mb-2">
-              {user?.DH11Application?.firstName}{" "}
-              {user?.DH11Application?.lastName}
+              {user?.application?.firstName}{" "}
+              {user?.application?.lastName}
             </h1>
             <div className="mb-4">
-              {user?.DH11Application?.studyYearOfStudy}{" "}
-              {user?.DH11Application?.studyDegree} <br />
-              {user?.DH11Application?.studyMajor} <br />
-              {user?.DH11Application?.studyLocation}
+              {user?.application?.studyYearOfStudy}{" "}
+              {user?.application?.studyDegree} <br />
+              {user?.application?.studyMajor} <br />
+              {user?.application?.studyLocation}
             </div>
             {!showCode ? (
               <>
@@ -182,7 +183,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   Socials
                 </h2>
                 <ul className="flex flex-col gap-2 mb-4">
-                  {user?.DH11Application?.socialText.map((socialText, i) => {
+                  {user?.application?.socialText.map((socialText, i) => {
                     return (
                       <li
                         key={i}
@@ -304,11 +305,11 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   onClick={() => {
                     checkInMutation.mutate(qrCodeId);
                   }}
-                  disabled={user?.DH11Application?.status === "CHECKED_IN"}
+                  disabled={user?.application?.status === "CHECKED_IN"}
                 >
                   {checkInMutation.isLoading ? (
                     <span className="animate-spin">⌛</span>
-                  ) : user?.DH11Application?.status === "CHECKED_IN" ? (
+                  ) : user?.application?.status === "CHECKED_IN" ? (
                     "Already Checked In"
                   ) : (
                     "Check In"

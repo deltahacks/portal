@@ -327,7 +327,7 @@ const ReviewForm = ({
 
     try {
       await submitScore.mutateAsync({
-        applicationId: applicationForReview.DH11ApplicationId,
+        applicationId: applicationForReview.applicationId,
         score: scoreValue,
         comment: comments,
       });
@@ -419,7 +419,8 @@ const ApplicationPopupButton = ({
     isLoading: applicationIsLoading,
     error: applicationError,
   } = trpc.reviewer.getApplication.useQuery({
-    dh11ApplicationId: applicationForReview.DH11ApplicationId,
+    applicationId: applicationForReview.applicationId,
+    // TODO: Potentially pass dhYear or determine it on the backend if ApplicationForReview doesn't implicitly define it
   });
 
   return (
@@ -456,7 +457,7 @@ const ApplicationPopupButton = ({
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
                   {applicationData.hasReviewed || isAdmin ? (
                     <ReviewScores
-                      applicationId={applicationForReview.DH11ApplicationId}
+                      applicationId={applicationForReview.applicationId}
                     />
                   ) : (
                     <ReviewForm applicationForReview={applicationForReview} />

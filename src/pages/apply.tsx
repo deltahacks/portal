@@ -240,13 +240,13 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh11.useMutation({
+  } = trpc.application.submitDh12.useMutation({ // Changed to submitDh12
     onSuccess: async () => {
       await router.push("/dashboard");
     },
   });
 
-  useFormPersist(`dh11-applyForm:${persistId}`, {
+  useFormPersist(`dh12-applyForm:${persistId}`, { // Changed to dh12-applyForm
     watch,
     setValue,
     storage: localStorage,
@@ -262,7 +262,7 @@ const ApplyForm = ({
 
   const user = useSession();
 
-  const objectId = `${user.data?.user?.id}-dh11.pdf`;
+  const objectId = `${user.data?.user?.id}-dh12.pdf`; // Changed to dh12.pdf
   useEffect(() => {
     mutate({
       filename: objectId,
@@ -563,7 +563,7 @@ const ApplyForm = ({
       />
       <FormTextArea
         id="longAnswerGoals"
-        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
+        label="How will you make the most out of your experience at DeltaHacks, and how will attending the event help you achieve your long-term goals?" // Generic question
         errors={errors.longAnswerGoals}
         register={register}
         value={watch("longAnswerGoals")}
@@ -907,13 +907,13 @@ const Apply: NextPage<
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks XI</title>
+        <title>Apply - DeltaHacks</title> {/* Generic Title */}
       </Head>
       <Drawer>
         <div className="w-full">
           <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
             <h1 className="py-8 text-3xl font-bold text-center text-black dark:text-white md:text-left">
-              Apply to DeltaHacks XI
+              Apply to DeltaHacks {/* Generic Header */}
             </h1>
 
             {!killed &&
@@ -939,8 +939,8 @@ const Apply: NextPage<
                     <span className="font-bold">tech@deltahacks.com</span>
                   </span> */}
                   <span>
-                    Applications are closed for DeltaHacks XI. If you did not
-                    get to apply, we hope to see you next year!
+                    Applications are currently closed. If you did not
+                    get to apply, we hope to see you next year! {/* Generic Message */}
                   </span>
                 </div>
               </div>
@@ -963,7 +963,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH11Application: true },
+    include: { DH11Application: true, DH12Application: true }, // Include DH12Application
   });
 
   const killedStr = await prisma.config.findFirst({
@@ -978,7 +978,10 @@ export const getServerSideProps = async (
     killed = false;
   }
 
-  // If submitted then go dashboard
+  // If DH12 submitted, or DH11 submitted (and no DH12), go to dashboard
+  if (userEntry && userEntry.DH12Application !== null) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
+  }
   if (userEntry && userEntry.DH11Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }

@@ -12,7 +12,7 @@ export const userRouter = router({
         id = ctx.session.user.id;
       }
 
-      const userData = await ctx.prisma?.user.findFirst({
+      const user = await ctx.prisma?.user.findFirst({
         where: { id },
         include: {
           DH11Application: {
@@ -26,12 +26,35 @@ export const userRouter = router({
               studyYearOfStudy: true,
               studyMajor: true,
               status: true,
+              // ensure all fields needed by `application` on frontend are here
+            },
+          },
+          DH12Application: { // Include DH12Application
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              socialText: true,
+              studyLocation: true,
+              studyDegree: true,
+              studyYearOfStudy: true,
+              studyMajor: true,
+              status: true,
+              // ensure all fields needed by `application` on frontend are here
             },
           },
         },
       });
 
-      return userData;
+      if (!user) return null;
+
+      // Prioritize DH12Application, then DH11Application for the generic 'application' field
+      const applicationData = user.DH12Application || user.DH11Application || null;
+      
+      return {
+        ...user,
+        application: applicationData, // Add the generic 'application' field
+      };
     }),
 
   checkIn: protectedProcedure
@@ -48,6 +71,7 @@ export const userRouter = router({
         where: { id: input },
         include: {
           DH11Application: true,
+          DH12Application: true, // Include DH12Application
         },
       });
 
@@ -55,13 +79,23 @@ export const userRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      // update the DH11Application status to checked in
-      await ctx.prisma.dH11Application.update({
-        where: { id: user.DH11Application?.id },
-        data: {
-          status: "CHECKED_IN",
-        },
-      });
+      if (user.DH12Application) {
+        await ctx.prisma.dH12Application.update({
+          where: { id: user.DH12Application.id },
+          data: { status: "CHECKED_IN" },
+        });
+      } else if (user.DH11Application) {
+        // Fallback to DH11 if DH12 doesn't exist for this user
+        await ctx.prisma.dH11Application.update({
+          where: { id: user.DH11Application.id },
+          data: { status: "CHECKED_IN" },
+        });
+      } else {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No application found for this user to check in.",
+        });
+      }
     }),
 
   byRole: protectedProcedure

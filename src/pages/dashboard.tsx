@@ -68,13 +68,13 @@ const Accepted: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey{" "}
         <span className="capitalize">{session ? session.user?.name : ""}</span>,
-        we can{"'"}t wait to see you at DeltaHacks XI!
+        we can{"'"}t wait to see you at DeltaHacks! {/* Generic */}
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
-        DeltaHacks XI! Come hack for change and build something incredible with
-        hundreds of other hackers on January 11 - 12, 2025! To confirm that you
-        will be attending, please RSVP below.
+        DeltaHacks! Come hack for change and build something incredible with
+        hundreds of other hackers! To confirm that you
+        will be attending, please RSVP below. {/* Generic, removed specific dates */}
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         Sorry, RSVPs are now closed. Thank you so much for your interest in
@@ -191,10 +191,10 @@ const Rejected: React.FC = () => {
         <span className="capitalize">
           {session ? `${session.user?.name}` : ""}
         </span>
-        , thank you for submitting your application to DeltaHacks XI.
+        , thank you for submitting your application to DeltaHacks. {/* Generic */}
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We had a lot of amazing applicants this year and were happy to see so
+        We had a lot of amazing applicants and were happy to see so {/* Generic */}
         many talented, enthusiastic individuals. Unfortunately we were not able
         to accommodate all applicants this year and are unable to offer you a
         spot at the hackathon at this time. We really hope you’ll apply again
@@ -511,7 +511,7 @@ const Dashboard: NextPage<
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks XI</title>
+        <title>Dashboard - DeltaHacks</title> {/* Generic */}
       </Head>
       <Drawer
         pageTabs={[
@@ -541,7 +541,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH11Application: true },
+    include: { DH11Application: true, DH12Application: true }, // Include DH12Application
   });
   const killedStr = await prisma.config.findFirst({
     where: { name: "killApplications" },
@@ -555,18 +555,30 @@ export const getServerSideProps = async (
     killed = false;
   }
 
-  // If submitted then do nothing
-  if (userEntry && userEntry.DH11Application !== null) {
+  let statusToUse: Status | null = null;
+  let activeApplicationYear: "DH11" | "DH12" | null = null;
+
+  if (userEntry?.DH12Application) {
+    statusToUse = userEntry.DH12Application.status;
+    activeApplicationYear = "DH12";
+  } else if (userEntry?.DH11Application) {
+    statusToUse = userEntry.DH11Application.status;
+    activeApplicationYear = "DH11";
+  }
+
+  if (statusToUse) {
     return {
       props: {
-        status: userEntry.DH11Application.status,
+        status: statusToUse,
         killed: killed,
+        activeApplicationYear: activeApplicationYear, // Pass this to the component
       },
     };
   }
 
+  // If no application at all, redirect to apply page
   return {
-    redirect: { destination: "/welcome", permanent: false },
+    redirect: { destination: "/apply", permanent: false },
   };
 };
 

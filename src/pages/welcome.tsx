@@ -12,14 +12,14 @@ const Content = () => {
     <main className="px-7 py-8 sm:px-14 md:w-10/12 md:py-16 lg:pl-20 2xl:w-8/12 2xl:pt-20">
       <div className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl">
         A weekend worth hacking,
-        <br />@ DeltaHacks XI
+        <br />@ DeltaHacks {/* Generic */}
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         At DeltaHacks, we believe change comes from dreaming big. Each year we
         enable over 800 students from across North America, working hard over 24
         hours, to bring their big ideas to life. Unleash your creativity and
         make something great, we{"'"}ll handle the rest! Make big ideas a
-        reality at DeltaHacks XI!
+        reality at DeltaHacks! {/* Generic */}
       </div>
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -70,7 +70,7 @@ const Welcome: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks XI</title>
+        <title>Welcome - DeltaHacks</title> {/* Generic */}
       </Head>
       <Drawer>
         <Content />
@@ -93,10 +93,13 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH11Application: true },
+    include: { DH11Application: true, DH12Application: true }, // Include DH12Application
   });
 
-  // If submitted then go to dashboard
+  // If DH12 submitted, or DH11 submitted (and no DH12), go to dashboard
+  if (userEntry && userEntry.DH12Application !== null) {
+    return { redirect: { destination: "/dashboard", permanent: false } };
+  }
   if (userEntry && userEntry.DH11Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }

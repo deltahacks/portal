@@ -1,0 +1,65 @@
+{
+  "passTypeIdentifier": "pass.com.mvzkitchen",
+  "serialNumber": "8b3732cc-6bfb-371c-95ed-5cef0cbf774e",
+  "webServiceURL": "https://f95c-74-12-79-29.ngrok-free.app/api/wallet/apple/service/",
+  "authenticationToken": "abcdefghijklmnopqrstuvwxyz",
+  "formatVersion": 1,
+
+  "description": "Your ticket to DeltaHacks",
+  "labelColor": "rgb(255, 255, 255)",
+  "foregroundColor": "rgb(255, 255, 255)",
+
+  "locations": [
+    { "latitude": 43.26541517386679, "longitude": -79.91827069511017 }
+  ],
+  "barcodes": [],
+  "teamIdentifier": "CMGV8D3FG3",
+  "organizationName": "DeltaHacks",
+  "eventTicket": {
+    "headerFields": [
+      {
+        "dateStyle": "PKDateStyleMedium",
+        "value": "2026-01-10T8:00:00-05:00", 
+        "key": "start-time",
+        "label": "Saturday"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "value": "Peter George Centre for Living and Learning, 1280 Main St W, Hamilton, ON L8S 4L8",
+        "key": "venue-name",
+        "label": "WHERE"
+      }
+    ],
+
+    "secondaryFields": [
+      {
+        "value": "Saturday, 8 AM - Sunday, 6 PM", 
+        "key": "event-time",
+        "label": "WHEN"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "event-name-back",
+        "label": "Event",
+        "value": "DeltaHacks XII" 
+      },
+      {
+        "key": "ticket-type-back",
+        "label": "Ticket",
+        "value": "Attendee"
+      },
+      {
+        "key": "venue-address",
+        "label": "Venue",
+        "value": "Peter George Centre for Living and Learning, 1280 Main St W, Hamilton, ON L8S 4L8"
+      },
+      {
+        "key": "organizer-name",
+        "label": "Organized by",
+        "value": "DeltaHacks"
+      }
+    ]
+  }
+}

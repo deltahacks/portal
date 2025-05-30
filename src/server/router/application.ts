@@ -125,7 +125,7 @@ export const applicationRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const statusCount = (
-        await ctx.prisma.dH11Application.groupBy({
+        await ctx.prisma.dH12Application.groupBy({ // Changed to dH12Application
           by: ["status"],
           _count: {
             status: true,
@@ -157,16 +157,22 @@ export const applicationRouter = router({
     .query(async ({ ctx }) => {
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
-        include: { DH11Application: true },
+        include: { DH11Application: true, DH12Application: true }, // Include both
       });
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
-      if (user.DH11Application === null || user.DH11Application === undefined) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
 
-      return user.DH11Application.status;
+      if (user.DH12Application) {
+        return user.DH12Application.status;
+      } else if (user.DH11Application) {
+        return user.DH11Application.status;
+      } else {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No application found for the user.",
+        });
+      }
     }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
@@ -185,17 +191,38 @@ export const applicationRouter = router({
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
-        include: { DH11Application: true },
+        include: { DH11Application: true, DH12Application: true }, // Include both
       });
 
-      if (user?.DH11Application?.status != Status.ACCEPTED) {
-        throw new Error("Unauthorized call");
+      let targetApplicationId: string | undefined;
+      let targetApplicationName = "";
+
+      if (user?.DH12Application?.status === Status.ACCEPTED) {
+        targetApplicationId = user.DH12Application.id;
+        targetApplicationName = "DH12Application";
+      } else if (user?.DH11Application?.status === Status.ACCEPTED) {
+        targetApplicationId = user.DH11Application.id;
+        targetApplicationName = "DH11Application";
       }
 
-      await ctx.prisma?.dH11Application.update({
-        where: { id: user.DH11Application?.id },
-        data: { status: Status.RSVP, rsvpCheck: input.rsvpCheck },
-      });
+      if (!targetApplicationId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No application found in ACCEPTED state to RSVP for.",
+        });
+      }
+
+      if (targetApplicationName === "DH12Application") {
+        await ctx.prisma?.dH12Application.update({
+          where: { id: targetApplicationId },
+          data: { status: Status.RSVP, rsvpCheck: input.rsvpCheck },
+        });
+      } else if (targetApplicationName === "DH11Application") {
+        await ctx.prisma?.dH11Application.update({
+          where: { id: targetApplicationId },
+          data: { status: Status.RSVP, rsvpCheck: input.rsvpCheck },
+        });
+      }
 
       await ctx.logsnag.track({
         channel: "rsvps",
@@ -299,54 +326,94 @@ export const applicationRouter = router({
       };
     }),
   getPrevAutofill: protectedProcedure
-    .output(dh11schema.partial())
+    .output(applicationSchema.partial()) // Use the generic applicationSchema
     .query(async ({ ctx }) => {
-      // Get the current user's DH10 application
       const user = await ctx.prisma.user.findUnique({
         where: { id: ctx.session.user.id },
-        include: { dh10application: true },
+        include: { dh10application: true, DH11Application: true }, // Fetch both DH10 and DH11
       });
 
-      if (!user || !user.dh10application) {
+      if (!user) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "No previous application found for autofill",
+          message: "User not found.",
         });
       }
 
-      const dh10App = user.dh10application;
-
-      // Create the autofill object based on DH10 data
-      const pt = dh11schema.partial();
+      const pt = applicationSchema.partial();
       type AutofillType = z.infer<typeof pt>;
-      const autofill: AutofillType = {
-        firstName: dh10App.firstName,
-        lastName: dh10App.lastName,
-        birthday: dh10App.birthday,
-        studyEnrolledPostSecondary: dh10App.studyEnrolledPostSecondary,
-        studyLocation: dh10App.studyLocation,
-        studyDegree: dh10App.studyDegree,
-        studyMajor: dh10App.studyMajor,
-        studyExpectedGraduation: dh10App.studyExpectedGraduation,
-        interests: dh10App.interests,
-        // linkToResume: dh10App.linkToResume,
-        hackerKind: [dh10App.hackerKind], // Convert to array for DH11
-        workshopChoices: dh10App.workshopChoices,
-        discoverdFrom: dh10App.discoverdFrom,
-        considerCoffee: dh10App.considerCoffee,
-        gender: dh10App.gender,
-        race: dh10App.race,
-        emergencyContactName: dh10App.emergencyContactName,
-        emergencyContactPhone: dh10App.emergencyContactPhone,
-        emergencyContactRelation: dh10App.emergencyContactRelation,
-      };
+      let autofill: AutofillType = {};
 
-      // Handle fields that don't have a direct mapping
-      if (dh10App.socialText) {
-        autofill.socialText = [dh10App.socialText];
+      if (user.DH11Application) {
+        const dh11App = user.DH11Application;
+        autofill = {
+          firstName: dh11App.firstName,
+          lastName: dh11App.lastName,
+          phone: dh11App.phone,
+          country: dh11App.country,
+          birthday: dh11App.birthday,
+          studyEnrolledPostSecondary: dh11App.studyEnrolledPostSecondary,
+          studyLocation: dh11App.studyLocation,
+          studyDegree: dh11App.studyDegree,
+          studyMajor: dh11App.studyMajor,
+          studyYearOfStudy: dh11App.studyYearOfStudy,
+          studyExpectedGraduation: dh11App.studyExpectedGraduation,
+          previousHackathonsCount: dh11App.previousHackathonsCount,
+          longAnswerIncident: dh11App.longAnswerIncident,
+          longAnswerGoals: dh11App.longAnswerGoals,
+          longAnswerFood: dh11App.longAnswerFood,
+          longAnswerTravel: dh11App.longAnswerTravel,
+          longAnswerSocratica: dh11App.longAnswerSocratica,
+          socialText: dh11App.socialText,
+          interests: dh11App.interests,
+          // linkToResume: dh11App.linkToResume, // Usually not auto-filled for privacy/staleness
+          tshirtSize: dh11App.tshirtSize,
+          hackerKind: dh11App.hackerKind,
+          alreadyHaveTeam: dh11App.alreadyHaveTeam,
+          workshopChoices: dh11App.workshopChoices,
+          discoverdFrom: dh11App.discoverdFrom,
+          considerCoffee: dh11App.considerCoffee,
+          dietaryRestrictions: dh11App.dietaryRestrictions,
+          underrepresented: dh11App.underrepresented,
+          gender: dh11App.gender,
+          race: dh11App.race,
+          orientation: dh11App.orientation,
+          emergencyContactName: dh11App.emergencyContactName,
+          emergencyContactPhone: dh11App.emergencyContactPhone,
+          emergencyContactRelation: dh11App.emergencyContactRelation,
+          // MLH consent fields are usually not auto-filled as they need explicit re-consent
+        };
+      } else if (user.dh10application) {
+        const dh10App = user.dh10application;
+        autofill = {
+          firstName: dh10App.firstName,
+          lastName: dh10App.lastName,
+          birthday: dh10App.birthday,
+          studyEnrolledPostSecondary: dh10App.studyEnrolledPostSecondary,
+          studyLocation: dh10App.studyLocation,
+          studyDegree: dh10App.studyDegree,
+          studyMajor: dh10App.studyMajor,
+          studyExpectedGraduation: dh10App.studyExpectedGraduation,
+          interests: dh10App.interests,
+          hackerKind: dh10App.hackerKind ? [dh10App.hackerKind] : [], // DH10 was single string, DH11/12 is string array
+          workshopChoices: dh10App.workshopChoices,
+          discoverdFrom: dh10App.discoverdFrom,
+          considerCoffee: dh10App.considerCoffee,
+          gender: dh10App.gender,
+          race: dh10App.race,
+          emergencyContactName: dh10App.emergencyContactName,
+          emergencyContactPhone: dh10App.emergencyContactPhone,
+          emergencyContactRelation: dh10App.emergencyContactRelation,
+          socialText: dh10App.socialText ? [dh10App.socialText] : [], // DH10 was single string
+          // Fields not in DH10 will be undefined and thus not auto-filled
+        };
+      } else {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No previous application found for autofill.",
+        });
       }
-
-      return autofill;
+      return pt.parse(autofill); // Ensure the output matches the schema
     }),
   // submitDh10: protectedProcedure
   //   .input(applicationSchema)
@@ -424,48 +491,137 @@ export const applicationRouter = router({
 
         await ctx.logsnag.track({
           channel: "applications",
-          event: "Application Submitted",
+          event: "Application Submitted", // This is generic, could be specified as DH11
           user_id: `${user.name} - ${user.email}`,
-          description: "A user has submitted an application.",
+          description: "A user has submitted a DH11 application.",
           icon: "📝",
         });
 
         await ctx.posthog.capture({
           distinctId: user.id,
-          event: "user submitted application",
+          event: "user submitted dh11 application",
         });
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           if (e.code === "P2002")
             throw new TRPCError({
               code: "FORBIDDEN",
-              message: "You have already submitted an application.",
+              message: "You have already submitted a DH11 application.",
             });
         }
+        throw e;
+      }
+    }),
+  submitDh12: protectedProcedure // New mutation for DH12
+    .input(applicationSchema) // Assuming applicationSchema is generic for DH11/DH12 structure
+    .mutation(async ({ ctx, input }) => {
+      try {
+        let gradDate = null;
+        if (input.studyExpectedGraduation) {
+          const possible = new Date(input.studyExpectedGraduation);
+          if (!isNaN(possible.getTime())) {
+            gradDate = possible;
+          }
+        }
+
+        // Ensure user does not have a DH12 application already
+        const existingUser = await ctx.prisma.user.findUnique({
+          where: { id: ctx.session.user.id },
+          select: { DH12ApplicationId: true }
+        });
+
+        if (existingUser?.DH12ApplicationId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You have already submitted a DeltaHacks 12 application.",
+          });
+        }
+
+        await ctx.prisma.dH12Application.create({ // Create DH12Application
+          data: {
+            ...input,
+            birthday: new Date(input.birthday),
+            studyExpectedGraduation: gradDate,
+            User: { connect: { id: ctx.session.user.id } }, // Connects to User.DH12ApplicationId
+          },
+        });
+
+        const user = await ctx.prisma.user.update({
+          where: { id: ctx.session.user.id },
+          data: { status: Status.IN_REVIEW }, // Set user status; might need review if status is per-application
+        });
+
+        await ctx.logsnag.track({
+          channel: "applications",
+          event: "DH12 Application Submitted",
+          user_id: `${user.name} - ${user.email}`,
+          description: "A user has submitted a DH12 application.",
+          icon: "📝",
+        });
+
+        await ctx.posthog.capture({
+          distinctId: user.id,
+          event: "user submitted dh12 application",
+        });
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === "P2002") 
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "You have already submitted a DH12 application or there was a conflict.",
+            });
+        }
+        throw e; 
       }
     }),
 
   deleteApplication: protectedProcedure.mutation(async ({ ctx }) => {
-    const user = await ctx.prisma.user.findFirst({
+    const user = await ctx.prisma.user.findUnique({ // Use findUnique for clarity
       where: { id: ctx.session.user.id },
+      select: { id: true, name: true, email: true, DH11ApplicationId: true, DH12ApplicationId: true },
     });
+
     if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND" });
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found." });
     }
-    if (
-      user.DH11ApplicationId === null ||
-      user.DH11ApplicationId === undefined
-    ) {
-      throw new TRPCError({ code: "NOT_FOUND" });
+
+    let appToDeleteId: string | null = null;
+    let appType: "DH11" | "DH12" | null = null;
+    let userUpdateData: Prisma.UserUpdateInput = {};
+
+    if (user.DH12ApplicationId) {
+      appToDeleteId = user.DH12ApplicationId;
+      appType = "DH12";
+      userUpdateData = { DH12ApplicationId: null, status: Status.IN_REVIEW }; // Reset status, or handle more gracefully
+    } else if (user.DH11ApplicationId) {
+      appToDeleteId = user.DH11ApplicationId;
+      appType = "DH11";
+      userUpdateData = { DH11ApplicationId: null, status: Status.IN_REVIEW }; // Reset status
     }
-    try {
-      await ctx.prisma.dH11Application.delete({
-        where: { id: user.DH11ApplicationId },
+
+    if (!appToDeleteId || !appType) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No application found to delete for the user.",
       });
+    }
+
+    try {
+      if (appType === "DH12") {
+        await ctx.prisma.dH12Application.delete({
+          where: { id: appToDeleteId },
+        });
+      } else if (appType === "DH11") {
+        await ctx.prisma.dH11Application.delete({
+          where: { id: appToDeleteId },
+        });
+      }
+
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW }, // Replace with the correct status
+        data: userUpdateData,
       });
+
       // create logsnag log
       await ctx.logsnag.track({
         channel: "applications",
