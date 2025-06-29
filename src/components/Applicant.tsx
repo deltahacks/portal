@@ -413,7 +413,7 @@ const ApplicationPopupButton = ({
 
   const {
     data: applicationData,
-    isLoading: applicationIsLoading,
+    isPending: applicationIsLoading,
     error: applicationError,
   } = trpc.reviewer.getApplication.useQuery({
     dh11ApplicationId: applicationForReview.DH11ApplicationId,
@@ -446,12 +446,14 @@ const ApplicationPopupButton = ({
               <>
                 <div className="relative flex flex-col w-full h-full">
                   <div className="w-full flex-auto flex flex-col p-4 overflow-y-scroll">
-                    <ApplicationContent applicationData={applicationData} />
+                    {applicationData && (
+                      <ApplicationContent applicationData={applicationData} />
+                    )}
                   </div>
                 </div>
                 <div className="w-[1px] bg-zinc-700 my-4" />
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
-                  {applicationData.hasReviewed || isAdmin ? (
+                  {applicationData?.hasReviewed || isAdmin ? (
                     <ReviewScores
                       applicationId={applicationForReview.DH11ApplicationId}
                     />

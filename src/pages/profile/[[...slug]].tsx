@@ -17,6 +17,7 @@ import Image from "next/image";
 import { z } from "zod";
 import { useState } from "react";
 import Select from "react-select";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProfilePageProps {
   initialState: any; // FIX THIS
@@ -119,7 +120,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
 
   const {
     data: user,
-    isLoading,
+    isPending,
     isError,
     isSuccess,
   } = trpc.user.getProfile.useQuery(id, {
@@ -245,7 +246,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
             <div className="my-4">
               <div>
                 <label className="label">
-                  <span className="label-text">Event Check in :</span>
+                  <span>Event Check in :</span>
                 </label>
                 <Select
                   value={{
@@ -287,7 +288,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   }
                   disabled={!selectedEvent || logEventMutation.isSuccess}
                 >
-                  {logEventMutation.isLoading ? (
+                  {logEventMutation.isPending ? (
                     <span className="animate-spin">⌛</span>
                   ) : logEventMutation.isSuccess ? (
                     "Checked In ✅"
@@ -306,7 +307,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   }}
                   disabled={user?.DH11Application?.status === "CHECKED_IN"}
                 >
-                  {checkInMutation.isLoading ? (
+                  {checkInMutation.isPending ? (
                     <span className="animate-spin">⌛</span>
                   ) : user?.DH11Application?.status === "CHECKED_IN" ? (
                     "Already Checked In"
@@ -331,7 +332,7 @@ export default ProfilePage;
 import { GetServerSideProps } from "next";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "../../server/router";
-import { createContext } from "../../server/router/context";
+import { createContext, createContextInner } from "../../server/router/context";
 import { Role, User } from "@prisma/client";
 import { Button } from "../../components/Button";
 import Link from "next/link";
@@ -339,7 +340,7 @@ import { ArrowUpLeftIcon, ArrowUpRightIcon } from "lucide-react";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 import clsx from "clsx";
 import { Controller } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import SuperJSON from "superjson";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(ctx);
@@ -355,15 +356,10 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       ? ctx.params.slug[0]
       : undefined;
 
-  const helpers = createServerSideHelpers({
-    router: appRouter,
-    ctx: await createContext({
-      req: ctx.req as NextApiRequest,
-      res: ctx.res as NextApiResponse,
-    }),
-  });
-
-  const data = await helpers.user.getProfile.fetch(id);
+  // Create context and call the procedure directly
+  const context = await createContextInner({ session });
+  const caller = appRouter.createCaller(context);
+  const data = await caller.user.getProfile(id);
 
   return {
     props: {

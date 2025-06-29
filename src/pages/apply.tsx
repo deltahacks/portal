@@ -917,7 +917,7 @@ const Apply: NextPage<
             </h1>
 
             {!killed &&
-              (autofillData.isLoading ? (
+              (autofillData.isPending ? (
                 <div className="flex flex-col items-center justify-center h-full py-4 text-center">
                   Loading your application...
                   <div className="loading loading-infinity loading-lg"></div>

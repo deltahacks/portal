@@ -10,6 +10,7 @@ import type {
   GetServerSidePropsResult,
   NextPage,
 } from "next";
+import { keepPreviousData } from "@tanstack/react-query";
 
 /**
  * Helper to step through time in X-minute increments from start to end.
@@ -71,7 +72,6 @@ const TimeSlotPage: NextPage = () => {
     { time: timesToQuery[0]?.toISOString() ?? "" },
     {
       enabled: !!currentTime && !!timeSlots && timesToQuery.length > 0,
-      keepPreviousData: true,
     }
   );
 
@@ -79,7 +79,7 @@ const TimeSlotPage: NextPage = () => {
     { time: timesToQuery[1]?.toISOString() ?? "" },
     {
       enabled: !!currentTime && !!timeSlots && timesToQuery.length > 1,
-      keepPreviousData: true,
+      placeholderData: keepPreviousData,
     }
   );
 
@@ -87,7 +87,7 @@ const TimeSlotPage: NextPage = () => {
     { time: timesToQuery[2]?.toISOString() ?? "" },
     {
       enabled: !!currentTime && !!timeSlots && timesToQuery.length > 2,
-      keepPreviousData: true,
+      placeholderData: keepPreviousData,
     }
   );
 

@@ -53,7 +53,7 @@ const GradingPortal: NextPage = () => {
 
   const {
     mutate: updateApplicationStatusByScoreRange,
-    isLoading,
+    isPending,
     isSuccess,
   } = trpc.reviewer.updateApplicationStatusByScoreRange.useMutation({
     onSettled(data, error, variables, context) {
@@ -149,9 +149,9 @@ const GradingPortal: NextPage = () => {
                         });
                       }
                     }}
-                    disabled={!selectedStatus || isLoading}
+                    disabled={!selectedStatus || isPending}
                   >
-                    {isLoading ? "Applying..." : "Apply Status Change"}
+                    {isPending ? "Applying..." : "Apply Status Change"}
                   </Button>
                 </div>
               </div>

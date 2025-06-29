@@ -103,7 +103,7 @@ const JudgingPage: React.FC = () => {
                   <div className="space-y-4">
                     <div className="form-control">
                       <label className="label">
-                        <span className="label-text font-medium">
+                        <span className="font-medium">
                           Start Time
                         </span>
                       </label>
@@ -119,7 +119,7 @@ const JudgingPage: React.FC = () => {
                   {/* Table Configuration */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-medium">
+                      <span className="font-medium">
                         Projects per Table: {projectsPerTable}
                       </span>
                     </label>
@@ -139,10 +139,10 @@ const JudgingPage: React.FC = () => {
                   <button
                     onClick={() => createTables.mutate({ projectsPerTable })}
                     disabled={
-                      createTables.isLoading || createTimeSlots.isLoading
+                      createTables.isPending || createTimeSlots.isPending
                     }
                     className={`btn w-full ${
-                      createTables.isLoading || createTimeSlots.isLoading
+                      createTables.isPending || createTimeSlots.isPending
                         ? "bg-white" // Removed btn-disabled
                         : createTables.isSuccess && createTimeSlots.isSuccess
                         ? "btn-success"
@@ -156,7 +156,7 @@ const JudgingPage: React.FC = () => {
                       ""
                     }
                   >
-                    {createTables.isLoading || createTimeSlots.isLoading
+                    {createTables.isPending || createTimeSlots.isPending
                       ? "Creating Schedule..."
                       : createTables.isSuccess && createTimeSlots.isSuccess
                       ? "Schedule Created!"
@@ -164,8 +164,8 @@ const JudgingPage: React.FC = () => {
                   </button>
                   {/* Status Information */}
                   {(createTimeSlots.isSuccess ||
-                    createTables.isLoading ||
-                    createTimeSlots.isLoading) && (
+                    createTables.isPending ||
+                    createTimeSlots.isPending) && (
                     <div className="mt-4 space-y-2 text-center">
                       {judgingDuration && (
                         <div className="text-base font-semibold">

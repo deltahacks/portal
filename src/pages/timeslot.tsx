@@ -10,7 +10,7 @@ const TimeslotPage: NextPage = () => {
     value: string;
     label: string;
   } | null>(null);
-  const { data: projects, isLoading: projectsLoading } =
+  const { data: projects, isPending: projectsLoading } =
     trpc.project.getAllProjects.useQuery();
   const { data: timeSlots } = trpc.project.getProjectTimeSlots.useQuery(
     { projectId: selectedProject?.value ?? "" },

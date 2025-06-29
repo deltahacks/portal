@@ -14,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { z } from "zod";
 import ReactMarkdown from "react-markdown";
+import { keepPreviousData } from "@tanstack/react-query";
 
 const TableOptionSchema = z.object({
   value: z.string(),
@@ -40,7 +41,7 @@ const Judging: NextPage = () => {
     null
   );
 
-  const { data: tables, isLoading: tablesLoading } =
+  const { data: tables, isPending: tablesLoading } =
     trpc.table.getTables.useQuery();
   const { mutate: submitJudgment } =
     trpc.judging.createJudgingResult.useMutation();
@@ -49,7 +50,7 @@ const Judging: NextPage = () => {
     data: nextProject,
     refetch: refetchNextProject,
     isSuccess: projectSuccess,
-    isLoading: isProjectLoading,
+    isPending: isProjectLoading,
   } = trpc.project.getNextProject.useQuery(
     {
       tableId: selectedTable?.value || "",
@@ -57,7 +58,7 @@ const Judging: NextPage = () => {
     },
     {
       enabled: !!selectedTable,
-      keepPreviousData: true,
+      placeholderData: keepPreviousData,
     }
   );
   const generalTrackId = tables?.find(
@@ -248,7 +249,7 @@ const Judging: NextPage = () => {
                 {/* Table selection */}
                 <div className="mb-4">
                   <label className="label">
-                    <span className="label-text">Select your table:</span>
+                    <span>Select your table:</span>
                   </label>
                   <Controller
                     name="table"

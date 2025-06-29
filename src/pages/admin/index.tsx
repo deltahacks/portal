@@ -110,7 +110,7 @@ const Admin: NextPage = () => {
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">DeltaHacks Year</span>
+                    <span>DeltaHacks Year</span>
                   </label>
                   <select
                     value={currentDhYear ?? "DH11"}
