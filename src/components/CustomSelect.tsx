@@ -36,7 +36,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       // placeholder="Please select one"
       classNames={{
         control: (
-          state: ControlProps<SelectChoice, boolean, GroupBase<SelectChoice>>
+          state: ControlProps<SelectChoice, boolean, GroupBase<SelectChoice>>,
         ) => {
           return state.menuIsOpen
             ? "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border"

@@ -20,7 +20,7 @@ const ConstantQRReaderDynamic = dynamic(
   () => import("../components/QrScanner2"),
   {
     ssr: false,
-  }
+  },
 );
 
 // const RedirectToDashboard: React.FC = () => {
@@ -46,7 +46,7 @@ const FoodManagerView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
   const foodMutationAdd = trpc.food.addFood.useMutation();
   const foodMutationSub = trpc.food.subFood.useMutation();
@@ -56,7 +56,7 @@ const FoodManagerView: React.FC = () => {
       setQRCode(data);
       await foodUtils.food.getFood.invalidate();
     },
-    [foodUtils]
+    [foodUtils],
   );
   return (
     <>
@@ -153,7 +153,7 @@ const SponsorView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
 
   useEffect(() => {
@@ -253,7 +253,7 @@ const HackerView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
 
   return (
@@ -291,7 +291,7 @@ const HackerView: React.FC = () => {
                     I am a{" "}
                     {socialInfo?.currentLevel?.replace(
                       "High School",
-                      "High Schooler"
+                      "High Schooler",
                     )}{" "}
                     attending {socialInfo?.school} for {socialInfo?.major}{" "}
                     at&nbsp;
@@ -357,7 +357,8 @@ const HackerView: React.FC = () => {
                     <button
                       className="btn btn-primary join-item"
                       onClick={() => (
-                        setQRCode(value), setShouldShowScanner(false)
+                        setQRCode(value),
+                        setShouldShowScanner(false)
                       )}
                     >
                       Submit
@@ -550,7 +551,7 @@ const Scanner: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };

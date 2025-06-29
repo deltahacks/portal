@@ -88,7 +88,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop"
+      event.eventType.toLowerCase() === "workshop",
   );
 };
 
@@ -105,8 +105,8 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
     typeof router.query.slug === "string"
       ? router.query.slug
       : typeof router.query.slug === "object"
-      ? router.query.slug[0]
-      : undefined;
+        ? router.query.slug[0]
+        : undefined;
 
   const session = useSession();
   const canAct =
@@ -353,8 +353,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     typeof ctx.params?.slug === "string"
       ? ctx.params.slug
       : typeof ctx.params?.slug === "object"
-      ? ctx.params.slug[0]
-      : undefined;
+        ? ctx.params.slug[0]
+        : undefined;
 
   // Create context and call the procedure directly
   const context = await createContextInner({ session });

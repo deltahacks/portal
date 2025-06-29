@@ -20,7 +20,7 @@ const LeaderboardPage: NextPage = () => {
     {
       refetchInterval: 30 * 1000,
       refetchIntervalInBackground: true,
-    }
+    },
   );
 
   if (isPending) {
@@ -150,7 +150,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 }

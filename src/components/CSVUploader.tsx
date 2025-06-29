@@ -18,7 +18,7 @@ export const CSVUploader: React.FC<CSVUploaderProps> = ({ csvProcessor }) => {
         const data = processedData
           .filter((obj) => {
             return Object.values(obj).some(
-              (value) => value !== "" && value !== undefined && value !== null
+              (value) => value !== "" && value !== undefined && value !== null,
             );
           })
           .filter((obj) => {

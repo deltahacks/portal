@@ -222,7 +222,7 @@ const Checkin: NextPage = () => {
 
 // copied from dashboard.tsx
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };

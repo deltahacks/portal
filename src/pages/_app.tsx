@@ -14,13 +14,11 @@ import { PostHogProvider } from "posthog-js/react";
 import { useEffect } from "react";
 
 if (typeof window !== "undefined") {
-  // checks that we are client-side
   posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host: env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
-    person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
     ui_host: "https://app.posthog.com",
     loaded: (posthog) => {
-      if (process.env.NODE_ENV === "development") posthog.debug(); // debug mode in development
+      if (process.env.NODE_ENV === "development") posthog.debug();
     },
   });
 }
@@ -36,7 +34,6 @@ const PosthogIdentifer = () => {
       });
     }
   }, [session]);
-
   return null;
 };
 
@@ -62,9 +59,9 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             />
             {/* open graph image */}
             {/* <meta
-              property="og:image"
-              content={env.NEXT_PUBLIC_URL + "/og.png"}
-            /> */}
+            property="og:image"
+            content={env.NEXT_PUBLIC_URL + "/og.png"}
+          /> */}
 
             {/* <!-- HTML Meta Tags --> */}
             <title>DeltaHacks XI</title>

@@ -22,7 +22,7 @@ const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
   z.object({
     birthday: z.string(),
     studyExpectedGraduation: z.string().nullish(),
-  })
+  }),
 );
 export type ApplicationSchemaWithStringDates = z.infer<
   typeof ApplicationSchemaWithStringDates
@@ -88,13 +88,16 @@ export const reviewerRouter = router({
         },
       });
 
-      const reviewStatsMap = reviewStats.reduce((acc, curr) => {
-        acc[curr.applicationId] = {
-          reviewCount: curr._count.applicationId,
-          avgScore: curr._avg.score ?? 0,
-        };
-        return acc;
-      }, {} as Record<string, { reviewCount: number; avgScore: number }>);
+      const reviewStatsMap = reviewStats.reduce(
+        (acc, curr) => {
+          acc[curr.applicationId] = {
+            reviewCount: curr._count.applicationId,
+            avgScore: curr._avg.score ?? 0,
+          };
+          return acc;
+        },
+        {} as Record<string, { reviewCount: number; avgScore: number }>,
+      );
 
       const applicationsWithReviewCount = parsed.map((application) => ({
         ...application,
@@ -110,14 +113,14 @@ export const reviewerRouter = router({
     .input(
       z.object({
         dh11ApplicationId: z.string().optional(),
-      })
+      }),
     )
     .output(
       ApplicationSchemaWithStringDates.merge(
         z.object({
           hasReviewed: z.boolean().optional(),
-        })
-      )
+        }),
+      ),
     )
     .query(async ({ ctx, input }) => {
       if (
@@ -154,7 +157,7 @@ export const reviewerRouter = router({
       return ApplicationSchemaWithStringDates.merge(
         z.object({
           hasReviewed: z.boolean(),
-        })
+        }),
       ).parse({
         ...applicationWithStringDates,
         hasReviewed: !!review,
@@ -165,7 +168,7 @@ export const reviewerRouter = router({
     .input(
       z.object({
         dh11ApplicationId: z.string().cuid(),
-      })
+      }),
     )
     .output(z.object({ status: z.nativeEnum(Status) }))
     .query(async ({ ctx, input }) => {
@@ -202,7 +205,7 @@ export const reviewerRouter = router({
       z.object({
         dh11ApplicationId: z.string().cuid(),
         status: z.nativeEnum(Status),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -234,12 +237,12 @@ export const reviewerRouter = router({
           input.status === Status.ACCEPTED
             ? "✅"
             : input.status === Status.REJECTED
-            ? "❌"
-            : input.status === Status.WAITLISTED
-            ? "🕰️"
-            : input.status === Status.RSVP
-            ? "🎟️"
-            : "🤔",
+              ? "❌"
+              : input.status === Status.WAITLISTED
+                ? "🕰️"
+                : input.status === Status.RSVP
+                  ? "🎟️"
+                  : "🤔",
       });
     }),
 
@@ -348,7 +351,7 @@ export const reviewerRouter = router({
         ]),
         minRange: z.number().min(0),
         maxRange: z.number().max(17),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -383,13 +386,16 @@ export const reviewerRouter = router({
         },
       });
 
-      const reviewStatsMap = reviewStats.reduce((acc, curr) => {
-        acc[curr.applicationId] = {
-          reviewCount: curr._count.applicationId,
-          avgScore: curr._avg.score ?? 0,
-        };
-        return acc;
-      }, {} as Record<string, { reviewCount: number; avgScore: number }>);
+      const reviewStatsMap = reviewStats.reduce(
+        (acc, curr) => {
+          acc[curr.applicationId] = {
+            reviewCount: curr._count.applicationId,
+            avgScore: curr._avg.score ?? 0,
+          };
+          return acc;
+        },
+        {} as Record<string, { reviewCount: number; avgScore: number }>,
+      );
 
       const applicationsWithReviewCount = parsed.map((application) => ({
         ...application,
@@ -401,7 +407,7 @@ export const reviewerRouter = router({
       const applicationsToUpdate = applicationsWithReviewCount.filter(
         (application) =>
           application.avgScore >= input.minRange &&
-          application.avgScore <= input.maxRange
+          application.avgScore <= input.maxRange,
       );
 
       // use an updateMany query to update all application statuses
@@ -430,12 +436,12 @@ export const reviewerRouter = router({
           input.status === Status.ACCEPTED
             ? "✅"
             : input.status === Status.REJECTED
-            ? "❌"
-            : input.status === Status.WAITLISTED
-            ? "🕰️"
-            : input.status === Status.IN_REVIEW
-            ? "🎟️"
-            : "🤔",
+              ? "❌"
+              : input.status === Status.WAITLISTED
+                ? "🕰️"
+                : input.status === Status.IN_REVIEW
+                  ? "🎟️"
+                  : "🤔",
       });
     }),
 });

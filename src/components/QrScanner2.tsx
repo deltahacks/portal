@@ -74,7 +74,8 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       <button
         className="btn btn-primary"
         onClick={() => (
-          setCameraIdx(cameraIdx + 1), console.log(cameraIdx % 2)
+          setCameraIdx(cameraIdx + 1),
+          console.log(cameraIdx % 2)
         )}
       >
         Flip camera
