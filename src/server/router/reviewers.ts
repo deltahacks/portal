@@ -34,6 +34,19 @@ const ReviewScoreSchema = z.object({
   comment: z.string(),
 });
 
+const ReviewWithReviewerSchema = z.object({
+  id: z.string().cuid(),
+  score: z.number(),
+  comment: z.string(),
+  reviewerId: z.string(),
+  applicationId: z.string(),
+  reviewer: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string().nullable(),
+  }),
+});
+
 export const reviewerRouter = router({
   getApplications: protectedProcedure
     .output(ApplicationForReview.array())
@@ -303,6 +316,7 @@ export const reviewerRouter = router({
 
   getReviewsForApplication: protectedProcedure
     .input(z.object({ applicationId: z.string().cuid() }))
+    .output(ReviewWithReviewerSchema.array())
     .query(async ({ ctx, input }) => {
       // Check authorization
       if (
@@ -320,7 +334,7 @@ export const reviewerRouter = router({
         include: { reviewer: true },
       });
 
-      return reviews;
+      return ReviewWithReviewerSchema.array().parse(reviews);
     }),
 
   updateApplicationStatusByScoreRange: protectedProcedure
