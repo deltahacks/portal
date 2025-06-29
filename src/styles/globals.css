@@ -7,9 +7,10 @@ body,
   height: 100%;
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
 
 @layer components {
   .dark-gradient {

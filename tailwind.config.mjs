@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ["class", '[data-theme="dark"]'],
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
@@ -32,18 +32,6 @@ module.exports = {
   },
   plugins: [
     require("tailwindcss-animate"),
-    require("daisyui"),
     require("@tailwindcss/typography"),
   ],
-  daisyui: {
-    themes: [
-      {
-        dark: {
-          ...require("daisyui/src/theming/themes")["dark"],
-          primary: "#4A00FF",
-        },
-      },
-      "light",
-    ],
-  },
-};
+}; 
