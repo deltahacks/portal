@@ -16,7 +16,7 @@ export const Drawer = ({
   children,
   pageTabs,
 }: {
-  children: JSX.Element[] | JSX.Element;
+  children: React.ReactNode;
   pageTabs?: PageTab[];
 }) => {
   const { data: session } = useSession();

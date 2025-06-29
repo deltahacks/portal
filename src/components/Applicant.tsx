@@ -90,10 +90,7 @@ const FormTextArea: React.FC<
           Word count: {currentLength}
         </div>
       </label>
-      <div
-        className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
-        placeholder="Type here..."
-      >
+      <div className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
         {text}
       </div>
     </div>
