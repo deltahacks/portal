@@ -20,14 +20,14 @@ export default defineNextConfig(
     swcMinify: true,
     // Enable Turbo Pack
     experimental: {
-      turbo: {
-        rules: {
-          "*.svg": {
-            loaders: ["@svgr/webpack"],
-            as: "*.js",
-          },
-        },
-      },
+      // turbo: {
+      //   rules: {
+      //     "*.svg": {
+      //       loaders: ["@svgr/webpack"],
+      //       as: "*.js",
+      //     },
+      //   },
+      // },
     },
     images: {
       remotePatterns: [
@@ -39,5 +39,5 @@ export default defineNextConfig(
         },
       ],
     },
-  }),
+  })
 );
