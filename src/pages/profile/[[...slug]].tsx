@@ -9,7 +9,7 @@ import Head from "next/head";
 import Drawer from "../../components/Drawer";
 import SocialButtons from "../../components/SocialButtons";
 import { trpc } from "../../utils/trpc";
-import QRCode from "react-qr-code";
+// import QRCode from "react-qr-code";
 import { env } from "../../env/client.mjs";
 import { useSession } from "next-auth/react";
 
@@ -88,7 +88,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop",
+      event.eventType.toLowerCase() === "workshop"
   );
 };
 
@@ -207,10 +207,13 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
           {showCode ? (
             <div className="flex flex-col gap-2 w-full md:w-auto">
               <div className="w-full flex justify-center items-center bg-white rounded-lg p-4 shadow-lg shadow-black/50">
-                <QRCode
+                {/* <QRCode
                   value={`${env.NEXT_PUBLIC_URL}/profile/${qrCodeId}`}
                   className="w-full aspect-square h-auto"
-                />
+                /> */}
+                <div className="w-full aspect-square h-auto flex items-center justify-center text-gray-500">
+                  QR Code temporarily disabled
+                </div>
               </div>
               <div>
                 <div className="flex  w-full gap-4  *:select-none ">
