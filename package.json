@@ -56,7 +56,7 @@
     "ical.js": "^1.5.0",
     "iso-3166": "^4.3.0",
     "lucide-react": "^0.294.0",
-    "next": "^13.4.8",
+    "next": "^15.3.5",
     "next-auth": "^4.15.1",
     "next-remove-imports": "^1.0.12",
     "next-themes": "^0.2.1",
