@@ -29,7 +29,7 @@ const FormInput: React.FC<
           </span>
         )}
       </label>
-      <div className="min-h-[3rem] p-3 border align-middle rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
+      <div className="min-h-[3rem] rounded-lg border border-neutral-300 bg-white p-3 align-middle text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
         {text}
       </div>
     </div>
@@ -90,10 +90,7 @@ const FormTextArea: React.FC<
           Word count: {currentLength}
         </div>
       </label>
-      <div
-        className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
-        placeholder="Type here..."
-      >
+      <div className="min-h-[10rem] rounded-lg border border-neutral-300 bg-white p-3 text-black dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
         {text}
       </div>
     </div>
@@ -340,32 +337,32 @@ const ReviewForm = ({
 
   return (
     <>
-      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+      {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
       <div>
-        <label className="text-black dark:text-white font-bold">Score</label>
+        <label className="font-bold text-black dark:text-white">Score</label>
         <input
           type="number"
           min="0"
           max="17"
           value={score}
           onChange={(e) => setScore(e.target.value)}
-          className="w-full h-12 mt-2 p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          className="mt-2 h-12 w-full rounded-lg border border-neutral-300 bg-white p-3 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
           placeholder="Enter score (0-17)"
         />
       </div>
       <div>
-        <label className="text-black dark:text-white font-bold">Comments</label>
+        <label className="font-bold text-black dark:text-white">Comments</label>
         <textarea
           value={comments}
           onChange={(e) => setComments(e.target.value)}
-          className="w-full min-h-[10rem] mt-2 p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white resize-none"
+          className="mt-2 min-h-[10rem] w-full resize-none rounded-lg border border-neutral-300 bg-white p-3 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
           placeholder="Enter comments..."
         />
       </div>
       <button
         onClick={handleSubmitReview}
-        className={`rounded-lg px-7 py-2.5 text-sm font-bold whitespace-nowrap dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80 ${
-          score === "" ? "opacity-50 cursor-not-allowed" : ""
+        className={`whitespace-nowrap rounded-lg px-7 py-2.5 text-sm font-bold text-white hover:bg-primary/60 hover:text-white dark:bg-primary dark:text-white hover:dark:bg-primary/80 ${
+          score === "" ? "cursor-not-allowed opacity-50" : ""
         }`}
         disabled={score === ""}
       >
@@ -384,7 +381,7 @@ const ReviewScores = ({ applicationId }: { applicationId: string }) => {
 
   return (
     <>
-      <div className="text-black dark:text-white font-bold">
+      <div className="font-bold text-black dark:text-white">
         <div>
           Average Score:{" "}
           {(reviewsData || []).reduce((acc, review) => acc + review.score, 0) /
@@ -430,13 +427,13 @@ const ApplicationPopupButton = ({
       {isVisible && (
         <>
           <div
-            className="fixed z-0 top-0 left-0 w-screen h-screen bg-black/50"
+            className="fixed left-0 top-0 z-0 h-screen w-screen bg-black/50"
             onClick={() => setVisibility(false)}
           />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full md:w-4/5 h-full md:h-5/6 rounded-md border dark:border-zinc-700 bg-white dark:bg-[#171717] flex">
+          <div className="fixed left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 rounded-md border bg-white dark:border-zinc-700 dark:bg-[#171717] md:h-5/6 md:w-4/5">
             <Button
               variant="destructive"
-              className="md:absolute top-4 right-4 bg-red-500"
+              className="right-4 top-4 bg-red-500 md:absolute"
               onClick={() => setVisibility(false)}
             >
               Close
@@ -447,13 +444,13 @@ const ApplicationPopupButton = ({
               <div>Loading...</div>
             ) : (
               <>
-                <div className="relative flex flex-col w-full h-full">
-                  <div className="w-full flex-auto flex flex-col p-4 overflow-y-scroll">
+                <div className="relative flex h-full w-full flex-col">
+                  <div className="flex w-full flex-auto flex-col overflow-y-scroll p-4">
                     <ApplicationContent applicationData={applicationData} />
                   </div>
                 </div>
-                <div className="w-[1px] bg-zinc-700 my-4" />
-                <div className="m-4 flex flex-col justify-end w-96 gap-4">
+                <div className="my-4 w-[1px] bg-zinc-700" />
+                <div className="m-4 flex w-96 flex-col justify-end gap-4">
                   {applicationData.hasReviewed || isAdmin ? (
                     <ReviewScores
                       applicationId={applicationForReview.DH11ApplicationId}
