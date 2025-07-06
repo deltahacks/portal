@@ -18,17 +18,6 @@ export default defineNextConfig(
   removeImports({
     reactStrictMode: true,
     swcMinify: true,
-    // Enable Turbo Pack
-    experimental: {
-      // turbo: {
-      //   rules: {
-      //     "*.svg": {
-      //       loaders: ["@svgr/webpack"],
-      //       as: "*.js",
-      //     },
-      //   },
-      // },
-    },
     images: {
       remotePatterns: [
         {
