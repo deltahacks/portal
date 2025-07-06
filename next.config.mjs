@@ -14,19 +14,22 @@ function defineNextConfig(config) {
 
 import removeImports from "next-remove-imports";
 
-export default defineNextConfig(
-  removeImports({
-    reactStrictMode: true,
-    swcMinify: true,
-    images: {
-      remotePatterns: [
-        {
-          protocol: "https",
-          hostname: "lh3.googleusercontent.com",
-          port: "",
-          pathname: "/**",
-        },
-      ],
-    },
-  }),
-);
+export default defineNextConfig({
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.plugins.push(removeImports());
+    }
+    return config;
+  },
+});
