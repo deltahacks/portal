@@ -44,7 +44,6 @@
     "@uppy/progress-bar": "^4.2.1",
     "@uppy/react": "^4.3.0",
     "@uppy/xhr-upload": "^4.3.3",
-    "@zxing/browser": "^0.1.5",
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
     "class-variance-authority": "^0.7.1",
