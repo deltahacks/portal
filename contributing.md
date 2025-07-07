@@ -31,6 +31,9 @@ As a new DeltaHacks technical team member working on this project, here's what y
 - **Node.js** (version 18 or higher)
 - **pnpm** (package manager - we use pnpm for this project)
 - **Git**
+- **Docker** - Required for local database setup
+  - **Recommended**: [OrbStack](https://orbstack.dev/) - A fast, lightweight Docker Desktop alternative optimized for macOS
+  - Alternative: Docker Desktop
 
 ### Installation
 
@@ -47,15 +50,22 @@ As a new DeltaHacks technical team member working on this project, here's what y
 
 3. **Set up environment variables:**
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env
    ```
    
-   Fill in the required environment variables in `.env.local`. See the [Environment Variables](#environment-variables) section for details.
+   Fill in the required environment variables in `.env`. Reach out to either of the VPs to recieve the environemntal variables needed. 
 
 4. **Set up the database:**
    ```bash
-   pnpm prisma generate
-   pnpm prisma db push
+   
+   # Start the database using the provided script
+   # ⚠️  WARNING: Make sure you've completed step 3 (environment variables) first!
+   # The setup-db.sh script requires environment variables from .env.local to work properly.
+   ./setup-db.sh
+   
+   # Generate Prisma client and push schema
+   pnpm db:generate
+   pnpm db:push
    ```
 
 5. **Start the development server:**
@@ -65,41 +75,25 @@ As a new DeltaHacks technical team member working on this project, here's what y
 
 The application should now be running at `http://localhost:3000`.
 
-### Environment Variables
+### Database Setup
 
-Create a `.env.local` file with the following variables:
+The project includes a `setup-db.sh` script that automatically sets up a local CockroachDB database using Docker. This script:
 
-```env
-# Database
-DATABASE_URL="your_database_url_here"
+- Checks for Docker or Podman installation
+- Creates a CockroachDB container if it doesn't exist
+- Starts the database on port 26257
+- Provides a web UI on port 8080
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your_nextauth_secret_here"
-
-# OAuth Providers (configure as needed)
-GOOGLE_CLIENT_ID="your_google_client_id"
-GOOGLE_CLIENT_SECRET="your_google_client_secret"
-
-# AWS S3 (for file uploads)
-AWS_ACCESS_KEY_ID="your_aws_access_key"
-AWS_SECRET_ACCESS_KEY="your_aws_secret_key"
-AWS_REGION="your_aws_region"
-AWS_S3_BUCKET="your_s3_bucket_name"
-
-# SendGrid (for emails)
-SENDGRID_API_KEY="your_sendgrid_api_key"
-
-# PostHog (analytics)
-NEXT_PUBLIC_POSTHOG_KEY="your_posthog_key"
-POSTHOG_API_KEY="your_posthog_api_key"
-```
+**Prerequisites:**
+- **Docker** installed and running (see [Prerequisites](#prerequisites) for our recommended Docker client)
+- Port 26257 available (the script will check this)
 
 ## Project Structure
 
 ```
 src/
 ├── app/                 # Next.js app directory (API routes)
+├── assets/              # Static assets (pass files, images, etc.)
 ├── components/          # Reusable React components
 ├── data/               # Static data and constants
 ├── env/                # Environment variable schemas
@@ -107,7 +101,10 @@ src/
 ├── schemas/            # Zod schemas for validation
 ├── server/             # tRPC server-side code
 │   ├── router/         # tRPC routers
-│   └── common/         # Shared server utilities
+│   ├── common/         # Shared server utilities
+│   ├── db/             # Database-related code
+│   └── trpc/           # tRPC configuration
+│       └── router/     # Nested tRPC router structure
 ├── styles/             # Global styles
 ├── types/              # TypeScript type definitions
 └── utils/              # Utility functions
@@ -264,6 +261,11 @@ For more detailed guidance on avoiding unnecessary Effects and state, see the [R
 
 4. **Test your changes** thoroughly
 
+5. **Deploy the migration to your db**
+   ```bash
+   pnpm db:push
+   ```
+
 ### Database Guidelines
 
 - Always create migrations for schema changes
@@ -384,7 +386,7 @@ This approach ensures that:
 
 ```bash
 # Development
-pnpm dev              # Start development server
+pnpm dev              # Start development server (includes pnpm i && prisma generate)
 pnpm build            # Build for production
 pnpm start            # Start production server
 
@@ -394,9 +396,10 @@ pnpm format           # Format code with Prettier
 pnpm format:check     # Check code formatting
 
 # Database
-pnpm prisma generate  # Generate Prisma client
-pnpm prisma db push   # Push schema to database
-pnpm prisma studio    # Open Prisma Studio
+pnpm db:generate      # Generate Prisma client and run migrations
+pnpm db:migrate       # Deploy migrations to production
+pnpm db:push          # Push schema to database
+pnpm db:studio        # Open Prisma Studio
 ```
 
 Welcome to the team! We're excited to have you working on the DeltaHacks Portal project! 🚀
