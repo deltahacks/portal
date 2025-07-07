@@ -157,6 +157,82 @@ This project uses the **T3 Stack**:
 - Use proper prop types and interfaces
 - Implement proper error boundaries
 
+#### State Management Best Practices
+
+**Avoid unnecessary useState:**
+- Don't use state for values that can be derived from props or other state
+- Don't use state for values that don't trigger re-renders
+- Don't use state for values that are only used in event handlers
+
+**When to use useState:**
+- When a value changes over time and affects the UI
+- When a value needs to persist between re-renders
+- When a value is used in multiple places in the component
+
+**Examples of unnecessary state:**
+```tsx
+// ❌ Bad - unnecessary state
+const [fullName, setFullName] = useState(firstName + ' ' + lastName);
+
+// ✅ Good - derived value
+const fullName = firstName + ' ' + lastName;
+```
+
+```tsx
+// ❌ Bad - state for event handler only
+const [isSubmitting, setIsSubmitting] = useState(false);
+const handleSubmit = () => {
+  setIsSubmitting(true);
+  // ... submit logic
+};
+
+// ✅ Good - use ref or local variable if needed
+const isSubmittingRef = useRef(false);
+const handleSubmit = () => {
+  isSubmittingRef.current = true;
+  // ... submit logic
+};
+```
+
+**Caching expensive calculations:**
+```tsx
+// ❌ Bad - recalculating on every render
+const expensiveValue = expensiveCalculation(data);
+
+// ✅ Good - memoized calculation
+const expensiveValue = useMemo(() => {
+  return expensiveCalculation(data);
+}, [data]);
+```
+
+**Avoiding unnecessary Effects:**
+```tsx
+// ❌ Bad - Effect for derived state
+const [filteredTodos, setFilteredTodos] = useState([]);
+useEffect(() => {
+  setFilteredTodos(todos.filter(todo => !todo.completed));
+}, [todos]);
+
+// ✅ Good - calculate during render
+const filteredTodos = todos.filter(todo => !todo.completed);
+```
+
+**Common patterns to avoid:**
+- Storing computed values in state
+- Using state for form values that don't need validation
+- Storing UI state that can be derived from props
+- Using state for values that are only used in callbacks
+- Using Effects to transform data for rendering
+- Using Effects to handle user events (use event handlers instead)
+
+**Key principles:**
+- If you can calculate something during render, you don't need an Effect
+- To cache expensive calculations, use `useMemo` instead of `useEffect`
+- Code that runs because a component was displayed should be in Effects
+- Code that runs because a user did something should be in event handlers
+
+For more detailed guidance on avoiding unnecessary Effects and state, see the [React documentation on "You Might Not Need an Effect"](https://react.dev/learn/you-might-not-need-an-effect).
+
 ### Styling
 
 - Use TailwindCSS for styling
