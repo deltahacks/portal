@@ -27,6 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
+    "**/*.mjs",
     ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]

@@ -22,7 +22,7 @@ const resume = async (req: NextApiRequest, res: NextApiResponse) => {
     };
     const resp = await fetch(
       `https://api.typeform.com/forms/${jpath}`,
-      options
+      options,
     );
 
     res.setHeader("Content-type", resp.headers.get("content-type") || " ");

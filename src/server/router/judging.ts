@@ -13,8 +13,8 @@ export const projectRouter = router({
           link: z.string().optional().default(""),
           tracks: z.array(z.string()),
           status: z.string().optional().default("Draft"),
-        })
-      )
+        }),
+      ),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -173,7 +173,7 @@ export const projectRouter = router({
       z.object({
         tableId: z.string(),
         projectId: z.string().nullable(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       if (
@@ -309,7 +309,7 @@ export const tableRouter = router({
       });
 
       const judgedProjectIds = new Set(
-        judgedProjects.map((jp) => jp.projectId)
+        judgedProjects.map((jp) => jp.projectId),
       );
 
       const projects = await ctx.prisma.project.findMany({
@@ -376,9 +376,9 @@ export const judgingRouter = router({
           z.object({
             questionId: z.string(),
             score: z.number().min(0),
-          })
+          }),
         ),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (
@@ -484,7 +484,7 @@ export const judgingRouter = router({
         points: z.number().min(0).max(100),
         title: z.string(),
         trackId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -530,7 +530,7 @@ export const judgingRouter = router({
     .input(
       z.object({
         trackId: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -654,10 +654,10 @@ export const judgingRouter = router({
               title: z.string(),
               question: z.string(),
               points: z.number().min(0).max(100),
-            })
-          )
+            }),
+          ),
         ),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -745,7 +745,7 @@ export const timeSlotRouter = router({
       z.object({
         slotDurationMinutes: z.number().min(1).default(10),
         startTime: z.string().datetime(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -794,10 +794,10 @@ export const timeSlotRouter = router({
 
       // Separate MLH and non-MLH tracks
       const mlhProjectTracks = allProjectTracks.filter(
-        (pt) => pt.track.name === "MLH"
+        (pt) => pt.track.name === "MLH",
       );
       const projectTracks = allProjectTracks.filter(
-        (pt) => pt.track.name !== "MLH"
+        (pt) => pt.track.name !== "MLH",
       );
 
       // Find the existing MLH table instead of creating a new one
@@ -827,7 +827,7 @@ export const timeSlotRouter = router({
           const tableTrack = table.track;
           const suitableProjects = projectTracks.filter(
             (pt) =>
-              pt.trackId === tableTrack.id && !busyProjects.has(pt.projectId)
+              pt.trackId === tableTrack.id && !busyProjects.has(pt.projectId),
           );
           // Find project with highest starvation value
           const chosenProject = suitableProjects.reduce(
@@ -840,7 +840,7 @@ export const timeSlotRouter = router({
                 ? current
                 : mostStarved;
             },
-            suitableProjects[0]
+            suitableProjects[0],
           );
           if (chosenProject) {
             await ctx.prisma.timeSlot.create({
@@ -850,8 +850,8 @@ export const timeSlotRouter = router({
                 startTime: currentTimeChunk,
                 endTime: new Date(
                   new Date(currentTimeChunk).setMinutes(
-                    currentTimeChunk.getMinutes() + input.slotDurationMinutes
-                  )
+                    currentTimeChunk.getMinutes() + input.slotDurationMinutes,
+                  ),
                 ),
                 dhYear: dhYearConfig.value,
               },
@@ -869,7 +869,7 @@ export const timeSlotRouter = router({
 
         // find projects that are not in the busyProjects set
         const availableForMlh = mlhProjectTracks.filter(
-          (pt) => !busyProjects.has(pt.projectId)
+          (pt) => !busyProjects.has(pt.projectId),
         );
 
         // Schedule MLH judging slots
@@ -892,7 +892,7 @@ export const timeSlotRouter = router({
                 ? current
                 : mostStarved;
             },
-            availableForMlh[0]
+            availableForMlh[0],
           );
 
           if (chosenProject) {
@@ -903,8 +903,8 @@ export const timeSlotRouter = router({
                 startTime: mlhStartTime,
                 endTime: new Date(
                   new Date(mlhStartTime).setMinutes(
-                    mlhStartTime.getMinutes() + 5
-                  )
+                    mlhStartTime.getMinutes() + 5,
+                  ),
                 ),
                 dhYear: dhYearConfig.value,
               },
@@ -912,7 +912,7 @@ export const timeSlotRouter = router({
 
             // Remove scheduled project from MLH pool and reset its starvation
             const indexInMlh = mlhProjectTracks.findIndex(
-              (p) => p.projectId === chosenProject.projectId
+              (p) => p.projectId === chosenProject.projectId,
             );
             if (indexInMlh > -1) {
               mlhProjectTracks.splice(indexInMlh, 1);
@@ -920,7 +920,7 @@ export const timeSlotRouter = router({
 
             // Also remove from availableForMlh
             const indexInAvailable = availableForMlh.findIndex(
-              (p) => p.projectId === chosenProject.projectId
+              (p) => p.projectId === chosenProject.projectId,
             );
             if (indexInAvailable > -1) {
               availableForMlh.splice(indexInAvailable, 1);
@@ -936,13 +936,13 @@ export const timeSlotRouter = router({
           });
 
           mlhStartTime = new Date(
-            new Date(mlhStartTime).setMinutes(mlhStartTime.getMinutes() + 5)
+            new Date(mlhStartTime).setMinutes(mlhStartTime.getMinutes() + 5),
           );
         }
         currentTimeChunk = new Date(
           new Date(currentTimeChunk).setMinutes(
-            currentTimeChunk.getMinutes() + input.slotDurationMinutes
-          )
+            currentTimeChunk.getMinutes() + input.slotDurationMinutes,
+          ),
         );
       }
       // Handle remaining MLH projects if any left
@@ -954,8 +954,8 @@ export const timeSlotRouter = router({
             startTime: currentTimeChunk,
             endTime: new Date(
               new Date(currentTimeChunk).setMinutes(
-                currentTimeChunk.getMinutes() + 5 // 5 minute slots for MLH
-              )
+                currentTimeChunk.getMinutes() + 5, // 5 minute slots for MLH
+              ),
             ),
             dhYear: dhYearConfig.value,
           },
@@ -963,8 +963,8 @@ export const timeSlotRouter = router({
 
         currentTimeChunk = new Date(
           new Date(currentTimeChunk).setMinutes(
-            currentTimeChunk.getMinutes() + 5
-          )
+            currentTimeChunk.getMinutes() + 5,
+          ),
         );
       }
 

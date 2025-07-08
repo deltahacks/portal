@@ -177,7 +177,7 @@ const FormUpload: React.FC<FormUploadProps> = ({
       getResponseData: () => {
         return { url: objectId };
       },
-    })
+    }),
   );
 
   if (!uploadUrl) {
@@ -659,7 +659,7 @@ const ApplyForm = ({
                 onChange(val?.map((v: SelectChoice) => v.value))
               }
               value={workshops.filter((val) =>
-                value?.includes(val.value as workshopType)
+                value?.includes(val.value as workshopType),
               )}
               isMulti={true}
             />
@@ -917,7 +917,7 @@ const Apply: NextPage<
             </h1>
 
             {!killed &&
-              (autofillData.isLoading ? (
+              (autofillData.isPending ? (
                 <div className="flex flex-col items-center justify-center h-full py-4 text-center">
                   Loading your application...
                   <div className="loading loading-infinity loading-lg"></div>
@@ -953,7 +953,7 @@ const Apply: NextPage<
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
 

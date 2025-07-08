@@ -14,9 +14,9 @@ const dh10schema = z.object({
     },
     {
       message: "You must be at least 13 years old",
-    }
+    },
   ),
-  macEv: z.boolean().default(false),
+  macEv: z.boolean(),
   linkToResume: z.nullable(z.string()),
   studyEnrolledPostSecondary: z.boolean(),
   studyLocation: z.string().min(1).max(255).nullish(),
@@ -103,7 +103,7 @@ const dh10schema = z.object({
     "Transgender",
     "Prefer not to say",
   ]),
-  race: z.string().min(1).max(255).default("Prefer not to say"),
+  race: z.string().min(1).max(255),
   emergencyContactName: z.string().min(1),
   emergencyContactPhone: z
     .string()
@@ -133,7 +133,7 @@ const dh11schema = z.object({
     },
     {
       message: "You must be at least 13 years old",
-    }
+    },
   ),
   phone: z.string().refine(isMobilePhone, "Invalid phone number").nullish(),
   country: z.string().nullish(),
@@ -142,11 +142,7 @@ const dh11schema = z.object({
   studyDegree: z.string().min(1).max(255).nullish(),
   studyMajor: z.string().min(1).max(255).nullish(),
   studyYearOfStudy: z.string().nullish(),
-  studyExpectedGraduation: z.coerce
-    .date()
-    .or(z.string())
-    .transform((s) => (typeof s === "string" ? null : s)) // if the coerce.date fails, this value is null
-    .nullish(),
+  studyExpectedGraduation: z.coerce.date().nullish(),
   previousHackathonsCount: z.coerce.number().int().min(0),
   longAnswerIncident: z
     .string()
@@ -178,7 +174,7 @@ const dh11schema = z.object({
     .refine((value) => value.split(/\s/g).length <= 150, {
       message: "Must be less than 150 words",
     }),
-  socialText: z.array(z.string()).default([]),
+  socialText: z.array(z.string()),
   interests: z
     .string()
     .refine((value) => value.split(/\s/g).length <= 150, {
@@ -190,16 +186,16 @@ const dh11schema = z.object({
   tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
   hackerKind: z.array(z.string()).min(1, "At least one selection is required"),
   alreadyHaveTeam: z.boolean(),
-  workshopChoices: z.array(z.string()).default([]),
+  workshopChoices: z.array(z.string()),
   discoverdFrom: z
     .array(z.string())
     .min(1, "At least one selection is required"),
   considerCoffee: z.boolean(),
   dietaryRestrictions: z.string().nullish(),
-  underrepresented: YesNoUnsure.default("UNSURE"),
-  gender: z.string().default("Prefer not to say"),
-  race: z.string().default("Prefer not to say"),
-  orientation: z.string().default("Prefer not to say"),
+  underrepresented: YesNoUnsure,
+  gender: z.string(),
+  race: z.string(),
+  orientation: z.string(),
   emergencyContactName: z.string().min(1, "This field is required"),
   emergencyContactPhone: z
     .string()

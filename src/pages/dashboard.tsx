@@ -197,8 +197,8 @@ const Rejected: React.FC = () => {
         We had a lot of amazing applicants this year and were happy to see so
         many talented, enthusiastic individuals. Unfortunately we were not able
         to accommodate all applicants this year and are unable to offer you a
-        spot at the hackathon at this time. We really hope you’ll apply again
-        next year!
+        spot at the hackathon at this time. We really hope you&apos;ll apply
+        again next year!
       </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can <br />
@@ -428,7 +428,7 @@ const RSVPed: React.FC = () => {
 };
 
 const CheckedIn: React.FC = () => {
-  const { data: qrcode, isLoading } = trpc.application.qr.useQuery();
+  const { data: qrcode, isPending } = trpc.application.qr.useQuery();
   const { data: session } = useSession();
   const hoursMinSecs = [1, 30, 20];
 
@@ -460,7 +460,7 @@ const CheckedIn: React.FC = () => {
 };
 
 const WalkIns: React.FC = () => {
-  const { data: qrcode, isLoading } = trpc.application.qr.useQuery();
+  const { data: qrcode, isPending } = trpc.application.qr.useQuery();
   const { data: session } = useSession();
   const hoursMinSecs = [1, 30, 20];
 
@@ -531,7 +531,7 @@ const Dashboard: NextPage<
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
 

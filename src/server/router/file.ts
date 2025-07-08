@@ -27,7 +27,7 @@ export const fileUploadRouter = router({
       z.object({
         filename: z.string(),
         contentType: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -38,7 +38,7 @@ export const fileUploadRouter = router({
             Key: `${input.filename}`,
             ContentType: input.contentType,
           }),
-          { expiresIn: 3600 }
+          { expiresIn: 3600 },
         );
 
         return {
@@ -57,7 +57,7 @@ export const fileUploadRouter = router({
     .input(
       z.object({
         key: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {

@@ -80,12 +80,12 @@ const PreCheckedIn: React.FC = () => {
             </div>
             <div className="flex flex-col gap-5 p-5">
               <h1 className="text-white">Link manually :</h1>
-              <div className="form-control">
-                <div className="input-group pb-4">
+              <fieldset className="fieldset">
+                <div className="join pb-4">
                   <input
                     type="text"
                     placeholder="QR CODE"
-                    className="input input-bordered"
+                    className="input join-item"
                     maxLength={7}
                     minLength={7}
                     value={value}
@@ -93,13 +93,13 @@ const PreCheckedIn: React.FC = () => {
                     pattern="[0-9]*"
                   />
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary join-item"
                     onClick={() => setQRCode(value)}
                   >
                     Submit
                   </button>
                 </div>
-              </div>
+              </fieldset>
             </div>
           </div>
 
@@ -222,7 +222,7 @@ const Checkin: NextPage = () => {
 
 // copied from dashboard.tsx
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };
