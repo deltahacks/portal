@@ -15,15 +15,15 @@ const LeaderboardPage: NextPage = () => {
   const [selectedTrackId, setSelectedTrackId] = useState<string>("all");
 
   const { data: tracks } = trpc.track.getTracks.useQuery();
-  const { data: leaderboard, isLoading } = trpc.judging.getLeaderboard.useQuery(
+  const { data: leaderboard, isPending } = trpc.judging.getLeaderboard.useQuery(
     { trackId: selectedTrackId === "all" ? undefined : selectedTrackId },
     {
       refetchInterval: 30 * 1000,
       refetchIntervalInBackground: true,
-    }
+    },
   );
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
@@ -150,7 +150,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 }

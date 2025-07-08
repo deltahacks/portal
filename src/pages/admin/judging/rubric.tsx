@@ -20,7 +20,7 @@ import dynamic from "next/dynamic";
 
 const MDEditor = dynamic<any>(
   () => import("@uiw/react-md-editor").then((mod) => mod.default),
-  { ssr: false }
+  { ssr: false },
 );
 
 type RubricFormData = {
@@ -49,7 +49,7 @@ const JSONUploader: React.FC = () => {
       };
       reader.readAsText(file);
     },
-    [importRubricMutation]
+    [importRubricMutation],
   );
 
   return (
@@ -58,17 +58,17 @@ const JSONUploader: React.FC = () => {
         <h2 className="card-title">Import Rubric Questions</h2>
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Upload JSON file</span>
+            <span>Upload JSON file</span>
           </label>
           <input
             type="file"
             accept=".json"
             onChange={handleFileChange}
             className="file-input file-input-bordered w-full"
-            disabled={importRubricMutation.isLoading}
+            disabled={importRubricMutation.isPending}
           />
         </div>
-        {importRubricMutation.isLoading && (
+        {importRubricMutation.isPending && (
           <div className="text-info">Importing questions...</div>
         )}
         {importRubricMutation.isSuccess && (
@@ -95,7 +95,7 @@ const RubricPage: NextPage = () => {
   const { data: rubricQuestions, refetch: refetchQuestions } =
     trpc.judging.getRubricQuestions.useQuery(
       { trackId: selectedTrack || "" },
-      { enabled: !!selectedTrack }
+      { enabled: !!selectedTrack },
     );
 
   const createQuestion = trpc.judging.createRubricQuestion.useMutation({
@@ -187,7 +187,7 @@ const RubricPage: NextPage = () => {
 
                     <div className="form-control">
                       <label className="label">
-                        <span className="label-text">Title</span>
+                        <span>Title</span>
                       </label>
                       <input
                         type="text"
@@ -199,7 +199,7 @@ const RubricPage: NextPage = () => {
 
                     <div className="form-control">
                       <label className="label">
-                        <span className="label-text">Question</span>
+                        <span>Question</span>
                       </label>
                       <div data-color-mode="dark">
                         <MDEditor
@@ -215,7 +215,7 @@ const RubricPage: NextPage = () => {
 
                     <div className="form-control">
                       <label className="label">
-                        <span className="label-text">Points</span>
+                        <span>Points</span>
                       </label>
                       <input
                         type="number"
@@ -234,9 +234,9 @@ const RubricPage: NextPage = () => {
                     <button
                       type="submit"
                       className="btn btn-primary w-full"
-                      disabled={createQuestion.isLoading}
+                      disabled={createQuestion.isPending}
                     >
-                      {createQuestion.isLoading
+                      {createQuestion.isPending
                         ? "Creating..."
                         : "Create Question"}
                     </button>
@@ -322,7 +322,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 }

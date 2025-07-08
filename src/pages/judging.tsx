@@ -14,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { z } from "zod";
 import ReactMarkdown from "react-markdown";
+import { keepPreviousData } from "@tanstack/react-query";
 
 const TableOptionSchema = z.object({
   value: z.string(),
@@ -37,10 +38,10 @@ const Judging: NextPage = () => {
   // const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-    null
+    null,
   );
 
-  const { data: tables, isLoading: tablesLoading } =
+  const { data: tables, isPending: tablesLoading } =
     trpc.table.getTables.useQuery();
   const { mutate: submitJudgment } =
     trpc.judging.createJudgingResult.useMutation();
@@ -49,7 +50,7 @@ const Judging: NextPage = () => {
     data: nextProject,
     refetch: refetchNextProject,
     isSuccess: projectSuccess,
-    isLoading: isProjectLoading,
+    isPending: isProjectLoading,
   } = trpc.project.getNextProject.useQuery(
     {
       tableId: selectedTable?.value || "",
@@ -57,18 +58,18 @@ const Judging: NextPage = () => {
     },
     {
       enabled: !!selectedTable,
-      keepPreviousData: true,
-    }
+      placeholderData: keepPreviousData,
+    },
   );
   const generalTrackId = tables?.find(
-    (t) => t.track.name.toLowerCase() === "general"
+    (t) => t.track.name.toLowerCase() === "general",
   )?.trackId;
   const { data: rubricQuestions } = trpc.judging.getRubricQuestions.useQuery(
     {
       trackId:
         tables?.find((t) => t.id === selectedTable?.value)?.trackId || "",
     },
-    { enabled: !!selectedTable }
+    { enabled: !!selectedTable },
   );
   // need to add general questions to other tracks
   const { data: generalQuestions } = trpc.judging.getRubricQuestions.useQuery(
@@ -82,7 +83,7 @@ const Judging: NextPage = () => {
         tables
           ?.find((t) => t.id === selectedTable?.value)
           ?.track.name.toLowerCase() !== "general",
-    }
+    },
   );
 
   const allQuestions = [
@@ -97,13 +98,13 @@ const Judging: NextPage = () => {
   const { data: tableProjects, refetch: refetchTableProjects } =
     trpc.table.getTableProjects.useQuery(
       { tableId: selectedTable?.value || "" },
-      { enabled: !!selectedTable }
+      { enabled: !!selectedTable },
     );
 
   const { data: existingScores, refetch: refetchExistingScores } =
     trpc.judging.getProjectScores.useQuery(
       { projectId: nextProject?.id || "" },
-      { enabled: !!nextProject }
+      { enabled: !!nextProject },
     );
 
   useEffect(() => {
@@ -131,14 +132,14 @@ const Judging: NextPage = () => {
           ([questionId, score]) => ({
             questionId,
             score: Number(score),
-          })
+          }),
         ),
       },
       {
         onSuccess: () => {
           // Only clear selectedProjectId if there are more unjudged projects
           const hasMoreUnjudgedProjects = tableProjects?.some(
-            (p) => !p.isJudged && p.id !== nextProject.id
+            (p) => !p.isJudged && p.id !== nextProject.id,
           );
           if (hasMoreUnjudgedProjects) {
             setSelectedProjectId(null);
@@ -150,7 +151,7 @@ const Judging: NextPage = () => {
           // Scroll to top of page
           window.scrollTo({ top: 0, behavior: "smooth" });
         },
-      }
+      },
     );
   };
 
@@ -248,7 +249,7 @@ const Judging: NextPage = () => {
                 {/* Table selection */}
                 <div className="mb-4">
                   <label className="label">
-                    <span className="label-text">Select your table:</span>
+                    <span>Select your table:</span>
                   </label>
                   <Controller
                     name="table"
@@ -345,7 +346,7 @@ const Judging: NextPage = () => {
                                 <QuestionSection
                                   title={`${
                                     tables?.find(
-                                      (t) => t.id === selectedTable?.value
+                                      (t) => t.id === selectedTable?.value,
                                     )?.track.name
                                   } Track Questions`}
                                   questions={rubricQuestions}
@@ -383,10 +384,10 @@ const Judging: NextPage = () => {
                               className="btn btn-primary mt-8"
                             >
                               {tableProjects?.find(
-                                (t) => t.id === selectedProjectId
+                                (t) => t.id === selectedProjectId,
                               )?.isJudged
                                 ? "Update Judgment"
-                                : "Submit Judgement"}
+                                : "Submit Judgment"}
                             </button>
                           </form>
                         ) : (
@@ -453,14 +454,14 @@ const Judging: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
     [Role.ADMIN, Role.JUDGE],
     undefined,
-    output
+    output,
   );
   return output;
 };

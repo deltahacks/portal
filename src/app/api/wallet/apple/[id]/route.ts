@@ -21,7 +21,7 @@ import { prisma } from "../../../../../server/db/client";
 
 export const GET = async (
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   const id = (await params).id;
 
@@ -82,7 +82,7 @@ export const GET = async (
       },
       {
         backgroundColor: cardColor,
-      }
+      },
     );
 
     // Adding some settings to be written inside pass.json

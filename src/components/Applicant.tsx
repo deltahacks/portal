@@ -90,10 +90,7 @@ const FormTextArea: React.FC<
           Word count: {currentLength}
         </div>
       </label>
-      <div
-        className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
-        placeholder="Type here..."
-      >
+      <div className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
         {text}
       </div>
     </div>
@@ -379,7 +376,7 @@ const ReviewScores = ({ applicationId }: { applicationId: string }) => {
   const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
     {
       applicationId: applicationId,
-    }
+    },
   );
 
   return (
@@ -416,7 +413,7 @@ const ApplicationPopupButton = ({
 
   const {
     data: applicationData,
-    isLoading: applicationIsLoading,
+    isPending: applicationIsLoading,
     error: applicationError,
   } = trpc.reviewer.getApplication.useQuery({
     dh11ApplicationId: applicationForReview.DH11ApplicationId,
@@ -449,12 +446,14 @@ const ApplicationPopupButton = ({
               <>
                 <div className="relative flex flex-col w-full h-full">
                   <div className="w-full flex-auto flex flex-col p-4 overflow-y-scroll">
-                    <ApplicationContent applicationData={applicationData} />
+                    {applicationData && (
+                      <ApplicationContent applicationData={applicationData} />
+                    )}
                   </div>
                 </div>
                 <div className="w-[1px] bg-zinc-700 my-4" />
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
-                  {applicationData.hasReviewed || isAdmin ? (
+                  {applicationData?.hasReviewed || isAdmin ? (
                     <ReviewScores
                       applicationId={applicationForReview.DH11ApplicationId}
                     />

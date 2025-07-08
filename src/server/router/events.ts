@@ -10,7 +10,7 @@ export const eventsRouter = router({
       z.object({
         userId: z.string(),
         eventName: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (

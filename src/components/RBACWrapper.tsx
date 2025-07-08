@@ -5,7 +5,7 @@ export const rbac = (
   session: Session | null,
   roles: string[],
   redirect = "/dashboard",
-  inObj: GetServerSidePropsResult<Record<string, unknown>>
+  inObj: GetServerSidePropsResult<Record<string, unknown>>,
 ): GetServerSidePropsResult<Record<string, unknown>> => {
   if (!session) {
     return {
@@ -16,7 +16,7 @@ export const rbac = (
     };
   }
   const authorized = roles.some((r: string) =>
-    session?.user?.role?.includes(r)
+    session?.user?.role?.includes(r),
   );
   if (!authorized) {
     return {
