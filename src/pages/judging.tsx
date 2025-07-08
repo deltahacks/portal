@@ -387,7 +387,7 @@ const Judging: NextPage = () => {
                                 (t) => t.id === selectedProjectId,
                               )?.isJudged
                                 ? "Update Judgment"
-                                : "Submit Judgement"}
+                                : "Submit Judgment"}
                             </button>
                           </form>
                         ) : (
