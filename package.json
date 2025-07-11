@@ -83,7 +83,7 @@
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/logrocket-react": "^3.0.3",
-    "@types/node": "24.0.10",
+    "@types/node": "24.0.13",
     "@types/papaparse": "^5.3.16",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
