@@ -63,7 +63,7 @@
     "passkit-generator": "3.2.0",
     "planby": "^2.0.0",
     "posthog-js": "^1.256.2",
-    "posthog-node": "^5.1.1",
+    "posthog-node": "^5.5.0",
     "prisma-generate": "^0.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
