@@ -162,8 +162,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(@types/react@19.1.8)(react@19.1.0)
       posthog-js:
-        specifier: ^1.256.2
-        version: 1.256.2
+        specifier: ^1.257.0
+        version: 1.257.0
       posthog-node:
         specifier: ^5.5.0
         version: 5.5.0
@@ -3182,8 +3182,8 @@ packages:
   core-js-compat@3.43.0:
     resolution: {integrity: sha512-2GML2ZsCc5LR7hZYz4AXmjQw8zuy2T//2QntwdnpuYI7jteT6GVYJL7F6C2C57R7gSYrcqVW3lAALefdbhBLDA==}
 
-  core-js@3.38.1:
-    resolution: {integrity: sha512-OP35aUorbU3Zvlx7pjsFdu1rGNnD4pgw/CWoYzRY3t2EzoVT7shKHY1dlAy3f41cGIO7ZDPQimhGFTlEYkG/Hw==}
+  core-js@3.44.0:
+    resolution: {integrity: sha512-aFCtd4l6GvAXwVEh3XbbVqJGHDJt0OZRa+5ePGx3LLwi12WfexqQxcsohb2wgsa/92xtl19Hd66G/L+TaAxDMw==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -4979,8 +4979,8 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  posthog-js@1.256.2:
-    resolution: {integrity: sha512-ypepnUHr33i5a1Uk39mozZXXTENRPC17HCG3WHKK6aRcpNwNs8uEqXaIKICGNM+qre+totKeTgl0WoaUFYmyoQ==}
+  posthog-js@1.257.0:
+    resolution: {integrity: sha512-Ujg9RGtWVCu+4tmlRpALSy2ZOZI6JtieSYXIDDdgMWm167KYKvTtbMPHdoBaPWcNu0Km+1hAIBnQFygyn30KhA==}
     peerDependencies:
       '@rrweb/types': 2.0.0-alpha.17
       rrweb-snapshot: 2.0.0-alpha.17
@@ -9619,7 +9619,7 @@ snapshots:
     dependencies:
       browserslist: 4.25.1
 
-  core-js@3.38.1: {}
+  core-js@3.44.0: {}
 
   core-util-is@1.0.3: {}
 
@@ -9771,7 +9771,7 @@ snapshots:
 
   devextreme-quill@1.7.3:
     dependencies:
-      core-js: 3.38.1
+      core-js: 3.44.0
       eventemitter3: 4.0.7
       lodash.clonedeep: 4.5.0
       lodash.merge: 4.6.2
@@ -11917,11 +11917,11 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  posthog-js@1.256.2:
+  posthog-js@1.257.0:
     dependencies:
-      core-js: 3.38.1
+      core-js: 3.44.0
       fflate: 0.4.8
-      preact: 10.23.1
+      preact: 10.26.9
       web-vitals: 4.2.4
 
   posthog-node@5.5.0: {}
