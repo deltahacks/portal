@@ -165,8 +165,8 @@ importers:
         specifier: ^1.256.2
         version: 1.256.2
       posthog-node:
-        specifier: ^5.1.1
-        version: 5.1.1
+        specifier: ^5.5.0
+        version: 5.5.0
       prisma-generate:
         specifier: ^0.0.0
         version: 0.0.0
@@ -4990,8 +4990,8 @@ packages:
       rrweb-snapshot:
         optional: true
 
-  posthog-node@5.1.1:
-    resolution: {integrity: sha512-6VISkNdxO24ehXiDA4dugyCSIV7lpGVaEu5kn/dlAj+SJ1lgcDru9PQ8p/+GSXsXVxohd1t7kHL2JKc9NoGb0w==}
+  posthog-node@5.5.0:
+    resolution: {integrity: sha512-q+d6yuwCw88ZkcYTDlrF6eBkbRDgn4pA4Jp8ghm8uTfgxoGUKEcajnuMfmYudAXsly6UC4YccwQThey8p1jvgg==}
     engines: {node: '>=20'}
 
   preact-render-to-string@5.2.6:
@@ -11924,7 +11924,7 @@ snapshots:
       preact: 10.23.1
       web-vitals: 4.2.4
 
-  posthog-node@5.1.1: {}
+  posthog-node@5.5.0: {}
 
   preact-render-to-string@5.2.6(preact@10.26.9):
     dependencies:
