@@ -357,8 +357,7 @@ const HackerView: React.FC = () => {
                     <button
                       className="btn btn-primary join-item"
                       onClick={() => (
-                        setQRCode(value),
-                        setShouldShowScanner(false)
+                        setQRCode(value), setShouldShowScanner(false)
                       )}
                     >
                       Submit

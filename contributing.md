@@ -38,31 +38,35 @@ As a new DeltaHacks technical team member working on this project, here's what y
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/deltahacks/portal.git
    cd portal
    ```
 
 2. **Install dependencies:**
+
    ```bash
    pnpm install
    ```
 
 3. **Set up environment variables:**
+
    ```bash
    cp .env.example .env
    ```
-   
-   Fill in the required environment variables in `.env`. Reach out to either of the VPs to recieve the environemntal variables needed. 
+
+   Fill in the required environment variables in `.env`. Reach out to either of the VPs to recieve the environemntal variables needed.
 
 4. **Set up the database:**
+
    ```bash
-   
+
    # Start the database using the provided script
    # ⚠️  WARNING: Make sure you've completed step 3 (environment variables) first!
    # The setup-db.sh script requires environment variables from .env.local to work properly.
    ./setup-db.sh
-   
+
    # Generate Prisma client and push schema
    pnpm db:generate
    pnpm db:push
@@ -85,6 +89,7 @@ The project includes a `setup-db.sh` script that automatically sets up a local C
 - Provides a web UI on port 8080
 
 **Prerequisites:**
+
 - **Docker** installed and running (see [Prerequisites](#prerequisites) for our recommended Docker client)
 - Port 26257 available (the script will check this)
 
@@ -115,6 +120,7 @@ src/
 ### Technology Stack
 
 This project uses the **T3 Stack**:
+
 - **Next.js** - React framework
 - **TypeScript** - Type safety
 - **Prisma** - Database ORM
@@ -157,21 +163,24 @@ This project uses the **T3 Stack**:
 #### State Management Best Practices
 
 **Avoid unnecessary useState:**
+
 - Don't use state for values that can be derived from props or other state
 - Don't use state for values that don't trigger re-renders
 - Don't use state for values that are only used in event handlers
 
 **When to use useState:**
+
 - When a value changes over time and affects the UI
 - When a value needs to persist between re-renders
 
 **Examples of unnecessary state:**
+
 ```tsx
 // ❌ Bad - unnecessary state
-const [fullName, setFullName] = useState(firstName + ' ' + lastName);
+const [fullName, setFullName] = useState(firstName + " " + lastName);
 
 // ✅ Good - derived value
-const fullName = firstName + ' ' + lastName;
+const fullName = firstName + " " + lastName;
 ```
 
 ```tsx
@@ -191,6 +200,7 @@ const handleSubmit = () => {
 ```
 
 **Caching expensive calculations:**
+
 ```tsx
 // ❌ Bad - recalculating on every render
 const expensiveValue = expensiveCalculation(data);
@@ -202,18 +212,20 @@ const expensiveValue = useMemo(() => {
 ```
 
 **Avoiding unnecessary Effects:**
+
 ```tsx
 // ❌ Bad - Effect for derived state
 const [filteredTodos, setFilteredTodos] = useState([]);
 useEffect(() => {
-  setFilteredTodos(todos.filter(todo => !todo.completed));
+  setFilteredTodos(todos.filter((todo) => !todo.completed));
 }, [todos]);
 
 // ✅ Good - calculate during render
-const filteredTodos = todos.filter(todo => !todo.completed);
+const filteredTodos = todos.filter((todo) => !todo.completed);
 ```
 
 **Common patterns to avoid:**
+
 - Storing computed values in state
 - Using state for form values that don't need validation
 - Storing UI state that can be derived from props
@@ -222,6 +234,7 @@ const filteredTodos = todos.filter(todo => !todo.completed);
 - Using Effects to handle user events (use event handlers instead)
 
 **Key principles:**
+
 - If you can calculate something during render, you don't need an Effect
 - To cache expensive calculations, use `useMemo` instead of `useEffect`
 - Code that runs because a component was displayed should be in Effects
@@ -247,6 +260,7 @@ For more detailed guidance on avoiding unnecessary Effects and state, see the [R
 ### Schema Changes
 
 1. **Create a migration:**
+
    ```bash
    pnpm prisma migrate dev --name your_migration_name
    ```
@@ -254,6 +268,7 @@ For more detailed guidance on avoiding unnecessary Effects and state, see the [R
 2. **Update the schema** in `prisma/schema.prisma`
 
 3. **Generate the client:**
+
    ```bash
    pnpm prisma generate
    ```
@@ -345,11 +360,13 @@ When requesting features, please include:
 The key question to ask yourself is: **"Will I learn anything from spending more time on this?"**
 
 **Types of problems you should ask for help with immediately:**
+
 - Formatting and syntax issues
 - Which function to call for specific data
 - Knowledge-based questions with straightforward answers
 
 **Types of problems you should spend time understanding first:**
+
 - How a function actually works internally
 - How state changes flow through the application
 - Understanding-based questions that require deeper comprehension
@@ -362,6 +379,7 @@ The key question to ask yourself is: **"Will I learn anything from spending more
 4. **Come prepared** - Bring specific questions about what you've already attempted
 
 **When you do reach out, include:**
+
 - What problem you're trying to solve
 - What approaches you've already tried
 - Why those approaches didn't work
@@ -369,12 +387,14 @@ The key question to ask yourself is: **"Will I learn anything from spending more
 - Specific questions about where you're stuck
 
 **How to ask for help effectively:**
+
 - Ask straightforward questions that are easy to answer
 - Provide as much context as possible
 - Describe expected vs. actual behavior
 - Consider pair programming for complex problems
 
 This approach ensures that:
+
 - You develop strong problem-solving skills
 - Technical VPs can provide more targeted, valuable assistance
 - The team learns from your debugging process
