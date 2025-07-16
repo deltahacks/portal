@@ -164,7 +164,6 @@ This project uses the **T3 Stack**:
 **When to use useState:**
 - When a value changes over time and affects the UI
 - When a value needs to persist between re-renders
-- When a value is used in multiple places in the component
 
 **Examples of unnecessary state:**
 ```tsx
@@ -280,6 +279,7 @@ For more detailed guidance on avoiding unnecessary Effects and state, see the [R
 1. **Ensure your code follows our guidelines**
 2. **Test your changes thoroughly**
 3. **Update documentation if needed**
+4. Run `pnpm format`
 
 ### Pull Request Guidelines
 
