@@ -1,0 +1,41 @@
+name: Branch Name Validation
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          # Get branch name from different contexts
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            branch_name="${{ github.head_ref }}"
+          else
+            branch_name="${{ github.ref_name }}"
+          fi
+          
+          echo "Checking branch name: $branch_name"
+          
+          # Check if branch name matches pattern */*, 
+          # Must contain exactly one slash with content before and after
+          if [[ ! "$branch_name" =~ ^[^/]+/[^/]+$ ]]; then
+            echo "❌ Error: Branch name '$branch_name' does not match required pattern 'name/title'"
+            echo ""
+            echo "Examples of valid branch names:"
+            echo "  - arian/user-login"
+            echo "  - aa/jaksdfjas"
+            echo ""
+            echo "Current branch '$branch_name' should be renamed to follow the pattern."
+            exit 1
+          fi
+          
+          echo "✅ Branch name '$branch_name' follows naming convention"
