@@ -1,15 +1,15 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
-import { trpc } from "../utils/trpc";
-import SocialButtons from "../components/SocialButtons";
+import { trpc } from "../../utils/trpc";
+import SocialButtons from "../../components/SocialButtons";
 import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
-import { prisma } from "../server/db/client";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import Drawer from "../components/Drawer";
+import { prisma } from "../../server/db/client";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
+import Drawer from "../../components/Drawer";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
