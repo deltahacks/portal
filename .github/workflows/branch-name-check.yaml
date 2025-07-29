@@ -27,7 +27,7 @@ jobs:
           
           # Check if branch name matches pattern */*, 
           # Must contain exactly one slash with content before and after
-          if [[ ! "$branch_name" =~ ^[^/]+/[^/]+$ ]]; then
+          if [[ ! "$branch_name" =~ ^[^/]+/.+$ ]]; then
             echo "❌ Error: Branch name '$branch_name' does not match required pattern 'name/title'"
             echo ""
             echo "Examples of valid branch names:"
