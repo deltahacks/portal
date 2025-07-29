@@ -2,38 +2,15 @@ import { Role } from "@prisma/client";
 import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import SocialButtons from "../components/SocialButtons";
+import SocialButtons from "../../components/SocialButtons";
 import { useSession } from "next-auth/react";
 
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { trpc } from "../utils/trpc";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { trpc } from "../../utils/trpc";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 import clsx from "clsx";
-import Drawer from "../components/Drawer";
-
-const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
-  ssr: false,
-});
-
-const ConstantQRReaderDynamic = dynamic(
-  () => import("../components/QrScanner2"),
-  {
-    ssr: false,
-  },
-);
-
-// const RedirectToDashboard: React.FC = () => {
-//   const router = useRouter();
-
-//   return (
-//     <div
-//       onLoad={async () => {
-//         await router.push("/dashboard");
-//       }}
-//     ></div>
-//   );
-// };
+import Drawer from "../../components/Drawer";
 
 const FoodManagerView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
@@ -357,7 +334,8 @@ const HackerView: React.FC = () => {
                     <button
                       className="btn btn-primary join-item"
                       onClick={() => (
-                        setQRCode(value), setShouldShowScanner(false)
+                        setQRCode(value),
+                        setShouldShowScanner(false)
                       )}
                     >
                       Submit
