@@ -65,7 +65,7 @@ export const userRouter = router({
     }),
 
   byRole: protectedProcedure
-    .input(z.object({ role: z.nullable(z.nativeEnum(Role)) }))
+    .input(z.object({ role: z.nullable(z.enum(Role)) }))
     .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -83,7 +83,7 @@ export const userRouter = router({
       });
     }),
   addRole: protectedProcedure
-    .input(z.object({ id: z.string().cuid(), role: z.nativeEnum(Role) }))
+    .input(z.object({ id: z.cuid(), role: z.enum(Role) }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -106,7 +106,7 @@ export const userRouter = router({
       });
     }),
   removeRole: protectedProcedure
-    .input(z.object({ id: z.string().cuid(), role: z.nativeEnum(Role) }))
+    .input(z.object({ id: z.cuid(), role: z.enum(Role) }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });

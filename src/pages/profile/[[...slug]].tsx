@@ -34,10 +34,10 @@ const GoogleEventSchema = z.object({
   summary: z.string(),
   location: z.string().optional(),
   creator: z.object({
-    email: z.string().email(),
+    email: z.email(),
   }),
   organizer: z.object({
-    email: z.string().email(),
+    email: z.email(),
     displayName: z.string(),
     self: z.boolean(),
   }),

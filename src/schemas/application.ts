@@ -13,7 +13,7 @@ const dh10schema = z.object({
       return age >= 13;
     },
     {
-      message: "You must be at least 13 years old",
+      error: "You must be at least 13 years old",
     },
   ),
   macEv: z.boolean(),
@@ -29,26 +29,26 @@ const dh10schema = z.object({
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   longAnswerExperience: z
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   longAnswerTech: z
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
 
   longAnswerMagic: z
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.trim().split(/\s/).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   socialText: z
     .string()
@@ -57,7 +57,7 @@ const dh10schema = z.object({
   interests: z
     .string()
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     })
     .transform((string) => (!!string ? string : null))
     .nullish(),
@@ -110,10 +110,10 @@ const dh10schema = z.object({
     .refine(isMobilePhone, "Invalid phone number"),
   emergencyContactRelation: z.string().min(1),
   agreeToMLHCodeOfConduct: z.boolean().refine((value) => value === true, {
-    message: "You must agree to the MLH Code of Conduct",
+    error: "You must agree to the MLH Code of Conduct",
   }),
   agreeToMLHPrivacyPolicy: z.boolean().refine((value) => value === true, {
-    message: "You must agree to the MLH Privacy Policy",
+    error: "You must agree to the MLH Privacy Policy",
   }),
   agreeToMLHCommunications: z.boolean(),
 });
@@ -132,7 +132,7 @@ const dh11schema = z.object({
       return age >= 13;
     },
     {
-      message: "You must be at least 13 years old",
+      error: "You must be at least 13 years old",
     },
   ),
   phone: z.string().refine(isMobilePhone, "Invalid phone number").nullish(),
@@ -148,37 +148,37 @@ const dh11schema = z.object({
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   longAnswerGoals: z
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   longAnswerFood: z
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   longAnswerTravel: z
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   longAnswerSocratica: z
     .string()
     .min(1, "An answer is required for this question")
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     }),
   socialText: z.array(z.string()),
   interests: z
     .string()
     .refine((value) => value.split(/\s/g).length <= 150, {
-      message: "Must be less than 150 words",
+      error: "Must be less than 150 words",
     })
     .transform((string) => (!!string ? string : null))
     .nullish(),
@@ -202,10 +202,10 @@ const dh11schema = z.object({
     .refine(isMobilePhone, "Invalid phone number"),
   emergencyContactRelation: z.string().min(1, "This field is required"),
   agreeToMLHCodeOfConduct: z.boolean().refine((value) => value === true, {
-    message: "You must agree to the MLH Code of Conduct",
+    error: "You must agree to the MLH Code of Conduct",
   }),
   agreeToMLHPrivacyPolicy: z.boolean().refine((value) => value === true, {
-    message: "You must agree to the MLH Privacy Policy",
+    error: "You must agree to the MLH Privacy Policy",
   }),
   agreeToMLHCommunications: z.boolean(),
 });
