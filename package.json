@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.842.0",
-    "@aws-sdk/s3-request-presigner": "^3.842.0",
+    "@aws-sdk/s3-request-presigner": "^3.879.0",
     "@babel/plugin-transform-react-display-name": "^7.28.0",
     "@formkit/auto-animate": "^0.8.2",
     "@fullcalendar/bootstrap5": "^6.1.18",
