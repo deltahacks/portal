@@ -5,37 +5,37 @@ import { Role, Status } from "@prisma/client";
 import ApplicationSchema from "../../schemas/application";
 
 const ApplicationForReview = z.object({
-  id: z.string().cuid(),
+  id: z.cuid(),
   name: z.string(),
   email: z
     .string()
     .nullable()
     .transform((v) => (v === null ? "" : v)),
-  status: z.nativeEnum(Status),
-  DH11ApplicationId: z.string().cuid(),
-  reviewCount: z.number().default(0),
-  avgScore: z.number().default(-1),
+  status: z.enum(Status),
+  DH11ApplicationId: z.cuid(),
+  reviewCount: z.number().prefault(0),
+  avgScore: z.number().prefault(-1),
 });
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
-const ApplicationSchemaWithStringDates = ApplicationSchema.merge(
+const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
   z.object({
     birthday: z.string(),
     studyExpectedGraduation: z.string().nullish(),
-  }),
+  }).shape,
 );
 export type ApplicationSchemaWithStringDates = z.infer<
   typeof ApplicationSchemaWithStringDates
 >;
 
 const ReviewScoreSchema = z.object({
-  applicationId: z.string().cuid(),
+  applicationId: z.cuid(),
   score: z.number().min(0).max(17),
   comment: z.string(),
 });
 
 const ReviewWithReviewerSchema = z.object({
-  id: z.string().cuid(),
+  id: z.cuid(),
   score: z.number(),
   comment: z.string(),
   reviewerId: z.string(),
@@ -116,10 +116,10 @@ export const reviewerRouter = router({
       }),
     )
     .output(
-      ApplicationSchemaWithStringDates.merge(
+      ApplicationSchemaWithStringDates.extend(
         z.object({
           hasReviewed: z.boolean().optional(),
-        }),
+        }).shape,
       ),
     )
     .query(async ({ ctx, input }) => {
@@ -154,10 +154,10 @@ export const reviewerRouter = router({
           reviewerId: ctx.session.user.id,
         },
       });
-      return ApplicationSchemaWithStringDates.merge(
+      return ApplicationSchemaWithStringDates.extend(
         z.object({
           hasReviewed: z.boolean(),
-        }),
+        }).shape,
       ).parse({
         ...applicationWithStringDates,
         hasReviewed: !!review,
@@ -167,10 +167,10 @@ export const reviewerRouter = router({
   getStatus: protectedProcedure
     .input(
       z.object({
-        dh11ApplicationId: z.string().cuid(),
+        dh11ApplicationId: z.cuid(),
       }),
     )
-    .output(z.object({ status: z.nativeEnum(Status) }))
+    .output(z.object({ status: z.enum(Status) }))
     .query(async ({ ctx, input }) => {
       if (
         !(
@@ -203,8 +203,8 @@ export const reviewerRouter = router({
   updateStatus: protectedProcedure
     .input(
       z.object({
-        dh11ApplicationId: z.string().cuid(),
-        status: z.nativeEnum(Status),
+        dh11ApplicationId: z.cuid(),
+        status: z.enum(Status),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -318,7 +318,7 @@ export const reviewerRouter = router({
     }),
 
   getReviewsForApplication: protectedProcedure
-    .input(z.object({ applicationId: z.string().cuid() }))
+    .input(z.object({ applicationId: z.cuid() }))
     .output(ReviewWithReviewerSchema.array())
     .query(async ({ ctx, input }) => {
       // Check authorization
