@@ -9,10 +9,10 @@ export const projectRouter = router({
       z.array(
         z.object({
           name: z.string(),
-          description: z.string().optional().default(""),
-          link: z.string().optional().default(""),
+          description: z.string().optional().prefault(""),
+          link: z.string().optional().prefault(""),
           tracks: z.array(z.string()),
-          status: z.string().optional().default("Draft"),
+          status: z.string().optional().prefault("Draft"),
         }),
       ),
     )
@@ -743,8 +743,8 @@ export const timeSlotRouter = router({
   createTimeSlots: protectedProcedure
     .input(
       z.object({
-        slotDurationMinutes: z.number().min(1).default(10),
-        startTime: z.string().datetime(),
+        slotDurationMinutes: z.number().min(1).prefault(10),
+        startTime: z.iso.datetime(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

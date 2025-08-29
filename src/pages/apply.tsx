@@ -51,7 +51,10 @@ import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import FormInput from "../components/CustomInput";
 
-export type InputsType = z.infer<typeof applicationSchema>;
+// Zod V4 has z.input for the schemas where the input is different from the output
+// i.e using .coerce() or .transform() to change type of input
+// @see https://zod.dev/basics#inferring-types
+export type InputsType = z.input<typeof applicationSchema>;
 const pt = applicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
 
