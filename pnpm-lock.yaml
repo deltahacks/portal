@@ -18,8 +18,8 @@ importers:
         specifier: ^7.28.0
         version: 7.28.0(@babel/core@7.23.3)
       '@formkit/auto-animate':
-        specifier: ^0.8.2
-        version: 0.8.2
+        specifier: ^0.8.4
+        version: 0.8.4
       '@fullcalendar/bootstrap5':
         specifier: ^6.1.18
         version: 6.1.18(@fullcalendar/core@6.1.19)
@@ -1198,8 +1198,8 @@ packages:
   '@floating-ui/utils@0.1.6':
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
 
-  '@formkit/auto-animate@0.8.2':
-    resolution: {integrity: sha512-SwPWfeRa5veb1hOIBMdzI+73te5puUBHmqqaF1Bu7FjvxlYSz/kJcZKSa9Cg60zL0uRNeJL2SbRxV6Jp6Q1nFQ==}
+  '@formkit/auto-animate@0.8.4':
+    resolution: {integrity: sha512-DHHC01EJ1p70Q0z/ZFRBIY8NDnmfKccQoyoM84Tgb6omLMat6jivCdf272Y8k3nf4Lzdin/Y4R9q8uFtU0GbnA==}
 
   '@fullcalendar/bootstrap5@6.1.18':
     resolution: {integrity: sha512-IL+vBpYdho18G2rU+1zLA66Tlm2gkO2aBiESCxNJ+PqWPyZdNN2KRnClBLO+fw0zdR9NOJWvNfStKP2KPnlPQw==}
@@ -7488,7 +7488,7 @@ snapshots:
 
   '@floating-ui/utils@0.1.6': {}
 
-  '@formkit/auto-animate@0.8.2': {}
+  '@formkit/auto-animate@0.8.4': {}
 
   '@fullcalendar/bootstrap5@6.1.18(@fullcalendar/core@6.1.19)':
     dependencies:
