@@ -42,7 +42,7 @@ const TypeFormResponseField = z.object({
   file_url: z.string().nullish(),
   boolean: z.boolean().nullish(),
   phone_number: z.string().nullish(),
-  email: z.string().email().nullish(),
+  email: z.email().nullish(),
 });
 
 export type TypeFormResponseField = z.infer<typeof TypeFormResponseField>;
@@ -83,7 +83,7 @@ export type TypeFormResponse = z.infer<typeof TypeFormResponse>;
 
 const StatusCount = z
   .object({
-    status: z.nativeEnum(Status),
+    status: z.enum(Status),
     count: z.number(),
   })
   .array();
@@ -152,22 +152,20 @@ export const applicationRouter = router({
 
       return StatusCount.parse(statusCount);
     }),
-  status: protectedProcedure
-    .output(z.nativeEnum(Status))
-    .query(async ({ ctx }) => {
-      const user = await ctx.prisma?.user.findFirst({
-        where: { id: ctx.session.user.id },
-        include: { DH11Application: true },
-      });
-      if (!user) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      if (user.DH11Application === null || user.DH11Application === undefined) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
+  status: protectedProcedure.output(z.enum(Status)).query(async ({ ctx }) => {
+    const user = await ctx.prisma?.user.findFirst({
+      where: { id: ctx.session.user.id },
+      include: { DH11Application: true },
+    });
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+    if (user.DH11Application === null || user.DH11Application === undefined) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
 
-      return user.DH11Application.status;
-    }),
+    return user.DH11Application.status;
+  }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
       where: { id: ctx.session.user.id },
