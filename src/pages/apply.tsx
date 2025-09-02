@@ -51,7 +51,7 @@ import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import FormInput from "../components/CustomInput";
 
-export type InputsType = z.infer<typeof applicationSchema>;
+export type InputsType = z.input<typeof applicationSchema>;
 const pt = applicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
 
