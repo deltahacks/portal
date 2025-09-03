@@ -15,6 +15,8 @@ const buttonVariants = cva(
           "bg-red-500 text-zinc-50 hover:bg-red-500/90 dark:bg-red-700 dark:text-zinc-50 dark:hover:bg-red-900/90 disabled:opacity-50",
         outline:
           "border border-zinc-200 bg-white hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 disabled:border-zinc-100 disabled:text-zinc-400 disabled:dark:border-zinc-800 disabled:dark:text-zinc-600",
+        primary:
+          "font-semibold bg-indigo-700 hover:bg-indigo-800 text-zinc-200 dark:bg-indigo-500 dark:hover:bg-indigo-600",
         secondary:
           "bg-zinc-100 text-zinc-900 hover:bg-zinc-100/80 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-800/80 disabled:opacity-50",
         ghost:

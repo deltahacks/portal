@@ -50,6 +50,7 @@ import XHR from "@uppy/xhr-upload";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import FormInput from "../components/CustomInput";
+import { Button } from "../components/Button";
 
 export type InputsType = z.input<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -865,12 +866,9 @@ const ApplyForm = ({
         register={register}
         optional
       />
-      <button
-        type="submit"
-        className="mt-4 mb-4 btn btn-primary dark:text-white"
-      >
+      <Button type="submit" variant="primary">
         Submit
-      </button>
+      </Button>
       {isError && (
         <div className="mb-4 text-center alert alert-error justify-normal">
           There was an error submitting your application. Please try again. If
