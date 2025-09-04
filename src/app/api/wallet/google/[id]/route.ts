@@ -4,24 +4,28 @@ import { google, walletobjects_v1 } from "googleapis";
 import jwt from "jsonwebtoken";
 
 import { assert } from "../../../../../utils/assert";
+import { DH11Application, User } from "@prisma/client";
 
-export const GET = async (
-  request: Request,
+export async function GET(
+  _: Request,
   { params }: { params: Promise<{ id: string }> }
-) => {
+) {
   const issuerId = "3388000000022980027";
   const classId = "deltahacks";
   const userId = (await params).id;
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "google-wallet-service-key.json",
-    scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
+  const user = await prisma?.user.findFirst({
+    where: {
+      id: userId,
+    },
+    include: {
+      DH11Application: true,
+    },
   });
 
-  const client = google.walletobjects({
-    version: "v1",
-    auth,
-  });
+  if (!user) {
+    return new Response("User not found", { status: 404 });
+  }
 
   let classExists = false;
   try {
@@ -60,6 +64,7 @@ export const GET = async (
       });
     }
   }
+
   let objectExists = false;
   try {
     await client.eventticketobject.get({
@@ -74,7 +79,7 @@ export const GET = async (
     }
   }
 
-  const newObject = createObject(issuerId, userId, classId);
+  const newObject = createObject(issuerId, classId, user);
   if (objectExists) {
     try {
       await client.eventticketobject.update({
@@ -116,7 +121,18 @@ export const GET = async (
   });
 
   return Response.redirect(`https://pay.google.com/gp/v/save/${token}`, 302);
-};
+}
+
+const auth = new google.auth.GoogleAuth({
+  // scans for this file in the project root
+  keyFile: "google-wallet-service-key.json",
+  scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
+});
+
+const client = google.walletobjects({
+  version: "v1",
+  auth,
+});
 
 function createClass(
   issuerId: string,
@@ -139,10 +155,11 @@ function createClass(
       },
     },
     reviewStatus: "UNDER_REVIEW",
+    hexBackgroundColor: "#5F33B8",
     eventName: {
       defaultValue: {
         language: "en-US",
-        value: "Deltahacks XII",
+        value: "DeltaHacks XII",
       },
     },
     eventId: "deltahacks-xii",
@@ -176,64 +193,16 @@ function createClass(
 
 function createObject(
   issuerId: string,
-  userId: string,
-  classId: string
+  classId: string,
+  user: User & { DH11Application: DH11Application | null }
 ): walletobjects_v1.Schema$EventTicketObject {
   return {
-    id: `${issuerId}.${userId}`,
+    id: `${issuerId}.${user.id}`,
     classId: `${issuerId}.${classId}`,
     state: "ACTIVE",
-    heroImage: {
-      sourceUri: {
-        uri: "https://farm4.staticflickr.com/3723/11177041115_6e6a3b6f49_o.jpg",
-      },
-      contentDescription: {
-        defaultValue: {
-          language: "en-US",
-          value: "Hero image description",
-        },
-      },
-    },
-    textModulesData: [
-      {
-        header: "Text module header",
-        body: "Text module body",
-        id: "TEXT_MODULE_ID",
-      },
-    ],
-    linksModuleData: {
-      uris: [
-        {
-          uri: "http://maps.google.com/",
-          description: "Link module URI description",
-          id: "LINK_MODULE_URI_ID",
-        },
-        {
-          uri: "tel:6505555555",
-          description: "Link module tel description",
-          id: "LINK_MODULE_TEL_ID",
-        },
-      ],
-    },
-    imageModulesData: [
-      {
-        mainImage: {
-          sourceUri: {
-            uri: "http://farm4.staticflickr.com/3738/12440799783_3dc3c20606_b.jpg",
-          },
-          contentDescription: {
-            defaultValue: {
-              language: "en-US",
-              value: "Image module description",
-            },
-          },
-        },
-        id: "IMAGE_MODULE_ID",
-      },
-    ],
     barcode: {
       type: "QR_CODE",
-      value: "QR code",
+      value: `${env.NEXT_PUBLIC_URL}/profile/${user.id}`,
     },
     locations: [
       {
@@ -241,7 +210,6 @@ function createObject(
         longitude: -122.09259560000001,
       },
     ],
-    ticketHolderName: "Felix Fong",
-    ticketNumber: "Ticket number",
+    ticketHolderName: `${user.DH11Application?.firstName} ${user.DH11Application?.lastName}`,
   };
 }
