@@ -8,7 +8,7 @@ import { DH11Application, User } from "@prisma/client";
 
 export async function GET(
   _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const userId = (await params).id;
 
@@ -45,7 +45,7 @@ export async function GET(
 
   const eventTicketClass = createClass(
     env.GOOGLE_WALLET_ISSUER_ID,
-    env.GOOGLE_WALLET_CLASS_ID
+    env.GOOGLE_WALLET_CLASS_ID,
   );
   if (classExists) {
     try {
@@ -85,10 +85,12 @@ export async function GET(
     }
   }
 
+  // Updates occur only if the user attempts to download their wallet
+  // again
   const newObject = createObject(
     env.GOOGLE_WALLET_ISSUER_ID,
     env.GOOGLE_WALLET_CLASS_ID,
-    user
+    user,
   );
   if (objectExists) {
     try {
@@ -144,7 +146,7 @@ const client = google.walletobjects({
 
 function createClass(
   issuerId: string,
-  classId: string
+  classId: string,
 ): walletobjects_v1.Schema$EventTicketClass {
   return {
     id: `${issuerId}.${classId}`,
@@ -202,7 +204,7 @@ function createClass(
 function createObject(
   issuerId: string,
   classId: string,
-  user: User & { DH11Application: DH11Application | null }
+  user: User & { DH11Application: DH11Application | null },
 ): walletobjects_v1.Schema$EventTicketObject {
   return {
     id: `${issuerId}.${user.id}`,
@@ -212,12 +214,6 @@ function createObject(
       type: "QR_CODE",
       value: `${env.NEXT_PUBLIC_URL}/profile/${user.id}`,
     },
-    locations: [
-      {
-        latitude: 37.424015499999996,
-        longitude: -122.09259560000001,
-      },
-    ],
     ticketHolderName: user.DH11Application
       ? `${user.DH11Application.firstName} ${user.DH11Application.lastName}`.trim()
       : (user.name ?? user.email ?? "Attendee"),
