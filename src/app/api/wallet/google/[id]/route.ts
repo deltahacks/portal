@@ -10,9 +10,13 @@ export async function GET(
   _: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const issuerId = "3388000000022980027";
-  const classId = "deltahacks";
   const userId = (await params).id;
+
+  if (!env.GOOGLE_WALLET_ISSUER_ID || !env.GOOGLE_WALLET_CLASS_ID) {
+    return new Response("Google wallet issuer ID or class ID is not set", {
+      status: 500,
+    });
+  }
 
   const user = await prisma?.user.findFirst({
     where: {
@@ -30,7 +34,7 @@ export async function GET(
   let classExists = false;
   try {
     await client.eventticketclass.get({
-      resourceId: `${issuerId}.${classId}`,
+      resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${env.GOOGLE_WALLET_CLASS_ID}`,
     });
     classExists = true;
   } catch (err: any) {
@@ -39,11 +43,14 @@ export async function GET(
     }
   }
 
-  const eventTicketClass = createClass(issuerId, classId);
+  const eventTicketClass = createClass(
+    env.GOOGLE_WALLET_ISSUER_ID,
+    env.GOOGLE_WALLET_CLASS_ID
+  );
   if (classExists) {
     try {
       await client.eventticketclass.update({
-        resourceId: `${issuerId}.${classId}`,
+        resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${env.GOOGLE_WALLET_CLASS_ID}`,
         requestBody: eventTicketClass,
       });
     } catch (err) {
@@ -68,7 +75,7 @@ export async function GET(
   let objectExists = false;
   try {
     await client.eventticketobject.get({
-      resourceId: `${issuerId}.${userId}`,
+      resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${userId}`,
     });
     objectExists = true;
   } catch (err: any) {
@@ -79,11 +86,15 @@ export async function GET(
     }
   }
 
-  const newObject = createObject(issuerId, classId, user);
+  const newObject = createObject(
+    env.GOOGLE_WALLET_ISSUER_ID,
+    env.GOOGLE_WALLET_CLASS_ID,
+    user
+  );
   if (objectExists) {
     try {
       await client.eventticketobject.update({
-        resourceId: `${issuerId}.${userId}`,
+        resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${userId}`,
         requestBody: newObject,
       });
     } catch (err) {
@@ -125,7 +136,8 @@ export async function GET(
 
 const auth = new google.auth.GoogleAuth({
   // scans for this file in the project root
-  keyFile: "google-wallet-service-key.json",
+  keyFile:
+    env.GOOGLE_WALLET_SERVICE_KEY_FILE ?? "google-wallet-service-key.json",
   scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
 });
 
