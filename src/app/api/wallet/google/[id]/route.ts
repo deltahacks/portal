@@ -3,7 +3,6 @@ import path from "path";
 import { google, walletobjects_v1 } from "googleapis";
 import jwt from "jsonwebtoken";
 
-import { prisma } from "../../../../../server/db/client";
 import { assert } from "../../../../../utils/assert";
 
 export const GET = async (
@@ -24,14 +23,55 @@ export const GET = async (
     auth,
   });
 
-  const newObject = createObject(issuerId, userId, classId);
-  let eventTicketClass;
-
+  const eventTicketClass = createClass(issuerId, classId);
   try {
-    const response = await client.eventticketobject.get({
+    await client.eventticketclass.get({
+      resourceId: `${issuerId}.${classId}`,
+    });
+    try {
+      await client.eventticketclass.update({
+        resourceId: `${issuerId}.${classId}`,
+        requestBody: eventTicketClass,
+      });
+    } catch (err) {
+      console.error("Error updating event ticket class:", err);
+      return new Response("Error updating event ticket class", {
+        status: 500,
+      });
+    }
+  } catch (err: any) {
+    if (err.response && err.response.status === 404) {
+      try {
+        await client.eventticketclass.insert({
+          requestBody: eventTicketClass,
+        });
+      } catch (err) {
+        console.error("Error creating event ticket class:", err);
+        return new Response("Error creating event ticket class", {
+          status: 500,
+        });
+      }
+    } else {
+      return new Response("Error checking event ticket class", { status: 500 });
+    }
+  }
+
+  const newObject = createObject(issuerId, userId, classId);
+  try {
+    await client.eventticketobject.get({
       resourceId: `${issuerId}.${userId}`,
     });
-    eventTicketClass = response.data.classReference;
+    try {
+      await client.eventticketobject.update({
+        resourceId: `${issuerId}.${userId}`,
+        requestBody: newObject,
+      });
+    } catch (err) {
+      console.error("Error updating event ticket object:", err);
+      return new Response("Error updating event ticket object", {
+        status: 500,
+      });
+    }
   } catch (err: any) {
     if (err.response && err.response.status !== 404) {
       return new Response("Error checking object", { status: 500 });
@@ -41,7 +81,6 @@ export const GET = async (
       const response = await client.eventticketobject.insert({
         requestBody: newObject,
       });
-      eventTicketClass = response.data.classReference;
 
       console.log("Pass created successfully:", response);
       return new Response(JSON.stringify(response), {
@@ -75,6 +114,62 @@ export const GET = async (
 
   return Response.redirect(`https://pay.google.com/gp/v/save/${token}`, 302);
 };
+
+function createClass(
+  issuerId: string,
+  classId: string
+): walletobjects_v1.Schema$EventTicketClass {
+  return {
+    id: `${issuerId}.${classId}`,
+    issuerName: "DeltaHacks",
+    multipleDevicesAndHoldersAllowedStatus: "ONE_USER_ONE_DEVICE",
+    countryCode: "CA",
+    logo: {
+      sourceUri: {
+        uri: "https://i.imgur.com/OynK4zp_d.webp?maxwidth=760&fidelity=grand",
+      },
+      contentDescription: {
+        defaultValue: {
+          language: "en-US",
+          value: "DeltaHacks XII Logo",
+        },
+      },
+    },
+    reviewStatus: "UNDER_REVIEW",
+    eventName: {
+      defaultValue: {
+        language: "en-US",
+        value: "Deltahacks XII",
+      },
+    },
+    eventId: "deltahacks-xii",
+    venue: {
+      name: {
+        defaultValue: {
+          language: "en-US",
+          value: "Peter George Centre for Living and Learning",
+        },
+      },
+      address: {
+        defaultValue: {
+          language: "en-US",
+          value: "1280 Main St W, Hamilton, ON L8S 4L8, Canada",
+        },
+      },
+    },
+    dateTime: {
+      doorsOpen: "2026-01-11T13:00:00Z",
+      start: "2026-01-11T13:00:00Z",
+      end: "2026-01-13T23:00:00Z",
+    },
+    locations: [
+      {
+        latitude: 43.2638001,
+        longitude: 79.9217917,
+      },
+    ],
+  };
+}
 
 function createObject(issuerId: string, userId: string, classId: string) {
   return {
