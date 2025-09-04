@@ -1,5 +1,5 @@
 import { env } from "../../../../../env/server.mjs";
-import path from "path";
+import { prisma } from "../../../../../server/db/client";
 import { google, walletobjects_v1 } from "googleapis";
 import jwt from "jsonwebtoken";
 
@@ -18,7 +18,7 @@ export async function GET(
     });
   }
 
-  const user = await prisma?.user.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
       id: userId,
     },
@@ -54,7 +54,7 @@ export async function GET(
         requestBody: eventTicketClass,
       });
     } catch (err) {
-      console.error("Error updating event ticket class:", err);
+      console.log(err);
       return new Response("Error updating event ticket class", {
         status: 500,
       });
@@ -65,7 +65,6 @@ export async function GET(
         requestBody: eventTicketClass,
       });
     } catch (err) {
-      console.error("Error creating event ticket class:", err);
       return new Response("Error creating event ticket class", {
         status: 500,
       });
@@ -98,7 +97,6 @@ export async function GET(
         requestBody: newObject,
       });
     } catch (err) {
-      console.error("Error updating event ticket object:", err);
       return new Response("Error updating event ticket object", {
         status: 500,
       });
@@ -109,7 +107,6 @@ export async function GET(
         requestBody: newObject,
       });
     } catch (err) {
-      console.error("Error creating pass:", err);
       return new Response("Error creating pass", { status: 500 });
     }
   }
@@ -136,8 +133,7 @@ export async function GET(
 
 const auth = new google.auth.GoogleAuth({
   // scans for this file in the project root
-  keyFile:
-    env.GOOGLE_WALLET_SERVICE_KEY_FILE ?? "google-wallet-service-key.json",
+  keyFile: env.GOOGLE_WALLET_SERVICE_KEY_FILE,
   scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
 });
 
@@ -197,7 +193,7 @@ function createClass(
     locations: [
       {
         latitude: 43.2638001,
-        longitude: 79.9217917,
+        longitude: -79.9217917,
       },
     ],
   };
@@ -222,6 +218,8 @@ function createObject(
         longitude: -122.09259560000001,
       },
     ],
-    ticketHolderName: `${user.DH11Application?.firstName} ${user.DH11Application?.lastName}`,
+    ticketHolderName: user.DH11Application
+      ? `${user.DH11Application.firstName} ${user.DH11Application.lastName}`.trim()
+      : (user.name ?? user.email ?? "Attendee"),
   };
 }
