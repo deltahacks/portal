@@ -23,11 +23,20 @@ export const GET = async (
     auth,
   });
 
-  const eventTicketClass = createClass(issuerId, classId);
+  let classExists = false;
   try {
     await client.eventticketclass.get({
       resourceId: `${issuerId}.${classId}`,
     });
+    classExists = true;
+  } catch (err: any) {
+    if (!err.response || err.response.status !== 404) {
+      return new Response("Error checking event ticket class", { status: 500 });
+    }
+  }
+
+  const eventTicketClass = createClass(issuerId, classId);
+  if (classExists) {
     try {
       await client.eventticketclass.update({
         resourceId: `${issuerId}.${classId}`,
@@ -39,28 +48,34 @@ export const GET = async (
         status: 500,
       });
     }
-  } catch (err: any) {
-    if (err.response && err.response.status === 404) {
-      try {
-        await client.eventticketclass.insert({
-          requestBody: eventTicketClass,
-        });
-      } catch (err) {
-        console.error("Error creating event ticket class:", err);
-        return new Response("Error creating event ticket class", {
-          status: 500,
-        });
-      }
-    } else {
-      return new Response("Error checking event ticket class", { status: 500 });
+  } else {
+    try {
+      await client.eventticketclass.insert({
+        requestBody: eventTicketClass,
+      });
+    } catch (err) {
+      console.error("Error creating event ticket class:", err);
+      return new Response("Error creating event ticket class", {
+        status: 500,
+      });
     }
   }
-
-  const newObject = createObject(issuerId, userId, classId);
+  let objectExists = false;
   try {
     await client.eventticketobject.get({
       resourceId: `${issuerId}.${userId}`,
     });
+    objectExists = true;
+  } catch (err: any) {
+    if (!err.response || err.response.status !== 404) {
+      return new Response("Error checking event ticket object", {
+        status: 500,
+      });
+    }
+  }
+
+  const newObject = createObject(issuerId, userId, classId);
+  if (objectExists) {
     try {
       await client.eventticketobject.update({
         resourceId: `${issuerId}.${userId}`,
@@ -72,22 +87,10 @@ export const GET = async (
         status: 500,
       });
     }
-  } catch (err: any) {
-    if (err.response && err.response.status !== 404) {
-      return new Response("Error checking object", { status: 500 });
-    }
-
+  } else {
     try {
-      const response = await client.eventticketobject.insert({
+      await client.eventticketobject.insert({
         requestBody: newObject,
-      });
-
-      console.log("Pass created successfully:", response);
-      return new Response(JSON.stringify(response), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
     } catch (err) {
       console.error("Error creating pass:", err);
@@ -171,7 +174,11 @@ function createClass(
   };
 }
 
-function createObject(issuerId: string, userId: string, classId: string) {
+function createObject(
+  issuerId: string,
+  userId: string,
+  classId: string
+): walletobjects_v1.Schema$EventTicketObject {
   return {
     id: `${issuerId}.${userId}`,
     classId: `${issuerId}.${classId}`,
@@ -234,33 +241,7 @@ function createObject(issuerId: string, userId: string, classId: string) {
         longitude: -122.09259560000001,
       },
     ],
-    seatInfo: {
-      seat: {
-        defaultValue: {
-          language: "en-US",
-          value: "42",
-        },
-      },
-      row: {
-        defaultValue: {
-          language: "en-US",
-          value: "G3",
-        },
-      },
-      section: {
-        defaultValue: {
-          language: "en-US",
-          value: "5",
-        },
-      },
-      gate: {
-        defaultValue: {
-          language: "en-US",
-          value: "A",
-        },
-      },
-    },
-    ticketHolderName: "Ticket holder name",
+    ticketHolderName: "Felix Fong",
     ticketNumber: "Ticket number",
   };
 }
