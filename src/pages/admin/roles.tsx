@@ -21,6 +21,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { DataTable } from "../../components/Table";
+import Head from "next/head";
+import Drawer from "../../components/Drawer";
 
 enum ActionType {
   Add,
@@ -38,7 +40,7 @@ const Roles: NextPage = () => {
   const [action, setAction] = useState<Action | undefined>(undefined);
 
   // Pagination state
-  const usersPerPage = 2;
+  const usersPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data, isPending, isError, refetch } = trpc.user.byRole.useQuery({
@@ -253,75 +255,95 @@ const Roles: NextPage = () => {
 
   return (
     <>
-      <label className="label p-4">
-        <span>Role:</span>
-      </label>
-      <input
-        type="text"
-        name="role"
-        className="input input-bordered w-full max-w-xs"
-        onKeyDown={(e) => {
-          if (
-            e.key === "Enter" &&
-            roleOptions.includes(e.currentTarget.value.toUpperCase())
-          ) {
-            setRole(e.currentTarget.value);
-            setCurrentPage(1);
-          }
-        }}
-      />
-      <br />
-      <div className="flex justify-between items-center m-4">
-        <button
-          className="btn btn-sm btn-error"
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-        >
-          Previous
-        </button>
-        <span className="font-bold">Page {currentPage}</span>
-        <button
-          className="btn btn-sm btn-success"
-          disabled={
-            !data || data.length < usersPerPage || !table.getCanNextPage()
-          }
-          onClick={() => {
-            setCurrentPage((prev) => prev + 1);
-          }}
-        >
-          Next
-        </button>
-      </div>
-      {/* {JSON.stringify(data)} */}
-      {isError ? <span className="text-error">Role not found!</span> : null}
-      {isPending ? (
-        <progress className="progress" />
-      ) : (
-        <div className="h-full w-full">
-          <DataTable table={table} />
-        </div>
-      )}
-      {/* <div className="flex justify-between items-center mt-4">
-        <button
-          className="btn btn-sm"
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-        >
-          Previous
-        </button>
-        <span>
-          Page {currentPage} of {pageTotal}
-        </span>
-        <button
-          className="btn btn-sm"
-          disabled={currentPage === pageTotal}
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, pageTotal))
-          }
-        >
-          Next
-        </button>
-      </div> */}
+      <Head>
+        <title>Role Management - DeltaHacks</title>
+      </Head>
+      <Drawer>
+        <main className="px-7 py-16 sm:px-14 lg:pl-20 2xl:pt-20 mx-auto  w-full">
+          <h1 className="mb-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl text-center">
+            Role Management
+          </h1>
+
+          <div className="card bg-base-200 shadow-xl p-6 mb-8">
+            <h2 className="text-xl font-semibold mb-4">Filter by Role</h2>
+            <div className="form-control">
+              <span className="label-text pr-4">Enter role name:</span>
+              <input
+                type="text"
+                name="role"
+                placeholder="Type role name (e.g., ADMIN, REVIEWER)..."
+                className="input input-bordered w-full max-w-md"
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    roleOptions.includes(e.currentTarget.value.toUpperCase())
+                  ) {
+                    setRole(e.currentTarget.value);
+                    setCurrentPage(1);
+                  }
+                }}
+              />
+              <div className="label-text-alt pt-4">
+                <span className="block mb-1">
+                  Available roles (click to fast select):
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {roleOptions.map((role, index) => (
+                    <button
+                      key={`roleSelect-${role}`}
+                      className="btn btn-xs btn-outline normal-case hover:btn-primary"
+                      onClick={() => {
+                        setRole(role);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-between items-center mb-6">
+            <button
+              className="btn btn-primary"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </button>
+            <span className="font-semibold text-lg">Page {currentPage}</span>
+            <button
+              className="btn btn-primary"
+              disabled={
+                !data || data.length < usersPerPage || !table.getCanNextPage()
+              }
+              onClick={() => {
+                setCurrentPage((prev) => prev + 1);
+              }}
+            >
+              Next
+            </button>
+          </div>
+          {isError ? (
+            <div className="alert alert-error mb-6">
+              <span>Role not found!</span>
+            </div>
+          ) : null}
+
+          {isPending ? (
+            <div className="flex justify-center items-center py-12">
+              <progress className="progress progress-primary w-56"></progress>
+            </div>
+          ) : (
+            <div className="card bg-base-200 shadow-xl">
+              <div className="card-body p-0">
+                <DataTable table={table} />
+              </div>
+            </div>
+          )}
+        </main>
+      </Drawer>
     </>
   );
 };
