@@ -65,21 +65,33 @@ export const userRouter = router({
     }),
 
   byRole: protectedProcedure
-    .input(z.object({ role: z.nullable(z.nativeEnum(Role)) }))
+    .input(z.object({
+      role: z.nullable(z.nativeEnum(Role)),
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).default(10),
+     }))
     .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      if (input.role === null) {
-        return await ctx.prisma?.user.findMany();
+      const {role, page, limit} = input;
+      const skip = (page - 1) * limit;
+
+      if (role === null) {
+        return await ctx.prisma?.user.findMany({
+          skip,
+          take: limit,
+        });
       }
       return await ctx.prisma?.user.findMany({
         where: {
           role: {
-            has: input.role,
+            has: role,
           },
         },
+        skip,
+        take: limit,
       });
     }),
   addRole: protectedProcedure
