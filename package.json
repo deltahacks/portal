@@ -15,7 +15,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx,json,js,mjs,cjs}\""
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.842.0",
+    "@aws-sdk/client-s3": "^3.908.0",
     "@aws-sdk/s3-request-presigner": "^3.842.0",
     "@babel/plugin-transform-react-display-name": "^7.28.0",
     "@formkit/auto-animate": "^0.8.2",
