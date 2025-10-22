@@ -174,23 +174,23 @@ const ApplicationContent = ({
       <FormDivider label="Long Answer" />
       <FormTextArea
         id="longAnswerIncident"
-        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook"
-        text={data?.longAnswerIncident}
+        label="If you could instantly master any hobby, what would it be and why?"
+        text={data?.longAnswerHobby}
       />
       <FormTextArea
         id="longAnswerGoals"
-        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
-        text={data?.longAnswerGoals}
+        label="Why do you want to be a part of DeltaHacks 12?"
+        text={data?.longAnswerWhy}
       />
       <FormTextArea
         id="longAnswerFood"
-        label="What's your go-to comfort food?"
-        text={data?.longAnswerFood}
+        label="Talk about a topic that can make you lose track of time, why does it captivate you?"
+        text={data?.longAnswerTime}
       />
       <FormTextArea
         id="longAnswerTravel"
-        label="If you could travel anywhere in the universe, where would you go and why?"
-        text={data?.longAnswerTravel}
+        label="Describe a situation where you had to quickly learn a new skill or technology to solve a problem. What was your approach and what did you learn from it?"
+        text={data?.longAnswerSkill}
       />
       <FormTextArea
         id="longAnswerSocratica"
@@ -376,7 +376,7 @@ const ReviewScores = ({ applicationId }: { applicationId: string }) => {
   const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
     {
       applicationId: applicationId,
-    },
+    }
   );
 
   return (
