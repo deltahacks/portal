@@ -352,11 +352,6 @@ export const applicationRouter = router({
           dh10App?.emergencyContactRelation,
       };
 
-      // Handle fields that don't have a direct mapping
-      if (dh10App?.socialText) {
-        autofill.socialText = [dh10App.socialText];
-      }
-
       return autofill;
     }),
   // submitDh10: protectedProcedure
