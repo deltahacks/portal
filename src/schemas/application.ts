@@ -244,4 +244,4 @@ export const dh12schema = dh11schema
       }),
   });
 
-export default dh11schema;
+export default dh12schema;

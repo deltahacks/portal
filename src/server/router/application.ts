@@ -3,8 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
 import { protectedProcedure, router } from "./trpc";
-import applicationSchema from "../../schemas/application";
-import dh11schema from "../../schemas/application";
+import applicationSchema, { dh12schema } from "../../schemas/application";
 
 const TypeFormSubmissionTruncated = z.object({
   response_id: z.string(),
@@ -68,7 +67,7 @@ const TypeFormResponseItems = z.array(
       score: z.number(),
     }),
     answers: z.array(TypeFormResponseField),
-  }),
+  })
 );
 
 export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
@@ -125,7 +124,7 @@ export const applicationRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const statusCount = (
-        await ctx.prisma.dH11Application.groupBy({
+        await ctx.prisma.dH12Application.groupBy({
           by: ["status"],
           _count: {
             status: true,
@@ -155,16 +154,16 @@ export const applicationRouter = router({
   status: protectedProcedure.output(z.enum(Status)).query(async ({ ctx }) => {
     const user = await ctx.prisma?.user.findFirst({
       where: { id: ctx.session.user.id },
-      include: { DH11Application: true },
+      include: { DH12Application: true },
     });
     if (!user) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
-    if (user.DH11Application === null || user.DH11Application === undefined) {
+    if (user.DH12Application === null || user.DH12Application === undefined) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
 
-    return user.DH11Application.status;
+    return user.DH12Application.status;
   }),
   qr: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findFirst({
@@ -178,20 +177,20 @@ export const applicationRouter = router({
     .input(
       z.object({
         rsvpCheck: z.boolean(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
-        include: { DH11Application: true },
+        include: { DH12Application: true },
       });
 
-      if (user?.DH11Application?.status != Status.ACCEPTED) {
+      if (user?.DH12Application?.status != Status.ACCEPTED) {
         throw new Error("Unauthorized call");
       }
 
-      await ctx.prisma?.dH11Application.update({
-        where: { id: user.DH11Application?.id },
+      await ctx.prisma?.dH12Application.update({
+        where: { id: user.DH12Application.id },
         data: { status: Status.RSVP, rsvpCheck: input.rsvpCheck },
       });
 
@@ -286,7 +285,7 @@ export const applicationRouter = router({
         };
       });
       const socialLinks = converted[0]?.socialLinks?.match(
-        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim,
+        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim
       );
 
       return {
@@ -297,50 +296,58 @@ export const applicationRouter = router({
       };
     }),
   getPrevAutofill: protectedProcedure
-    .output(dh11schema.partial())
+    .output(dh12schema.partial())
     .query(async ({ ctx }) => {
-      // Get the current user's DH10 application
+      // Get the current user's DH11 application
       const user = await ctx.prisma.user.findUnique({
         where: { id: ctx.session.user.id },
-        include: { dh10application: true },
+        include: { DH11Application: true, dh10application: true },
       });
 
-      if (!user || !user.dh10application) {
+      if (!user || (!user.DH11Application && !user.dh10application)) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "No previous application found for autofill",
         });
       }
 
+      const dh11App = user.DH11Application;
       const dh10App = user.dh10application;
 
       // Create the autofill object based on DH10 data
-      const pt = dh11schema.partial();
+      const pt = dh12schema.partial();
       type AutofillType = z.infer<typeof pt>;
       const autofill: AutofillType = {
-        firstName: dh10App.firstName,
-        lastName: dh10App.lastName,
-        birthday: dh10App.birthday,
-        studyEnrolledPostSecondary: dh10App.studyEnrolledPostSecondary,
-        studyLocation: dh10App.studyLocation,
-        studyDegree: dh10App.studyDegree,
-        studyMajor: dh10App.studyMajor,
-        studyExpectedGraduation: dh10App.studyExpectedGraduation,
-        interests: dh10App.interests,
+        firstName: dh11App?.firstName ?? dh10App?.firstName ?? undefined,
+        lastName: dh11App?.lastName ?? dh10App?.lastName ?? undefined,
+        birthday: dh11App?.birthday ?? dh10App?.birthday ?? undefined,
+        studyEnrolledPostSecondary:
+          dh11App?.studyEnrolledPostSecondary ??
+          dh10App?.studyEnrolledPostSecondary,
+        studyLocation: dh11App?.studyLocation ?? dh10App?.studyLocation,
+        studyDegree: dh11App?.studyDegree ?? dh10App?.studyDegree,
+        studyMajor: dh11App?.studyMajor ?? dh10App?.studyMajor,
+        studyExpectedGraduation:
+          dh11App?.studyExpectedGraduation ?? dh10App?.studyExpectedGraduation,
+        interests: dh11App?.interests ?? dh10App?.interests,
         // linkToResume: dh10App.linkToResume,
-        hackerKind: [dh10App.hackerKind], // Convert to array for DH11
-        workshopChoices: dh10App.workshopChoices,
-        discoverdFrom: dh10App.discoverdFrom,
-        considerCoffee: dh10App.considerCoffee,
-        gender: dh10App.gender,
-        race: dh10App.race,
-        emergencyContactName: dh10App.emergencyContactName,
-        emergencyContactPhone: dh10App.emergencyContactPhone,
-        emergencyContactRelation: dh10App.emergencyContactRelation,
+        hackerKind: dh11App?.hackerKind ?? [], // Convert to array for DH11
+        workshopChoices: dh11App?.workshopChoices ?? dh10App?.workshopChoices,
+        discoverdFrom: dh11App?.discoverdFrom ?? dh10App?.discoverdFrom,
+        considerCoffee: dh10App?.considerCoffee,
+        gender: dh11App?.gender ?? dh10App?.gender,
+        race: dh11App?.race ?? dh10App?.race,
+        emergencyContactName:
+          dh11App?.emergencyContactName ?? dh10App?.emergencyContactName,
+        emergencyContactPhone:
+          dh11App?.emergencyContactPhone ?? dh10App?.emergencyContactPhone,
+        emergencyContactRelation:
+          dh11App?.emergencyContactRelation ??
+          dh10App?.emergencyContactRelation,
       };
 
       // Handle fields that don't have a direct mapping
-      if (dh10App.socialText) {
+      if (dh10App?.socialText) {
         autofill.socialText = [dh10App.socialText];
       }
 
@@ -392,10 +399,66 @@ export const applicationRouter = router({
   //       icon: "📝",
   //     });
   //   }),
-  submitDh11: protectedProcedure
-    .input(applicationSchema)
-    .mutation(async ({ ctx, input }) => {
-      // aaaaaa
+  // submitDh11: protectedProcedure
+  //   .input(applicationSchema)
+  //   .mutation(async ({ ctx, input }) => {
+  //     // aaaaaa
+  //     try {
+  //       let gradDate = null;
+  //       if (input.studyExpectedGraduation) {
+  //         const possible = new Date(input.studyExpectedGraduation);
+  //         if (!isNaN(possible.getTime())) {
+  //           gradDate = possible;
+  //         }
+  //       }
+
+  //       await ctx.prisma.dH11Application.create({
+  //         data: {
+  //           ...input,
+  //           birthday: new Date(input.birthday),
+  //           studyExpectedGraduation: gradDate,
+
+  //           User: { connect: { id: ctx.session.user.id } },
+  //         },
+  //       });
+
+  //       const user = await ctx.prisma.user.update({
+  //         where: { id: ctx.session.user.id },
+  //         data: { status: Status.IN_REVIEW },
+  //       });
+
+  //       await ctx.logsnag.track({
+  //         channel: "applications",
+  //         event: "Application Submitted",
+  //         user_id: `${user.name} - ${user.email}`,
+  //         description: "A user has submitted an application.",
+  //         icon: "📝",
+  //       });
+
+  //       await ctx.posthog.capture({
+  //         distinctId: user.id,
+  //         event: "user submitted application",
+  //       });
+  //     } catch (e) {
+  //       if (e instanceof Prisma.PrismaClientKnownRequestError) {
+  //         if (e.code === "P2002")
+  //           throw new TRPCError({
+  //             code: "FORBIDDEN",
+  //             message: "You have already submitted an application.",
+  //           });
+  //       }
+  //     }
+  //   }),
+
+  submitDh12: protectedProcedure
+    .input(dh12schema)
+    .mutation(async ({ input, ctx }) => {
+      const user = await ctx.prisma.user.findFirst({
+        where: { id: ctx.session.user.id },
+      });
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
       try {
         let gradDate = null;
         if (input.studyExpectedGraduation) {
@@ -404,8 +467,7 @@ export const applicationRouter = router({
             gradDate = possible;
           }
         }
-
-        await ctx.prisma.dH11Application.create({
+        await ctx.prisma.dH12Application.create({
           data: {
             ...input,
             birthday: new Date(input.birthday),
@@ -413,11 +475,6 @@ export const applicationRouter = router({
 
             User: { connect: { id: ctx.session.user.id } },
           },
-        });
-
-        const user = await ctx.prisma.user.update({
-          where: { id: ctx.session.user.id },
-          data: { status: Status.IN_REVIEW },
         });
 
         await ctx.logsnag.track({
@@ -451,14 +508,14 @@ export const applicationRouter = router({
       throw new TRPCError({ code: "NOT_FOUND" });
     }
     if (
-      user.DH11ApplicationId === null ||
-      user.DH11ApplicationId === undefined
+      user.DH12ApplicationId === null ||
+      user.DH12ApplicationId === undefined
     ) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
     try {
-      await ctx.prisma.dH11Application.delete({
-        where: { id: user.DH11ApplicationId },
+      await ctx.prisma.dH12Application.delete({
+        where: { id: user.DH12ApplicationId },
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
