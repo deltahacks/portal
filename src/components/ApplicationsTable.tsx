@@ -169,7 +169,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: "DH11ApplicationId",
+    accessorKey: "DH12ApplicationId",
     header: () => <div className="float-right">DH12 Application</div>,
     cell: ({ row }) => {
       return (

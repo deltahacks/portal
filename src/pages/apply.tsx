@@ -246,7 +246,7 @@ const ApplyForm = ({
     },
   });
 
-  useFormPersist(`dh11-applyForm:${persistId}`, {
+  useFormPersist(`dh12-applyForm:${persistId}`, {
     watch,
     setValue,
     storage: localStorage,
@@ -963,7 +963,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH11Application: true },
+    include: { DH12Application: true },
   });
 
   const killedStr = await prisma.config.findFirst({
@@ -979,7 +979,7 @@ export const getServerSideProps = async (
   }
 
   // If submitted then go dashboard
-  if (userEntry && userEntry.DH11Application !== null) {
+  if (userEntry && userEntry.DH12Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
