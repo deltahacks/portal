@@ -12,7 +12,8 @@ const ApplicationForReview = z.object({
     .nullable()
     .transform((v) => (v === null ? "" : v)),
   status: z.enum(Status),
-  DH11ApplicationId: z.cuid(),
+  // DH11ApplicationId: z.cuid(),
+  DH12ApplicationId: z.cuid(),
   reviewCount: z.number().prefault(0),
   avgScore: z.number().prefault(-1),
 });
@@ -22,7 +23,7 @@ const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
   z.object({
     birthday: z.string(),
     studyExpectedGraduation: z.string().nullish(),
-  }).shape,
+  }).shape
 );
 export type ApplicationSchemaWithStringDates = z.infer<
   typeof ApplicationSchemaWithStringDates
@@ -62,7 +63,7 @@ export const reviewerRouter = router({
 
       const users = await ctx.prisma.user.findMany({
         where: {
-          DH11ApplicationId: {
+          DH12ApplicationId: {
             not: null,
           },
         },
@@ -71,14 +72,14 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           status: true,
-          DH11ApplicationId: true,
+          DH12ApplicationId: true,
         },
       });
 
       const parsed = ApplicationForReview.array().parse(users);
 
       // add review counts
-      const reviewStats = await ctx.prisma.dH11Review.groupBy({
+      const reviewStats = await ctx.prisma.dH12Review.groupBy({
         by: ["applicationId"],
         _count: {
           applicationId: true,
@@ -96,14 +97,14 @@ export const reviewerRouter = router({
           };
           return acc;
         },
-        {} as Record<string, { reviewCount: number; avgScore: number }>,
+        {} as Record<string, { reviewCount: number; avgScore: number }>
       );
 
       const applicationsWithReviewCount = parsed.map((application) => ({
         ...application,
         reviewCount:
-          reviewStatsMap[application.DH11ApplicationId]?.reviewCount || 0,
-        avgScore: reviewStatsMap[application.DH11ApplicationId]?.avgScore || 0,
+          reviewStatsMap[application.DH12ApplicationId]?.reviewCount || 0,
+        avgScore: reviewStatsMap[application.DH12ApplicationId]?.avgScore || 0,
       }));
 
       return applicationsWithReviewCount;
@@ -112,15 +113,15 @@ export const reviewerRouter = router({
   getApplication: protectedProcedure
     .input(
       z.object({
-        dh11ApplicationId: z.string().optional(),
-      }),
+        dh12ApplicationId: z.string().optional(),
+      })
     )
     .output(
       ApplicationSchemaWithStringDates.extend(
         z.object({
           hasReviewed: z.boolean().optional(),
-        }).shape,
-      ),
+        }).shape
+      )
     )
     .query(async ({ ctx, input }) => {
       if (
@@ -132,10 +133,10 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const application = await ctx.prisma.dH11Application.findFirst({
+      const application = await ctx.prisma.dH12Application.findFirst({
         where: {
           id: {
-            equals: input.dh11ApplicationId,
+            equals: input.dh12ApplicationId,
           },
         },
       });
@@ -148,16 +149,16 @@ export const reviewerRouter = router({
           .substring(0, 10),
       };
 
-      const review = await ctx.prisma.dH11Review.findFirst({
+      const review = await ctx.prisma.dH12Review.findFirst({
         where: {
-          applicationId: input.dh11ApplicationId,
+          applicationId: input.dh12ApplicationId,
           reviewerId: ctx.session.user.id,
         },
       });
       return ApplicationSchemaWithStringDates.extend(
         z.object({
           hasReviewed: z.boolean(),
-        }).shape,
+        }).shape
       ).parse({
         ...applicationWithStringDates,
         hasReviewed: !!review,
@@ -167,8 +168,8 @@ export const reviewerRouter = router({
   getStatus: protectedProcedure
     .input(
       z.object({
-        dh11ApplicationId: z.cuid(),
-      }),
+        dh12ApplicationId: z.cuid(),
+      })
     )
     .output(z.object({ status: z.enum(Status) }))
     .query(async ({ ctx, input }) => {
@@ -181,9 +182,9 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const application = await ctx.prisma.dH11Application.findFirst({
+      const application = await ctx.prisma.dH12Application.findFirst({
         where: {
-          id: input.dh11ApplicationId,
+          id: input.dh12ApplicationId,
         },
         include: {
           User: true,
@@ -203,17 +204,17 @@ export const reviewerRouter = router({
   updateStatus: protectedProcedure
     .input(
       z.object({
-        dh11ApplicationId: z.cuid(),
+        dh12ApplicationId: z.cuid(),
         status: z.enum(Status),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const application = await ctx.prisma.dH11Application.update({
-        where: { id: input.dh11ApplicationId },
+      const application = await ctx.prisma.dH12Application.update({
+        where: { id: input.dh12ApplicationId },
         data: {
           status: input.status,
         },
@@ -260,7 +261,7 @@ export const reviewerRouter = router({
       }
 
       // Get application
-      const application = await ctx.prisma.dH11Application.findFirst({
+      const application = await ctx.prisma.dH12Application.findFirst({
         where: {
           id: input.applicationId,
         },
@@ -275,7 +276,7 @@ export const reviewerRouter = router({
       }
 
       // Check if reviewer already scored this application
-      const existingReview = await ctx.prisma.dH11Review.findFirst({
+      const existingReview = await ctx.prisma.dH12Review.findFirst({
         where: {
           applicationId: input.applicationId,
           reviewerId: ctx.session.user.id,
@@ -289,7 +290,7 @@ export const reviewerRouter = router({
       }
 
       // Create new review
-      const review = await ctx.prisma.dH11Review.create({
+      const review = await ctx.prisma.dH12Review.create({
         data: {
           applicationId: input.applicationId,
           reviewerId: ctx.session.user.id,
@@ -332,7 +333,7 @@ export const reviewerRouter = router({
       }
 
       // Fetch reviews
-      const reviews = await ctx.prisma.dH11Review.findMany({
+      const reviews = await ctx.prisma.dH12Review.findMany({
         where: { applicationId: input.applicationId },
         include: { reviewer: true },
       });
@@ -351,7 +352,7 @@ export const reviewerRouter = router({
         ]),
         minRange: z.number().min(0),
         maxRange: z.number().max(17),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -360,7 +361,7 @@ export const reviewerRouter = router({
 
       const users = await ctx.prisma.user.findMany({
         where: {
-          DH11ApplicationId: {
+          DH12ApplicationId: {
             not: null,
           },
         },
@@ -369,14 +370,14 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           status: true,
-          DH11ApplicationId: true,
+          DH12Application: true,
         },
       });
 
       const parsed = ApplicationForReview.array().parse(users);
 
       // add review counts
-      const reviewStats = await ctx.prisma.dH11Review.groupBy({
+      const reviewStats = await ctx.prisma.dH12Review.groupBy({
         by: ["applicationId"],
         _count: {
           applicationId: true,
@@ -394,27 +395,27 @@ export const reviewerRouter = router({
           };
           return acc;
         },
-        {} as Record<string, { reviewCount: number; avgScore: number }>,
+        {} as Record<string, { reviewCount: number; avgScore: number }>
       );
 
       const applicationsWithReviewCount = parsed.map((application) => ({
         ...application,
         reviewCount:
-          reviewStatsMap[application.DH11ApplicationId]?.reviewCount || 0,
-        avgScore: reviewStatsMap[application.DH11ApplicationId]?.avgScore || 0,
+          reviewStatsMap[application.DH12ApplicationId]?.reviewCount || 0,
+        avgScore: reviewStatsMap[application.DH12ApplicationId]?.avgScore || 0,
       }));
 
       const applicationsToUpdate = applicationsWithReviewCount.filter(
         (application) =>
           application.avgScore >= input.minRange &&
-          application.avgScore <= input.maxRange,
+          application.avgScore <= input.maxRange
       );
 
       // use an updateMany query to update all application statuses
-      await ctx.prisma.dH11Application.updateMany({
+      await ctx.prisma.dH12Application.updateMany({
         where: {
           id: {
-            in: applicationsToUpdate.map((app) => app.DH11ApplicationId),
+            in: applicationsToUpdate.map((app) => app.DH12ApplicationId),
           },
         },
         data: {

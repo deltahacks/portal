@@ -105,10 +105,10 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { DH11ApplicationId } = row.original;
+      const { DH12ApplicationId } = row.original;
       return (
         <UpdateStatusDropdown
-          dh11ApplicationId={DH11ApplicationId}
+          dh12ApplicationId={DH12ApplicationId}
           position="float-right"
         />
       );
