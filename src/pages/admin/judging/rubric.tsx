@@ -20,7 +20,7 @@ import dynamic from "next/dynamic";
 
 const MDEditor = dynamic<any>(
   () => import("@uiw/react-md-editor").then((mod) => mod.default),
-  { ssr: false },
+  { ssr: false }
 );
 
 type RubricFormData = {
@@ -49,7 +49,7 @@ const JSONUploader: React.FC = () => {
       };
       reader.readAsText(file);
     },
-    [importRubricMutation],
+    [importRubricMutation]
   );
 
   return (
@@ -95,7 +95,7 @@ const RubricPage: NextPage = () => {
   const { data: rubricQuestions, refetch: refetchQuestions } =
     trpc.judging.getRubricQuestions.useQuery(
       { trackId: selectedTrack || "" },
-      { enabled: !!selectedTrack },
+      { enabled: !!selectedTrack }
     );
 
   const createQuestion = trpc.judging.createRubricQuestion.useMutation({
@@ -123,7 +123,7 @@ const RubricPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Rubric Management - DeltaHacks XI</title>
+        <title>Rubric Management - Deltahacks 12</title>
       </Head>
 
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">
@@ -322,7 +322,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output,
+    output
   );
   return output;
 }

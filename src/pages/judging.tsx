@@ -38,7 +38,7 @@ const Judging: NextPage = () => {
   // const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-    null,
+    null
   );
 
   const { data: tables, isPending: tablesLoading } =
@@ -59,17 +59,17 @@ const Judging: NextPage = () => {
     {
       enabled: !!selectedTable,
       placeholderData: keepPreviousData,
-    },
+    }
   );
   const generalTrackId = tables?.find(
-    (t) => t.track.name.toLowerCase() === "general",
+    (t) => t.track.name.toLowerCase() === "general"
   )?.trackId;
   const { data: rubricQuestions } = trpc.judging.getRubricQuestions.useQuery(
     {
       trackId:
         tables?.find((t) => t.id === selectedTable?.value)?.trackId || "",
     },
-    { enabled: !!selectedTable },
+    { enabled: !!selectedTable }
   );
   // need to add general questions to other tracks
   const { data: generalQuestions } = trpc.judging.getRubricQuestions.useQuery(
@@ -83,7 +83,7 @@ const Judging: NextPage = () => {
         tables
           ?.find((t) => t.id === selectedTable?.value)
           ?.track.name.toLowerCase() !== "general",
-    },
+    }
   );
 
   const allQuestions = [
@@ -98,13 +98,13 @@ const Judging: NextPage = () => {
   const { data: tableProjects, refetch: refetchTableProjects } =
     trpc.table.getTableProjects.useQuery(
       { tableId: selectedTable?.value || "" },
-      { enabled: !!selectedTable },
+      { enabled: !!selectedTable }
     );
 
   const { data: existingScores, refetch: refetchExistingScores } =
     trpc.judging.getProjectScores.useQuery(
       { projectId: nextProject?.id || "" },
-      { enabled: !!nextProject },
+      { enabled: !!nextProject }
     );
 
   useEffect(() => {
@@ -132,14 +132,14 @@ const Judging: NextPage = () => {
           ([questionId, score]) => ({
             questionId,
             score: Number(score),
-          }),
+          })
         ),
       },
       {
         onSuccess: () => {
           // Only clear selectedProjectId if there are more unjudged projects
           const hasMoreUnjudgedProjects = tableProjects?.some(
-            (p) => !p.isJudged && p.id !== nextProject.id,
+            (p) => !p.isJudged && p.id !== nextProject.id
           );
           if (hasMoreUnjudgedProjects) {
             setSelectedProjectId(null);
@@ -151,7 +151,7 @@ const Judging: NextPage = () => {
           // Scroll to top of page
           window.scrollTo({ top: 0, behavior: "smooth" });
         },
-      },
+      }
     );
   };
 
@@ -235,7 +235,7 @@ const Judging: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks XI</title>
+        <title>Dashboard - Deltahacks 12</title>
       </Head>
 
       <div className="drawer drawer-end relative min-h-screen w-full overflow-x-hidden font-montserrat">
@@ -346,7 +346,7 @@ const Judging: NextPage = () => {
                                 <QuestionSection
                                   title={`${
                                     tables?.find(
-                                      (t) => t.id === selectedTable?.value,
+                                      (t) => t.id === selectedTable?.value
                                     )?.track.name
                                   } Track Questions`}
                                   questions={rubricQuestions}
@@ -384,7 +384,7 @@ const Judging: NextPage = () => {
                               className="btn btn-primary mt-8"
                             >
                               {tableProjects?.find(
-                                (t) => t.id === selectedProjectId,
+                                (t) => t.id === selectedProjectId
                               )?.isJudged
                                 ? "Update Judgment"
                                 : "Submit Judgment"}
@@ -454,14 +454,14 @@ const Judging: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
+  context: GetServerSidePropsContext
 ) => {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
     [Role.ADMIN, Role.JUDGE],
     undefined,
-    output,
+    output
   );
   return output;
 };

@@ -88,7 +88,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop",
+      event.eventType.toLowerCase() === "workshop"
   );
 };
 
@@ -157,7 +157,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks XI</title>
+        <title>Dashboard - Deltahacks 12</title>
       </Head>
       <Drawer
         pageTabs={[

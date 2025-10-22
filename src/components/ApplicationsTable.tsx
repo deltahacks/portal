@@ -170,7 +170,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   },
   {
     accessorKey: "DH11ApplicationId",
-    header: () => <div className="float-right">DH XI Application</div>,
+    header: () => <div className="float-right">DH12 Application</div>,
     cell: ({ row }) => {
       return (
         <div className="float-right">

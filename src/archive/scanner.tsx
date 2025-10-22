@@ -23,7 +23,7 @@ const FoodManagerView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    },
+    }
   );
   const foodMutationAdd = trpc.food.addFood.useMutation();
   const foodMutationSub = trpc.food.subFood.useMutation();
@@ -33,7 +33,7 @@ const FoodManagerView: React.FC = () => {
       setQRCode(data);
       await foodUtils.food.getFood.invalidate();
     },
-    [foodUtils],
+    [foodUtils]
   );
   return (
     <>
@@ -130,7 +130,7 @@ const SponsorView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    },
+    }
   );
 
   useEffect(() => {
@@ -230,7 +230,7 @@ const HackerView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    },
+    }
   );
 
   return (
@@ -268,7 +268,7 @@ const HackerView: React.FC = () => {
                     I am a{" "}
                     {socialInfo?.currentLevel?.replace(
                       "High School",
-                      "High Schooler",
+                      "High Schooler"
                     )}{" "}
                     attending {socialInfo?.school} for {socialInfo?.major}{" "}
                     at&nbsp;
@@ -483,7 +483,7 @@ const Scanner: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks XI</title>
+        <title>Check In - Deltahacks 12</title>
       </Head>
       <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
         <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
@@ -528,7 +528,7 @@ const Scanner: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
+  context: GetServerSidePropsContext
 ) => {
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };

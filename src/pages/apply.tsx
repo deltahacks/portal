@@ -913,7 +913,7 @@ const Apply: NextPage<
         <div className="w-full">
           <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
             <h1 className="py-8 text-3xl font-bold text-center text-black dark:text-white md:text-left">
-              Apply to DeltaHacks XI
+              Apply to Deltahacks 12
             </h1>
 
             {!killed &&
@@ -939,7 +939,7 @@ const Apply: NextPage<
                     <span className="font-bold">tech@deltahacks.com</span>
                   </span>
                   {/* <span> */}
-                  {/* Applications are closed for DeltaHacks XI. If you did not */}
+                  {/* Applications are closed for Deltahacks 12. If you did not */}
                   {/* get to apply, we hope to see you next year! */}
                   {/* </span> */}
                 </div>

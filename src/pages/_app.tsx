@@ -65,12 +65,12 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
           /> */}
 
             {/* <!-- HTML Meta Tags --> */}
-            <title>DeltaHacks XI</title>
+            <title>Deltahacks 12</title>
             <meta name="description" content="Hackathon for Change" />
 
             <meta property="og:url" content="https://portal.deltahacks.com" />
             <meta property="og:type" content="website" />
-            <meta property="og:title" content="DeltaHacks XI" />
+            <meta property="og:title" content="Deltahacks 12" />
             <meta property="og:description" content="Hackathon for Change" />
             <meta
               property="og:image"
@@ -86,7 +86,7 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
               property="twitter:url"
               content="https://portal.deltahacks.com"
             />
-            <meta name="twitter:title" content="DeltaHacks XI" />
+            <meta name="twitter:title" content="Deltahacks 12" />
             <meta name="twitter:description" content="Hackathon for Change" />
             <meta
               name="twitter:image"
