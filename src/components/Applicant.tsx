@@ -173,22 +173,22 @@ const ApplicationContent = ({
       />
       <FormDivider label="Long Answer" />
       <FormTextArea
-        id="longAnswerIncident"
+        id="longAnswerHobby"
         label="If you could instantly master any hobby, what would it be and why?"
         text={data?.longAnswerHobby}
       />
       <FormTextArea
-        id="longAnswerGoals"
+        id="longAnswerWhy"
         label="Why do you want to be a part of DeltaHacks 12?"
         text={data?.longAnswerWhy}
       />
       <FormTextArea
-        id="longAnswerFood"
+        id="longAnswerTime"
         label="Talk about a topic that can make you lose track of time, why does it captivate you?"
         text={data?.longAnswerTime}
       />
       <FormTextArea
-        id="longAnswerTravel"
+        id="longAnswerSkill"
         label="Describe a situation where you had to quickly learn a new skill or technology to solve a problem. What was your approach and what did you learn from it?"
         text={data?.longAnswerSkill}
       />
