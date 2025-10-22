@@ -374,7 +374,7 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           status: true,
-          DH12Application: true,
+          DH12ApplicationId: true,
         },
       });
 
