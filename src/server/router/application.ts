@@ -185,6 +185,10 @@ export const applicationRouter = router({
         include: { DH12Application: true },
       });
 
+      if (!user?.DH12Application?.id) {
+        throw new Error("No DH12Application found for user");
+      }
+
       if (user?.DH12Application?.status != Status.ACCEPTED) {
         throw new Error("Unauthorized call");
       }
