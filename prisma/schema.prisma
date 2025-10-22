@@ -283,6 +283,8 @@ model DH12Application {
   agreeToMLHPrivacyPolicy  Boolean
   agreeToMLHCommunications Boolean
 
+  rsvpCheck Boolean @default(false)
+
   User User?
 
   DH12Review DH12Review[]
