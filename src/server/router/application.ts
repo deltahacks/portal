@@ -315,6 +315,8 @@ export const applicationRouter = router({
         });
       }
 
+      // TODO: We need to decide how we wanna keep this backward compatibility
+      // since more items keep getting added here.
       const dh11App = user.DH11Application;
       const dh10App = user.dh10application;
 
