@@ -177,7 +177,7 @@ const FormUpload: React.FC<FormUploadProps> = ({
       getResponseData: () => {
         return { url: objectId };
       },
-    })
+    }),
   );
 
   if (!uploadUrl) {
@@ -659,7 +659,7 @@ const ApplyForm = ({
                 onChange(val?.map((v: SelectChoice) => v.value))
               }
               value={workshops.filter((val) =>
-                value?.includes(val.value as workshopType)
+                value?.includes(val.value as workshopType),
               )}
               isMulti={true}
             />
@@ -953,7 +953,7 @@ const Apply: NextPage<
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
 

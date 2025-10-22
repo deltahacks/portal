@@ -27,7 +27,7 @@ const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
   z.object({
     birthday: z.string(),
     studyExpectedGraduation: z.string().nullish(),
-  }).shape
+  }).shape,
 );
 export type ApplicationSchemaWithStringDates = z.infer<
   typeof ApplicationSchemaWithStringDates
@@ -101,7 +101,7 @@ export const reviewerRouter = router({
           };
           return acc;
         },
-        {} as Record<string, { reviewCount: number; avgScore: number }>
+        {} as Record<string, { reviewCount: number; avgScore: number }>,
       );
 
       const applicationsWithReviewCount = parsed.map((application) => ({
@@ -118,14 +118,14 @@ export const reviewerRouter = router({
     .input(
       z.object({
         dh12ApplicationId: z.string().optional(),
-      })
+      }),
     )
     .output(
       ApplicationSchemaWithStringDates.extend(
         z.object({
           hasReviewed: z.boolean().optional(),
-        }).shape
-      )
+        }).shape,
+      ),
     )
     .query(async ({ ctx, input }) => {
       if (
@@ -162,7 +162,7 @@ export const reviewerRouter = router({
       return ApplicationSchemaWithStringDates.extend(
         z.object({
           hasReviewed: z.boolean(),
-        }).shape
+        }).shape,
       ).parse({
         ...applicationWithStringDates,
         hasReviewed: !!review,
@@ -173,7 +173,7 @@ export const reviewerRouter = router({
     .input(
       z.object({
         dh12ApplicationId: z.cuid(),
-      })
+      }),
     )
     .output(z.object({ status: z.enum(Status) }))
     .query(async ({ ctx, input }) => {
@@ -210,7 +210,7 @@ export const reviewerRouter = router({
       z.object({
         dh12ApplicationId: z.cuid(),
         status: z.enum(Status),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -356,7 +356,7 @@ export const reviewerRouter = router({
         ]),
         minRange: z.number().min(0),
         maxRange: z.number().max(17),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -399,7 +399,7 @@ export const reviewerRouter = router({
           };
           return acc;
         },
-        {} as Record<string, { reviewCount: number; avgScore: number }>
+        {} as Record<string, { reviewCount: number; avgScore: number }>,
       );
 
       const applicationsWithReviewCount = parsed.map((application) => ({
@@ -412,7 +412,7 @@ export const reviewerRouter = router({
       const applicationsToUpdate = applicationsWithReviewCount.filter(
         (application) =>
           application.avgScore >= input.minRange &&
-          application.avgScore <= input.maxRange
+          application.avgScore <= input.maxRange,
       );
 
       // use an updateMany query to update all application statuses

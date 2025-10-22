@@ -21,7 +21,7 @@ import { prisma } from "../../../../../server/db/client";
 
 export const GET = async (
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   // TODO: Properly implement Apple Wallet support across years.
   return;

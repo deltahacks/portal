@@ -43,7 +43,7 @@ const TimeSlotPage: NextPage = () => {
       const earliestStart = new Date(timeSlots[0]?.startTime || Date.now());
       const latestEnd = new Date(
         timeSlots[timeSlots.length - 1]?.startTime ??
-          (timeSlots[0]?.startTime || Date.now())
+          (timeSlots[0]?.startTime || Date.now()),
       );
       // Always use 10-minute chunks
       setTenMinuteChunks(generateTimeChunks(earliestStart, latestEnd));
@@ -72,7 +72,7 @@ const TimeSlotPage: NextPage = () => {
     { time: timesToQuery[0]?.toISOString() ?? "" },
     {
       enabled: !!currentTime && !!timeSlots && timesToQuery.length > 0,
-    }
+    },
   );
 
   const secondAssignment = trpc.timeSlot.getAssignmentsAtTime.useQuery(
@@ -80,7 +80,7 @@ const TimeSlotPage: NextPage = () => {
     {
       enabled: !!currentTime && !!timeSlots && timesToQuery.length > 1,
       placeholderData: keepPreviousData,
-    }
+    },
   );
 
   const thirdAssignment = trpc.timeSlot.getAssignmentsAtTime.useQuery(
@@ -88,7 +88,7 @@ const TimeSlotPage: NextPage = () => {
     {
       enabled: !!currentTime && !!timeSlots && timesToQuery.length > 2,
       placeholderData: keepPreviousData,
-    }
+    },
   );
 
   const assignmentQueries = [
@@ -159,7 +159,7 @@ const TimeSlotPage: NextPage = () => {
     }> = ({ chunk, tableId }) => {
       const { data: assignments } = trpc.timeSlot.getAssignmentsAtTime.useQuery(
         { time: chunk.toISOString() },
-        { enabled: !!chunk }
+        { enabled: !!chunk },
       );
       const project = assignments?.[tableId];
       return (
@@ -341,7 +341,7 @@ const TimeSlotPage: NextPage = () => {
                       const isMlh = table.track.name === "MLH";
                       const assignmentData = getAssignmentsForTable(
                         table.id,
-                        isMlh
+                        isMlh,
                       );
 
                       return (
@@ -369,7 +369,7 @@ const TimeSlotPage: NextPage = () => {
                                             </p>
                                             {/* Add time range display logic here if needed */}
                                           </div>
-                                        )
+                                        ),
                                     )
                                   : assignmentData && (
                                       <div className="p-3 bg-gray-100 dark:bg-neutral-900 rounded border dark:border-neutral-800">
@@ -389,10 +389,10 @@ const TimeSlotPage: NextPage = () => {
                                     // each project covers a 5-min sub-slot in this 10-min chunk
                                     const subSlotStart = new Date(
                                       currentTime?.getTime() ??
-                                        Date.now() + idx * 5 * 60_000
+                                        Date.now() + idx * 5 * 60_000,
                                     );
                                     const subSlotEnd = new Date(
-                                      subSlotStart.getTime() + 5 * 60_000
+                                      subSlotStart.getTime() + 5 * 60_000,
                                     );
 
                                     return (
@@ -409,7 +409,7 @@ const TimeSlotPage: NextPage = () => {
                                             {
                                               hour: "numeric",
                                               minute: "2-digit",
-                                            }
+                                            },
                                           )}
                                           {" - "}
                                           {subSlotEnd.toLocaleTimeString(
@@ -417,7 +417,7 @@ const TimeSlotPage: NextPage = () => {
                                             {
                                               hour: "numeric",
                                               minute: "2-digit",
-                                            }
+                                            },
                                           )}
                                         </p>
                                       </div>
@@ -453,7 +453,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 }

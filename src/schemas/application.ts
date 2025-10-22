@@ -14,7 +14,7 @@ const dh10schema = z.object({
     },
     {
       error: "You must be at least 13 years old",
-    }
+    },
   ),
   macEv: z.boolean(),
   linkToResume: z.nullable(z.string()),
@@ -133,7 +133,7 @@ const dh11schema = z.object({
     },
     {
       error: "You must be at least 13 years old",
-    }
+    },
   ),
   phone: z.string().refine(isMobilePhone, "Invalid phone number").nullish(),
   country: z.string().nullish(),

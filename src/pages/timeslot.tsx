@@ -14,7 +14,7 @@ const TimeslotPage: NextPage = () => {
     trpc.project.getAllProjects.useQuery();
   const { data: timeSlots } = trpc.project.getProjectTimeSlots.useQuery(
     { projectId: selectedProject?.value ?? "" },
-    { enabled: !!selectedProject }
+    { enabled: !!selectedProject },
   );
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 

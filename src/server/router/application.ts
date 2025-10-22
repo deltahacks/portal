@@ -67,7 +67,7 @@ const TypeFormResponseItems = z.array(
       score: z.number(),
     }),
     answers: z.array(TypeFormResponseField),
-  })
+  }),
 );
 
 export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
@@ -177,7 +177,7 @@ export const applicationRouter = router({
     .input(
       z.object({
         rsvpCheck: z.boolean(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma?.user.findFirst({
@@ -285,7 +285,7 @@ export const applicationRouter = router({
         };
       });
       const socialLinks = converted[0]?.socialLinks?.match(
-        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim
+        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim,
       );
 
       return {
