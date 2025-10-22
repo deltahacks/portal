@@ -98,7 +98,7 @@ const Accepted: React.FC = () => {
           RSVP
         </Button>
         <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
@@ -172,7 +172,7 @@ const Accepted: React.FC = () => {
           RSVP
         </button>
 
-        <Link href="https://deltahacks.com/#FAQ">
+        <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -209,7 +209,7 @@ const Rejected: React.FC = () => {
       </div>
       <div className="pt-6">
         <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
@@ -245,7 +245,7 @@ const Waitlisted: React.FC = () => {
       </div>
       <div className="pt-6">
         <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
@@ -334,7 +334,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
             </div>
           </dialog>
           <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-            <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+            <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
               FAQ
             </Link>
           </Button>
@@ -342,7 +342,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
       ) : (
         <div className="mt-5">
           <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-            <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+            <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
               FAQ
             </Link>
           </Button>
@@ -396,7 +396,7 @@ const RSVPed: React.FC = () => {
           </Link>
         </Button>
         <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
@@ -475,7 +475,7 @@ const WalkIns: React.FC = () => {
         link your QR code. Happy hacking!
       </h2>
       <div className="flex flex-wrap  gap-6 pt-6 ">
-        <Link href="https://deltahacks.com/#FAQ">
+        <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
