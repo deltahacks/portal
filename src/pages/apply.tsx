@@ -240,13 +240,13 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh11.useMutation({
+  } = trpc.application.submitDh12.useMutation({
     onSuccess: async () => {
       await router.push("/dashboard");
     },
   });
 
-  useFormPersist(`dh11-applyForm:${persistId}`, {
+  useFormPersist(`dh12-applyForm:${persistId}`, {
     watch,
     setValue,
     storage: localStorage,
@@ -262,7 +262,7 @@ const ApplyForm = ({
 
   const user = useSession();
 
-  const objectId = `${user.data?.user?.id}-dh11.pdf`;
+  const objectId = `${user.data?.user?.id}-dh12.pdf`;
   useEffect(() => {
     mutate({
       filename: objectId,
@@ -555,32 +555,32 @@ const ApplyForm = ({
       </div>
       <FormDivider label="Long Answer" />
       <FormTextArea
-        id="longAnswerIncident"
-        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook."
-        errors={errors.longAnswerIncident}
+        id="longAnswerHobby"
+        label="If you could instantly master any hobby, what would it be and why?"
+        errors={errors.longAnswerHobby}
         register={register}
-        value={watch("longAnswerIncident")}
+        value={watch("longAnswerHobby")}
       />
       <FormTextArea
-        id="longAnswerGoals"
-        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
-        errors={errors.longAnswerGoals}
+        id="longAnswerWhy"
+        label="Why do you want to be a part of DeltaHacks 12?"
+        errors={errors.longAnswerWhy}
         register={register}
-        value={watch("longAnswerGoals")}
+        value={watch("longAnswerWhy")}
       />
       <FormTextArea
-        id="longAnswerFood"
-        label="What's your go-to comfort food?"
-        errors={errors.longAnswerFood}
+        id="longAnswerTime"
+        label="Talk about a topic that can make you lose track of time, why does it captivate you?"
+        errors={errors.longAnswerTime}
         register={register}
-        value={watch("longAnswerFood")}
+        value={watch("longAnswerTime")}
       />
       <FormTextArea
-        id="longAnswerTravel"
-        label="If you could travel anywhere in the universe, where would you go and why?"
-        errors={errors.longAnswerTravel}
+        id="longAnswerSkill"
+        label="Describe a situation where you had to quickly learn a new skill or technology to solve a problem. What was your approach and what did you learn from it?"
+        errors={errors.longAnswerSkill}
         register={register}
-        value={watch("longAnswerTravel")}
+        value={watch("longAnswerSkill")}
       />
       <FormTextArea
         id="longAnswerSocratica"
@@ -907,13 +907,13 @@ const Apply: NextPage<
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks XI</title>
+        <title>Welcome - DeltaHacks 12</title>
       </Head>
       <Drawer>
         <div className="w-full">
           <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
             <h1 className="py-8 text-3xl font-bold text-center text-black dark:text-white md:text-left">
-              Apply to DeltaHacks XI
+              Apply to Deltahacks 12
             </h1>
 
             {!killed &&
@@ -932,16 +932,16 @@ const Apply: NextPage<
             {killed && (
               <div className="flex flex-col items-center justify-center h-full py-4 text-center">
                 <div className="text-2xl text-center text-black bg-red-600 alert dark:text-white md:text-left">
-                  {/* <span>
+                  <span>
                     Applications are currently closed due to technical
                     difficulties. Please check back later. If this error
                     persists, please contact us at{" "}
                     <span className="font-bold">tech@deltahacks.com</span>
-                  </span> */}
-                  <span>
-                    Applications are closed for DeltaHacks XI. If you did not
-                    get to apply, we hope to see you next year!
                   </span>
+                  {/* <span> */}
+                  {/* Applications are closed for Deltahacks 12. If you did not */}
+                  {/* get to apply, we hope to see you next year! */}
+                  {/* </span> */}
                 </div>
               </div>
             )}
@@ -963,7 +963,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH11Application: true },
+    include: { DH12Application: true },
   });
 
   const killedStr = await prisma.config.findFirst({
@@ -979,7 +979,7 @@ export const getServerSideProps = async (
   }
 
   // If submitted then go dashboard
-  if (userEntry && userEntry.DH11Application !== null) {
+  if (userEntry && userEntry.DH12Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 

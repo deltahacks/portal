@@ -210,4 +210,38 @@ const dh11schema = z.object({
   agreeToMLHCommunications: z.boolean(),
 });
 
-export default dh11schema;
+export const dh12schema = dh11schema
+  .omit({
+    longAnswerIncident: true,
+    longAnswerGoals: true,
+    longAnswerFood: true,
+    longAnswerTravel: true,
+  })
+  .extend({
+    longAnswerHobby: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerWhy: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerTime: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerSkill: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+  });
+
+export default dh12schema;

@@ -15,7 +15,7 @@ export const userRouter = router({
       const userData = await ctx.prisma?.user.findFirst({
         where: { id },
         include: {
-          DH11Application: {
+          DH12Application: {
             select: {
               id: true,
               firstName: true,
@@ -47,7 +47,7 @@ export const userRouter = router({
       const user = await ctx.prisma.user.findFirst({
         where: { id: input },
         include: {
-          DH11Application: true,
+          DH12Application: true,
         },
       });
 
@@ -55,9 +55,9 @@ export const userRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      // update the DH11Application status to checked in
-      await ctx.prisma.dH11Application.update({
-        where: { id: user.DH11Application?.id },
+      // update the DH12Application status to checked in
+      await ctx.prisma.dH12Application.update({
+        where: { id: user.DH12Application?.id },
         data: {
           status: "CHECKED_IN",
         },
