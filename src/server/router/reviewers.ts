@@ -4,6 +4,10 @@ import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
 import ApplicationSchema from "../../schemas/application";
 
+// NOTE: Prefaults
+// In Zod, setting a default value will short-circuit the parsing process. If the input is undefined, the default value is eagerly returned. As such, the default value must be assignable to the output type of the schema.
+// Sometimes, it's useful to define a prefault ("pre-parse default") value. If the input is undefined, the prefault value will be parsed instead. The parsing process is not short circuited. As such, the prefault value must be assignable to the input type of the schema.
+
 const ApplicationForReview = z.object({
   id: z.cuid(),
   name: z.string(),
