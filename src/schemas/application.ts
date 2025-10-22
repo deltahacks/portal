@@ -14,7 +14,7 @@ const dh10schema = z.object({
     },
     {
       error: "You must be at least 13 years old",
-    },
+    }
   ),
   macEv: z.boolean(),
   linkToResume: z.nullable(z.string()),
@@ -133,7 +133,7 @@ const dh11schema = z.object({
     },
     {
       error: "You must be at least 13 years old",
-    },
+    }
   ),
   phone: z.string().refine(isMobilePhone, "Invalid phone number").nullish(),
   country: z.string().nullish(),
@@ -209,5 +209,39 @@ const dh11schema = z.object({
   }),
   agreeToMLHCommunications: z.boolean(),
 });
+
+export const dh12schema = dh11schema
+  .omit({
+    longAnswerIncident: true,
+    longAnswerGoals: true,
+    longAnswerFood: true,
+    longAnswerTravel: true,
+  })
+  .extend({
+    longAnswerHobby: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerWhy: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerTime: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerSkill: z
+      .string()
+      .min(1, "An answer is required for this question")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+  });
 
 export default dh11schema;
