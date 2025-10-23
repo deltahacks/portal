@@ -651,6 +651,9 @@ const ApplyForm = ({
           htmlFor="workshopChoicesInput"
         >
           What workshops are you interested in?
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
         </label>
         <Controller
           name="workshopChoices"
