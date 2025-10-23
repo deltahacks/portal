@@ -43,7 +43,7 @@ const Content = () => {
           asChild
           className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize"
         >
-          <Link href="https://deltahacks.com/#FAQ">FAQ</Link>
+          <Link href="https://deltahacks.com/#faq">FAQ</Link>
         </Button>
       </div>
     </main>
