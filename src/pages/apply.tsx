@@ -413,6 +413,7 @@ const ApplyForm = ({
               >
                 Study Location
                 <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
                   (Optional)
                 </span>
               </label>
@@ -444,6 +445,7 @@ const ApplyForm = ({
               >
                 Study Degree
                 <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
                   (Optional)
                 </span>
               </label>
@@ -474,6 +476,7 @@ const ApplyForm = ({
               >
                 Study Major
                 <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
                   (Optional)
                 </span>
               </label>
@@ -505,6 +508,7 @@ const ApplyForm = ({
               >
                 Year of Study
                 <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
                   (Optional)
                 </span>
               </label>
@@ -535,6 +539,7 @@ const ApplyForm = ({
               >
                 Expected Graduation
                 <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
                   (Optional)
                 </span>
               </label>
@@ -664,7 +669,7 @@ const ApplyForm = ({
             What kind of hacker are you?
           </label>
           {errors.hackerKind && (
-            <span className="text-error text-sm">
+            <span className="text-error text-sm text-right text-balance">
               {errors.hackerKind.message}
             </span>
           )}
@@ -727,7 +732,7 @@ const ApplyForm = ({
             How did you hear about DeltaHacks?
           </label>
           {errors.discoverdFrom && (
-            <span className="text-error text-sm">
+            <span className="text-error text-sm text-right text-balance">
               {errors.discoverdFrom.message}
             </span>
           )}
