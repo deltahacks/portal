@@ -68,22 +68,27 @@ const FormCheckbox: React.FC<
   FormInputProps & React.HTMLProps<HTMLInputElement>
 > = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
-    <div className="h-full">
-      <div className="flex items-center justify-between w-full gap-2 pt-4 pb-4 md:flex-row-reverse md:justify-end">
-        <label className="text-black dark:text-white" htmlFor={id}>
-          {link ? (
-            <a className="underline" href={link} target="_blank">
-              {label}
-            </a>
-          ) : (
-            label
-          )}{" "}
-          {optional && (
-            <span className="text-neutral-500 dark:text-neutral-400">
-              (Optional)
-            </span>
-          )}
-        </label>
+    <>
+      <div className="flex items-center justify-between w-full gap-2 pt-4 md:flex-row-reverse md:justify-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-black dark:text-white" htmlFor={id}>
+            {link ? (
+              <a className="underline" href={link} target="_blank">
+                {label}
+              </a>
+            ) : (
+              label
+            )}{" "}
+            {optional && (
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
+            )}
+          </label>
+          <span className="text-error text-sm h-6 block pt-2">
+            {errors?.message ?? ""}
+          </span>
+        </div>
         <input
           className="p-2 bg-white rounded-sm checkbox-primary checkbox checkbox-lg dark:bg-neutral-800"
           type="checkbox"
@@ -92,10 +97,7 @@ const FormCheckbox: React.FC<
           {...props}
         />
       </div>
-      <span className="text-error text-sm h-6 block">
-        {errors?.message ?? ""}
-      </span>
-    </div>
+    </>
   );
 };
 
