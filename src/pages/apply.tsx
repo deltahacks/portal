@@ -333,7 +333,7 @@ const ApplyForm = ({
       />
 
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="tshirtSizeInput">
+        <label className="text-black dark:text-white" htmlFor="countryInput">
           Country of Residence
         </label>
         <Controller
@@ -351,12 +351,12 @@ const ApplyForm = ({
               onChange={(val: SelectChoice | null) => onChange(val?.value)}
               // value={iso3115.find((val) => val.value === value)}
               isMulti={false}
-              defaultInputValue={autofillData.tshirtSize ?? undefined}
+              defaultInputValue={autofillData.country ?? undefined}
             />
           )}
         />
-        {errors.tshirtSize && (
-          <span className="text-error">{errors.tshirtSize.message}</span>
+        {errors.country && (
+          <span className="text-error">{errors.country.message}</span>
         )}
       </div>
 
