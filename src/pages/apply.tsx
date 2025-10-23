@@ -69,21 +69,26 @@ const FormCheckbox: React.FC<
 > = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
     <>
-      <div className="flex items-center justify-between w-full gap-2 pt-4 pb-4 md:flex-row-reverse md:justify-end">
-        <label className="text-black dark:text-white" htmlFor={id}>
-          {link ? (
-            <a className="underline" href={link} target="_blank">
-              {label}
-            </a>
-          ) : (
-            label
-          )}{" "}
-          {optional && (
-            <span className="text-neutral-500 dark:text-neutral-400">
-              (Optional)
-            </span>
-          )}
-        </label>
+      <div className="flex items-center justify-between w-full gap-2 pt-4 md:flex-row-reverse md:justify-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-black dark:text-white" htmlFor={id}>
+            {link ? (
+              <a className="underline" href={link} target="_blank">
+                {label}
+              </a>
+            ) : (
+              label
+            )}{" "}
+            {optional && (
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Optional)
+              </span>
+            )}
+          </label>
+          <span className="text-error text-sm h-6 block pt-2">
+            {errors?.message ?? ""}
+          </span>
+        </div>
         <input
           className="p-2 bg-white rounded-sm checkbox-primary checkbox checkbox-lg dark:bg-neutral-800"
           type="checkbox"
@@ -92,7 +97,6 @@ const FormCheckbox: React.FC<
           {...props}
         />
       </div>
-      {errors && <span className="text-error">{errors.message}</span>}
     </>
   );
 };
@@ -116,13 +120,16 @@ const FormTextArea: React.FC<
         )}
         <div
           className={
-            "pt-4 " +
+            "pt-4 flex justify-between items-center " +
             (wordLength > 150
               ? "text-red-500"
               : "text-neutral-500 dark:text-neutral-400")
           }
         >
           {151 - wordLength - (currentLength > 0 ? 1 : 0)} words left
+          {errors && (
+            <span className="text-error text-sm">{errors.message}</span>
+          )}
         </div>
       </label>
       <textarea
@@ -132,7 +139,6 @@ const FormTextArea: React.FC<
         {...register(id)}
         {...props}
       />
-      {errors && <span className="text-error">{errors.message}</span>}
     </div>
   );
 };
@@ -304,7 +310,7 @@ const ApplyForm = ({
         </div>
       )}
       <FormDivider label="Personal Information" />
-      <div className="flex flex-col w-full lg:flex-row lg:gap-4">
+      <div className="flex flex-col w-full   lg:flex-row lg:gap-4">
         <FormInput
           label="First Name"
           id="firstName"
@@ -330,9 +336,14 @@ const ApplyForm = ({
       />
 
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="countryInput">
-          Country of Residence
-        </label>
+        <div className="flex justify-between items-center">
+          <label className="text-black dark:text-white" htmlFor="countryInput">
+            Country of Residence
+          </label>
+          {errors.country && (
+            <span className="text-error text-sm">{errors.country.message}</span>
+          )}
+        </div>
         <Controller
           name="country"
           control={control}
@@ -354,16 +365,22 @@ const ApplyForm = ({
             );
           }}
         />
-        {errors.country && (
-          <span className="text-error">{errors.country.message}</span>
-        )}
       </div>
 
       {/* Birthday Input */}
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="birthdayInput">
-          Birthday
-        </label>
+        <div className="flex justify-between items-center">
+          <label className="text-black dark:text-white" htmlFor="birthdayInput">
+            Birthday
+          </label>
+          {errors.birthday && (
+            <span className="text-error text-sm">
+              {errors.birthday.message?.includes("years")
+                ? errors.birthday.message
+                : "This field is required"}
+            </span>
+          )}
+        </div>
         <input
           className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
@@ -371,13 +388,6 @@ const ApplyForm = ({
           {...register("birthday", {})}
           placeholder="YYYY-MM-DD"
         />
-        {errors.birthday && (
-          <span className="text-error">
-            {errors.birthday.message?.includes("years")
-              ? errors.birthday.message
-              : "This field is required"}
-          </span>
-        )}
       </div>
       {uploadUrl ? (
         <FormUpload
@@ -398,15 +408,23 @@ const ApplyForm = ({
       {isSecondary && (
         <div>
           <div className="flex flex-col gap-2 pb-4">
-            <label
-              className="text-black dark:text-white"
-              htmlFor="studyLocationInput"
-            >
-              Study Location
-              <span className="text-neutral-500 dark:text-neutral-400">
-                (Optional)
-              </span>
-            </label>
+            <div className="flex justify-between items-center">
+              <label
+                className="text-black dark:text-white"
+                htmlFor="studyLocationInput"
+              >
+                Study Location
+                <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
+                  (Optional)
+                </span>
+              </label>
+              {errors.studyLocation && (
+                <span className="text-error text-sm">
+                  {errors.studyLocation.message}
+                </span>
+              )}
+            </div>
 
             <Controller
               name="studyLocation"
@@ -420,21 +438,25 @@ const ApplyForm = ({
                 />
               )}
             />
-
-            {errors.studyLocation && (
-              <span className="text-error">{errors.studyLocation.message}</span>
-            )}
           </div>
           <div className="flex flex-col gap-2 pb-4">
-            <label
-              className="text-black dark:text-white"
-              htmlFor="studyDegreeInput"
-            >
-              Study Degree
-              <span className="text-neutral-500 dark:text-neutral-400">
-                (Optional)
-              </span>
-            </label>
+            <div className="flex justify-between items-center">
+              <label
+                className="text-black dark:text-white"
+                htmlFor="studyDegreeInput"
+              >
+                Study Degree
+                <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
+                  (Optional)
+                </span>
+              </label>
+              {errors.studyDegree && (
+                <span className="text-error text-sm">
+                  {errors.studyDegree.message}
+                </span>
+              )}
+            </div>
             <Controller
               name="studyDegree"
               control={control}
@@ -447,20 +469,25 @@ const ApplyForm = ({
                 />
               )}
             />
-            {errors.studyDegree && (
-              <span className="text-error">{errors.studyDegree.message}</span>
-            )}
           </div>
           <div className="flex flex-col gap-2 pb-4">
-            <label
-              className="text-black dark:text-white"
-              htmlFor="studyMajorInput"
-            >
-              Study Major
-              <span className="text-neutral-500 dark:text-neutral-400">
-                (Optional)
-              </span>
-            </label>
+            <div className="flex justify-between items-center">
+              <label
+                className="text-black dark:text-white"
+                htmlFor="studyMajorInput"
+              >
+                Study Major
+                <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
+                  (Optional)
+                </span>
+              </label>
+              {errors.studyMajor && (
+                <span className="text-error text-sm">
+                  {errors.studyMajor.message}
+                </span>
+              )}
+            </div>
             <Controller
               name="studyMajor"
               control={control}
@@ -474,20 +501,25 @@ const ApplyForm = ({
                 />
               )}
             />
-            {errors.studyMajor && (
-              <span className="text-error">{errors.studyMajor.message}</span>
-            )}
           </div>
           <div className="flex flex-col gap-2 pb-4">
-            <label
-              className="text-black dark:text-white"
-              htmlFor="studyYearOfStudyInput"
-            >
-              Year of Study
-              <span className="text-neutral-500 dark:text-neutral-400">
-                (Optional)
-              </span>
-            </label>
+            <div className="flex justify-between items-center">
+              <label
+                className="text-black dark:text-white"
+                htmlFor="studyYearOfStudyInput"
+              >
+                Year of Study
+                <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
+                  (Optional)
+                </span>
+              </label>
+              {errors.studyYearOfStudy && (
+                <span className="text-error text-sm">
+                  {errors.studyYearOfStudy.message}
+                </span>
+              )}
+            </div>
             <Controller
               name="studyYearOfStudy"
               control={control}
@@ -500,46 +532,51 @@ const ApplyForm = ({
                 />
               )}
             />
-            {errors.studyYearOfStudy && (
-              <span className="text-error">
-                {errors.studyYearOfStudy.message}
-              </span>
-            )}
           </div>
           <div className="flex flex-col gap-2 pb-4">
-            <label
-              className="text-black dark:text-white"
-              htmlFor="studyExpectedGraduationInput"
-            >
-              Expected Graduation
-              <span className="text-neutral-500 dark:text-neutral-400">
-                (Optional)
-              </span>
-            </label>
+            <div className="flex justify-between items-center">
+              <label
+                className="text-black dark:text-white"
+                htmlFor="studyExpectedGraduationInput"
+              >
+                Expected Graduation
+                <span className="text-neutral-500 dark:text-neutral-400">
+                  {" "}
+                  (Optional)
+                </span>
+              </label>
+              {errors.studyExpectedGraduation && (
+                <span className="text-error text-sm">
+                  {errors.studyExpectedGraduation.message}
+                </span>
+              )}
+            </div>
             <input
               className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
               type="date"
               id="studyExpectedGraduationInput"
               {...register("studyExpectedGraduation")}
             />
-            {errors.studyExpectedGraduation && (
-              <span className="text-error">
-                {errors.studyExpectedGraduation.message}
-              </span>
-            )}
           </div>
         </div>
       )}
       <div className="flex flex-col gap-2 pb-4">
-        <label
-          className="text-black dark:text-white"
-          htmlFor="previousHackathonsCountInput"
-        >
-          Previous Hackathons Count{" "}
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        </label>
+        <div className="flex justify-between items-center">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="previousHackathonsCountInput"
+          >
+            Previous Hackathons Count{" "}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          </label>
+          {errors.previousHackathonsCount && (
+            <span className="text-error text-sm">
+              {errors.previousHackathonsCount.message}
+            </span>
+          )}
+        </div>
         <input
           className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="number"
@@ -550,11 +587,6 @@ const ApplyForm = ({
             e.preventDefault();
           }}
         />
-        {errors.previousHackathonsCount && (
-          <span className="text-error">
-            {errors.previousHackathonsCount.message}
-          </span>
-        )}
       </div>
       <FormDivider label="Long Answer" />
       <FormTextArea
@@ -603,9 +635,19 @@ const ApplyForm = ({
         optional
       />
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="tshirtSizeInput">
-          T-shirt Size
-        </label>
+        <div className="flex justify-between items-center">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="tshirtSizeInput"
+          >
+            T-shirt Size
+          </label>
+          {errors.tshirtSize && (
+            <span className="text-error text-sm">
+              {errors.tshirtSize.message}
+            </span>
+          )}
+        </div>
         <Controller
           name="tshirtSize"
           control={control}
@@ -619,14 +661,21 @@ const ApplyForm = ({
             />
           )}
         />
-        {errors.tshirtSize && (
-          <span className="text-error">{errors.tshirtSize.message}</span>
-        )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="hackerKindInput">
-          What kind of hacker are you?
-        </label>
+        <div className="flex justify-between items-center">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="hackerKindInput"
+          >
+            What kind of hacker are you?
+          </label>
+          {errors.hackerKind && (
+            <span className="text-error text-sm text-right text-balance">
+              {errors.hackerKind.message}
+            </span>
+          )}
+        </div>
         <Controller
           name="hackerKind"
           control={control}
@@ -641,20 +690,24 @@ const ApplyForm = ({
             />
           )}
         />
-        {errors.hackerKind && (
-          <span className="text-error">{errors.hackerKind.message}</span>
-        )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label
-          className="text-black dark:text-white"
-          htmlFor="workshopChoicesInput"
-        >
-          What workshops are you interested in?
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        </label>
+        <div className="flex justify-between items-center">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="workshopChoicesInput"
+          >
+            What workshops are you interested in?
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          </label>
+          {errors.workshopChoices && (
+            <span className="text-error text-sm">
+              {errors.workshopChoices.message}
+            </span>
+          )}
+        </div>
         <Controller
           name="workshopChoices"
           control={control}
@@ -671,18 +724,21 @@ const ApplyForm = ({
             />
           )}
         />
-
-        {errors.workshopChoices && (
-          <span className="text-error">{errors.workshopChoices.message}</span>
-        )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label
-          className="text-black dark:text-white"
-          htmlFor="discoverdFromInput"
-        >
-          How did you hear about DeltaHacks?
-        </label>
+        <div className="flex justify-between items-center">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="discoverdFromInput"
+          >
+            How did you hear about DeltaHacks?
+          </label>
+          {errors.discoverdFrom && (
+            <span className="text-error text-sm text-right text-balance">
+              {errors.discoverdFrom.message}
+            </span>
+          )}
+        </div>
         <Controller
           name="discoverdFrom"
           control={control}
@@ -697,9 +753,6 @@ const ApplyForm = ({
             />
           )}
         />
-        {errors.discoverdFrom && (
-          <span className="text-error">{errors.discoverdFrom.message}</span>
-        )}
       </div>
       <FormCheckbox
         label="Do you already have a team?"
@@ -716,14 +769,14 @@ const ApplyForm = ({
       <FormDivider label="Emergency Contact" />
       <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput
-          label="Name of Emergency Contact"
+          label="Name"
           id="emergencyContactName"
           errors={errors.emergencyContactName}
           placeholder="James Doe"
           register={register}
         />
         <FormInput
-          label="Relation to Emergency Contact"
+          label="Relation"
           id="emergencyContactRelation"
           errors={errors.emergencyContactRelation}
           placeholder="Parent / Guardian / Friend / Spouse"
@@ -732,7 +785,7 @@ const ApplyForm = ({
       </div>
       <FormInput
         id="emergencyContactPhone"
-        label="Emergency Contact Phone Number"
+        label="Phone Number"
         errors={errors.emergencyContactPhone}
         placeholder="000-000-0000"
         register={register}
@@ -740,16 +793,23 @@ const ApplyForm = ({
       <FormDivider label="MLH Survey and Consent" />
 
       <div className="flex flex-col gap-2 pb-4">
-        <label
-          className="text-black dark:text-white"
-          htmlFor="underrepresentedInput"
-        >
-          Do you identify as part of an underrepresented group in the technology
-          industry?{" "}
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        </label>
+        <div className="flex justify-between items-center">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="underrepresentedInput"
+          >
+            Do you identify as part of an underrepresented group in the
+            technology industry?{" "}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          </label>
+          {errors.underrepresented && (
+            <span className="text-error text-sm">
+              {errors.underrepresented.message}
+            </span>
+          )}
+        </div>
 
         <Controller
           name="underrepresented"
@@ -763,18 +823,19 @@ const ApplyForm = ({
             />
           )}
         />
-
-        {errors.underrepresented && (
-          <span className="text-error">{errors.underrepresented.message}</span>
-        )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="genderInput">
-          What&apos;s your gender?{" "}
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        </label>
+        <div className="flex justify-between items-center">
+          <label className="text-black dark:text-white" htmlFor="genderInput">
+            What&apos;s your gender?{" "}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          </label>
+          {errors.gender && (
+            <span className="text-error text-sm">{errors.gender.message}</span>
+          )}
+        </div>
 
         <Controller
           name="gender"
@@ -788,21 +849,24 @@ const ApplyForm = ({
             />
           )}
         />
-
-        {errors.gender && (
-          <span className="text-error">{errors.gender.message}</span>
-        )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label
-          className="text-black dark:text-white"
-          htmlFor="orientationInput"
-        >
-          Do you consider yourself to be any of the following?{" "}
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        </label>
+        <div className="flex justify-between items-center">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="orientationInput"
+          >
+            Do you consider yourself to be any of the following?{" "}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          </label>
+          {errors.orientation && (
+            <span className="text-error text-sm">
+              {errors.orientation.message}
+            </span>
+          )}
+        </div>
 
         <Controller
           name="orientation"
@@ -816,18 +880,19 @@ const ApplyForm = ({
             />
           )}
         />
-
-        {errors.orientation && (
-          <span className="text-error">{errors.orientation.message}</span>
-        )}
       </div>
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="raceInput">
-          Which ethnic background do you identify with?{" "}
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        </label>
+        <div className="flex justify-between items-center">
+          <label className="text-black dark:text-white" htmlFor="raceInput">
+            Which ethnic background do you identify with?{" "}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          </label>
+          {errors.race && (
+            <span className="text-error text-sm">{errors.race.message}</span>
+          )}
+        </div>
 
         <Controller
           name="race"
@@ -841,9 +906,6 @@ const ApplyForm = ({
             />
           )}
         />
-        {errors.race && (
-          <span className="text-error">{errors.race.message}</span>
-        )}
       </div>
       <p className="opacity-50 py-8">
         We are currently in the process of partnering with MLH. The following 3

@@ -176,7 +176,7 @@ const dh11schema = z.object({
     }),
   longAnswerSocratica: z
     .string()
-    .min(1, "An answer is required for this question")
+    .min(1, "An answer is required")
     .refine((value) => value.split(/\s/g).length <= 150, {
       error: "Must be less than 150 words",
     }),
@@ -232,25 +232,25 @@ export const dh12schema = dh11schema
   .extend({
     longAnswerHobby: z
       .string()
-      .min(1, "An answer is required for this question")
+      .min(1, "An answer is required")
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerWhy: z
       .string()
-      .min(1, "An answer is required for this question")
+      .min(1, "An answer is required")
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerTime: z
       .string()
-      .min(1, "An answer is required for this question")
+      .min(1, "An answer is required")
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerSkill: z
       .string()
-      .min(1, "An answer is required for this question")
+      .min(1, "An answer is required")
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
       }),
