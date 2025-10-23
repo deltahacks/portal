@@ -498,6 +498,7 @@ export const applicationRouter = router({
               message: "You have already submitted an application.",
             });
         }
+        throw e;
       }
     }),
 
