@@ -209,7 +209,7 @@ model DH11Application {
   considerCoffee      Boolean
   dietaryRestrictions String?
 
-  underrepresented YesNoUnsure
+  underrepresented YesNoUnsure?
 
   gender      String
   race        String
@@ -270,10 +270,10 @@ model DH12Application {
   considerCoffee      Boolean
   dietaryRestrictions String?
 
-  underrepresented YesNoUnsure
-  gender           String
-  race             String
-  orientation      String
+  underrepresented YesNoUnsure?
+  gender           String?
+  race             String?
+  orientation      String?
 
   emergencyContactName     String
   emergencyContactPhone    String

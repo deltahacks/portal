@@ -10,10 +10,10 @@ const dh10schema = z.object({
       const now = new Date();
       const diff = now.getTime() - date.getTime();
       const age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-      return age >= 13;
+      return age >= 15;
     },
     {
-      error: "You must be at least 13 years old",
+      error: "You must be at least 15 years old",
     },
   ),
   macEv: z.boolean(),
@@ -136,7 +136,13 @@ const dh11schema = z.object({
     },
   ),
   phone: z.string().refine(isMobilePhone, "Invalid phone number").nullish(),
-  country: z.string().nullish(),
+  country: z
+    .string()
+    .min(1, {
+      error: "Country is required",
+    })
+    .max(255)
+    .prefault(""),
   studyEnrolledPostSecondary: z.boolean(),
   studyLocation: z.string().min(1).max(255).nullish(),
   studyDegree: z.string().min(1).max(255).nullish(),
@@ -183,19 +189,25 @@ const dh11schema = z.object({
     .transform((string) => (!!string ? string : null))
     .nullish(),
   linkToResume: z.string().nullish(),
-  tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
-  hackerKind: z.array(z.string()).min(1, "At least one selection is required"),
+  tshirtSize: z.enum(["XS", "S", "M", "L", "XL"], {
+    error: "T-shirt size is required",
+  }),
+  hackerKind: z
+    .array(z.string())
+    .min(1, "At least one selection is required")
+    .prefault([]),
   alreadyHaveTeam: z.boolean(),
-  workshopChoices: z.array(z.string()),
+  workshopChoices: z.array(z.string()).prefault([]),
   discoverdFrom: z
     .array(z.string())
-    .min(1, "At least one selection is required"),
+    .min(1, "At least one selection is required")
+    .prefault([]),
   considerCoffee: z.boolean(),
   dietaryRestrictions: z.string().nullish(),
-  underrepresented: YesNoUnsure,
-  gender: z.string(),
-  race: z.string(),
-  orientation: z.string(),
+  underrepresented: YesNoUnsure.nullish(),
+  gender: z.string().nullish(),
+  race: z.string().nullish(),
+  orientation: z.string().nullish(),
   emergencyContactName: z.string().min(1, "This field is required"),
   emergencyContactPhone: z
     .string()

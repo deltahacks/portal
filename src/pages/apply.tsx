@@ -271,15 +271,12 @@ const ApplyForm = ({
   }, []);
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
-    console.log(data);
-    console.log("validating");
     const processed = applicationSchema.parse(data);
-    console.log("validated");
 
     await submitAppAsync(processed);
   };
 
-  console.log("Errors", errors);
+  console.error("Errors", errors);
 
   const isSecondary = watch("studyEnrolledPostSecondary");
 
@@ -333,30 +330,32 @@ const ApplyForm = ({
       />
 
       <div className="flex flex-col gap-2 pb-4">
-        <label className="text-black dark:text-white" htmlFor="tshirtSizeInput">
+        <label className="text-black dark:text-white" htmlFor="countryInput">
           Country of Residence
         </label>
         <Controller
           name="country"
           control={control}
-          render={({ field: { onChange, value } }) => (
-            <CustomSelect
-              options={[
-                { value: "Canada", label: "Canada" },
-                ...iso31661
-                  .filter((e) => e.name !== "Canada")
-                  .map((e) => ({ value: e.name, label: e.name }))
-                  .sort((a, b) => a.value.localeCompare(b.value)),
-              ]}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              // value={iso3115.find((val) => val.value === value)}
-              isMulti={false}
-              defaultInputValue={autofillData.tshirtSize ?? undefined}
-            />
-          )}
+          render={({ field: { onChange, value } }) => {
+            return (
+              <CustomSelect
+                options={[
+                  { value: "Canada", label: "Canada" },
+                  ...iso31661
+                    .filter((e) => e.name !== "Canada")
+                    .map((e) => ({ value: e.name, label: e.name }))
+                    .sort((a, b) => a.value.localeCompare(b.value)),
+                ]}
+                onChange={(val: SelectChoice | null) => onChange(val?.value)}
+                // value={iso3115.find((val) => val.value === value)}
+                isMulti={false}
+                defaultInputValue={autofillData.country ?? undefined}
+              />
+            );
+          }}
         />
-        {errors.tshirtSize && (
-          <span className="text-error">{errors.tshirtSize.message}</span>
+        {errors.country && (
+          <span className="text-error">{errors.country.message}</span>
         )}
       </div>
 
@@ -373,7 +372,11 @@ const ApplyForm = ({
           placeholder="YYYY-MM-DD"
         />
         {errors.birthday && (
-          <span className="text-error">{errors.birthday.message}</span>
+          <span className="text-error">
+            {errors.birthday.message?.includes("years")
+              ? errors.birthday.message
+              : "This field is required"}
+          </span>
         )}
       </div>
       {uploadUrl ? (
@@ -648,6 +651,9 @@ const ApplyForm = ({
           htmlFor="workshopChoicesInput"
         >
           What workshops are you interested in?
+          <span className="text-neutral-500 dark:text-neutral-400">
+            (Optional)
+          </span>
         </label>
         <Controller
           name="workshopChoices"
@@ -983,7 +989,6 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
-  console.log(killedStr, killed);
   return {
     props: {
       email: session.user.email,
