@@ -181,7 +181,7 @@ const FormUpload: React.FC<FormUploadProps> = ({
       getResponseData: () => {
         return { url: objectId };
       },
-    }),
+    })
   );
 
   if (!uploadUrl) {
@@ -386,6 +386,13 @@ const ApplyForm = ({
           {...register("birthday", {})}
           placeholder="YYYY-MM-DD"
         />
+        {errors.birthday && (
+          <span className="text-error">
+            {errors.birthday.message?.includes("years")
+              ? errors.birthday.message
+              : "This field is required"}
+          </span>
+        )}
       </div>
       {uploadUrl ? (
         <FormUpload
@@ -716,7 +723,7 @@ const ApplyForm = ({
                 onChange(val?.map((v: SelectChoice) => v.value))
               }
               value={workshops.filter((val) =>
-                value?.includes(val.value as workshopType),
+                value?.includes(val.value as workshopType)
               )}
               isMulti={true}
             />
@@ -1019,7 +1026,7 @@ const Apply: NextPage<
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
+  context: GetServerSidePropsContext
 ) => {
   const session = await getServerAuthSession(context);
 
