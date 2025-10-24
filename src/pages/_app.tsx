@@ -15,7 +15,7 @@ import { useEffect } from "react";
 
 if (typeof window !== "undefined") {
   posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+    api_host: "/i/u",
     ui_host: "https://app.posthog.com",
     person_profiles: "identified_only",
     loaded: (posthog) => {
