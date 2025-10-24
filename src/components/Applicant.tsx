@@ -90,10 +90,7 @@ const FormTextArea: React.FC<
           Word count: {currentLength}
         </div>
       </label>
-      <div
-        className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
-        placeholder="Type here..."
-      >
+      <div className="min-h-[10rem] p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500">
         {text}
       </div>
     </div>
@@ -176,24 +173,24 @@ const ApplicationContent = ({
       />
       <FormDivider label="Long Answer" />
       <FormTextArea
-        id="longAnswerIncident"
-        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook"
-        text={data?.longAnswerIncident}
+        id="longAnswerHobby"
+        label="If you could instantly master any hobby, what would it be and why?"
+        text={data?.longAnswerHobby}
       />
       <FormTextArea
-        id="longAnswerGoals"
-        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
-        text={data?.longAnswerGoals}
+        id="longAnswerWhy"
+        label="Why do you want to be a part of DeltaHacks 12?"
+        text={data?.longAnswerWhy}
       />
       <FormTextArea
-        id="longAnswerFood"
-        label="What's your go-to comfort food?"
-        text={data?.longAnswerFood}
+        id="longAnswerTime"
+        label="Talk about a topic that can make you lose track of time, why does it captivate you?"
+        text={data?.longAnswerTime}
       />
       <FormTextArea
-        id="longAnswerTravel"
-        label="If you could travel anywhere in the universe, where would you go and why?"
-        text={data?.longAnswerTravel}
+        id="longAnswerSkill"
+        label="Describe a situation where you had to quickly learn a new skill or technology to solve a problem. What was your approach and what did you learn from it?"
+        text={data?.longAnswerSkill}
       />
       <FormTextArea
         id="longAnswerSocratica"
@@ -327,7 +324,7 @@ const ReviewForm = ({
 
     try {
       await submitScore.mutateAsync({
-        applicationId: applicationForReview.DH11ApplicationId,
+        applicationId: applicationForReview.DH12ApplicationId,
         score: scoreValue,
         comment: comments,
       });
@@ -379,7 +376,7 @@ const ReviewScores = ({ applicationId }: { applicationId: string }) => {
   const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
     {
       applicationId: applicationId,
-    }
+    },
   );
 
   return (
@@ -416,10 +413,10 @@ const ApplicationPopupButton = ({
 
   const {
     data: applicationData,
-    isLoading: applicationIsLoading,
+    isPending: applicationIsLoading,
     error: applicationError,
   } = trpc.reviewer.getApplication.useQuery({
-    dh11ApplicationId: applicationForReview.DH11ApplicationId,
+    dh12ApplicationId: applicationForReview.DH12ApplicationId,
   });
 
   return (
@@ -449,14 +446,16 @@ const ApplicationPopupButton = ({
               <>
                 <div className="relative flex flex-col w-full h-full">
                   <div className="w-full flex-auto flex flex-col p-4 overflow-y-scroll">
-                    <ApplicationContent applicationData={applicationData} />
+                    {applicationData && (
+                      <ApplicationContent applicationData={applicationData} />
+                    )}
                   </div>
                 </div>
                 <div className="w-[1px] bg-zinc-700 my-4" />
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
-                  {applicationData.hasReviewed || isAdmin ? (
+                  {applicationData?.hasReviewed || isAdmin ? (
                     <ReviewScores
-                      applicationId={applicationForReview.DH11ApplicationId}
+                      applicationId={applicationForReview.DH12ApplicationId}
                     />
                   ) : (
                     <ReviewForm applicationForReview={applicationForReview} />

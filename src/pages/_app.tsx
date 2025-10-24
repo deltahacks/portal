@@ -14,13 +14,12 @@ import { PostHogProvider } from "posthog-js/react";
 import { useEffect } from "react";
 
 if (typeof window !== "undefined") {
-  // checks that we are client-side
   posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
-    person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
+    api_host: "/i/u",
     ui_host: "https://app.posthog.com",
+    person_profiles: "identified_only",
     loaded: (posthog) => {
-      if (process.env.NODE_ENV === "development") posthog.debug(); // debug mode in development
+      if (process.env.NODE_ENV === "development") posthog.debug();
     },
   });
 }
@@ -36,7 +35,6 @@ const PosthogIdentifer = () => {
       });
     }
   }, [session]);
-
   return null;
 };
 
@@ -62,17 +60,17 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
             />
             {/* open graph image */}
             {/* <meta
-              property="og:image"
-              content={env.NEXT_PUBLIC_URL + "/og.png"}
-            /> */}
+            property="og:image"
+            content={env.NEXT_PUBLIC_URL + "/og.png"}
+          /> */}
 
             {/* <!-- HTML Meta Tags --> */}
-            <title>DeltaHacks XI</title>
+            <title>Deltahacks 12</title>
             <meta name="description" content="Hackathon for Change" />
 
             <meta property="og:url" content="https://portal.deltahacks.com" />
             <meta property="og:type" content="website" />
-            <meta property="og:title" content="DeltaHacks XI" />
+            <meta property="og:title" content="Deltahacks 12" />
             <meta property="og:description" content="Hackathon for Change" />
             <meta
               property="og:image"
@@ -88,7 +86,7 @@ const MyApp: AppType<{ session: Session | null; ogImage: string }> = ({
               property="twitter:url"
               content="https://portal.deltahacks.com"
             />
-            <meta name="twitter:title" content="DeltaHacks XI" />
+            <meta name="twitter:title" content="Deltahacks 12" />
             <meta name="twitter:description" content="Hackathon for Change" />
             <meta
               name="twitter:image"

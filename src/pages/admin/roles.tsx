@@ -31,7 +31,7 @@ const Roles: NextPage = () => {
   const [role, setRole] = useState("");
   const [action, setAction] = useState<Action | undefined>(undefined);
 
-  const { data, isLoading, isError, refetch } = trpc.user.byRole.useQuery({
+  const { data, isPending, isError, refetch } = trpc.user.byRole.useQuery({
     role: role ? (role.toUpperCase() as keyof typeof Role) : null,
   });
 
@@ -42,7 +42,7 @@ const Roles: NextPage = () => {
   return (
     <>
       <label className="label">
-        <span className="label-text">Role:</span>
+        <span>Role:</span>
       </label>
       <input
         type="text"
@@ -57,7 +57,7 @@ const Roles: NextPage = () => {
       <br />
       {/* {JSON.stringify(data)} */}
       {isError ? <span className="text-error">Role not found!</span> : null}
-      {isLoading ? (
+      {isPending ? (
         <progress className="progress" />
       ) : (
         <table className="table table-zebra w-full">
@@ -208,7 +208,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 }

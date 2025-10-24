@@ -53,7 +53,7 @@ const GradingPortal: NextPage = () => {
 
   const {
     mutate: updateApplicationStatusByScoreRange,
-    isLoading,
+    isPending,
     isSuccess,
   } = trpc.reviewer.updateApplicationStatusByScoreRange.useMutation({
     onSettled(data, error, variables, context) {
@@ -139,7 +139,7 @@ const GradingPortal: NextPage = () => {
                   <Button
                     onClick={() => {
                       console.log(
-                        `Applying status ${selectedStatus} to applications between ${startRange} and ${endRange}`
+                        `Applying status ${selectedStatus} to applications between ${startRange} and ${endRange}`,
                       );
                       if (selectedStatus) {
                         updateApplicationStatusByScoreRange({
@@ -149,9 +149,9 @@ const GradingPortal: NextPage = () => {
                         });
                       }
                     }}
-                    disabled={!selectedStatus || isLoading}
+                    disabled={!selectedStatus || isPending}
                   >
-                    {isLoading ? "Applying..." : "Apply Status Change"}
+                    {isPending ? "Applying..." : "Apply Status Change"}
                   </Button>
                 </div>
               </div>
@@ -165,7 +165,7 @@ const GradingPortal: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard

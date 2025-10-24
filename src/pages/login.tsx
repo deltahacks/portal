@@ -40,7 +40,7 @@ const Login: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Login - DeltaHacks XI</title>
+        <title>Login - Deltahacks 12</title>
       </Head>
 
       <div className={`flex h-full w-full bg-[#f2f2f2] dark:bg-[#1f1f1f]`}>

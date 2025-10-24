@@ -1,15 +1,15 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
-import { trpc } from "../utils/trpc";
-import SocialButtons from "../components/SocialButtons";
+import { trpc } from "../../utils/trpc";
+import SocialButtons from "../../components/SocialButtons";
 import { Status } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { useDeferredValue, useState } from "react";
 import { useRouter } from "next/router";
-import { prisma } from "../server/db/client";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import Drawer from "../components/Drawer";
+import { prisma } from "../../server/db/client";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
+import Drawer from "../../components/Drawer";
 
 const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
   ssr: false,
@@ -32,7 +32,7 @@ const PreCheckedIn: React.FC = () => {
   return (
     <div>
       <div className="pb-6 pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        Welcome to DeltaHacks XI! This year we are using a QR code system to
+        Welcome to Deltahacks 12! This year we are using a QR code system to
         check you in to events, meals, and more. To link your account to the QR,
         please scan it with your camera.
       </div>
@@ -80,12 +80,12 @@ const PreCheckedIn: React.FC = () => {
             </div>
             <div className="flex flex-col gap-5 p-5">
               <h1 className="text-white">Link manually :</h1>
-              <div className="form-control">
-                <div className="input-group pb-4">
+              <fieldset className="fieldset">
+                <div className="join pb-4">
                   <input
                     type="text"
                     placeholder="QR CODE"
-                    className="input input-bordered"
+                    className="input join-item"
                     maxLength={7}
                     minLength={7}
                     value={value}
@@ -93,13 +93,13 @@ const PreCheckedIn: React.FC = () => {
                     pattern="[0-9]*"
                   />
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary join-item"
                     onClick={() => setQRCode(value)}
                   >
                     Submit
                   </button>
                 </div>
-              </div>
+              </fieldset>
             </div>
           </div>
 
@@ -169,7 +169,7 @@ const PostCheckedIn: React.FC = () => {
 const NoRSVP: React.FC = () => {
   return (
     <div className="pt-6 text-xl font-normal dark:text-[#737373] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-      You have not RSVPed to DeltaHacks XI. If you believe there is an issue
+      You have not RSVPed to Deltahacks 12. If you believe there is an issue
       regarding this, contact us at{" "}
       <a href="mailto: tech@deltahacks.com" className="text-sky-400">
         tech@deltahacks.com
@@ -196,7 +196,7 @@ const Checkin: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks XI</title>
+        <title>Check In - Deltahacks 12</title>
       </Head>
       <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
         <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
@@ -222,7 +222,7 @@ const Checkin: NextPage = () => {
 
 // copied from dashboard.tsx
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };
