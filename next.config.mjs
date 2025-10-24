@@ -15,6 +15,20 @@ function defineNextConfig(config) {
 import removeImports from "next-remove-imports";
 
 export default defineNextConfig({
+  async redirects() {
+    return [
+      {
+        source: "/i/u/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+        permanent: true,
+      },
+      {
+        source: "/i/u/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   reactStrictMode: true,
   images: {
     remotePatterns: [
