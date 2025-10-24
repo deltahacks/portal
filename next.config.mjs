@@ -20,10 +20,12 @@ export default defineNextConfig({
       {
         source: "/i/u/static/*",
         destination: "https://us-assets.i.posthog.com/static/:splat",
+        permanent: true,
       },
       {
         source: "/i/u/*",
         destination: "https://us.i.posthog.com/:splat",
+        permanent: true,
       },
     ];
   },
