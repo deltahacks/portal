@@ -102,6 +102,15 @@ const ApplicationContent = ({
 }: {
   applicationData: ApplicationSchemaWithStringDates;
 }) => {
+  const { data: resumeUrl } = trpc.file.getDownloadUrl.useQuery(
+    {
+      key: data?.linkToResume ?? "",
+    },
+    {
+      enabled: !!data?.linkToResume,
+    },
+  );
+
   return (
     <>
       <FormDivider label="Personal Information" />
@@ -120,7 +129,7 @@ const ApplicationContent = ({
         placeholder="https://example.com/resume.pdf"
         optional
       />
-      {data?.linkToResume && (
+      {resumeUrl?.url && (
         <div className="flex flex-col gap-2 pb-4">
           <label className="text-black dark:text-white">Resume Preview</label>
           <div className="w-full h-[600px] border rounded-lg overflow-hidden bg-white border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800">
@@ -128,7 +137,7 @@ const ApplicationContent = ({
               width="100%"
               height="100%"
               loading="lazy"
-              src={data.linkToResume}
+              src={resumeUrl.url}
               className="border-0"
               title="Resume Preview"
             />
