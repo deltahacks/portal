@@ -120,6 +120,21 @@ const ApplicationContent = ({
         placeholder="https://example.com/resume.pdf"
         optional
       />
+      {data?.linkToResume && (
+        <div className="flex flex-col gap-2 pb-4">
+          <label className="text-black dark:text-white">Resume Preview</label>
+          <div className="w-full h-[600px] border rounded-lg overflow-hidden bg-white border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800">
+            <iframe
+              width="100%"
+              height="100%"
+              loading="lazy"
+              src={data.linkToResume}
+              className="border-0"
+              title="Resume Preview"
+            />
+          </div>
+        </div>
+      )}
       {/* add phone number and country */}
       <FormInput
         label="Phone Number"
