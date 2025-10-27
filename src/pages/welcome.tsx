@@ -101,20 +101,19 @@ export const getServerSideProps = async (
 ) => {
   const session = await getServerAuthSession(context);
 
-  if (!session || !session.user) {
-    return { redirect: { destination: "/login", permanent: false } };
+  // If user is logged in and has already submitted, redirect to dashboard
+  if (session && session.user) {
+    const userEntry = await prisma.user.findFirst({
+      where: { id: session.user.id },
+      include: { DH12Application: true },
+    });
+
+    if (userEntry && userEntry.DH12Application !== null) {
+      return { redirect: { destination: "/dashboard", permanent: false } };
+    }
   }
 
-  const userEntry = await prisma.user.findFirst({
-    where: { id: session.user.id },
-    include: { DH12Application: true },
-  });
-
-  // If submitted then go to dashboard
-  if (userEntry && userEntry.DH12Application !== null) {
-    return { redirect: { destination: "/dashboard", permanent: false } };
-  }
-
+  // Allow access to welcome page without authentication
   return { props: {} };
 };
 
