@@ -9,42 +9,56 @@ import { Button } from "../components/Button";
 
 const Content = () => {
   return (
-    <main className="px-7 py-8 sm:px-14 md:w-10/12 md:py-16 lg:pl-20 2xl:w-8/12 2xl:pt-20">
-      <div className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl 2xl:text-4xl">
-        A weekend worth hacking,
-        <br />@ Deltahacks 12
-      </div>
-      <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        At DeltaHacks, we believe change comes from dreaming big. Each year we
-        enable over 800 students from across North America, working hard over 24
-        hours, to bring their big ideas to life. Unleash your creativity and
-        make something great, we{"'"}ll handle the rest! Make big ideas a
-        reality at Deltahacks 12!
-      </div>
-      <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        If you have any questions, you can <br />
-        reach us at{" "}
-        <a href="mailto: tech@deltahacks.com" className="text-sky-400">
-          tech@deltahacks.com
-        </a>
-      </div>
-      <div className="flex flex-col gap-3 pt-6 md:flex-row lg:pt-8 2xl:pt-10">
-        <Button
-          asChild
-          className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none  text-base font-medium capitalize"
-        >
-          <Link href="/apply">
-            {/* <button className="btn btn-primary w-48 text-base font-medium capitalize"> */}
-            Apply
-            {/* </button> */}
-          </Link>
-        </Button>
-        <Button
-          asChild
-          className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize"
-        >
-          <Link href="https://deltahacks.com/#faq">FAQ</Link>
-        </Button>
+    <main className="flex min-h-screen flex-col justify-center px-8 py-12 sm:px-16 md:w-11/12 md:py-20 lg:w-10/12 lg:px-24 xl:w-9/12 2xl:w-8/12 2xl:px-28">
+      <div className="space-y-8 lg:space-y-10 2xl:space-y-12">
+        {/* Hero Section */}
+        <section>
+          <h1 className="text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl lg:text-5xl 2xl:text-6xl">
+            A weekend worth hacking,
+            <br />
+            <span className="text-primary">@ Deltahacks 12</span>
+          </h1>
+        </section>
+
+        {/* Description Section */}
+        <section className="max-w-4xl">
+          <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 sm:text-xl lg:text-2xl 2xl:text-3xl">
+            At DeltaHacks, we believe change comes from dreaming big. Each year we
+            enable over 800 students from across North America, working hard over 24
+            hours, to bring their big ideas to life. Unleash your creativity and
+            make something great, we{"'"}ll handle the rest! Make big ideas a
+            reality at Deltahacks 12!
+          </p>
+        </section>
+
+        {/* Contact Section */}
+        <section className="max-w-3xl">
+          <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 sm:text-xl lg:text-2xl 2xl:text-3xl">
+            If you have any questions, you can reach us at{" "}
+            <a
+              href="mailto:tech@deltahacks.com"
+              className="font-medium text-sky-500 transition-colors hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300"
+            >
+              tech@deltahacks.com
+            </a>
+          </p>
+        </section>
+
+        {/* CTA Buttons */}
+        <section className="flex flex-col gap-4 pt-4 sm:flex-row sm:gap-6">
+          <Button
+            asChild
+            className="btn btn-primary w-full border-none bg-primary text-base font-semibold capitalize text-white transition-colors hover:bg-[#7380ff] dark:bg-primary dark:hover:bg-[#646EE5] sm:w-52"
+          >
+            <Link href="/apply">Apply</Link>
+          </Button>
+          <Button
+            asChild
+            className="btn w-full border-none bg-gray-200 text-base font-semibold capitalize text-gray-800 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 sm:w-52"
+          >
+            <Link href="https://deltahacks.com/#faq">FAQ</Link>
+          </Button>
+        </section>
       </div>
     </main>
   );
