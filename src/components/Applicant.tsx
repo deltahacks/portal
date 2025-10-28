@@ -7,6 +7,7 @@ import {
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
 import { useSession } from "next-auth/react";
+import { Role } from "@prisma/client";
 
 interface FormInputProps {
   label: string;
@@ -102,6 +103,16 @@ const ApplicationContent = ({
 }: {
   applicationData: ApplicationSchemaWithStringDates;
 }) => {
+  const { data: resumeUrl } = trpc.file.getDownloadUrl.useQuery(
+    {
+      key: data?.linkToResume ?? "",
+    },
+    {
+      enabled: !!data?.linkToResume,
+    },
+  );
+  const { data: session } = useSession();
+
   return (
     <>
       <FormDivider label="Personal Information" />
@@ -114,12 +125,30 @@ const ApplicationContent = ({
         <FormInput label="Last Name" text={data?.lastName} placeholder="Doe" />
       </div>
       <FormInput id="birthday" label="Birthday" text={data?.birthday} />
-      <FormInput
-        label="Link to Resume"
-        text={data?.linkToResume}
-        placeholder="https://example.com/resume.pdf"
-        optional
-      />
+      {resumeUrl?.url && (
+        <div className="flex flex-col gap-2 pb-4">
+          <label className="text-black dark:text-white">
+            <a
+              href={resumeUrl.url}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Resume Preview 🔗
+            </a>
+          </label>
+          <div className="w-full h-[600px] border rounded-lg overflow-hidden bg-white border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800">
+            <iframe
+              width="100%"
+              height="100%"
+              loading="lazy"
+              src={resumeUrl.url}
+              className="border-0"
+              title="Resume Preview"
+            />
+          </div>
+        </div>
+      )}
       {/* add phone number and country */}
       <FormInput
         label="Phone Number"
@@ -234,61 +263,32 @@ const ApplicationContent = ({
         label="How did you hear about DeltaHacks?"
         text={data?.discoverdFrom.join(", ")}
       />
-      <FormCheckbox
-        id="alreadyHaveTeam"
-        label="Do you already have a team?"
-        checked={data?.alreadyHaveTeam}
-        readOnly
-      />
-      <FormCheckbox
-        id="considerCoffee"
-        label="Would you like to be considered for a coffee chat with a sponsor?"
-        checked={data?.considerCoffee}
-        readOnly
-      />
-      <FormDivider label="Emergency Contact" />
-      <div className="flex flex-col md:flex-row md:items-end md:gap-4">
-        <FormInput
-          id="emergencyContactName"
-          label="Name of Emergency Contact"
-          placeholder="James Doe"
-          text={data?.emergencyContactName}
-        />
-        <FormInput
-          id="emergencyContactRelation"
-          label="Relation to Emergency Contact"
-          placeholder="Parent / Guardian / Friend / Spouse"
-          text={data?.emergencyContactRelation}
-        />
-      </div>
-      <FormInput
-        id="emergencyContactPhone"
-        label="Emergency Contact Phone Number"
-        placeholder="000-000-0000"
-        text={data?.emergencyContactPhone}
-      />
-      <FormDivider label="MLH Consent" />
-      <FormCheckbox
-        id="agreeToMLHCodeOfConduct"
-        label="Agree to MLH Code of Conduct"
-        link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
-        checked={data?.agreeToMLHCodeOfConduct}
-        readOnly
-      />
-      <FormCheckbox
-        id="agreeToMLHPrivacyPolicy"
-        label="Agree to MLH Privacy Policy"
-        link="https://mlh.io/privacy"
-        checked={data?.agreeToMLHPrivacyPolicy}
-        readOnly
-      />
-      <FormCheckbox
-        id="agreeToMLHCommunications"
-        label="Agree to MLH Communications"
-        checked={data?.agreeToMLHCommunications}
-        optional
-        readOnly
-      />
+
+      {session?.user?.role.includes(Role.ADMIN) && (
+        <>
+          <FormDivider label="Emergency Contact" />
+          <div className="flex flex-col md:flex-row md:items-end md:gap-4">
+            <FormInput
+              id="emergencyContactName"
+              label="Name of Emergency Contact"
+              placeholder="James Doe"
+              text={data?.emergencyContactName}
+            />
+            <FormInput
+              id="emergencyContactRelation"
+              label="Relation to Emergency Contact"
+              placeholder="Parent / Guardian / Friend / Spouse"
+              text={data?.emergencyContactRelation}
+            />
+          </div>
+          <FormInput
+            id="emergencyContactPhone"
+            label="Emergency Contact Phone Number"
+            placeholder="000-000-0000"
+            text={data?.emergencyContactPhone}
+          />
+        </>
+      )}
     </>
   );
 };
