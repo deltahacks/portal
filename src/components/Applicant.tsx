@@ -7,7 +7,6 @@ import {
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
 import { useSession } from "next-auth/react";
-import NewTab from "./svgs/NewTab";
 
 interface FormInputProps {
   label: string;
