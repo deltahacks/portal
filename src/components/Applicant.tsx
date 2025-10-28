@@ -7,6 +7,7 @@ import {
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
 import { useSession } from "next-auth/react";
+import { Role } from "@prisma/client";
 
 interface FormInputProps {
   label: string;
@@ -110,6 +111,7 @@ const ApplicationContent = ({
       enabled: !!data?.linkToResume,
     },
   );
+  const { data: session } = useSession();
 
   return (
     <>
@@ -261,6 +263,32 @@ const ApplicationContent = ({
         label="How did you hear about DeltaHacks?"
         text={data?.discoverdFrom.join(", ")}
       />
+
+      {session?.user?.role.includes(Role.ADMIN) && (
+        <>
+          <FormDivider label="Emergency Contact" />
+          <div className="flex flex-col md:flex-row md:items-end md:gap-4">
+            <FormInput
+              id="emergencyContactName"
+              label="Name of Emergency Contact"
+              placeholder="James Doe"
+              text={data?.emergencyContactName}
+            />
+            <FormInput
+              id="emergencyContactRelation"
+              label="Relation to Emergency Contact"
+              placeholder="Parent / Guardian / Friend / Spouse"
+              text={data?.emergencyContactRelation}
+            />
+          </div>
+          <FormInput
+            id="emergencyContactPhone"
+            label="Emergency Contact Phone Number"
+            placeholder="000-000-0000"
+            text={data?.emergencyContactPhone}
+          />
+        </>
+      )}
     </>
   );
 };
