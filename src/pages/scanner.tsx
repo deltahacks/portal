@@ -15,7 +15,7 @@ import { trpc } from "../utils/trpc";
 
 const highlightCodeOnCanvas = (
   detectedCodes: IDetectedBarcode[],
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   const canvas = ctx.canvas;
 
@@ -32,7 +32,7 @@ const highlightCodeOnCanvas = (
       Math.max(0, boundingBox.x - padding),
       Math.max(0, boundingBox.y - padding),
       boundingBox.width + padding * 2,
-      boundingBox.height + padding * 2
+      boundingBox.height + padding * 2,
     );
   });
   ctx.restore();
@@ -41,7 +41,7 @@ const highlightCodeOnCanvas = (
 const ScannerPage: NextPage = () => {
   const [scannedValue, setScannedValue] = useState<string | null>(null);
   const [scanStatus, setScanStatus] = useState<"idle" | "success" | "error">(
-    "idle"
+    "idle",
   );
   const scannerMutation = trpc.scanner.scan.useMutation({
     onSettled: (data) => {
@@ -119,7 +119,7 @@ const ScannerPage: NextPage = () => {
                       ? "border-green-500"
                       : scanStatus === "error"
                         ? "border-red-500"
-                        : "border-primary"
+                        : "border-primary",
                   )}
                 >
                   <Scanner
@@ -166,14 +166,14 @@ const ScannerPage: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
   output = rbac(
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 };
