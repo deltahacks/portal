@@ -11,6 +11,7 @@ import { rbac } from "../components/RBACWrapper";
 import { Role } from "@prisma/client";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { trpc } from "../utils/trpc";
 
 const highlightCodeOnCanvas = (
   detectedCodes: IDetectedBarcode[],
@@ -38,10 +39,59 @@ const highlightCodeOnCanvas = (
 };
 
 const ScannerPage: NextPage = () => {
-  const [scannedValue, setScannedValue] = useState<IDetectedBarcode[]>([]);
+  const [scannedValue, setScannedValue] = useState<string | null>(null);
   const [scanStatus, setScanStatus] = useState<"idle" | "success" | "error">(
     "idle"
   );
+  const scannerMutation = trpc.scanner.scan.useMutation({
+    onSettled: (data) => {
+      setScanStatus("idle");
+      try {
+        // remove succesfully mutated ids from offline queue
+        const existing = localStorage.getItem("offlineQueue");
+        const ids: string[] = existing ? JSON.parse(existing) : [];
+        const filtered = ids.filter((v) => v !== data?.id);
+        localStorage.setItem("offlineQueue", JSON.stringify(filtered));
+      } catch {
+        // not sure what to do with the json errors
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      setScanStatus("error");
+    },
+  });
+  useEffect(() => {
+    // On page load, remutate any queued IDs
+    try {
+      const existing = localStorage.getItem("offlineQueue");
+      const ids: string[] = existing ? JSON.parse(existing) : [];
+      if (ids.length > 0) {
+        ids.forEach((queuedId) => {
+          scannerMutation.mutate({ id: queuedId, task: "checkIn" });
+        });
+      }
+    } catch {
+      // figure out what to do with the json errors
+    }
+  }, []);
+
+  useEffect(() => {
+    if (scannedValue) {
+      scannerMutation.mutate({
+        id: scannedValue,
+        task: "checkIn",
+      });
+
+      // add scanned id to offline queue for persistence
+      const key = "offlineQueue";
+      const existing = localStorage.getItem(key);
+      const list: string[] = existing ? JSON.parse(existing) : [];
+      list.push(scannedValue);
+      localStorage.setItem(key, JSON.stringify(list));
+    }
+  }, [scannedValue]);
+
   return (
     <>
       <Head>
@@ -74,7 +124,7 @@ const ScannerPage: NextPage = () => {
                 >
                   <Scanner
                     onScan={(result) => {
-                      setScannedValue(result);
+                      setScannedValue(result[0]?.rawValue ?? null);
                       setScanStatus("success");
                     }}
                     onError={(error) => {
@@ -103,7 +153,7 @@ const ScannerPage: NextPage = () => {
                 </p>
                 {scannedValue ? (
                   <p className="mt-4 text-neutral-500 dark:text-neutral-400 text-center overflow-auto">
-                    Scanned Value: {scannedValue[0]?.rawValue}
+                    Scanned Value: {scannedValue}
                   </p>
                 ) : null}
               </div>
@@ -115,17 +165,17 @@ const ScannerPage: NextPage = () => {
   );
 };
 
-// export const getServerSideProps = async (
-//   context: GetServerSidePropsContext
-// ) => {
-//   let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
-//   output = rbac(
-//     await getServerAuthSession(context),
-//     [Role.ADMIN],
-//     undefined,
-//     output
-//   );
-//   return output;
-// };
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  let output: GetServerSidePropsResult<Record<string, unknown>> = { props: {} };
+  output = rbac(
+    await getServerAuthSession(context),
+    [Role.ADMIN],
+    undefined,
+    output
+  );
+  return output;
+};
 
 export default ScannerPage;
