@@ -2,43 +2,20 @@ import { Role } from "@prisma/client";
 import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import SocialButtons from "../components/SocialButtons";
+import SocialButtons from "../../components/SocialButtons";
 import { useSession } from "next-auth/react";
 
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { trpc } from "../utils/trpc";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { trpc } from "../../utils/trpc";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 import clsx from "clsx";
-import Drawer from "../components/Drawer";
-
-const QRReaderDynamic = dynamic(() => import("../components/QrScanner"), {
-  ssr: false,
-});
-
-const ConstantQRReaderDynamic = dynamic(
-  () => import("../components/QrScanner2"),
-  {
-    ssr: false,
-  }
-);
-
-// const RedirectToDashboard: React.FC = () => {
-//   const router = useRouter();
-
-//   return (
-//     <div
-//       onLoad={async () => {
-//         await router.push("/dashboard");
-//       }}
-//     ></div>
-//   );
-// };
+import Drawer from "../../components/Drawer";
 
 const FoodManagerView: React.FC = () => {
   const [QRCode, setQRCode] = useState("NONE");
   const qrDefer = useDeferredValue(QRCode);
-  const utils = trpc.useContext();
+  const foodUtils = trpc.useUtils();
   const [value, setValue] = useState("");
 
   const { data: foodData, isError } = trpc.food.getFood.useQuery(
@@ -46,7 +23,7 @@ const FoodManagerView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
   const foodMutationAdd = trpc.food.addFood.useMutation();
   const foodMutationSub = trpc.food.subFood.useMutation();
@@ -54,9 +31,9 @@ const FoodManagerView: React.FC = () => {
   const cb = useCallback(
     async (data: string) => {
       setQRCode(data);
-      await utils.food.getFood.invalidate();
+      await foodUtils.food.getFood.invalidate();
     },
-    [utils]
+    [foodUtils],
   );
   return (
     <>
@@ -90,7 +67,7 @@ const FoodManagerView: React.FC = () => {
                   className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
                   onClick={async () => {
                     await foodMutationAdd.mutateAsync(parseInt(QRCode));
-                    await utils.food.getFood.invalidate();
+                    await foodUtils.food.getFood.invalidate();
                   }}
                 >
                   Reedem ticket
@@ -100,7 +77,7 @@ const FoodManagerView: React.FC = () => {
                   className="btn btn-primary flex-1 border-none text-base font-medium capitalize"
                   onClick={async () => {
                     await foodMutationSub.mutateAsync(parseInt(QRCode));
-                    await utils.food.getFood.invalidate();
+                    await foodUtils.food.getFood.invalidate();
                   }}
                 >
                   Revert Redemption
@@ -109,12 +86,12 @@ const FoodManagerView: React.FC = () => {
             </div>
             <div className="flex flex-col gap-5">
               <h1 className="text-white">Lookup using hackerID :</h1>
-              <div className="form-control">
-                <div className="input-group pb-4">
+              <fieldset className="fieldset">
+                <div className="join pb-4">
                   <input
                     type="text"
                     placeholder="QR CODE"
-                    className="input input-bordered"
+                    className="input join-item"
                     maxLength={7}
                     minLength={7}
                     value={value}
@@ -122,13 +99,13 @@ const FoodManagerView: React.FC = () => {
                     pattern="[0-9]*"
                   />
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary join-item"
                     onClick={() => setQRCode(value)}
                   >
                     Submit
                   </button>
                 </div>
-              </div>
+              </fieldset>
             </div>
           </div>
         </div>
@@ -146,14 +123,14 @@ const SponsorView: React.FC = () => {
   const sendResumeEmail = trpc.sponsor.sendResumeEmail.useMutation();
   const [error, setError] = useState("");
   const { data: session } = useSession();
-  const utils = trpc.useContext();
+  const sponsorUtils = trpc.useUtils();
   const [value, setValue] = useState("");
   const { data: getResume } = trpc.sponsor.getResume.useQuery(
     { qrcode: parseInt(QRCode), email: session?.user?.email ?? "" },
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
 
   useEffect(() => {
@@ -177,7 +154,7 @@ const SponsorView: React.FC = () => {
           <QRReaderDynamic
             callback={async (data) => {
               setQRCode(data);
-              await utils.sponsor.getResume.invalidate();
+              await sponsorUtils.sponsor.getResume.invalidate();
             }}
           />
         ) : null}
@@ -199,12 +176,12 @@ const SponsorView: React.FC = () => {
         <div className="mt-6 flex flex-wrap items-center gap-10">
           <div className="mb-5 flex flex-col gap-5 rounded bg-gray-600 p-10">
             <h1 className="text-white">Lookup using hackerID :</h1>
-            <div className="form-control">
-              <div className="input-group pb-4">
+            <fieldset className="fieldset">
+              <div className="join pb-4">
                 <input
                   type="text"
                   placeholder="QR CODE"
-                  className="input input-bordered"
+                  className="input join-item"
                   maxLength={7}
                   minLength={7}
                   value={value}
@@ -212,13 +189,13 @@ const SponsorView: React.FC = () => {
                   pattern="[0-9]*"
                 />
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary join-item"
                   onClick={() => setQRCode(value)}
                 >
                   Submit
                 </button>
               </div>
-            </div>
+            </fieldset>
           </div>
           <button
             className="btn btn-primary"
@@ -253,7 +230,7 @@ const HackerView: React.FC = () => {
     {
       enabled: qrDefer !== "NONE",
       retry: 0,
-    }
+    },
   );
 
   return (
@@ -291,7 +268,7 @@ const HackerView: React.FC = () => {
                     I am a{" "}
                     {socialInfo?.currentLevel?.replace(
                       "High School",
-                      "High Schooler"
+                      "High Schooler",
                     )}{" "}
                     attending {socialInfo?.school} for {socialInfo?.major}{" "}
                     at&nbsp;
@@ -342,12 +319,12 @@ const HackerView: React.FC = () => {
             <div className="mt-6 flex flex-wrap items-center gap-10">
               <div className="mb-5 flex flex-col gap-5 rounded bg-gray-600 p-10">
                 <h1 className="text-white">Lookup using hackerID :</h1>
-                <div className="form-control">
-                  <div className="input-group pb-4">
+                <fieldset className="fieldset">
+                  <div className="join pb-4">
                     <input
                       type="text"
                       placeholder="QR CODE"
-                      className="input input-bordered"
+                      className="input join-item"
                       maxLength={7}
                       minLength={7}
                       value={value}
@@ -355,15 +332,16 @@ const HackerView: React.FC = () => {
                       pattern="[0-9]*"
                     />
                     <button
-                      className="btn btn-primary"
+                      className="btn btn-primary join-item"
                       onClick={() => (
-                        setQRCode(value), setShouldShowScanner(false)
+                        setQRCode(value),
+                        setShouldShowScanner(false)
                       )}
                     >
                       Submit
                     </button>
                   </div>
-                </div>
+                </fieldset>
               </div>
             </div>
           </div>
@@ -462,12 +440,12 @@ const EventsView: React.FC = () => {
         <div className="mt-6 flex flex-wrap items-center gap-10">
           <div className="mb-5 flex flex-col gap-5 rounded bg-gray-600 p-10">
             <h1 className="text-white">Lookup using hackerID :</h1>
-            <div className="form-control">
-              <div className="input-group pb-4">
+            <fieldset className="fieldset">
+              <div className="join pb-4">
                 <input
                   type="text"
                   placeholder="QR CODE"
-                  className="input input-bordered"
+                  className="input join-item"
                   maxLength={7}
                   minLength={7}
                   value={value}
@@ -475,13 +453,13 @@ const EventsView: React.FC = () => {
                   pattern="[0-9]*"
                 />
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary join-item"
                   onClick={() => setQRCode(value)}
                 >
                   Submit
                 </button>
               </div>
-            </div>
+            </fieldset>
           </div>
         </div>
       </div>
@@ -505,7 +483,7 @@ const Scanner: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks XI</title>
+        <title>Check In - Deltahacks 12</title>
       </Head>
       <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
         <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
@@ -519,7 +497,7 @@ const Scanner: NextPage = () => {
             </h1>
           ) : (
             <>
-              <div className="tabs-boxed tabs">
+              <div className="tabs tabs-box">
                 {session?.user?.role.map((e) => {
                   return (
                     <a
@@ -550,7 +528,7 @@ const Scanner: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   // FIXME: Disable this page temporarily
   return { redirect: { destination: "/", permanent: false } };

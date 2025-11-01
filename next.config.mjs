@@ -14,19 +14,34 @@ function defineNextConfig(config) {
 
 import removeImports from "next-remove-imports";
 
-export default defineNextConfig(
-  removeImports({
-    reactStrictMode: true,
-    swcMinify: true,
-    images: {
-      remotePatterns: [
-        {
-          protocol: "https",
-          hostname: "lh3.googleusercontent.com",
-          port: "",
-          pathname: "/**",
-        },
-      ],
-    },
-  })
-);
+export default defineNextConfig({
+  async rewrites() {
+    return [
+      {
+        source: "/i/u/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/i/u/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
+    ];
+  },
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.plugins.push(removeImports());
+    }
+    return config;
+  },
+});

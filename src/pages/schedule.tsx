@@ -95,7 +95,7 @@ const ScheduleComponent = ({
   const curDate = new Date(2025, 0, 10);
   const defaultCurrentDate = curDate;
   const [view, setView] = useState(
-    defaultCurrentView == "day" ? "Calendar View" : "List View"
+    defaultCurrentView == "day" ? "Calendar View" : "List View",
   );
 
   const renderEvent = ({
