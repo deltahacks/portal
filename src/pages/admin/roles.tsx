@@ -37,22 +37,44 @@ type Action = {
 const Roles: NextPage = () => {
   const session = useSession();
   const [role, setRole] = useState("");
+  const [searchName, setSearchName] = useState("");
   const [action, setAction] = useState<Action | undefined>(undefined);
 
   // Pagination state
   const usersPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isPending, isError, refetch } = trpc.user.byRole.useQuery({
+  const { data, isPending, isError } = trpc.user.byRole.useQuery({
     role: role ? (role.toUpperCase() as keyof typeof Role) : null,
     page: currentPage,
     limit: usersPerPage,
+    searchName: searchName || undefined,
   });
 
   const roleOptions = Object.keys(Role);
   const utils = trpc.useUtils();
   const addRole = trpc.user.addRole.useMutation();
   const removeRole = trpc.user.removeRole.useMutation();
+
+  const handleAddRole = async (userId: string, roleToAdd: string) => {
+    await addRole.mutateAsync({
+      id: userId,
+      role: roleToAdd.toUpperCase() as keyof typeof Role,
+    });
+    setAction(undefined);
+
+    await utils.user.byRole.invalidate();
+  };
+
+  const handleRemoveRole = async (userId: string, roleToRemove: Role) => {
+    await removeRole.mutateAsync({
+      id: userId,
+      role: roleToRemove,
+    });
+    setAction(undefined);
+
+    await utils.user.byRole.invalidate();
+  };
 
   // section for name email and role
   const columns: ColumnDef<User>[] = [
@@ -106,21 +128,7 @@ const Roles: NextPage = () => {
                   onClick={async () => {
                     // guard action.role against undefined
                     if (!action.role) return;
-
-                    await removeRole.mutateAsync({
-                      id: action.user.id,
-                      role: action.role,
-                    });
-                    setAction(undefined);
-
-                    // Invalidate and refetch the user.byRole query
-                    await utils.user.byRole.invalidate({
-                      role: role
-                        ? (role.toUpperCase() as keyof typeof Role)
-                        : null,
-                      page: currentPage,
-                      limit: usersPerPage,
-                    });
+                    await handleRemoveRole(action.user.id, action.role);
                   }}
                 >
                   <FiXCircle /> &nbsp; Sure?
@@ -159,21 +167,10 @@ const Roles: NextPage = () => {
                     <li key={idx}>
                       <option
                         onClick={async (e) => {
-                          console.log(e.currentTarget.value);
-                          await addRole.mutateAsync({
-                            id: row.original.id,
-                            role: e.currentTarget.value.toUpperCase() as keyof typeof Role,
-                          });
-                          setAction(undefined);
-
-                          // Invalidate and refetch the user.byRole query
-                          await utils.user.byRole.invalidate({
-                            role: role
-                              ? (role.toUpperCase() as keyof typeof Role)
-                              : null,
-                            page: currentPage,
-                            limit: usersPerPage,
-                          });
+                          await handleAddRole(
+                            row.original.id,
+                            e.currentTarget.value,
+                          );
                         }}
                         value={role}
                       >
@@ -214,9 +211,9 @@ const Roles: NextPage = () => {
   ];
 
   const table = useReactTable<User>({
-    data: data || [],
+    data: data?.users || [],
     columns: columns,
-    pageCount: 6000, // Placeholder, will be updated
+    pageCount: data?.totalCount ? Math.ceil(data.totalCount / usersPerPage) : 0,
     state: {
       pagination: {
         pageIndex: currentPage - 1, // Convert 1-based page to 0-based pageIndex
@@ -259,39 +256,48 @@ const Roles: NextPage = () => {
         <title>Role Management - DeltaHacks</title>
       </Head>
       <Drawer>
-        <main className="px-7 py-16 sm:px-14 lg:pl-20 2xl:pt-20 mx-auto  w-full">
-          <h1 className="mb-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl text-center">
+        <main className="px-4 py-8 sm:px-7 sm:py-16 lg:px-14 lg:pl-20 2xl:pt-20 mx-auto w-full">
+          <h1 className="mb-6 sm:mb-8 text-xl sm:text-3xl font-semibold leading-tight text-black dark:text-white lg:text-5xl 2xl:text-6xl text-center">
             Role Management
           </h1>
 
-          <div className="card bg-base-200 shadow-xl p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Filter by Role</h2>
-            <div className="form-control">
-              <span className="label-text pr-4">Enter role name:</span>
+          <div className="card bg-base-200 shadow-xl p-4 sm:p-6 mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">
+              Filter Users
+            </h2>
+
+            {/* Name/Email Search */}
+            <div className="form-control mb-4 sm:mb-6">
+              <span className="label-text pr-4 mb-2 block">
+                Search by name or email:
+              </span>
               <input
                 type="text"
-                name="role"
-                placeholder="Type role name (e.g., ADMIN, REVIEWER)..."
-                className="input input-bordered w-full max-w-md"
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    roleOptions.includes(e.currentTarget.value.toUpperCase())
-                  ) {
-                    setRole(e.currentTarget.value);
-                    setCurrentPage(1);
-                  }
+                name="searchName"
+                placeholder="Type user name or email..."
+                className="input input-bordered w-full"
+                value={searchName}
+                onChange={(e) => {
+                  setSearchName(e.currentTarget.value);
+                  setCurrentPage(1);
                 }}
               />
-              <div className="label-text-alt pt-4">
-                <span className="block mb-1">
-                  Available roles (click to fast select):
+            </div>
+
+            {/* Role Filter */}
+            <div className="form-control">
+              <span className="label-text pr-4 mb-2 block">
+                Filter by role:
+              </span>
+              <div className="label-text-alt pt-2">
+                <span className="block mb-2 text-xs sm:text-sm">
+                  Available roles (click to filter):
                 </span>
-                <div className="flex flex-wrap gap-1">
-                  {roleOptions.map((role, index) => (
+                <div className="flex flex-wrap gap-1 sm:gap-2">
+                  {roleOptions.map((role) => (
                     <button
                       key={`roleSelect-${role}`}
-                      className="btn btn-xs btn-outline normal-case hover:btn-primary"
+                      className="btn btn-xs sm:btn-sm btn-outline normal-case hover:btn-primary"
                       onClick={() => {
                         setRole(role);
                         setCurrentPage(1);
@@ -300,23 +306,37 @@ const Roles: NextPage = () => {
                       {role}
                     </button>
                   ))}
+                  <button
+                    className="btn btn-xs sm:btn-sm btn-error normal-case"
+                    onClick={() => {
+                      setRole("");
+                      setCurrentPage(1);
+                    }}
+                  >
+                    Clear
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
             <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm sm:btn-md"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             >
-              Previous
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Prev</span>
             </button>
-            <span className="font-semibold text-lg">Page {currentPage}</span>
+            <span className="font-semibold text-sm sm:text-lg px-2">
+              Page {currentPage}
+            </span>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm sm:btn-md"
               disabled={
-                !data || data.length < usersPerPage || !table.getCanNextPage()
+                !data ||
+                data.users.length < usersPerPage ||
+                !table.getCanNextPage()
               }
               onClick={() => {
                 setCurrentPage((prev) => prev + 1);
@@ -336,11 +356,145 @@ const Roles: NextPage = () => {
               <progress className="progress progress-primary w-56"></progress>
             </div>
           ) : (
-            <div className="card bg-base-200 shadow-xl">
-              <div className="card-body p-0">
-                <DataTable table={table} />
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block card bg-base-200 shadow-xl">
+                <div className="card-body p-0">
+                  <DataTable table={table} />
+                </div>
               </div>
-            </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden space-y-4">
+                {data?.users.map((user) => (
+                  <div key={user.id} className="card bg-base-200 shadow-xl">
+                    <div className="card-body p-4">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="avatar">
+                          <div className="mask mask-squircle h-12 w-12">
+                            <img src={user.image || ""} alt={user.name || ""} />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold">{user.name}</div>
+                          {user.id === session.data?.user?.id && (
+                            <div className="badge badge-primary badge-sm">
+                              YOU
+                            </div>
+                          )}
+                          <div className="text-sm text-gray-500 break-all">
+                            {user.email}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="divider my-2">Roles</div>
+
+                      <div className="flex flex-wrap gap-2">
+                        {(user.role as Role[]).map((role: Role) => {
+                          if (
+                            action?.actionType === ActionType["Remove"] &&
+                            action.user === user &&
+                            action.role === role
+                          ) {
+                            return (
+                              <button
+                                className="btn btn-error btn-sm"
+                                key={role}
+                                onClick={async () => {
+                                  if (!action.role) return;
+                                  await handleRemoveRole(
+                                    action.user.id,
+                                    action.role,
+                                  );
+                                }}
+                              >
+                                <FiXCircle /> &nbsp; Sure?
+                              </button>
+                            );
+                          } else {
+                            return (
+                              <button
+                                className="btn btn-sm"
+                                key={role}
+                                onClick={() => {
+                                  setAction({
+                                    actionType: ActionType["Remove"],
+                                    user: user,
+                                    role: role,
+                                  });
+                                }}
+                              >
+                                <FiMinusCircle /> &nbsp; {role}
+                              </button>
+                            );
+                          }
+                        })}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {action?.actionType === ActionType["Add"] &&
+                        action.user === user ? (
+                          <div className="dropdown dropdown-top">
+                            <label
+                              tabIndex={0}
+                              className="btn btn-sm btn-success m-1"
+                            >
+                              Select Role
+                            </label>
+                            <ul
+                              tabIndex={0}
+                              className="menu dropdown-content w-52 rounded-box bg-base-100 p-2 shadow z-50 mb-2"
+                            >
+                              {roleOptions.map((role, idx) => {
+                                return (
+                                  <li key={idx}>
+                                    <option
+                                      onClick={async (e) => {
+                                        await handleAddRole(
+                                          user.id,
+                                          e.currentTarget.value,
+                                        );
+                                      }}
+                                      value={role}
+                                    >
+                                      {role}
+                                    </option>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn btn-success btn-sm"
+                            onClick={() => {
+                              setAction({
+                                actionType: ActionType["Add"],
+                                user: user,
+                                role: undefined,
+                              });
+                            }}
+                          >
+                            <FiPlusCircle /> &nbsp; Add Role
+                          </button>
+                        )}
+                        {action?.user === user && (
+                          <button
+                            className="btn btn-info btn-sm"
+                            onClick={() => {
+                              setAction(undefined);
+                            }}
+                          >
+                            <FiStopCircle /> &nbsp; Cancel
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </main>
       </Drawer>
@@ -354,7 +508,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 }
