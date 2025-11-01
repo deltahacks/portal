@@ -15,7 +15,7 @@ export const userRouter = router({
       const userData = await ctx.prisma?.user.findFirst({
         where: { id },
         include: {
-          DH11Application: {
+          DH12Application: {
             select: {
               id: true,
               firstName: true,
@@ -47,7 +47,7 @@ export const userRouter = router({
       const user = await ctx.prisma.user.findFirst({
         where: { id: input },
         include: {
-          DH11Application: true,
+          DH12Application: true,
         },
       });
 
@@ -55,9 +55,9 @@ export const userRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      // update the DH11Application status to checked in
-      await ctx.prisma.dH11Application.update({
-        where: { id: user.DH11Application?.id },
+      // update the DH12Application status to checked in
+      await ctx.prisma.dH12Application.update({
+        where: { id: user.DH12Application?.id },
         data: {
           status: "CHECKED_IN",
         },
@@ -66,10 +66,11 @@ export const userRouter = router({
 
   byRole: protectedProcedure
     .input(z.object({
-      role: z.nullable(z.nativeEnum(Role)),
+      role: z.nullable(z.enum(Role)),
       page: z.number().min(1).default(1),
       limit: z.number().min(1).default(10),
      }))
+
     .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -95,7 +96,7 @@ export const userRouter = router({
       });
     }),
   addRole: protectedProcedure
-    .input(z.object({ id: z.string().cuid(), role: z.nativeEnum(Role) }))
+    .input(z.object({ id: z.cuid(), role: z.enum(Role) }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -118,7 +119,7 @@ export const userRouter = router({
       });
     }),
   removeRole: protectedProcedure
-    .input(z.object({ id: z.string().cuid(), role: z.nativeEnum(Role) }))
+    .input(z.object({ id: z.cuid(), role: z.enum(Role) }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });

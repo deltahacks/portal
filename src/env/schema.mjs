@@ -7,14 +7,14 @@ import { z } from "zod";
  */
 export const serverSchema = z.object({
   // Database
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.url(),
 
   // Environment
   NODE_ENV: z.enum(["development", "test", "production"]),
 
   // Authentication
   NEXTAUTH_SECRET: z.string(),
-  NEXTAUTH_URL: z.string().url(),
+  NEXTAUTH_URL: z.url(),
 
   // OAuth Providers
   DISCORD_CLIENT_ID: z.string(),
@@ -56,7 +56,7 @@ export const serverSchema = z.object({
 export const clientSchema = z.object({
   // NEXT_PUBLIC_BAR: z.string(),
   // NEXT_PUBLIC_SYNCFUSION_KEY: z.string(),
-  NEXT_PUBLIC_URL: z.string().url(),
+  NEXT_PUBLIC_URL: z.url(),
   NEXT_PUBLIC_POSTHOG_KEY: z.string(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
 });
