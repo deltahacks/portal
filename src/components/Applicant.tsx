@@ -109,7 +109,7 @@ const ApplicationContent = ({
     },
     {
       enabled: !!data?.linkToResume,
-    },
+    }
   );
   const { data: session } = useSession();
 
@@ -376,7 +376,7 @@ const ReviewScores = ({ applicationId }: { applicationId: string }) => {
   const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
     {
       applicationId: applicationId,
-    },
+    }
   );
 
   return (
@@ -410,6 +410,7 @@ const ApplicationPopupButton = ({
 
   const { data: session } = useSession();
   const isAdmin = session?.user?.role?.includes?.("ADMIN") ?? false;
+  const isReviewer = session?.user?.role?.includes?.("REVIEWER") ?? false;
 
   const {
     data: applicationData,
@@ -453,11 +454,12 @@ const ApplicationPopupButton = ({
                 </div>
                 <div className="w-[1px] bg-zinc-700 my-4" />
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
-                  {applicationData?.hasReviewed || isAdmin ? (
+                  {(isAdmin || applicationData?.hasReviewed) && (
                     <ReviewScores
                       applicationId={applicationForReview.DH12ApplicationId}
                     />
-                  ) : (
+                  )}
+                  {isReviewer && !applicationData?.hasReviewed && (
                     <ReviewForm applicationForReview={applicationForReview} />
                   )}
                 </div>
