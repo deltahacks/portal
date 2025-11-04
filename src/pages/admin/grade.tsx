@@ -6,6 +6,7 @@ import { trpc } from "../../utils/trpc";
 import { ApplicationsTable } from "../../components/ApplicationsTable";
 import Drawer from "../../components/Drawer";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 import MultiRangeSlider from "../../components/MultiRangeSlider";
 import {
@@ -18,6 +19,8 @@ import { Button } from "../../components/Button";
 import { ChevronDown } from "lucide-react";
 
 const GradingPortal: NextPage = () => {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role?.includes(Role.ADMIN) ?? false;
   const { data: applications } = trpc.reviewer.getApplications.useQuery();
   const { data: statusCount } = trpc.application.getStatusCount.useQuery();
 
@@ -136,23 +139,25 @@ const GradingPortal: NextPage = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  <Button
-                    onClick={() => {
-                      console.log(
-                        `Applying status ${selectedStatus} to applications between ${startRange} and ${endRange}`,
-                      );
-                      if (selectedStatus) {
-                        updateApplicationStatusByScoreRange({
-                          minRange: startRange,
-                          maxRange: endRange,
-                          status: selectedStatus,
-                        });
-                      }
-                    }}
-                    disabled={!selectedStatus || isPending}
-                  >
-                    {isPending ? "Applying..." : "Apply Status Change"}
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      onClick={() => {
+                        console.log(
+                          `Applying status ${selectedStatus} to applications between ${startRange} and ${endRange}`,
+                        );
+                        if (selectedStatus) {
+                          updateApplicationStatusByScoreRange({
+                            minRange: startRange,
+                            maxRange: endRange,
+                            status: selectedStatus,
+                          });
+                        }
+                      }}
+                      disabled={!selectedStatus || isPending}
+                    >
+                      {isPending ? "Applying..." : "Apply Status Change"}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
