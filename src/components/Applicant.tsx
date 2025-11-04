@@ -109,7 +109,7 @@ const ApplicationContent = ({
     },
     {
       enabled: !!data?.linkToResume,
-    }
+    },
   );
   const { data: session } = useSession();
 
@@ -376,7 +376,7 @@ const ReviewScores = ({ applicationId }: { applicationId: string }) => {
   const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
     {
       applicationId: applicationId,
-    }
+    },
   );
 
   return (
