@@ -143,7 +143,7 @@ const GradingPortal: NextPage = () => {
                     <Button
                       onClick={() => {
                         console.log(
-                          `Applying status ${selectedStatus} to applications between ${startRange} and ${endRange}`
+                          `Applying status ${selectedStatus} to applications between ${startRange} and ${endRange}`,
                         );
                         if (selectedStatus) {
                           updateApplicationStatusByScoreRange({
@@ -170,7 +170,7 @@ const GradingPortal: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
