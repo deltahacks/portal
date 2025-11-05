@@ -282,8 +282,6 @@ const ApplyForm = ({
     await submitAppAsync(processed);
   };
 
-  console.error("Errors", errors);
-
   const isSecondary = watch("studyEnrolledPostSecondary");
 
   return (
