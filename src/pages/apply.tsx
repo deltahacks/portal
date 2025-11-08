@@ -154,7 +154,7 @@ const FormUpload: React.FC<FormUploadProps> = ({
   objectId,
   setUploadValue,
 }) => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   const id = useId();
   const [uppy] = useState(() =>
@@ -208,7 +208,7 @@ const FormUpload: React.FC<FormUploadProps> = ({
         doneButtonHandler={() => {
           uppy.resetProgress();
         }}
-        theme={theme === "dark" ? "dark" : "light"}
+        theme={resolvedTheme === "dark" ? "dark" : "light"}
       />
     </div>
   );
