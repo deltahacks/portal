@@ -147,14 +147,17 @@ interface FormUploadProps {
   uploadUrl: string;
   objectId: string;
   setUploadValue: (value: string) => void;
+  currentValue: string | null | undefined;
 }
 
 const FormUpload: React.FC<FormUploadProps> = ({
   uploadUrl,
   objectId,
   setUploadValue,
+  currentValue,
 }) => {
   const { resolvedTheme } = useTheme();
+  const [showUpload, setShowUpload] = useState(!currentValue);
 
   const id = useId();
   const [uppy] = useState(() =>
@@ -179,12 +182,19 @@ const FormUpload: React.FC<FormUploadProps> = ({
       method: "PUT",
       onAfterResponse: () => {
         setUploadValue(objectId);
+        setShowUpload(false);
       },
       getResponseData: () => {
         return { url: objectId };
       },
     }),
   );
+
+  const handleReplace = () => {
+    uppy.cancelAll();
+    setUploadValue("");
+    setShowUpload(true);
+  };
 
   if (!uploadUrl) {
     return (
@@ -202,14 +212,40 @@ const FormUpload: React.FC<FormUploadProps> = ({
           (Optional)
         </span>
       </div>
-      <Dashboard
-        uppy={uppy}
-        height={200}
-        doneButtonHandler={() => {
-          uppy.resetProgress();
-        }}
-        theme={resolvedTheme === "dark" ? "dark" : "light"}
-      />
+      {currentValue && !showUpload ? (
+        <div className="flex flex-col gap-2 p-4 border rounded-lg border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 text-green-600 dark:text-green-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="text-sm font-medium text-black dark:text-white">
+              Resume uploaded successfully
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleReplace}
+            className="mt-2 btn btn-sm btn-outline dark:text-white"
+          >
+            Replace file
+          </button>
+        </div>
+      ) : (
+        <Dashboard
+          uppy={uppy}
+          height={200}
+          theme={resolvedTheme === "dark" ? "dark" : "light"}
+        />
+      )}
     </div>
   );
 };
@@ -394,6 +430,7 @@ const ApplyForm = ({
           uploadUrl={uploadUrl}
           objectId={objectId}
           setUploadValue={(v) => setValue("linkToResume", v)}
+          currentValue={watch("linkToResume")}
         />
       ) : (
         <div></div>
