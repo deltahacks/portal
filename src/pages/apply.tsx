@@ -1038,10 +1038,9 @@ const Apply: NextPage<
               <div className="flex flex-col items-center justify-center h-full py-4 text-center">
                 <div className="text-2xl text-center text-black bg-red-600 alert dark:text-white md:text-left">
                   <span>
-                    Applications are currently closed due to technical
-                    difficulties. Please check back later. If this error
-                    persists, please contact us at{" "}
-                    <span className="font-bold">tech@deltahacks.com</span>
+                    Applications are now closed. For any questions, please
+                    contact us at{" "}
+                    <span className="font-bold">hello@deltahacks.com</span>
                   </span>
                   {/* <span> */}
                   {/* Applications are closed for Deltahacks 12. If you did not */}
