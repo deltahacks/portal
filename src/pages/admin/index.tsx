@@ -110,10 +110,10 @@ const Admin: NextPage = () => {
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">DeltaHacks Year</span>
+                    <span>DeltaHacks Year</span>
                   </label>
                   <select
-                    value={currentDhYear ?? "DH11"}
+                    value={currentDhYear ?? "DH12"}
                     onChange={(e) => handleYearChange(e.target.value)}
                     className="select select-bordered w-full max-w-xs"
                   >
@@ -126,7 +126,7 @@ const Admin: NextPage = () => {
                 </div>
                 <button
                   className="btn btn-primary self-end"
-                  onClick={() => handleYearChange(currentDhYear ?? "DH11")}
+                  onClick={() => handleYearChange(currentDhYear ?? "DH12")}
                 >
                   Update Year
                 </button>
@@ -145,7 +145,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     await getServerAuthSession(context),
     [Role.ADMIN],
     undefined,
-    output
+    output,
   );
   return output;
 }

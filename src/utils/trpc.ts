@@ -26,10 +26,12 @@ export const trpc = createTRPCNext<AppRouter>({
             process.env.NODE_ENV === "development" ||
             (opts.direction === "down" && opts.result instanceof Error),
         }),
-        httpBatchLink({ url }),
+        httpBatchLink({
+          url,
+          transformer: SuperJSON,
+        }),
       ],
       url,
-      transformer: SuperJSON,
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient
        */
@@ -49,6 +51,7 @@ export const trpc = createTRPCNext<AppRouter>({
       // }
     };
   },
+  transformer: SuperJSON,
   /**
    * @link https://trpc.io/docs/ssr
    */

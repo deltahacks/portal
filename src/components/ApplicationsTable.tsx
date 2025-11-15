@@ -105,10 +105,10 @@ const columns: ColumnDef<ApplicationForReview>[] = [
       );
     },
     cell: ({ row }) => {
-      const { DH11ApplicationId } = row.original;
+      const { DH12ApplicationId } = row.original;
       return (
         <UpdateStatusDropdown
-          dh11ApplicationId={DH11ApplicationId}
+          dh12ApplicationId={DH12ApplicationId}
           position="float-right"
         />
       );
@@ -169,8 +169,8 @@ const columns: ColumnDef<ApplicationForReview>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: "DH11ApplicationId",
-    header: () => <div className="float-right">DH XI Application</div>,
+    accessorKey: "DH12ApplicationId",
+    header: () => <div className="float-right">DH12 Application</div>,
     cell: ({ row }) => {
       return (
         <div className="float-right">

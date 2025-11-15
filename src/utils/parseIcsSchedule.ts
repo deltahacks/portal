@@ -9,7 +9,7 @@ const parseTime = (time: string) => {
   } else if (time.length === 16) {
     date = `${time.slice(0, 4)}-${time.slice(4, 6)}-${time.slice(
       6,
-      8
+      8,
     )}T${time.slice(9, 11)}:${time.slice(11, 13)}:${time.slice(13, 15)}Z`;
   }
   return new Date(date);

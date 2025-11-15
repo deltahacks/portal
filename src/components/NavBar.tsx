@@ -24,9 +24,9 @@ const NavBar = () => {
         </Link>
         <div className="hidden font-montserrat md:inline-block">
           <h1 className="text-2xl">
-            <strong>Delta</strong>Hacks <strong>XI</strong>
+            <strong>Delta</strong>Hacks <strong>12</strong>
           </h1>
-          <p className="text-xs">January 10-12 | McMaster University</p>
+          <p className="text-xs">January 10-11 | McMaster University</p>
         </div>
       </div>
       <div className="hidden items-center md:flex">
