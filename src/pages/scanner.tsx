@@ -9,7 +9,7 @@ import Drawer from "../components/Drawer";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { rbac } from "../components/RBACWrapper";
 import { Role } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { trpc } from "../utils/trpc";
 import { useOfflineQueue } from "../hooks/useOfflineQueue";
@@ -44,8 +44,8 @@ const ScannerPage: NextPage = () => {
   const [scanStatus, setScanStatus] = useState<"idle" | "success" | "error">(
     "idle",
   );
-  const { queuedIds, addToQueue, removeFromQueue, getQueuedIds } =
-    useOfflineQueue();
+  const { queuedIds, addToQueue, removeFromQueue } = useOfflineQueue();
+  const hasProcessedInitialQueue = useRef(false);
 
   const scannerMutation = trpc.scanner.scan.useMutation({
     onSettled: (data) => {
@@ -61,14 +61,14 @@ const ScannerPage: NextPage = () => {
     },
   });
   useEffect(() => {
-    // On page load, remutate any queued IDs
-    const ids = getQueuedIds();
-    if (ids.length > 0) {
-      ids.forEach((queuedId) => {
+    // On page load, remutate any queued IDs (only once on initial load)
+    if (!hasProcessedInitialQueue.current && queuedIds.length > 0) {
+      hasProcessedInitialQueue.current = true;
+      queuedIds.forEach((queuedId) => {
         scannerMutation.mutate({ id: queuedId, task: "checkIn" });
       });
     }
-  }, []);
+  }, [queuedIds]);
 
   useEffect(() => {
     if (scannedValue) {

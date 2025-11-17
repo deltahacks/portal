@@ -51,24 +51,9 @@ export const useOfflineQueue = () => {
     }
   }, []);
 
-  /**
-   * Get all IDs currently in the queue
-   */
-  const getQueuedIds = useCallback((): string[] => {
-    try {
-      const existing = localStorage.getItem(QUEUE_KEY);
-      const ids: string[] = existing ? JSON.parse(existing) : [];
-      return ids;
-    } catch {
-      // Handle JSON parsing errors silently
-      return [];
-    }
-  }, []);
-
   return {
     queuedIds,
     addToQueue,
     removeFromQueue,
-    getQueuedIds,
   };
 };
