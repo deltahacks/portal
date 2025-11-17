@@ -12,6 +12,7 @@ import { Role } from "@prisma/client";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { trpc } from "../utils/trpc";
+import { useOfflineQueue } from "../hooks/useOfflineQueue";
 
 const highlightCodeOnCanvas = (
   detectedCodes: IDetectedBarcode[],
@@ -43,17 +44,15 @@ const ScannerPage: NextPage = () => {
   const [scanStatus, setScanStatus] = useState<"idle" | "success" | "error">(
     "idle",
   );
+  const { queuedIds, addToQueue, removeFromQueue, getQueuedIds } =
+    useOfflineQueue();
+
   const scannerMutation = trpc.scanner.scan.useMutation({
     onSettled: (data) => {
       setScanStatus("idle");
-      try {
-        // remove succesfully mutated ids from offline queue
-        const existing = localStorage.getItem("offlineQueue");
-        const ids: string[] = existing ? JSON.parse(existing) : [];
-        const filtered = ids.filter((v) => v !== data?.id);
-        localStorage.setItem("offlineQueue", JSON.stringify(filtered));
-      } catch {
-        // not sure what to do with the json errors
+      // remove succesfully mutated ids from offline queue
+      if (data?.id) {
+        removeFromQueue(data.id);
       }
     },
     onError: (error) => {
@@ -63,16 +62,11 @@ const ScannerPage: NextPage = () => {
   });
   useEffect(() => {
     // On page load, remutate any queued IDs
-    try {
-      const existing = localStorage.getItem("offlineQueue");
-      const ids: string[] = existing ? JSON.parse(existing) : [];
-      if (ids.length > 0) {
-        ids.forEach((queuedId) => {
-          scannerMutation.mutate({ id: queuedId, task: "checkIn" });
-        });
-      }
-    } catch {
-      // figure out what to do with the json errors
+    const ids = getQueuedIds();
+    if (ids.length > 0) {
+      ids.forEach((queuedId) => {
+        scannerMutation.mutate({ id: queuedId, task: "checkIn" });
+      });
     }
   }, []);
 
@@ -84,11 +78,7 @@ const ScannerPage: NextPage = () => {
       });
 
       // add scanned id to offline queue for persistence
-      const key = "offlineQueue";
-      const existing = localStorage.getItem(key);
-      const list: string[] = existing ? JSON.parse(existing) : [];
-      list.push(scannedValue);
-      localStorage.setItem(key, JSON.stringify(list));
+      addToQueue(scannedValue);
     }
   }, [scannedValue]);
 
