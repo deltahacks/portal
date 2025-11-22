@@ -47,7 +47,6 @@ import { Dashboard } from "@uppy/react";
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
 import XHR from "@uppy/xhr-upload";
-import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import FormInput from "../components/CustomInput";
 
@@ -253,9 +252,11 @@ const FormUpload: React.FC<FormUploadProps> = ({
 const ApplyForm = ({
   autofillData,
   persistId,
+  userId,
 }: {
   autofillData: ApplyFormAutofill;
   persistId: string;
+  userId: string;
 }) => {
   // check if autofill was an empty object
   const wasAutofilled = !(Object.keys(autofillData).length === 0);
@@ -302,9 +303,7 @@ const ApplyForm = ({
     },
   });
 
-  const user = useSession();
-
-  const objectId = `${user.data?.user?.id}-dh12.pdf`;
+  const objectId = `${userId}-dh12.pdf`;
   useEffect(() => {
     mutate({
       filename: objectId,
@@ -988,7 +987,7 @@ const ApplyForm = ({
 
 const Apply: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ email, killed }) => {
+> = ({ email, killed, userId }) => {
   // delete all local storage applyForm keys
   // that are not the current user's
   useEffect(() => {
@@ -1031,6 +1030,7 @@ const Apply: NextPage<
                 <ApplyForm
                   persistId={email ?? "default"}
                   autofillData={autofillData.data ?? {}}
+                  userId={userId}
                 />
               ))}
 
@@ -1091,6 +1091,7 @@ export const getServerSideProps = async (
     props: {
       email: session.user.email,
       killed: killed,
+      userId: session.user.id,
     },
   };
 };
