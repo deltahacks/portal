@@ -18,7 +18,7 @@ export const CSVUploader: React.FC<CSVUploaderProps> = ({ csvProcessor }) => {
         const data = processedData
           .filter((obj) => {
             return Object.values(obj).some(
-              (value) => value !== "" && value !== undefined && value !== null
+              (value) => value !== "" && value !== undefined && value !== null,
             );
           })
           .filter((obj) => {
@@ -59,10 +59,10 @@ export const CSVUploader: React.FC<CSVUploaderProps> = ({ csvProcessor }) => {
             accept=".csv"
             onChange={handleFileChange}
             className="shadow appearance-none border border-gray-600 dark:border-gray-300 rounded w-full py-2 px-3 text-white dark:text-gray-900 bg-neutral-800 dark:bg-white leading-tight focus:outline-none focus:shadow-outline"
-            disabled={uploadProjectsMutation.isLoading}
+            disabled={uploadProjectsMutation.isPending}
           />
         </div>
-        {uploadProjectsMutation.isLoading && (
+        {uploadProjectsMutation.isPending && (
           <div className="mb-4">
             <p className="text-blue-400 dark:text-blue-500">Uploading...</p>
           </div>

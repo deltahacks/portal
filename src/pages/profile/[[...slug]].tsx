@@ -9,7 +9,7 @@ import Head from "next/head";
 import Drawer from "../../components/Drawer";
 import SocialButtons from "../../components/SocialButtons";
 import { trpc } from "../../utils/trpc";
-import QRCode from "react-qr-code";
+// import QRCode from "react-qr-code";
 import { env } from "../../env/client.mjs";
 import { useSession } from "next-auth/react";
 
@@ -17,6 +17,7 @@ import Image from "next/image";
 import { z } from "zod";
 import { useState } from "react";
 import Select from "react-select";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProfilePageProps {
   initialState: any; // FIX THIS
@@ -33,10 +34,10 @@ const GoogleEventSchema = z.object({
   summary: z.string(),
   location: z.string().optional(),
   creator: z.object({
-    email: z.string().email(),
+    email: z.email(),
   }),
   organizer: z.object({
-    email: z.string().email(),
+    email: z.email(),
     displayName: z.string(),
     self: z.boolean(),
   }),
@@ -87,7 +88,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop"
+      event.eventType.toLowerCase() === "workshop",
   );
 };
 
@@ -104,8 +105,8 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
     typeof router.query.slug === "string"
       ? router.query.slug
       : typeof router.query.slug === "object"
-      ? router.query.slug[0]
-      : undefined;
+        ? router.query.slug[0]
+        : undefined;
 
   const session = useSession();
   const canAct =
@@ -119,7 +120,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
 
   const {
     data: user,
-    isLoading,
+    isPending,
     isError,
     isSuccess,
   } = trpc.user.getProfile.useQuery(id, {
@@ -156,7 +157,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks XI</title>
+        <title>Dashboard - Deltahacks 12</title>
       </Head>
       <Drawer
         pageTabs={[
@@ -167,14 +168,14 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
         <main className="px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-8">
           <section>
             <h1 className="font-bold text-2xl dark:text-white mb-2">
-              {user?.DH11Application?.firstName}{" "}
-              {user?.DH11Application?.lastName}
+              {user?.DH12Application?.firstName}{" "}
+              {user?.DH12Application?.lastName}
             </h1>
             <div className="mb-4">
-              {user?.DH11Application?.studyYearOfStudy}{" "}
-              {user?.DH11Application?.studyDegree} <br />
-              {user?.DH11Application?.studyMajor} <br />
-              {user?.DH11Application?.studyLocation}
+              {user?.DH12Application?.studyYearOfStudy}{" "}
+              {user?.DH12Application?.studyDegree} <br />
+              {user?.DH12Application?.studyMajor} <br />
+              {user?.DH12Application?.studyLocation}
             </div>
             {!showCode ? (
               <>
@@ -182,7 +183,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   Socials
                 </h2>
                 <ul className="flex flex-col gap-2 mb-4">
-                  {user?.DH11Application?.socialText.map((socialText, i) => {
+                  {user?.DH12Application?.socialText.map((socialText, i) => {
                     return (
                       <li
                         key={i}
@@ -206,10 +207,13 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
           {showCode ? (
             <div className="flex flex-col gap-2 w-full md:w-auto">
               <div className="w-full flex justify-center items-center bg-white rounded-lg p-4 shadow-lg shadow-black/50">
-                <QRCode
+                {/* <QRCode
                   value={`${env.NEXT_PUBLIC_URL}/profile/${qrCodeId}`}
                   className="w-full aspect-square h-auto"
-                />
+                /> */}
+                <div className="w-full aspect-square h-auto flex items-center justify-center text-gray-500">
+                  QR Code temporarily disabled
+                </div>
               </div>
               <div>
                 <div className="flex  w-full gap-4  *:select-none ">
@@ -245,7 +249,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
             <div className="my-4">
               <div>
                 <label className="label">
-                  <span className="label-text">Event Check in :</span>
+                  <span>Event Check in :</span>
                 </label>
                 <Select
                   value={{
@@ -287,7 +291,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   }
                   disabled={!selectedEvent || logEventMutation.isSuccess}
                 >
-                  {logEventMutation.isLoading ? (
+                  {logEventMutation.isPending ? (
                     <span className="animate-spin">⌛</span>
                   ) : logEventMutation.isSuccess ? (
                     "Checked In ✅"
@@ -304,11 +308,11 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   onClick={() => {
                     checkInMutation.mutate(qrCodeId);
                   }}
-                  disabled={user?.DH11Application?.status === "CHECKED_IN"}
+                  disabled={user?.DH12Application?.status === "CHECKED_IN"}
                 >
-                  {checkInMutation.isLoading ? (
+                  {checkInMutation.isPending ? (
                     <span className="animate-spin">⌛</span>
-                  ) : user?.DH11Application?.status === "CHECKED_IN" ? (
+                  ) : user?.DH12Application?.status === "CHECKED_IN" ? (
                     "Already Checked In"
                   ) : (
                     "Check In"
@@ -331,7 +335,7 @@ export default ProfilePage;
 import { GetServerSideProps } from "next";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "../../server/router";
-import { createContext } from "../../server/router/context";
+import { createContext, createContextInner } from "../../server/router/context";
 import { Role, User } from "@prisma/client";
 import { Button } from "../../components/Button";
 import Link from "next/link";
@@ -339,7 +343,7 @@ import { ArrowUpLeftIcon, ArrowUpRightIcon } from "lucide-react";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 import clsx from "clsx";
 import { Controller } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import SuperJSON from "superjson";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(ctx);
@@ -352,18 +356,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     typeof ctx.params?.slug === "string"
       ? ctx.params.slug
       : typeof ctx.params?.slug === "object"
-      ? ctx.params.slug[0]
-      : undefined;
+        ? ctx.params.slug[0]
+        : undefined;
 
-  const helpers = createServerSideHelpers({
-    router: appRouter,
-    ctx: await createContext({
-      req: ctx.req as NextApiRequest,
-      res: ctx.res as NextApiResponse,
-    }),
-  });
-
-  const data = await helpers.user.getProfile.fetch(id);
+  // Create context and call the procedure directly
+  const context = await createContextInner({ session });
+  const caller = appRouter.createCaller(context);
+  const data = await caller.user.getProfile(id);
 
   return {
     props: {

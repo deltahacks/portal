@@ -63,7 +63,11 @@ model User {
   DH11Application   DH11Application? @relation(fields: [DH11ApplicationId], references: [id])
   DH11ApplicationId String?          @unique
 
+  DH12Application   DH12Application? @relation(fields: [DH12ApplicationId], references: [id])
+  DH12ApplicationId String?          @unique
+
   DH11Review DH11Review[]
+  DH12Review DH12Review[]
 }
 
 model Review {
@@ -205,7 +209,7 @@ model DH11Application {
   considerCoffee      Boolean
   dietaryRestrictions String?
 
-  underrepresented YesNoUnsure
+  underrepresented YesNoUnsure?
 
   gender      String
   race        String
@@ -228,6 +232,66 @@ model DH11Application {
   status Status @default(IN_REVIEW)
 }
 
+model DH12Application {
+  id String @id @default(cuid())
+
+  firstName String
+  lastName  String
+  phone     String?
+  country   String?
+  birthday  DateTime
+
+  // School
+  studyEnrolledPostSecondary Boolean
+  studyLocation              String?
+  studyDegree                String?
+  studyMajor                 String?
+  studyYearOfStudy           String?
+  studyExpectedGraduation    DateTime?
+
+  previousHackathonsCount Int
+
+  longAnswerHobby     String
+  longAnswerWhy       String
+  longAnswerTime      String
+  longAnswerSkill     String
+  longAnswerSocratica String
+
+  socialText String[] @default([])
+  interests  String?
+
+  linkToResume String?
+
+  tshirtSize          String
+  hackerKind          String[] @default([])
+  alreadyHaveTeam     Boolean
+  workshopChoices     String[] @default([])
+  discoverdFrom       String[] @default([])
+  considerCoffee      Boolean
+  dietaryRestrictions String?
+
+  underrepresented YesNoUnsure?
+  gender           String?
+  race             String?
+  orientation      String?
+
+  emergencyContactName     String
+  emergencyContactPhone    String
+  emergencyContactRelation String
+
+  agreeToMLHCodeOfConduct  Boolean
+  agreeToMLHPrivacyPolicy  Boolean
+  agreeToMLHCommunications Boolean
+
+  rsvpCheck Boolean @default(false)
+
+  User User?
+
+  DH12Review DH12Review[]
+
+  status Status @default(IN_REVIEW)
+}
+
 model DH11Review {
   id String @id @default(cuid())
 
@@ -238,6 +302,19 @@ model DH11Review {
   applicationId String
 
   application DH11Application @relation(fields: [applicationId], references: [id], onDelete: NoAction)
+  reviewer    User            @relation(fields: [reviewerId], references: [id])
+}
+
+model DH12Review {
+  id String @id @default(cuid())
+
+  score   Float
+  comment String
+
+  reviewerId    String
+  applicationId String
+
+  application DH12Application @relation(fields: [applicationId], references: [id], onDelete: NoAction)
   reviewer    User            @relation(fields: [reviewerId], references: [id])
 }
 
