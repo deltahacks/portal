@@ -75,6 +75,7 @@
     "react-hook-form-persist": "^3.0.0",
     "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
+    "react-qr-code": "^2.0.18",
     "react-select": "^5.10.1",
     "react-timelines": "^2.6.1",
     "superjson": "^2.2.2",

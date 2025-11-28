@@ -23,100 +23,104 @@ export const GET = async (
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) => {
-  // TODO: Properly implement Apple Wallet support across years.
-  return;
+  const id = (await params).id;
 
-  // const id = (await params).id;
+  const user = await prisma?.user.findFirst({
+    where: {
+      id: id,
+    },
+    include: {
+      DH12Application: true,
+    },
+  });
 
-  // const user = await prisma?.user.findFirst({
-  //   where: {
-  //     id: id,
-  //   },
-  //   include: {
-  //     DH11Application: true,
-  //   },
-  // });
+  if (!user) {
+    return new Response("User not found", { status: 404 });
+  }
 
-  // if (!user) {
-  //   return new Response("User not found", { status: 404 });
-  // }
+  const cardColor = "rgb(94, 51, 184)";
 
-  // const cardColor = "rgb(94, 51, 184)";
+  try {
+    /** Each, but last, can be either a string or a Buffer. See API Documentation for more */
 
-  // try {
-  //   /** Each, but last, can be either a string or a Buffer. See API Documentation for more */
+    const wwdr = (await prisma.config.findFirst({
+      where: {
+        name: "APPLE_WWDR",
+      },
+    }))!.value;
 
-  //   const wwdr = (await prisma.config.findFirst({
-  //     where: {
-  //       name: "APPLE_WWDR",
-  //     },
-  //   }))!.value;
+    const signerCert = (await prisma.config.findFirst({
+      where: {
+        name: "APPLE_SIGNER_CERT",
+      },
+    }))!.value;
 
-  //   const signerCert = (await prisma.config.findFirst({
-  //     where: {
-  //       name: "APPLE_SIGNER_CERT",
-  //     },
-  //   }))!.value;
+    const signerKey = (await prisma.config.findFirst({
+      where: {
+        name: "APPLE_SIGNER_KEY",
+      },
+    }))!.value;
 
-  //   const signerKey = (await prisma.config.findFirst({
-  //     where: {
-  //       name: "APPLE_SIGNER_KEY",
-  //     },
-  //   }))!.value;
+    const signerKeyPassphrase = (await prisma.config.findFirst({
+      where: {
+        name: "APPLE_SIGNER_KEY_PASSPHRASE",
+      },
+    }))!.value;
+    const pass = await PKPass.from(
+      {
+        /**
+         * Note: .pass extension is enforced when reading a
+         * model from FS, even if not specified here below
+         */
+        model: path.resolve("src/assets/deltahacks_12.pass"),
+        certificates: {
+          wwdr,
+          signerCert,
+          signerKey,
+          signerKeyPassphrase,
+        },
+      },
+      {
+        backgroundColor: cardColor,
+      },
+    );
 
-  //   const signerKeyPassphrase = (await prisma.config.findFirst({
-  //     where: {
-  //       name: "APPLE_SIGNER_KEY_PASSPHRASE",
-  //     },
-  //   }))!.value;
-  //   const pass = await PKPass.from(
-  //     {
-  //       /**
-  //        * Note: .pass extension is enforced when reading a
-  //        * model from FS, even if not specified here below
-  //        */
-  //       model: path.resolve("src/assets/deltahacks_11.pass"),
-  //       certificates: {
-  //         wwdr,
-  //         signerCert,
-  //         signerKey,
-  //         signerKeyPassphrase,
-  //       },
-  //     },
-  //     {
-  //       backgroundColor: cardColor,
-  //     }
-  //   );
+    // Adding some settings to be written inside pass.json
+    // pass.localize("en", { ... });
+    pass.setBarcodes(`${env.NEXT_PUBLIC_URL}/profile/${id}`); // Random value
+    // pass.primaryFields.push({ key: "header", value: "" });
 
-  //   // Adding some settings to be written inside pass.json
-  //   // pass.localize("en", { ... });
-  //   pass.setBarcodes(`${env.NEXT_PUBLIC_URL}/profile/${id}`); // Random value
-  //   // pass.primaryFields.push({ key: "header", value: "" });
+    const firstName =
+      user.DH12Application?.firstName || user.name?.split(" ")[0] || "Attendee";
+    const lastName =
+      user.DH12Application?.lastName ||
+      user.name?.split(" ").slice(1).join(" ") ||
+      "";
 
-  //   pass.backFields.push({
-  //     key: "ticket-buyer-name",
-  //     label: "For",
-  //     value: `${user.DH11Application?.firstName} ${user.DH11Application?.lastName}`,
-  //   });
+    pass.backFields.push({
+      key: "ticket-buyer-name",
+      label: "For",
+      value: `${firstName} ${lastName}`.trim(),
+    });
 
-  //   pass.primaryFields.push({
-  //     key: "ticket-for",
-  //     label: "Ticket for",
-  //     value: `${user.DH11Application?.firstName} ${user.DH11Application?.lastName}                                  `,
-  //   });
+    pass.primaryFields.push({
+      key: "ticket-for",
+      label: "Ticket for",
+      value: `${firstName} ${lastName}`.trim(),
+    });
 
-  //   // add a background color
+    // add a background color
 
-  //   // Generate the stream .pkpass file stream
-  //   const dataBuffer = pass.getAsBuffer();
-  //   return new Response(dataBuffer, {
-  //     headers: {
-  //       "Content-Type": "application/vnd.apple.pkpass",
-  //       "Content-Disposition": "attachment; filename=pass.pkpass",
-  //     },
-  //   });
-  // } catch (err) {
-  //   console.error(err);
-  //   return new Response("Something went wrong", { status: 500 });
-  // }
+    // Generate the stream .pkpass file stream
+    const dataBuffer = pass.getAsBuffer();
+    return new Response(dataBuffer, {
+      headers: {
+        "Content-Type": "application/vnd.apple.pkpass",
+        "Content-Disposition": "attachment; filename=pass.pkpass",
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response("Something went wrong", { status: 500 });
+  }
 };
