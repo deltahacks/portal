@@ -67,7 +67,7 @@ const TypeFormResponseItems = z.array(
       score: z.number(),
     }),
     answers: z.array(TypeFormResponseField),
-  }),
+  })
 );
 
 export type TypeFormResponseItems = z.infer<typeof TypeFormResponseItems>;
@@ -177,7 +177,8 @@ export const applicationRouter = router({
     .input(
       z.object({
         rsvpCheck: z.boolean(),
-      }),
+        dietaryRestrictions: z.string().optional(),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma?.user.findFirst({
@@ -195,7 +196,11 @@ export const applicationRouter = router({
 
       await ctx.prisma?.dH12Application.update({
         where: { id: user.DH12Application.id },
-        data: { status: Status.RSVP, rsvpCheck: input.rsvpCheck },
+        data: {
+          status: Status.RSVP,
+          rsvpCheck: input.rsvpCheck,
+          dietaryRestrictions: input.dietaryRestrictions,
+        },
       });
 
       await ctx.logsnag.track({
@@ -205,6 +210,7 @@ export const applicationRouter = router({
         description: `${user.name} has submitted their RSVP.`,
         icon: "🎉",
       });
+
       // await ctx.posthog.capture("RSVP Submitted", {
       //   user_id: `${user.name} - ${user.email}`,
       //   description: `${user.name} has submitted their RSVP.`,
@@ -289,7 +295,7 @@ export const applicationRouter = router({
         };
       });
       const socialLinks = converted[0]?.socialLinks?.match(
-        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim,
+        /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim
       );
 
       return {
