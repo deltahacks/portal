@@ -39,6 +39,7 @@ export async function GET(
     classExists = true;
   } catch (err: any) {
     if (!err.response || err.response.status !== 404) {
+      console.error(err);
       return new Response("Error checking event ticket class", { status: 500 });
     }
   }
@@ -162,7 +163,7 @@ function createClass(
       contentDescription: {
         defaultValue: {
           language: "en-US",
-          value: "DeltaHacks XII Logo",
+          value: "DeltaHacks 12 Logo",
         },
       },
     },
@@ -171,10 +172,10 @@ function createClass(
     eventName: {
       defaultValue: {
         language: "en-US",
-        value: "DeltaHacks XII",
+        value: "DeltaHacks 12",
       },
     },
-    eventId: "deltahacks-xii",
+    eventId: "deltahacks-12",
     venue: {
       name: {
         defaultValue: {
@@ -190,9 +191,9 @@ function createClass(
       },
     },
     dateTime: {
-      doorsOpen: "2026-01-11T13:00:00Z",
-      start: "2026-01-11T13:00:00Z",
-      end: "2026-01-13T23:00:00Z",
+      doorsOpen: "2026-01-10T08:00Z",
+      start: "2026-01-10T08:00Z",
+      end: "2026-01-11T18:00Z",
     },
     locations: [
       {
