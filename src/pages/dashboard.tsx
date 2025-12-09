@@ -423,7 +423,7 @@ const RSVPed: React.FC = () => {
         <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
-            href="https://discord.gg/22ddpvfwXn"
+            href="https://discord.gg/m3GNs5ZW6h"
             target="_blank"
           >
             Discord
@@ -434,14 +434,15 @@ const RSVPed: React.FC = () => {
             Schedule
           </Link>
         </Button>
-        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+
+        {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="https://drive.google.com/file/d/1MzRExOJT-OasMVAaDxbvb1kTNmFzJ28E/view?usp=sharing"
           >
             Attendee Package
           </Link>
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
