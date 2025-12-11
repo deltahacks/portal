@@ -1,5 +1,5 @@
 import google_logo from "../../public/images/google_logo.svg";
-import { signIn } from "next-auth/react";
+import { useAuth } from "../hooks/useAuth";
 import Image from "next/image";
 // import {
 //   DiscordIcon,
@@ -109,6 +109,7 @@ const buttons: ButtonData[] = [
 
 const LoginButton = (prop: LoginProps) => {
   const { title, image, main, Icon, provider } = prop;
+  const { signIn } = useAuth();
 
   const iconExists = Icon === undefined;
   // const normalizedTitle = title.toLowerCase();

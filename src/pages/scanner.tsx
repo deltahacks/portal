@@ -8,17 +8,15 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import Drawer from "../components/Drawer";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { Role } from "@prisma/client";
-import { useEffect, useRef, useState } from "react";
-import clsx from "clsx";
-import { trpc } from "../utils/trpc";
-import { useOfflineQueue } from "../hooks/useOfflineQueue";
-import { z } from "zod";
+import { clsx } from "clsx";
+import { useScanner } from "../hooks/useScanner";
+import { useRoleBasedTabs } from "../hooks/useRoleBasedTabs";
 import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
 
 // This causes massive fps drop.
 const highlightCodeOnCanvas = (
   detectedCodes: IDetectedBarcode[],
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   const canvas = ctx.canvas;
 
@@ -35,7 +33,7 @@ const highlightCodeOnCanvas = (
       Math.max(0, boundingBox.x - padding),
       Math.max(0, boundingBox.y - padding),
       boundingBox.width + padding * 2,
-      boundingBox.height + padding * 2
+      boundingBox.height + padding * 2,
     );
   });
   ctx.restore();
@@ -48,14 +46,17 @@ type ScannerPageProps = {
 };
 
 const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
-  const [scannedValue, setScannedValue] = useState<string | null>(null);
-  const [scanState, setScanState] = useState<{
-    status: "idle" | "success" | "error";
-    message?: string;
-  }>({ status: "idle" });
-  const [selectedStation, setSelectedStation] = useState<Station | null>(null);
-  const { queuedItems, addToQueue, removeFromQueue } = useOfflineQueue();
-  const hasProcessedInitialQueue = useRef(false);
+  const {
+    scannedValue,
+    scanState,
+    setScanState,
+    selectedStation,
+    handleScan,
+    handleStationSelect,
+    clearScannerState,
+  } = useScanner();
+
+  const pageTabs = useRoleBasedTabs();
 
   const availableStations = {
     checkIn:
@@ -67,78 +68,13 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
       userRoles.includes(Role.ADMIN) || userRoles.includes(Role.EVENT_MANAGER),
   };
 
-  // canner persistence works by adding any scanned qr code to the offline queue and removing them
-  // only when the mutaiton is succesful. This is because tanstack already retries failed mutation until success.
-  // Saving in the local storage is only for persistence across page reloads.
-  const scannerMutation = trpc.scanner.scan.useMutation({
-    onSuccess: (data) => {
-      setScanState({ status: "idle" });
-      // remove succesfully mutated ids from offline queue
-      if (data?.id) {
-        removeFromQueue(data.id);
-      }
-    },
-    onError: (error) => {
-      console.error(error);
-      setScanState({
-        status: "error",
-        message: error.message || "Failed to check in user. Please try again.",
-      });
-    },
-  });
-  useEffect(() => {
-    // On page load, remutate any queued items
-    if (!hasProcessedInitialQueue.current && queuedItems.length > 0) {
-      hasProcessedInitialQueue.current = true;
-      queuedItems.forEach((item) => {
-        scannerMutation.mutate({ id: item.id, task: item.task });
-      });
-    }
-  }, [queuedItems]);
-
-  useEffect(() => {
-    if (scannedValue) {
-      const isValidCuid = z.cuid().safeParse(scannedValue).success;
-
-      if (!isValidCuid) {
-        setScanState({
-          status: "error",
-          message: "Invalid QR code format. Please scan a valid attendee pass.",
-        });
-        return;
-      }
-
-      if (!selectedStation) {
-        setScanState({
-          status: "error",
-          message: "Please select a station first.",
-        });
-        return;
-      }
-
-      setScanState({ status: "success" });
-      scannerMutation.mutate({
-        id: scannedValue,
-        task: selectedStation,
-      });
-
-      // add scanned item to offline queue for persistence
-      addToQueue({ id: scannedValue, task: selectedStation });
-    }
-  }, [scannedValue]);
-
   return (
     <>
       <Head>
         <title>QR Scanner - Deltahacks 12</title>
       </Head>
 
-      <Drawer
-        pageTabs={[
-          { pageName: "Dashboard", link: "/dashboard" },
-          { pageName: "Scanner", link: "/scanner" },
-        ]}
-      >
+      <Drawer pageTabs={pageTabs}>
         <main className="px-7 py-16 sm:px-14 lg:pl-20 2xl:pt-20">
           <div className="max-w-4xl">
             <h1 className="text-2xl font-bold mb-8 text-black dark:text-white">
@@ -156,7 +92,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
                 <div className="flex flex-col gap-3 max-w-md mx-auto">
                   {availableStations.checkIn && (
                     <button
-                      onClick={() => setSelectedStation("checkIn")}
+                      onClick={() => handleStationSelect("checkIn")}
                       className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
                     >
                       Check In
@@ -164,7 +100,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
                   )}
                   {availableStations.food && (
                     <button
-                      onClick={() => setSelectedStation("food")}
+                      onClick={() => handleStationSelect("food")}
                       className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
                     >
                       Food
@@ -172,7 +108,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
                   )}
                   {availableStations.events && (
                     <button
-                      onClick={() => setSelectedStation("events")}
+                      onClick={() => handleStationSelect("events")}
                       className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
                     >
                       Events
@@ -188,19 +124,13 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
                       Station:
                     </span>
                     <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
-                      {selectedStation === "checkIn"
-                        ? "Check In"
-                        : selectedStation === "food"
-                          ? "Food"
-                          : "Events"}
+                      {selectedStation === "checkIn" && "Check In"}
+                      {selectedStation === "food" && "Food"}
+                      {selectedStation === "events" && "Events"}
                     </span>
                   </div>
                   <button
-                    onClick={() => {
-                      setSelectedStation(null);
-                      setScannedValue(null);
-                      setScanState({ status: "idle" });
-                    }}
+                    onClick={clearScannerState}
                     className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
                   >
                     Change Station
@@ -216,12 +146,12 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
                           ? "border-green-500"
                           : scanState.status === "error"
                             ? "border-red-500"
-                            : "border-primary"
+                            : "border-primary",
                       )}
                     >
                       <Scanner
                         onScan={(result) => {
-                          setScannedValue(result[0]?.rawValue ?? null);
+                          handleScan(result[0]?.rawValue ?? null);
                         }}
                         onError={(error) => {
                           console.error(error);
@@ -280,7 +210,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<ScannerPageProps>> => {
   const session = await getServerAuthSession(context);
 

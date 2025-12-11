@@ -27,6 +27,19 @@ export const useOfflineQueue = () => {
   }, []);
 
   /**
+   * Clear all items from the offline queue
+   * Useful for logout/login scenarios on shared devices
+   */
+  const clearQueue = useCallback(() => {
+    try {
+      localStorage.removeItem(QUEUE_KEY);
+      setQueuedItems([]);
+    } catch {
+      // Handle localStorage errors silently
+    }
+  }, []);
+
+  /**
    * Add an item to the offline queue
    */
   const addToQueue = useCallback((item: QueueItem) => {
@@ -60,5 +73,6 @@ export const useOfflineQueue = () => {
     queuedItems,
     addToQueue,
     removeFromQueue,
+    clearQueue,
   };
 };

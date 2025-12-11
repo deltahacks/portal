@@ -3,10 +3,12 @@ import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import posthog from "posthog-js";
+import { useOfflineQueue } from "../hooks/useOfflineQueue";
 
 const NavBar = () => {
   const { data: session } = useSession();
   const router = useRouter();
+  const { clearQueue } = useOfflineQueue();
 
   return (
     <div className="mx-9 mt-5 flex flex-row items-center justify-between dark:text-white md:mx-10 md:mt-8">
@@ -43,6 +45,7 @@ const NavBar = () => {
             <button
               onClick={() => {
                 posthog.reset();
+                clearQueue(); // Clear offline queue on logout for shared devices
                 signOut();
               }}
               className="mx-2 rounded bg-primary px-5 py-2.5 font-inter text-sm font-bold text-white md:px-7"

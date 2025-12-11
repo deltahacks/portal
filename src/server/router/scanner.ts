@@ -8,13 +8,10 @@ export const scannerRouter = router({
     .input(
       z.object({
         id: z.cuid(),
-        task: z.enum(["checkIn", "food", "events"]),
-      })
+        task: z.enum(["checkIn", "food", "events"]), // Available tasks: checkIn (updates user status), food (meal tracking), events (event attendance)
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session.user.role.includes(Role.ADMIN)) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
       const user = await ctx.prisma.user.findFirst({
         where: { id: input.id },
       });
@@ -29,10 +26,10 @@ export const scannerRouter = router({
           });
           break;
         case "food":
-          // for food station we need entries to act as burning tokens. it should be an enum of 3-4 options for meals.
+          // TODO: Implement meal tracking - could track breakfast, lunch, dinner, snack as burning tokens
           break;
         case "events":
-          // for events station we need entries to act as burning tokens. it should be an enum of 3-4 options for events.
+          // TODO: Implement event attendance tracking - could track workshop, keynote, activity, social as burning tokens
           break;
       }
 
