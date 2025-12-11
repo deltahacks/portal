@@ -13,4 +13,3 @@ updates:
       - "arian81"
     ignore:
       - dependency-name: "passkit-generator"
-      
