@@ -61,6 +61,7 @@ const Accepted: React.FC = () => {
   });
 
   const [shareResume, setShareResume] = React.useState(false);
+  const [dietaryRestrictions, setDietaryRestrictions] = React.useState("");
   const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
 
   return (
@@ -73,7 +74,7 @@ const Accepted: React.FC = () => {
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         Deltahacks 12! Come hack for change and build something incredible with
-        hundreds of other hackers on January 11 - 12, 2025! To confirm that you
+        hundreds of other hackers on January 10 - 11, 2026! To confirm that you
         will be attending, please RSVP below.
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
@@ -130,13 +131,32 @@ const Accepted: React.FC = () => {
               Share my resume with sponsors
             </label>
           </div>
+          <div className="py-4">
+            <label
+              htmlFor="dietaryRestrictions"
+              className="block mb-2 font-normal dark:text-white"
+            >
+              Please describe dietary restrictions if any
+            </label>
+            <textarea
+              id="dietaryRestrictions"
+              value={dietaryRestrictions}
+              onChange={(e) => setDietaryRestrictions(e.target.value)}
+              className="w-full px-3 py-2 text-black dark:text-white bg-white dark:bg-[#2A2A2A] border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              rows={3}
+              placeholder="e.g., vegetarian, vegan, gluten-free, nut allergy..."
+            />
+          </div>
           <div className="modal-action">
             <form method="dialog">
               <div className="flex gap-5">
                 <button
                   className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
                   onClick={async () => {
-                    await doRsvp.mutateAsync({ rsvpCheck: shareResume });
+                    await doRsvp.mutateAsync({
+                      rsvpCheck: shareResume,
+                      dietaryRestrictions: dietaryRestrictions,
+                    });
                     rsvpDialogRef.current?.close();
                   }}
                 >
@@ -403,7 +423,7 @@ const RSVPed: React.FC = () => {
         <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
-            href="https://discord.gg/22ddpvfwXn"
+            href="https://discord.gg/m3GNs5ZW6h"
             target="_blank"
           >
             Discord
@@ -414,14 +434,15 @@ const RSVPed: React.FC = () => {
             Schedule
           </Link>
         </Button>
-        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+
+        {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="https://drive.google.com/file/d/1MzRExOJT-OasMVAaDxbvb1kTNmFzJ28E/view?usp=sharing"
           >
             Attendee Package
           </Link>
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
