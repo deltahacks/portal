@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import NavBar from "./NavBar";
 import Link from "next/link";
 import posthog from "posthog-js";
+import { useOfflineQueue } from "../hooks/useOfflineQueue";
 
 interface PageTab {
   pageName: string;
@@ -21,6 +22,7 @@ export const Drawer = ({
 }) => {
   const { data: session } = useSession();
   const router = useRouter();
+  const { clearQueue } = useOfflineQueue();
 
   const drawer = useRef<HTMLInputElement>(null);
 
@@ -89,6 +91,7 @@ export const Drawer = ({
                   <button
                     onClick={() => {
                       posthog.reset();
+                      clearQueue(); // Clear offline queue on logout for shared devices
                       signOut();
                     }}
                     className="font-sub rounded bg-primary px-2.5 py-2.5 text-sm font-bold text-white dark:text-gray-300"
