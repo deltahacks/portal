@@ -410,17 +410,17 @@ const RSVPed: React.FC = () => {
         </a>
       </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
-        <Button className="btn rainbow-border border-4 rounded-sm w-full mb-4 md:w-48 hover:bg-zinc-700 text-base font-medium capitalize">
+        {/* <Button className="btn rainbow-border border-4 rounded-sm w-full mb-4 md:w-48 hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48 " href="/profile">
             Check-In QR Code
           </Link>
-        </Button>
+        </Button> */}
         <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
-        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="https://discord.gg/m3GNs5ZW6h"
@@ -428,7 +428,7 @@ const RSVPed: React.FC = () => {
           >
             Discord
           </Link>
-        </Button>
+        </Button> */}
         <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
