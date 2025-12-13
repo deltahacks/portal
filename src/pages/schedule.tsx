@@ -1,8 +1,15 @@
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
+  NextPage,
+} from "next";
 import React, { useState } from "react";
 import Scheduler, { Editing, Resource } from "devextreme-react/scheduler";
 import Drawer from "../components/Drawer";
 import CustomStore from "devextreme/data/custom_store";
+import { Role } from "@prisma/client";
+import { rbac } from "../components/RBACWrapper";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 
 import "devextreme/dist/css/dx.dark.css";
 
@@ -229,11 +236,21 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   // For disabling this page temporarily
   // return { redirect: { destination: "/", permanent: false } };
 
+  let output: GetServerSidePropsResult<Record<string, unknown>> = {
+    props: {},
+  };
+
+  // Restrict access to admin users only
+  output = rbac(
+    await getServerAuthSession(ctx),
+    [Role.ADMIN],
+    "/dashboard", // redirect non-admin users to dashboard
+    output,
+  );
+
   ctx.res.setHeader("Netlify-Vary", "cookie=next-auth.session-token");
   ctx.res.setHeader("Cache-Control", "public, max-age=7200");
 
   // just return the page but with cache headers
-  return {
-    props: {},
-  };
+  return output;
 }
