@@ -5,7 +5,7 @@ const Background = ({ className }: { className?: string }) => {
     <div
       className={cn(
         "absolute inset-0 -z-10 h-full w-full overflow-hidden bg-[#eaeaea] dark:bg-[#171717]",
-        className
+        className,
       )}
     >
       {/* <img

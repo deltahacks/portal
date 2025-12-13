@@ -5,7 +5,7 @@ const parseColumn = (
   tsv: string[][],
   schedule: Map<number, SchedulerDay>,
   dayCol: number,
-  col: number
+  col: number,
 ) => {
   let prevEvent = { event: "", row: -1 };
 

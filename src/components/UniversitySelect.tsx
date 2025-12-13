@@ -12,7 +12,7 @@ const universitiesSchema = z.array(
     name: z.string(),
     web_pages: z.array(z.string()),
     "state-province": z.string().nullable(),
-  })
+  }),
 );
 
 const universitySchema = z.object({
@@ -42,7 +42,7 @@ function getOptions(query: string) {
   return new Promise<ApplicantUniversity[]>((resolve, reject) => {
     fetch(
       //   `https://corsproxy.io/?http://universities.hipolabs.com/search?name=${query}&limit=5`
-      `http://universities.hipolabs.com/search?name=${query}&limit=5`
+      `http://universities.hipolabs.com/search?name=${query}&limit=5`,
     )
       .then((response) => response.json())
       .then((data) => {
@@ -58,7 +58,7 @@ function getOptions(query: string) {
             //   : { name: university.name, location: university.country },
             value: university.name,
             label: university.name,
-          })
+          }),
         );
         resolve(universities);
       })
