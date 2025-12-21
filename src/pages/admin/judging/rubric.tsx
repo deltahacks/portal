@@ -123,7 +123,7 @@ const RubricPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Rubric Management - DeltaHacks XI</title>
+        <title>Rubric Management - Deltahacks 12</title>
       </Head>
 
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">

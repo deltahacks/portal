@@ -157,7 +157,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks XI</title>
+        <title>Dashboard - Deltahacks 12</title>
       </Head>
       <Drawer
         pageTabs={[
@@ -168,14 +168,14 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
         <main className="px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-8">
           <section>
             <h1 className="font-bold text-2xl dark:text-white mb-2">
-              {user?.DH11Application?.firstName}{" "}
-              {user?.DH11Application?.lastName}
+              {user?.DH12Application?.firstName}{" "}
+              {user?.DH12Application?.lastName}
             </h1>
             <div className="mb-4">
-              {user?.DH11Application?.studyYearOfStudy}{" "}
-              {user?.DH11Application?.studyDegree} <br />
-              {user?.DH11Application?.studyMajor} <br />
-              {user?.DH11Application?.studyLocation}
+              {user?.DH12Application?.studyYearOfStudy}{" "}
+              {user?.DH12Application?.studyDegree} <br />
+              {user?.DH12Application?.studyMajor} <br />
+              {user?.DH12Application?.studyLocation}
             </div>
             {!showCode ? (
               <>
@@ -183,7 +183,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   Socials
                 </h2>
                 <ul className="flex flex-col gap-2 mb-4">
-                  {user?.DH11Application?.socialText.map((socialText, i) => {
+                  {user?.DH12Application?.socialText.map((socialText, i) => {
                     return (
                       <li
                         key={i}
@@ -319,11 +319,11 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   onClick={() => {
                     checkInMutation.mutate(qrCodeId);
                   }}
-                  disabled={user?.DH11Application?.status === "CHECKED_IN"}
+                  disabled={user?.DH12Application?.status === "CHECKED_IN"}
                 >
                   {checkInMutation.isPending ? (
                     <span className="animate-spin">⌛</span>
-                  ) : user?.DH11Application?.status === "CHECKED_IN" ? (
+                  ) : user?.DH12Application?.status === "CHECKED_IN" ? (
                     "Already Checked In"
                   ) : (
                     "Check In"

@@ -61,6 +61,7 @@ const Accepted: React.FC = () => {
   });
 
   const [shareResume, setShareResume] = React.useState(false);
+  const [dietaryRestrictions, setDietaryRestrictions] = React.useState("");
   const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
 
   return (
@@ -68,12 +69,12 @@ const Accepted: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey{" "}
         <span className="capitalize">{session ? session.user?.name : ""}</span>,
-        we can{"'"}t wait to see you at DeltaHacks XI!
+        we can{"'"}t wait to see you at Deltahacks 12!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
-        DeltaHacks XI! Come hack for change and build something incredible with
-        hundreds of other hackers on January 11 - 12, 2025! To confirm that you
+        Deltahacks 12! Come hack for change and build something incredible with
+        hundreds of other hackers on January 10 - 11, 2026! To confirm that you
         will be attending, please RSVP below.
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
@@ -98,7 +99,7 @@ const Accepted: React.FC = () => {
           RSVP
         </Button>
         <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
@@ -130,13 +131,32 @@ const Accepted: React.FC = () => {
               Share my resume with sponsors
             </label>
           </div>
+          <div className="py-4">
+            <label
+              htmlFor="dietaryRestrictions"
+              className="block mb-2 font-normal dark:text-white"
+            >
+              Please describe dietary restrictions if any
+            </label>
+            <textarea
+              id="dietaryRestrictions"
+              value={dietaryRestrictions}
+              onChange={(e) => setDietaryRestrictions(e.target.value)}
+              className="w-full px-3 py-2 text-black dark:text-white bg-white dark:bg-[#2A2A2A] border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              rows={3}
+              placeholder="e.g., vegetarian, vegan, gluten-free, nut allergy..."
+            />
+          </div>
           <div className="modal-action">
             <form method="dialog">
               <div className="flex gap-5">
                 <button
                   className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
                   onClick={async () => {
-                    await doRsvp.mutateAsync({ rsvpCheck: shareResume });
+                    await doRsvp.mutateAsync({
+                      rsvpCheck: shareResume,
+                      dietaryRestrictions: dietaryRestrictions,
+                    });
                     rsvpDialogRef.current?.close();
                   }}
                 >
@@ -172,7 +192,7 @@ const Accepted: React.FC = () => {
           RSVP
         </button>
 
-        <Link href="https://deltahacks.com/#FAQ">
+        <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -191,7 +211,7 @@ const Rejected: React.FC = () => {
         <span className="capitalize">
           {session ? `${session.user?.name}` : ""}
         </span>
-        , thank you for submitting your application to DeltaHacks XI.
+        , thank you for submitting your application to Deltahacks 12.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
@@ -209,7 +229,7 @@ const Rejected: React.FC = () => {
       </div>
       <div className="pt-6">
         <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
@@ -245,7 +265,7 @@ const Waitlisted: React.FC = () => {
       </div>
       <div className="pt-6">
         <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
@@ -334,7 +354,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
             </div>
           </dialog>
           <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-            <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+            <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
               FAQ
             </Link>
           </Button>
@@ -342,7 +362,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
       ) : (
         <div className="mt-5">
           <Button className="btn w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-            <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+            <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
               FAQ
             </Link>
           </Button>
@@ -365,7 +385,7 @@ const RSVPed: React.FC = () => {
       </h1>
 
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We are pleased to inform you that your registration for DeltaHacks XI
+        We are pleased to inform you that your registration for Deltahacks 12
         has been confirmed. Please look for an Attendee Package in your email
         with important information about the event in the coming days.
         Registration will take place at{" "}
@@ -390,38 +410,39 @@ const RSVPed: React.FC = () => {
         </a>
       </div>
       <div className="t-6 flex flex-col md:flex-row flex-wrap gap-6 pb-24 pt-6">
-        <Button className="btn rainbow-border border-4 rounded-sm w-full mb-4 md:w-48 hover:bg-zinc-700 text-base font-medium capitalize">
+        {/* <Button className="btn rainbow-border border-4 rounded-sm w-full mb-4 md:w-48 hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48 " href="/profile">
             Check-In QR Code
           </Link>
-        </Button>
+        </Button> */}
         <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
-          <Link className="w-full md:w-48" href="https://deltahacks.com/#FAQ">
+          <Link className="w-full md:w-48" href="https://deltahacks.com/#faq">
             FAQ
           </Link>
         </Button>
-        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
-            href="https://discord.gg/22ddpvfwXn"
+            href="https://discord.gg/m3GNs5ZW6h"
             target="_blank"
           >
             Discord
           </Link>
-        </Button>
+        </Button> */}
         <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
         </Button>
-        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+
+        {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
             href="https://drive.google.com/file/d/1MzRExOJT-OasMVAaDxbvb1kTNmFzJ28E/view?usp=sharing"
           >
             Attendee Package
           </Link>
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
@@ -475,7 +496,7 @@ const WalkIns: React.FC = () => {
         link your QR code. Happy hacking!
       </h2>
       <div className="flex flex-wrap  gap-6 pt-6 ">
-        <Link href="https://deltahacks.com/#FAQ">
+        <Link href="https://deltahacks.com/#faq">
           <button className="btn btn-primary w-48 border-none bg-zinc-700 text-base font-medium capitalize hover:bg-zinc-800">
             FAQ
           </button>
@@ -511,7 +532,7 @@ const Dashboard: NextPage<
   return (
     <>
       <Head>
-        <title>Dashboard - DeltaHacks XI</title>
+        <title>Dashboard - Deltahacks 12</title>
       </Head>
       <Drawer
         pageTabs={[
@@ -541,7 +562,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH11Application: true },
+    include: { DH12Application: true },
   });
   const killedStr = await prisma.config.findFirst({
     where: { name: "killApplications" },
@@ -556,10 +577,10 @@ export const getServerSideProps = async (
   }
 
   // If submitted then do nothing
-  if (userEntry && userEntry.DH11Application !== null) {
+  if (userEntry && userEntry.DH12Application !== null) {
     return {
       props: {
-        status: userEntry.DH11Application.status,
+        status: userEntry.DH12Application.status,
         killed: killed,
       },
     };

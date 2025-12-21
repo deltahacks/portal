@@ -483,7 +483,7 @@ const Scanner: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Check In - DeltaHacks XI</title>
+        <title>Check In - Deltahacks 12</title>
       </Head>
       <Drawer pageTabs={[{ pageName: "Dashboard", link: "/dashboard" }]}>
         <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">

@@ -7,6 +7,7 @@ import {
 import { Button } from "./Button";
 import FormDivider from "./FormDivider";
 import { useSession } from "next-auth/react";
+import { Role } from "@prisma/client";
 
 interface FormInputProps {
   label: string;
@@ -102,6 +103,16 @@ const ApplicationContent = ({
 }: {
   applicationData: ApplicationSchemaWithStringDates;
 }) => {
+  const { data: resumeUrl } = trpc.file.getDownloadUrl.useQuery(
+    {
+      key: data?.linkToResume ?? "",
+    },
+    {
+      enabled: !!data?.linkToResume,
+    },
+  );
+  const { data: session } = useSession();
+
   return (
     <>
       <FormDivider label="Personal Information" />
@@ -114,12 +125,30 @@ const ApplicationContent = ({
         <FormInput label="Last Name" text={data?.lastName} placeholder="Doe" />
       </div>
       <FormInput id="birthday" label="Birthday" text={data?.birthday} />
-      <FormInput
-        label="Link to Resume"
-        text={data?.linkToResume}
-        placeholder="https://example.com/resume.pdf"
-        optional
-      />
+      {resumeUrl?.url && (
+        <div className="flex flex-col gap-2 pb-4">
+          <label className="text-black dark:text-white">
+            <a
+              href={resumeUrl.url}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Resume Preview 🔗
+            </a>
+          </label>
+          <div className="w-full h-[600px] border rounded-lg overflow-hidden bg-white border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800">
+            <iframe
+              width="100%"
+              height="100%"
+              loading="lazy"
+              src={resumeUrl.url}
+              className="border-0"
+              title="Resume Preview"
+            />
+          </div>
+        </div>
+      )}
       {/* add phone number and country */}
       <FormInput
         label="Phone Number"
@@ -173,24 +202,24 @@ const ApplicationContent = ({
       />
       <FormDivider label="Long Answer" />
       <FormTextArea
-        id="longAnswerIncident"
-        label="Describe an incident that reshaped your approach to teamwork, leadership, or maintaining a positive outlook"
-        text={data?.longAnswerIncident}
+        id="longAnswerHobby"
+        label="If you could instantly master any hobby, what would it be and why?"
+        text={data?.longAnswerHobby}
       />
       <FormTextArea
-        id="longAnswerGoals"
-        label="How will you make the most out of your experience at DeltaHacks 11, and how will attending the event help you achieve your long-term goals?"
-        text={data?.longAnswerGoals}
+        id="longAnswerWhy"
+        label="Why do you want to be a part of DeltaHacks 12?"
+        text={data?.longAnswerWhy}
       />
       <FormTextArea
-        id="longAnswerFood"
-        label="What's your go-to comfort food?"
-        text={data?.longAnswerFood}
+        id="longAnswerTime"
+        label="Talk about a topic that can make you lose track of time, why does it captivate you?"
+        text={data?.longAnswerTime}
       />
       <FormTextArea
-        id="longAnswerTravel"
-        label="If you could travel anywhere in the universe, where would you go and why?"
-        text={data?.longAnswerTravel}
+        id="longAnswerSkill"
+        label="Describe a situation where you had to quickly learn a new skill or technology to solve a problem. What was your approach and what did you learn from it?"
+        text={data?.longAnswerSkill}
       />
       <FormTextArea
         id="longAnswerSocratica"
@@ -234,61 +263,32 @@ const ApplicationContent = ({
         label="How did you hear about DeltaHacks?"
         text={data?.discoverdFrom.join(", ")}
       />
-      <FormCheckbox
-        id="alreadyHaveTeam"
-        label="Do you already have a team?"
-        checked={data?.alreadyHaveTeam}
-        readOnly
-      />
-      <FormCheckbox
-        id="considerCoffee"
-        label="Would you like to be considered for a coffee chat with a sponsor?"
-        checked={data?.considerCoffee}
-        readOnly
-      />
-      <FormDivider label="Emergency Contact" />
-      <div className="flex flex-col md:flex-row md:items-end md:gap-4">
-        <FormInput
-          id="emergencyContactName"
-          label="Name of Emergency Contact"
-          placeholder="James Doe"
-          text={data?.emergencyContactName}
-        />
-        <FormInput
-          id="emergencyContactRelation"
-          label="Relation to Emergency Contact"
-          placeholder="Parent / Guardian / Friend / Spouse"
-          text={data?.emergencyContactRelation}
-        />
-      </div>
-      <FormInput
-        id="emergencyContactPhone"
-        label="Emergency Contact Phone Number"
-        placeholder="000-000-0000"
-        text={data?.emergencyContactPhone}
-      />
-      <FormDivider label="MLH Consent" />
-      <FormCheckbox
-        id="agreeToMLHCodeOfConduct"
-        label="Agree to MLH Code of Conduct"
-        link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
-        checked={data?.agreeToMLHCodeOfConduct}
-        readOnly
-      />
-      <FormCheckbox
-        id="agreeToMLHPrivacyPolicy"
-        label="Agree to MLH Privacy Policy"
-        link="https://mlh.io/privacy"
-        checked={data?.agreeToMLHPrivacyPolicy}
-        readOnly
-      />
-      <FormCheckbox
-        id="agreeToMLHCommunications"
-        label="Agree to MLH Communications"
-        checked={data?.agreeToMLHCommunications}
-        optional
-        readOnly
-      />
+
+      {session?.user?.role.includes(Role.ADMIN) && (
+        <>
+          <FormDivider label="Emergency Contact" />
+          <div className="flex flex-col md:flex-row md:items-end md:gap-4">
+            <FormInput
+              id="emergencyContactName"
+              label="Name of Emergency Contact"
+              placeholder="James Doe"
+              text={data?.emergencyContactName}
+            />
+            <FormInput
+              id="emergencyContactRelation"
+              label="Relation to Emergency Contact"
+              placeholder="Parent / Guardian / Friend / Spouse"
+              text={data?.emergencyContactRelation}
+            />
+          </div>
+          <FormInput
+            id="emergencyContactPhone"
+            label="Emergency Contact Phone Number"
+            placeholder="000-000-0000"
+            text={data?.emergencyContactPhone}
+          />
+        </>
+      )}
     </>
   );
 };
@@ -324,7 +324,7 @@ const ReviewForm = ({
 
     try {
       await submitScore.mutateAsync({
-        applicationId: applicationForReview.DH11ApplicationId,
+        applicationId: applicationForReview.DH12ApplicationId,
         score: scoreValue,
         comment: comments,
       });
@@ -410,13 +410,14 @@ const ApplicationPopupButton = ({
 
   const { data: session } = useSession();
   const isAdmin = session?.user?.role?.includes?.("ADMIN") ?? false;
+  const isReviewer = session?.user?.role?.includes?.("REVIEWER") ?? false;
 
   const {
     data: applicationData,
     isPending: applicationIsLoading,
     error: applicationError,
   } = trpc.reviewer.getApplication.useQuery({
-    dh11ApplicationId: applicationForReview.DH11ApplicationId,
+    dh12ApplicationId: applicationForReview.DH12ApplicationId,
   });
 
   return (
@@ -453,11 +454,12 @@ const ApplicationPopupButton = ({
                 </div>
                 <div className="w-[1px] bg-zinc-700 my-4" />
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
-                  {applicationData?.hasReviewed || isAdmin ? (
+                  {(isAdmin || applicationData?.hasReviewed) && (
                     <ReviewScores
-                      applicationId={applicationForReview.DH11ApplicationId}
+                      applicationId={applicationForReview.DH12ApplicationId}
                     />
-                  ) : (
+                  )}
+                  {isReviewer && !applicationData?.hasReviewed && (
                     <ReviewForm applicationForReview={applicationForReview} />
                   )}
                 </div>

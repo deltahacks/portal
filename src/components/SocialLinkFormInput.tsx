@@ -40,8 +40,12 @@ const SocialLinksFormInput: React.FC<SocialLinksFormInputProps> = ({
   return (
     <div className="flex flex-col gap-4 pb-8">
       <label className="text-black dark:text-white" htmlFor="socialTextInput">
-        Social Media Links
+        Social Media Links{" "}
+        <span className="text-neutral-500 dark:text-neutral-400">
+          (Optional)
+        </span>
       </label>
+
       {socialPlatforms.map((platform, index) => (
         <div className="flex flex-row gap-4 items-center " key={index}>
           <platform.icon className="h-8 w-8" />
