@@ -29,13 +29,19 @@ const FormInput = <T extends FieldValues>({
 }: FormInputProps<T> & React.HTMLProps<HTMLInputElement>) => {
   return (
     <div className="flex flex-col flex-1 gap-2 pb-4">
-      <label className="text-black dark:text-white" htmlFor={id}>
-        {label}{" "}
-        {optional && (
-          <span className="text-neutral-500 dark:text-neutral-400">
-            (Optional)
-          </span>
-        )}
+      <label
+        className="flex justify-between items-center text-black dark:text-white"
+        htmlFor={id}
+      >
+        <span>
+          {label}{" "}
+          {optional && (
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Optional)
+            </span>
+          )}
+        </span>
+        {errors && <span className="text-error text-sm">{errors.message}</span>}
       </label>
       <input
         className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
@@ -44,7 +50,6 @@ const FormInput = <T extends FieldValues>({
         {...register(id)}
         {...props}
       />
-      {errors && <span className="text-error">{errors.message}</span>}
     </div>
   );
 };

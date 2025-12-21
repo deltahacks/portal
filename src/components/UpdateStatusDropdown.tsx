@@ -12,11 +12,11 @@ import { cn } from "../utils/mergeTailwind";
 import { useSession } from "next-auth/react";
 
 const UpdateStatusDropdown = ({
-  dh11ApplicationId,
+  dh12ApplicationId,
   className,
   position,
 }: {
-  dh11ApplicationId: string;
+  dh12ApplicationId: string;
   className?: string;
   position?: string;
 }) => {
@@ -24,10 +24,10 @@ const UpdateStatusDropdown = ({
   const isAdmin = session?.user?.role?.includes?.("ADMIN") ?? false;
 
   const utils = trpc.useUtils();
-  const { data } = trpc.reviewer.getStatus.useQuery({ dh11ApplicationId });
+  const { data } = trpc.reviewer.getStatus.useQuery({ dh12ApplicationId });
   const updateStatus = trpc.reviewer.updateStatus.useMutation({
     onSettled() {
-      utils.reviewer.getStatus.invalidate({ dh11ApplicationId });
+      utils.reviewer.getStatus.invalidate({ dh12ApplicationId });
       utils.application.getStatusCount.invalidate();
     },
   });
@@ -38,7 +38,7 @@ const UpdateStatusDropdown = ({
   const handleUpdateStatus = async (status: Status) => {
     try {
       await updateStatus.mutateAsync({
-        dh11ApplicationId,
+        dh12ApplicationId,
         status,
       });
     } catch (e) {

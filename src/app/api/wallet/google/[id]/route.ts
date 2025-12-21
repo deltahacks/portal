@@ -12,11 +12,11 @@ export async function GET(
 ) {
   const userId = (await params).id;
 
-  if (!env.GOOGLE_WALLET_ISSUER_ID || !env.GOOGLE_WALLET_CLASS_ID) {
-    return new Response("Google wallet issuer ID or class ID is not set", {
-      status: 500,
-    });
-  }
+  // if (!env.GOOGLE_WALLET_ISSUER_ID || !env.GOOGLE_WALLET_CLASS_ID) {
+  //   return new Response("Google wallet issuer ID or class ID is not set", {
+  //     status: 500,
+  //   });
+  // }
 
   const user = await prisma.user.findFirst({
     where: {
@@ -39,6 +39,7 @@ export async function GET(
     classExists = true;
   } catch (err: any) {
     if (!err.response || err.response.status !== 404) {
+      console.error(err);
       return new Response("Error checking event ticket class", { status: 500 });
     }
   }
@@ -134,9 +135,8 @@ export async function GET(
 }
 
 const auth = new google.auth.GoogleAuth({
-  // scans for this file in the project root
-  keyFile: env.GOOGLE_WALLET_SERVICE_KEY_FILE,
-  scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
+  credentials: JSON.parse(env.GOOGLE_WALLET_SERVICE_KEY_JSON),
+  scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"]
 });
 
 const client = google.walletobjects({
@@ -160,7 +160,7 @@ function createClass(
       contentDescription: {
         defaultValue: {
           language: "en-US",
-          value: "DeltaHacks XII Logo",
+          value: "DeltaHacks 12 Logo",
         },
       },
     },
@@ -169,10 +169,10 @@ function createClass(
     eventName: {
       defaultValue: {
         language: "en-US",
-        value: "DeltaHacks XII",
+        value: "DeltaHacks 12",
       },
     },
-    eventId: "deltahacks-xii",
+    eventId: "deltahacks-12",
     venue: {
       name: {
         defaultValue: {
@@ -188,9 +188,9 @@ function createClass(
       },
     },
     dateTime: {
-      doorsOpen: "2026-01-11T13:00:00Z",
-      start: "2026-01-11T13:00:00Z",
-      end: "2026-01-13T23:00:00Z",
+      doorsOpen: "2026-01-10T08:00:00.000Z",
+      start: "2026-01-10T08:00:00.000Z",
+      end: "2026-01-11T18:00:00.000Z",
     },
     locations: [
       {

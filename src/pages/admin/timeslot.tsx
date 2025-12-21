@@ -283,7 +283,7 @@ const TimeSlotPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Project Timeline - DeltaHacks XI</title>
+        <title>Project Timeline - Deltahacks 12</title>
       </Head>
 
       <div className="drawer drawer-end relative h-full min-h-screen w-full overflow-x-hidden font-montserrat">

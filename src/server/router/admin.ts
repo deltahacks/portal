@@ -45,7 +45,7 @@ export const adminRouter = router({
     });
 
     return {
-      dhYear: configs.find((c) => c.name === "dhYear")?.value || "DH11",
+      dhYear: configs.find((c) => c.name === "dhYear")?.value || "DH12",
       killApplications: JSON.parse(
         configs.find((c) => c.name === "killApplications")?.value || "false",
       ),
