@@ -47,9 +47,9 @@ export const serverSchema = z.object({
   // APPLE_SIGNER_KEY: z.string(),
   // APPLE_SIGNER_KEY_PASSPHRASE: z.string(),
 
-  GOOGLE_WALLET_ISSUER_ID: z.string().optional(),
-  GOOGLE_WALLET_CLASS_ID: z.string().optional(),
-  GOOGLE_WALLET_SERVICE_KEY_FILE: z.string().optional(),
+  GOOGLE_WALLET_ISSUER_ID: z.string(),
+  GOOGLE_WALLET_CLASS_ID: z.string(),
+  GOOGLE_WALLET_SERVICE_KEY_JSON: z.string(),
 });
 
 /**

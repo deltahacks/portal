@@ -12,11 +12,11 @@ export async function GET(
 ) {
   const userId = (await params).id;
 
-  if (!env.GOOGLE_WALLET_ISSUER_ID || !env.GOOGLE_WALLET_CLASS_ID) {
-    return new Response("Google wallet issuer ID or class ID is not set", {
-      status: 500,
-    });
-  }
+  // if (!env.GOOGLE_WALLET_ISSUER_ID || !env.GOOGLE_WALLET_CLASS_ID) {
+  //   return new Response("Google wallet issuer ID or class ID is not set", {
+  //     status: 500,
+  //   });
+  // }
 
   const user = await prisma?.user.findFirst({
     where: {
@@ -136,10 +136,8 @@ export async function GET(
 }
 
 const auth = new google.auth.GoogleAuth({
-  // scans for this file in the project root
-  keyFile:
-    env.GOOGLE_WALLET_SERVICE_KEY_FILE ?? "google-wallet-service-key.json",
-  scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
+  credentials: JSON.parse(env.GOOGLE_WALLET_SERVICE_KEY_JSON),
+  scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"]
 });
 
 const client = google.walletobjects({
