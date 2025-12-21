@@ -191,9 +191,9 @@ function createClass(
       },
     },
     dateTime: {
-      doorsOpen: "2026-01-10T08:00Z",
-      start: "2026-01-10T08:00Z",
-      end: "2026-01-11T18:00Z",
+      doorsOpen: "2026-01-10T08:00:00.000Z",
+      start: "2026-01-10T08:00:00.000Z",
+      end: "2026-01-11T18:00:00.000Z",
     },
     locations: [
       {
