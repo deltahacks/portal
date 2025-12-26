@@ -18,7 +18,7 @@ import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
 // This causes massive fps drop.
 const highlightCodeOnCanvas = (
   detectedCodes: IDetectedBarcode[],
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   const canvas = ctx.canvas;
 
@@ -35,7 +35,7 @@ const highlightCodeOnCanvas = (
       Math.max(0, boundingBox.x - padding),
       Math.max(0, boundingBox.y - padding),
       boundingBox.width + padding * 2,
-      boundingBox.height + padding * 2
+      boundingBox.height + padding * 2,
     );
   });
   ctx.restore();
@@ -67,7 +67,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
       userRoles.includes(Role.ADMIN) || userRoles.includes(Role.EVENT_MANAGER),
   };
 
-  // canner persistence works by adding any scanned qr code to the offline queue and removing them
+  // scanner persistence works by adding any scanned qr code to the offline queue and removing them
   // only when the mutaiton is succesful. This is because tanstack already retries failed mutation until success.
   // Saving in the local storage is only for persistence across page reloads.
   const scannerMutation = trpc.scanner.scan.useMutation({
@@ -216,7 +216,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
                           ? "border-green-500"
                           : scanState.status === "error"
                             ? "border-red-500"
-                            : "border-primary"
+                            : "border-primary",
                       )}
                     >
                       <Scanner
@@ -280,7 +280,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<ScannerPageProps>> => {
   const session = await getServerAuthSession(context);
 
