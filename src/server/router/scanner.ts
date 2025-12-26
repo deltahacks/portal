@@ -9,7 +9,7 @@ export const scannerRouter = router({
       z.object({
         id: z.cuid(),
         task: z.enum(["checkIn", "food", "events"]),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
