@@ -78,7 +78,7 @@ export const applicationRouter = router({
       z.object({
         rsvpCheck: z.boolean(),
         dietaryRestrictions: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma?.user.findFirst({
