@@ -8,7 +8,7 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import Drawer from "../components/Drawer";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { Role } from "@prisma/client";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import clsx from "clsx";
 import { trpc } from "../utils/trpc";
 import { useOfflineQueue } from "../hooks/useOfflineQueue";
@@ -141,11 +141,33 @@ const StationConfigSelection: React.FC<{
 const ScannerUI: React.FC<{
   station: Station;
   scanState: ScanState;
-  scannedValue: string | null;
-  onScan: (value: string | null) => void;
+  onScan: (value: string) => void;
   onError: (message: string) => void;
   onReset: () => void;
-}> = ({ station, scanState, scannedValue, onScan, onError, onReset }) => {
+  scannedValue: string | null;
+}> = ({ station, scanState, onScan, onError, onReset, scannedValue }) => {
+  const lastScannedRef = useRef<string | null>(null);
+
+  const handleScan = useCallback(
+    (result: { rawValue: string }[]) => {
+      const value = result[0]?.rawValue;
+      // need to deduplicate scans since scanner keeps firing and would cause 100% CPU usage
+      if (value && value !== lastScannedRef.current) {
+        lastScannedRef.current = value;
+        onScan(value);
+      }
+    },
+    [onScan]
+  );
+
+  const handleError = useCallback(
+    (error: unknown) => {
+      console.error(error);
+      onError("Camera error. Please try again.");
+    },
+    [onError]
+  );
+
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
@@ -178,13 +200,8 @@ const ScannerUI: React.FC<{
             )}
           >
             <Scanner
-              onScan={(result) => {
-                onScan(result[0]?.rawValue ?? null);
-              }}
-              onError={(error) => {
-                console.error(error);
-                onError("Camera error. Please try again.");
-              }}
+              onScan={handleScan}
+              onError={handleError}
               sound={false}
               constraints={{
                 facingMode: "environment",
@@ -207,7 +224,7 @@ const ScannerUI: React.FC<{
 
           {scanState.status === "success" && (
             <p className="mt-4 text-green-600 dark:text-green-400 text-center font-medium">
-              ✓ Check-in successful!
+              ✓ Scan successful!
             </p>
           )}
 
@@ -257,7 +274,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
   // Saving in the local storage is only for persistence across page reloads.
   const scannerMutation = trpc.scanner.scan.useMutation({
     onSuccess: (data) => {
-      setScanState({ status: "idle" });
+      // setScanState({ status: "idle" });
       // remove succesfully mutated ids from offline queue
       if (data?.id) {
         removeFromQueue(data.id);
@@ -265,10 +282,11 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
     },
     onError: (error) => {
       console.error(error);
-      setScanState({
-        status: "error",
-        message: error.message || "Failed to check in user. Please try again.",
-      });
+      // setScanState({ status: "idle" });
+      // setScanState({
+      //   status: "error",
+      //   message: error.message || "Failed to check in user. Please try again.",
+      // });
     },
   });
 
@@ -304,11 +322,15 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
     }
   }, [scannedValue]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     dispatch({ type: "RESET" });
     setScannedValue(null);
     setScanState({ status: "idle" });
-  };
+  }, []);
+
+  const handleScanError = useCallback((message: string) => {
+    setScanState({ status: "error", message });
+  }, []);
 
   const renderWizardStep = () => {
     switch (wizard.step) {
@@ -337,10 +359,10 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
           <ScannerUI
             station={wizard.station.name}
             scanState={scanState}
-            scannedValue={scannedValue}
             onScan={setScannedValue}
-            onError={(message) => setScanState({ status: "error", message })}
+            onError={handleScanError}
             onReset={handleReset}
+            scannedValue={scannedValue}
           />
         ) : null;
     }
