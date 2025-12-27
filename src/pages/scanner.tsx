@@ -8,53 +8,238 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import Drawer from "../components/Drawer";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { Role } from "@prisma/client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import clsx from "clsx";
 import { trpc } from "../utils/trpc";
 import { useOfflineQueue } from "../hooks/useOfflineQueue";
 import { z } from "zod";
-import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
+import { Input } from "../components/Input";
+import {
+  type Station,
+  type WizardState,
+  type WizardAction,
+  type ScannerQueueItem,
+  type ScanState,
+  stationOptionsMap,
+  initialWizardState,
+  stationLabels,
+} from "../schemas/scanner";
 
-// This causes massive fps drop.
-const highlightCodeOnCanvas = (
-  detectedCodes: IDetectedBarcode[],
-  ctx: CanvasRenderingContext2D,
-) => {
-  const canvas = ctx.canvas;
+function wizardReducer(state: WizardState, action: WizardAction): WizardState {
+  switch (action.type) {
+    case "SELECT_STATION": {
+      const options = stationOptionsMap[action.station];
+      const hasOptions = options.length > 0;
+      return {
+        step: hasOptions ? "selectingOption" : "ready",
+        station: {
+          name: action.station,
+          type: hasOptions ? "" : action.station,
+        },
+      };
+    }
+    case "SELECT_OPTION":
+      if (!state.station) return state;
+      return {
+        ...state,
+        step: "ready",
+        station: { name: state.station.name, type: action.option },
+      };
+    case "RESET":
+      return initialWizardState;
+    default:
+      return state;
+  }
+}
 
-  // darken the canvas
-  ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Cut out around detected codes to create a spotlight effect
-  ctx.globalCompositeOperation = "destination-out";
-  const padding = 8;
-  detectedCodes.forEach(({ boundingBox }) => {
-    ctx.fillRect(
-      Math.max(0, boundingBox.x - padding),
-      Math.max(0, boundingBox.y - padding),
-      boundingBox.width + padding * 2,
-      boundingBox.height + padding * 2,
-    );
-  });
-  ctx.restore();
+const StationSelection: React.FC<{
+  stations: { checkIn: boolean; food: boolean; events: boolean };
+  changeStation: (station: Station) => void;
+}> = ({ stations, changeStation }) => {
+  return (
+    <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
+      <h2 className="text-xl font-semibold mb-4 text-black dark:text-white text-center">
+        Select Station
+      </h2>
+      <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center mb-6">
+        Choose which station you are scanning for.
+      </p>
+      <div className="flex flex-col gap-3 max-w-md mx-auto">
+        {stations.checkIn && (
+          <button
+            onClick={() => changeStation("checkIn")}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          >
+            Check In
+          </button>
+        )}
+        {stations.food && (
+          <button
+            onClick={() => changeStation("food")}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          >
+            Food
+          </button>
+        )}
+        {stations.events && (
+          <button
+            onClick={() => changeStation("events")}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          >
+            Events
+          </button>
+        )}
+      </div>
+    </div>
+  );
 };
 
-type Station = "checkIn" | "food" | "events";
+const StationConfigSelection: React.FC<{
+  station: Station;
+  options: string[];
+  changeStationOption: (option: string) => void;
+  onBack: () => void;
+}> = ({ station, options, changeStationOption, onBack }) => {
+  const [search, setSearch] = useState("");
+  const filteredOptions = options.filter((option) =>
+    option.toLowerCase().includes(search.toLowerCase())
+  );
+  return (
+    <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onBack}
+          className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+        >
+          ← Back
+        </button>
+      </div>
+      <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
+        {station === "food" && "Which meal are you serving?"}
+        {station === "events" && "Which event are you scanning for?"}
+      </p>
+      <Input
+        placeholder="Search for an option"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <div className="flex flex-col gap-3 ">
+        {filteredOptions.map((option) => (
+          <button
+            key={option}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+            onClick={() => changeStationOption(option)}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
-type ScannerPageProps = {
+const ScannerUI: React.FC<{
+  station: Station;
+  scanState: ScanState;
+  scannedValue: string | null;
+  onScan: (value: string | null) => void;
+  onError: (message: string) => void;
+  onReset: () => void;
+}> = ({ station, scanState, scannedValue, onScan, onError, onReset }) => {
+  return (
+    <>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-black dark:text-white">
+            Station:
+          </span>
+          <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
+            {stationLabels[station]}
+          </span>
+        </div>
+        <button
+          onClick={onReset}
+          className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+        >
+          Change Station
+        </button>
+      </div>
+
+      <div className="rounded-md p-6 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
+        <div className="flex flex-col items-center justify-center">
+          <div
+            className={clsx(
+              "relative w-full max-w-[320px] border-4 border-dashed rounded-md p-1",
+              scanState.status === "success"
+                ? "border-green-500"
+                : scanState.status === "error"
+                  ? "border-red-500"
+                  : "border-primary"
+            )}
+          >
+            <Scanner
+              onScan={(result) => {
+                onScan(result[0]?.rawValue ?? null);
+              }}
+              onError={(error) => {
+                console.error(error);
+                onError("Camera error. Please try again.");
+              }}
+              sound={false}
+              constraints={{
+                facingMode: "environment",
+                aspectRatio: 1,
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+              }}
+              components={{
+                finder: false,
+              }}
+              classNames={{
+                container: "w-full h-full",
+                video: "w-full h-full object-cover rounded",
+              }}
+            />
+          </div>
+          <p className="mt-4 text-neutral-500 dark:text-neutral-400 text-center">
+            Position the QR code within the frame to scan
+          </p>
+
+          {scanState.status === "success" && (
+            <p className="mt-4 text-green-600 dark:text-green-400 text-center font-medium">
+              ✓ Check-in successful!
+            </p>
+          )}
+
+          {scanState.status === "error" && scanState.message && (
+            <p className="mt-4 text-red-600 dark:text-red-400 text-center font-medium">
+              {scanState.message}
+            </p>
+          )}
+
+          {scannedValue && scanState.status !== "error" && (
+            <p className="mt-2 text-neutral-500 dark:text-neutral-400 text-center text-sm overflow-auto">
+              Scanned: {scannedValue}
+            </p>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+interface ScannerPageProps {
   userRoles: string[];
-};
+}
 
 const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
+  const [wizard, dispatch] = useReducer(wizardReducer, initialWizardState);
+
   const [scannedValue, setScannedValue] = useState<string | null>(null);
-  const [scanState, setScanState] = useState<{
-    status: "idle" | "success" | "error";
-    message?: string;
-  }>({ status: "idle" });
-  const [selectedStation, setSelectedStation] = useState<Station | null>(null);
-  const { queuedItems, addToQueue, removeFromQueue } = useOfflineQueue();
+  const [scanState, setScanState] = useState<ScanState>({ status: "idle" });
+
+  const { queuedItems, addToQueue, removeFromQueue } =
+    useOfflineQueue<ScannerQueueItem>();
   const hasProcessedInitialQueue = useRef(false);
 
   const availableStations = {
@@ -86,18 +271,19 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
       });
     },
   });
+
   useEffect(() => {
     // On page load, remutate any queued items
     if (!hasProcessedInitialQueue.current && queuedItems.length > 0) {
       hasProcessedInitialQueue.current = true;
       queuedItems.forEach((item) => {
-        scannerMutation.mutate({ id: item.id, task: item.task });
+        scannerMutation.mutate({ id: item.id, station: item.station });
       });
     }
   }, [queuedItems]);
 
   useEffect(() => {
-    if (scannedValue) {
+    if (scannedValue && wizard.station) {
       const isValidCuid = z.cuid().safeParse(scannedValue).success;
 
       if (!isValidCuid) {
@@ -108,24 +294,57 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
         return;
       }
 
-      if (!selectedStation) {
-        setScanState({
-          status: "error",
-          message: "Please select a station first.",
-        });
-        return;
-      }
-
       setScanState({ status: "success" });
       scannerMutation.mutate({
         id: scannedValue,
-        task: selectedStation,
+        station: wizard.station,
       });
 
-      // add scanned item to offline queue for persistence
-      addToQueue({ id: scannedValue, task: selectedStation });
+      addToQueue({ id: scannedValue, station: wizard.station });
     }
   }, [scannedValue]);
+
+  const handleReset = () => {
+    dispatch({ type: "RESET" });
+    setScannedValue(null);
+    setScanState({ status: "idle" });
+  };
+
+  const renderWizardStep = () => {
+    switch (wizard.step) {
+      case "selectingStation":
+        return (
+          <StationSelection
+            stations={availableStations}
+            changeStation={(station) =>
+              dispatch({ type: "SELECT_STATION", station })
+            }
+          />
+        );
+      case "selectingOption":
+        return wizard.station ? (
+          <StationConfigSelection
+            station={wizard.station.name}
+            options={[...stationOptionsMap[wizard.station.name]]}
+            changeStationOption={(option) =>
+              dispatch({ type: "SELECT_OPTION", option })
+            }
+            onBack={() => dispatch({ type: "RESET" })}
+          />
+        ) : null;
+      case "ready":
+        return wizard.station ? (
+          <ScannerUI
+            station={wizard.station.name}
+            scanState={scanState}
+            scannedValue={scannedValue}
+            onScan={setScannedValue}
+            onError={(message) => setScanState({ status: "error", message })}
+            onReset={handleReset}
+          />
+        ) : null;
+    }
+  };
 
   return (
     <>
@@ -144,134 +363,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
             <h1 className="text-2xl font-bold mb-8 text-black dark:text-white">
               QR Code Scanner
             </h1>
-
-            {!selectedStation ? (
-              <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
-                <h2 className="text-xl font-semibold mb-4 text-black dark:text-white text-center">
-                  Select Station
-                </h2>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center mb-6">
-                  Choose which station you are scanning for.
-                </p>
-                <div className="flex flex-col gap-3 max-w-md mx-auto">
-                  {availableStations.checkIn && (
-                    <button
-                      onClick={() => setSelectedStation("checkIn")}
-                      className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
-                    >
-                      Check In
-                    </button>
-                  )}
-                  {availableStations.food && (
-                    <button
-                      onClick={() => setSelectedStation("food")}
-                      className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
-                    >
-                      Food
-                    </button>
-                  )}
-                  {availableStations.events && (
-                    <button
-                      onClick={() => setSelectedStation("events")}
-                      className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
-                    >
-                      Events
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-black dark:text-white">
-                      Station:
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
-                      {selectedStation === "checkIn"
-                        ? "Check In"
-                        : selectedStation === "food"
-                          ? "Food"
-                          : "Events"}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedStation(null);
-                      setScannedValue(null);
-                      setScanState({ status: "idle" });
-                    }}
-                    className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
-                  >
-                    Change Station
-                  </button>
-                </div>
-
-                <div className="rounded-md p-6 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
-                  <div className="flex flex-col items-center justify-center">
-                    <div
-                      className={clsx(
-                        "relative w-full max-w-[320px] border-4 border-dashed rounded-md p-1",
-                        scanState.status === "success"
-                          ? "border-green-500"
-                          : scanState.status === "error"
-                            ? "border-red-500"
-                            : "border-primary",
-                      )}
-                    >
-                      <Scanner
-                        onScan={(result) => {
-                          setScannedValue(result[0]?.rawValue ?? null);
-                        }}
-                        onError={(error) => {
-                          console.error(error);
-                          setScanState({
-                            status: "error",
-                            message: "Camera error. Please try again.",
-                          });
-                        }}
-                        sound={false}
-                        constraints={{
-                          facingMode: "environment",
-                          aspectRatio: 1,
-                          width: { ideal: 1920 },
-                          height: { ideal: 1080 },
-                        }}
-                        components={{
-                          // tracker: highlightCodeOnCanvas,
-                          finder: false,
-                        }}
-                        classNames={{
-                          container: "w-full h-full",
-                          video: "w-full h-full object-cover rounded",
-                        }}
-                      />
-                    </div>
-                    <p className="mt-4 text-neutral-500 dark:text-neutral-400 text-center">
-                      Position the QR code within the frame to scan
-                    </p>
-
-                    {scanState.status === "success" && (
-                      <p className="mt-4 text-green-600 dark:text-green-400 text-center font-medium">
-                        ✓ Check-in successful!
-                      </p>
-                    )}
-
-                    {scanState.status === "error" && scanState.message && (
-                      <p className="mt-4 text-red-600 dark:text-red-400 text-center font-medium">
-                        {scanState.message}
-                      </p>
-                    )}
-
-                    {scannedValue && scanState.status !== "error" ? (
-                      <p className="mt-2 text-neutral-500 dark:text-neutral-400 text-center text-sm overflow-auto">
-                        Scanned: {scannedValue}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </>
-            )}
+            {renderWizardStep()}
           </div>
         </main>
       </Drawer>
@@ -280,7 +372,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
+  context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<ScannerPageProps>> => {
   const session = await getServerAuthSession(context);
 
