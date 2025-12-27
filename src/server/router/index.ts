@@ -12,6 +12,7 @@ import {
   judgingRouter,
   timeSlotRouter,
 } from "./judging";
+import { scannerRouter } from "./scanner";
 
 export const appRouter = router({
   application: applicationRouter,
@@ -24,6 +25,7 @@ export const appRouter = router({
   project: projectRouter,
   judging: judgingRouter,
   timeSlot: timeSlotRouter,
+  scanner: scannerRouter,
 });
 
 // export type definition of API
