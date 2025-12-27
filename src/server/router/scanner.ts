@@ -2,14 +2,15 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
 import { Role, Status } from "@prisma/client";
 import { z } from "zod";
+import { stationConfigSchema } from "../../schemas/scanner";
 
 export const scannerRouter = router({
   scan: protectedProcedure
     .input(
       z.object({
         id: z.cuid(),
-        task: z.enum(["checkIn", "food", "events"]),
-      }),
+        station: stationConfigSchema,
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -21,7 +22,7 @@ export const scannerRouter = router({
       if (user === null || user === undefined) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
-      switch (input.task) {
+      switch (input.station.name) {
         case "checkIn":
           await ctx.prisma.user.update({
             where: { id: input.id },
