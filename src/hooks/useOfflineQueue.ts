@@ -1,60 +1,50 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const QUEUE_KEY = "offlineQueue";
-
-export type QueueItem = {
-  id: string;
-  task: "checkIn" | "food" | "events";
-};
 
 /**
  * Custom hook to manage an offline queue in localStorage
  * Handles adding, removing, and retrieving queued items (id + task)
  */
-export const useOfflineQueue = () => {
-  const [queuedItems, setQueuedItems] = useState<QueueItem[]>([]);
+export const useOfflineQueue = <T extends { id: string }>(key = QUEUE_KEY) => {
+  const [queuedItems, setQueuedItems] = useState<T[]>([]);
 
   // Load queued items from localStorage on mount
   useEffect(() => {
     try {
-      const existing = localStorage.getItem(QUEUE_KEY);
-      const items: QueueItem[] = existing ? JSON.parse(existing) : [];
+      const existing = localStorage.getItem(key);
+      const items: T[] = existing ? JSON.parse(existing) : [];
       setQueuedItems(items);
     } catch {
-      // Handle JSON parsing errors silently
       setQueuedItems([]);
     }
-  }, []);
+  }, [key]);
 
   /**
    * Add an item to the offline queue
    */
-  const addToQueue = useCallback((item: QueueItem) => {
+  const addToQueue = (item: T) => {
     try {
-      const existing = localStorage.getItem(QUEUE_KEY);
-      const list: QueueItem[] = existing ? JSON.parse(existing) : [];
+      const existing = localStorage.getItem(key);
+      const list: T[] = existing ? JSON.parse(existing) : [];
       list.push(item);
-      localStorage.setItem(QUEUE_KEY, JSON.stringify(list));
+      localStorage.setItem(key, JSON.stringify(list));
       setQueuedItems(list);
-    } catch {
-      // Handle JSON parsing/stringifying errors silently
-    }
-  }, []);
+    } catch {}
+  };
 
   /**
    * Remove an item from the offline queue by ID
    */
-  const removeFromQueue = useCallback((id: string) => {
+  const removeFromQueue = (id: string) => {
     try {
-      const existing = localStorage.getItem(QUEUE_KEY);
-      const items: QueueItem[] = existing ? JSON.parse(existing) : [];
+      const existing = localStorage.getItem(key);
+      const items: T[] = existing ? JSON.parse(existing) : [];
       const filtered = items.filter((item) => item.id !== id);
-      localStorage.setItem(QUEUE_KEY, JSON.stringify(filtered));
+      localStorage.setItem(key, JSON.stringify(filtered));
       setQueuedItems(filtered);
-    } catch {
-      // Handle JSON parsing/stringifying errors silently
-    }
-  }, []);
+    } catch {}
+  };
 
   return {
     queuedItems,
