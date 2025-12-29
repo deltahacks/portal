@@ -33,7 +33,7 @@ export const useOfflineQueue = <T extends { id: string }>(key = QUEUE_KEY) => {
         return updated;
       });
     },
-    [key]
+    [key],
   );
 
   const removeFromQueue = useCallback(
@@ -49,7 +49,7 @@ export const useOfflineQueue = <T extends { id: string }>(key = QUEUE_KEY) => {
         return updated;
       });
     },
-    [key]
+    [key],
   );
 
   return {

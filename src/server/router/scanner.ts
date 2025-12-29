@@ -13,6 +13,7 @@ export const scannerRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { id, station } = input;
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -20,7 +21,7 @@ export const scannerRouter = router({
         });
       }
       const user = await ctx.prisma.user.findFirst({
-        where: { id: input.id },
+        where: { id },
       });
       if (user === null || user === undefined) {
         throw new TRPCError({
@@ -28,18 +29,32 @@ export const scannerRouter = router({
           message: "Attendee not found. This QR code is not registered.",
         });
       }
-      switch (input.station.name) {
+      switch (station.name) {
         case "checkIn":
           await ctx.prisma.user.update({
-            where: { id: input.id },
+            where: { id },
             data: { status: Status.CHECKED_IN },
           });
           break;
         case "food":
           // for food station we need entries to act as burning tokens. it should be an enum of 3-4 options for meals.
+          await ctx.prisma.eventLog.create({
+            data: {
+              userId: id,
+              event: station.name + "-" + station.type,
+              timestamp: new Date(),
+            },
+          });
           break;
         case "events":
           // for events station we need entries to act as burning tokens. it should be an enum of 3-4 options for events.
+          await ctx.prisma.eventLog.create({
+            data: {
+              userId: id,
+              event: station.name + "-" + station.type,
+              timestamp: new Date(),
+            },
+          });
           break;
       }
       const userInfo = {
