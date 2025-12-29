@@ -96,13 +96,13 @@ const StationSelection: React.FC<{
 
 const StationConfigSelection: React.FC<{
   station: Station;
-  options: string[];
+  options: readonly string[];
   changeStationOption: (option: string) => void;
   onBack: () => void;
 }> = ({ station, options, changeStationOption, onBack }) => {
   const [search, setSearch] = useState("");
   const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(search.toLowerCase())
+    option.toLowerCase().includes(search.toLowerCase()),
   );
   return (
     <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border flex flex-col gap-4">
@@ -151,13 +151,13 @@ const ScannerUI: React.FC<{
   const handleScan = useCallback(
     (result: { rawValue: string }[]) => {
       const value = result[0]?.rawValue;
-      // need to deduplicate scans since scanner keeps firing and would cause 100% CPU usage
+      // need to deduplicate scans since scanner keeps firing and would cause infinite re-scans
       if (value && value !== lastScannedRef.current) {
         lastScannedRef.current = value;
         onScan(value);
       }
     },
-    [onScan]
+    [onScan],
   );
 
   const handleError = useCallback(
@@ -165,7 +165,7 @@ const ScannerUI: React.FC<{
       console.error(error);
       onError("Camera error. Please try again.");
     },
-    [onError]
+    [onError],
   );
 
   return (
@@ -196,7 +196,7 @@ const ScannerUI: React.FC<{
                 ? "border-green-500"
                 : scanState.status === "error"
                   ? "border-red-500"
-                  : "border-primary"
+                  : "border-primary",
             )}
           >
             <Scanner
@@ -246,10 +246,14 @@ const ScannerUI: React.FC<{
 };
 
 interface ScannerPageProps {
-  userRoles: string[];
+  availableStations: {
+    checkIn: boolean;
+    food: boolean;
+    events: boolean;
+  };
 }
 
-const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
+const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
   const [wizard, dispatch] = useReducer(wizardReducer, initialWizardState);
 
   const [scannedValue, setScannedValue] = useState<string | null>(null);
@@ -258,16 +262,6 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
   const { queuedItems, addToQueue, removeFromQueue } =
     useOfflineQueue<ScannerQueueItem>();
   const hasProcessedInitialQueue = useRef(false);
-
-  const availableStations = {
-    checkIn:
-      userRoles.includes(Role.ADMIN) ||
-      userRoles.includes(Role.GENERAL_SCANNER),
-    food:
-      userRoles.includes(Role.ADMIN) || userRoles.includes(Role.FOOD_MANAGER),
-    events:
-      userRoles.includes(Role.ADMIN) || userRoles.includes(Role.EVENT_MANAGER),
-  };
 
   // scanner persistence works by adding any scanned qr code to the offline queue and removing them
   // only when the mutaiton is succesful. This is because tanstack already retries failed mutation until success.
@@ -290,20 +284,27 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
     },
   });
 
+  // Need acccess to stable mutation function
+  // @see https://github.com/TanStack/query/issues/1858
+  const { mutate: scan } = scannerMutation;
+
   useEffect(() => {
-    // On page load, remutate any queued items
+    // On page load, re-mutate any queued items
     if (!hasProcessedInitialQueue.current && queuedItems.length > 0) {
       hasProcessedInitialQueue.current = true;
       queuedItems.forEach((item) => {
-        scannerMutation.mutate({ id: item.id, station: item.station });
+        scan({ id: item.id, station: item.station });
       });
     }
-  }, [queuedItems]);
+  }, [queuedItems, scan]);
 
-  useEffect(() => {
-    if (scannedValue && wizard.station) {
-      const isValidCuid = z.cuid().safeParse(scannedValue).success;
+  const processScan = useCallback(
+    (value: string) => {
+      if (!wizard.station) return;
 
+      setScannedValue(value);
+
+      const isValidCuid = z.cuid().safeParse(value).success;
       if (!isValidCuid) {
         setScanState({
           status: "error",
@@ -313,14 +314,14 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
       }
 
       setScanState({ status: "success" });
-      scannerMutation.mutate({
-        id: scannedValue,
+      addToQueue({ id: value, station: wizard.station });
+      scan({
+        id: value,
         station: wizard.station,
       });
-
-      addToQueue({ id: scannedValue, station: wizard.station });
-    }
-  }, [scannedValue]);
+    },
+    [wizard.station, addToQueue, scan],
+  );
 
   const handleReset = useCallback(() => {
     dispatch({ type: "RESET" });
@@ -347,7 +348,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
         return wizard.station ? (
           <StationConfigSelection
             station={wizard.station.name}
-            options={[...stationOptionsMap[wizard.station.name]]}
+            options={stationOptionsMap[wizard.station.name]}
             changeStationOption={(option) =>
               dispatch({ type: "SELECT_OPTION", option })
             }
@@ -359,7 +360,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
           <ScannerUI
             station={wizard.station.name}
             scanState={scanState}
-            onScan={setScannedValue}
+            onScan={processScan}
             onError={handleScanError}
             onReset={handleReset}
             scannedValue={scannedValue}
@@ -394,7 +395,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ userRoles }) => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<ScannerPageProps>> => {
   const session = await getServerAuthSession(context);
 
@@ -415,9 +416,19 @@ export const getServerSideProps = async (
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
+  const availableStations = {
+    checkIn:
+      userRoles.includes(Role.ADMIN) ||
+      userRoles.includes(Role.GENERAL_SCANNER),
+    food:
+      userRoles.includes(Role.ADMIN) || userRoles.includes(Role.FOOD_MANAGER),
+    events:
+      userRoles.includes(Role.ADMIN) || userRoles.includes(Role.EVENT_MANAGER),
+  };
+
   return {
     props: {
-      userRoles,
+      availableStations,
     },
   };
 };

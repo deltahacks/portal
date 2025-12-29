@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const QUEUE_KEY = "offlineQueue";
 
@@ -20,31 +20,31 @@ export const useOfflineQueue = <T extends { id: string }>(key = QUEUE_KEY) => {
     }
   }, [key]);
 
-  /**
-   * Add an item to the offline queue
-   */
-  const addToQueue = (item: T) => {
-    try {
-      const existing = localStorage.getItem(key);
-      const list: T[] = existing ? JSON.parse(existing) : [];
-      list.push(item);
-      localStorage.setItem(key, JSON.stringify(list));
-      setQueuedItems(list);
-    } catch {}
-  };
+  const addToQueue = useCallback(
+    (item: T) => {
+      try {
+        const existing = localStorage.getItem(key);
+        const list: T[] = existing ? JSON.parse(existing) : [];
+        list.push(item);
+        localStorage.setItem(key, JSON.stringify(list));
+        setQueuedItems(list);
+      } catch {}
+    },
+    [key],
+  );
 
-  /**
-   * Remove an item from the offline queue by ID
-   */
-  const removeFromQueue = (id: string) => {
-    try {
-      const existing = localStorage.getItem(key);
-      const items: T[] = existing ? JSON.parse(existing) : [];
-      const filtered = items.filter((item) => item.id !== id);
-      localStorage.setItem(key, JSON.stringify(filtered));
-      setQueuedItems(filtered);
-    } catch {}
-  };
+  const removeFromQueue = useCallback(
+    (id: string) => {
+      try {
+        const existing = localStorage.getItem(key);
+        const items: T[] = existing ? JSON.parse(existing) : [];
+        const filtered = items.filter((item) => item.id !== id);
+        localStorage.setItem(key, JSON.stringify(filtered));
+        setQueuedItems(filtered);
+      } catch {}
+    },
+    [key],
+  );
 
   return {
     queuedItems,
