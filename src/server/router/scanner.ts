@@ -14,10 +14,16 @@ export const scannerRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, station } = input;
-      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+      const allowedRoles = [
+        Role.ADMIN,
+        Role.GENERAL_SCANNER,
+        Role.FOOD_MANAGER,
+        Role.EVENT_MANAGER,
+      ];
+      if (!allowedRoles.some((role) => ctx.session.user.role.includes(role))) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
-          message: "You don't have permission to perform this action.",
+          message: "You don't have permission to perform this action",
         });
       }
       const user = await ctx.prisma.user.findFirst({
