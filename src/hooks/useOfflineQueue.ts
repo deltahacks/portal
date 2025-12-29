@@ -22,28 +22,34 @@ export const useOfflineQueue = <T extends { id: string }>(key = QUEUE_KEY) => {
 
   const addToQueue = useCallback(
     (item: T) => {
-      try {
-        const existing = localStorage.getItem(key);
-        const list: T[] = existing ? JSON.parse(existing) : [];
-        list.push(item);
-        localStorage.setItem(key, JSON.stringify(list));
-        setQueuedItems(list);
-      } catch {}
+      setQueuedItems((prev) => {
+        if (prev.some((existing) => existing.id === item.id)) {
+          return prev;
+        }
+        const updated = [...prev, item];
+        try {
+          localStorage.setItem(key, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
     },
-    [key],
+    [key]
   );
 
   const removeFromQueue = useCallback(
     (id: string) => {
-      try {
-        const existing = localStorage.getItem(key);
-        const items: T[] = existing ? JSON.parse(existing) : [];
-        const filtered = items.filter((item) => item.id !== id);
-        localStorage.setItem(key, JSON.stringify(filtered));
-        setQueuedItems(filtered);
-      } catch {}
+      setQueuedItems((prev) => {
+        const updated = prev.filter((item) => item.id !== id);
+        if (updated.length === prev.length) {
+          return prev;
+        }
+        try {
+          localStorage.setItem(key, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
     },
-    [key],
+    [key]
   );
 
   return {
