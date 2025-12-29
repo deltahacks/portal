@@ -41,7 +41,8 @@ export const scannerRouter = router({
           await ctx.prisma.eventLog.create({
             data: {
               userId: id,
-              event: station.name + "-" + station.type,
+              station: station.name,
+              type: station.type,
               timestamp: new Date(),
             },
           });
@@ -51,7 +52,8 @@ export const scannerRouter = router({
           await ctx.prisma.eventLog.create({
             data: {
               userId: id,
-              event: station.name + "-" + station.type,
+              station: station.name,
+              type: station.type,
               timestamp: new Date(),
             },
           });
