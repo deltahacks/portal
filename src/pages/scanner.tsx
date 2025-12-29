@@ -151,7 +151,6 @@ const ScannerUI: React.FC<{
   onReset: () => void;
 }> = ({ station, onReset }) => {
   const lastScannedRef = useRef<string | null>(null);
-  const hasProcessedInitialQueue = useRef(false);
   const [scanState, setScanState] = useState<ScanState>({ status: "idle" });
 
   const { queuedItems, addToQueue, removeFromQueue } =
@@ -180,15 +179,16 @@ const ScannerUI: React.FC<{
   // @see https://github.com/TanStack/query/issues/1858
   const { mutate: mutateScannedId } = scannerMutation;
 
+  // On mount, re-mutate any queued items from previous sessions
   useEffect(() => {
-    // On mount, re-mutate any queued items from previous sessions
-    if (!hasProcessedInitialQueue.current && queuedItems.length > 0) {
-      hasProcessedInitialQueue.current = true;
+    if (queuedItems.length > 0) {
       queuedItems.forEach((item) => {
         mutateScannedId({ id: item.id, station: item.station });
       });
     }
-  }, [queuedItems, mutateScannedId]);
+    // we only want to run this once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (scanState.status === "success") {
