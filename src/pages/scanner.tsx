@@ -307,9 +307,27 @@ const ScannerUI: React.FC<{
           )}
 
           {scannerMutation.data && (
-            <p className="mt-2 text-neutral-500 dark:text-neutral-400 text-center text-sm overflow-auto">
-              Scanned: {scannerMutation.data.id}
-            </p>
+            <div className="mt-4 w-full max-w-sm mx-auto p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-lg">
+                  {scannerMutation.data.name?.charAt(0).toUpperCase() ?? "?"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-green-900 dark:text-green-100 truncate">
+                    {scannerMutation.data.name ?? "Unknown"}
+                  </p>
+                  <p className="text-sm text-green-700 dark:text-green-300 truncate">
+                    {scannerMutation.data.email ?? "No email"}
+                  </p>
+                </div>
+                <span className="text-green-600 dark:text-green-400 text-xl">
+                  ✓
+                </span>
+              </div>
+              <p className="text-xs text-green-600 dark:text-green-400 text-center font-medium">
+                Successfully scanned
+              </p>
+            </div>
           )}
           {scanState.status === "error" && scanState.error && (
             <details className="mt-4 w-full">
