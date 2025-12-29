@@ -14,13 +14,19 @@ export const scannerRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You don't have permission to perform this action.",
+        });
       }
       const user = await ctx.prisma.user.findFirst({
         where: { id: input.id },
       });
       if (user === null || user === undefined) {
-        throw new TRPCError({ code: "NOT_FOUND" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Attendee not found. This QR code is not registered.",
+        });
       }
       switch (input.station.name) {
         case "checkIn":
@@ -36,7 +42,11 @@ export const scannerRouter = router({
           // for events station we need entries to act as burning tokens. it should be an enum of 3-4 options for events.
           break;
       }
-
-      return { id: input.id };
+      const userInfo = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      };
+      return userInfo;
     }),
 });

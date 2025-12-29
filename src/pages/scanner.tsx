@@ -138,13 +138,20 @@ const StationConfigSelection: React.FC<{
   );
 };
 
+// Expected error codes from the backend that should not be retried, only network errors should be retried.
+const EXPECTED_ERROR_CODES = new Set([
+  "NOT_FOUND",
+  "UNAUTHORIZED",
+  "FORBIDDEN",
+  "BAD_REQUEST",
+]);
+
 const ScannerUI: React.FC<{
   station: { name: Station; type: string };
   onReset: () => void;
 }> = ({ station, onReset }) => {
   const lastScannedRef = useRef<string | null>(null);
   const hasProcessedInitialQueue = useRef(false);
-  const [scannedValue, setScannedValue] = useState<string | null>(null);
   const [scanState, setScanState] = useState<ScanState>({ status: "idle" });
 
   const { queuedItems, addToQueue, removeFromQueue } =
@@ -153,6 +160,7 @@ const ScannerUI: React.FC<{
   // scanner persistence works by adding any scanned qr code to the offline queue and removing them
   // only when the mutaiton is succesful. This is because tanstack already retries failed mutation until success.
   // Saving in the local storage is only for persistence across page reloads.
+  // Expected errors (like NOT_FOUND) should NOT be retried and should be removed from queue.
   const scannerMutation = trpc.scanner.scan.useMutation({
     onSuccess: (data) => {
       // remove succesfully mutated ids from offline queue
@@ -160,23 +168,11 @@ const ScannerUI: React.FC<{
         removeFromQueue(data.id);
       }
     },
-    onError: (error) => {
-      let message: string | undefined;
-      if (station.name === "checkIn") {
-        message = "Failed to check in attendee. Please try again.";
-      } else if (station.name === "food") {
-        message = "Failed to claim food ticket. Please try again.";
-      } else if (station.name === "events") {
-        message = "Failed to register for event. Please try again.";
+    onError: (error, variables) => {
+      const code = error.data?.code;
+      if (code && EXPECTED_ERROR_CODES.has(code)) {
+        removeFromQueue(variables.id);
       }
-      setScanState({
-        status: "error",
-        message,
-        error:
-          error instanceof Error
-            ? (error.stack ?? error.message)
-            : JSON.stringify(error, null, 2),
-      });
     },
   });
 
@@ -198,7 +194,7 @@ const ScannerUI: React.FC<{
     if (scanState.status === "success") {
       const timer = setTimeout(() => {
         setScanState({ status: "idle" });
-      }, 500);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [scanState.status]);
@@ -210,7 +206,6 @@ const ScannerUI: React.FC<{
       if (!value || value === lastScannedRef.current) return;
 
       lastScannedRef.current = value;
-      setScannedValue(value);
 
       const isValidCuid = z.cuid().safeParse(value).success;
       if (!isValidCuid) {
@@ -293,11 +288,11 @@ const ScannerUI: React.FC<{
             Position the QR code within the frame to scan
           </p>
 
-          {scanState.status === "success" && (
+          {/* {scanState.status === "success" && (
             <p className="mt-4 text-green-600 dark:text-green-400 text-center font-medium">
               ✓ Scan successful!
             </p>
-          )}
+          )} */}
 
           {scanState.status === "error" && scanState.message && (
             <p className="mt-4 text-red-600 dark:text-red-400 text-center font-medium">
@@ -305,9 +300,15 @@ const ScannerUI: React.FC<{
             </p>
           )}
 
-          {scannedValue && scanState.status !== "error" && (
+          {scannerMutation.isError && (
+            <p className="mt-4 text-red-600 dark:text-red-400 text-center font-medium">
+              {scannerMutation.error?.message}
+            </p>
+          )}
+
+          {scannerMutation.data && (
             <p className="mt-2 text-neutral-500 dark:text-neutral-400 text-center text-sm overflow-auto">
-              Scanned: {scannedValue}
+              Scanned: {scannerMutation.data.id}
             </p>
           )}
           {scanState.status === "error" && scanState.error && (
