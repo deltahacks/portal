@@ -139,34 +139,105 @@ const StationConfigSelection: React.FC<{
 };
 
 const ScannerUI: React.FC<{
-  station: Station;
-  scanState: ScanState;
-  onScan: (value: string) => void;
-  onError: (message: string) => void;
+  station: { name: Station; type: string };
   onReset: () => void;
-  scannedValue: string | null;
-}> = ({ station, scanState, onScan, onError, onReset, scannedValue }) => {
+}> = ({ station, onReset }) => {
   const lastScannedRef = useRef<string | null>(null);
+  const hasProcessedInitialQueue = useRef(false);
+  const [scannedValue, setScannedValue] = useState<string | null>(null);
+  const [scanState, setScanState] = useState<ScanState>({ status: "idle" });
+
+  const { queuedItems, addToQueue, removeFromQueue } =
+    useOfflineQueue<ScannerQueueItem>();
+
+  // scanner persistence works by adding any scanned qr code to the offline queue and removing them
+  // only when the mutaiton is succesful. This is because tanstack already retries failed mutation until success.
+  // Saving in the local storage is only for persistence across page reloads.
+  const scannerMutation = trpc.scanner.scan.useMutation({
+    onSuccess: (data) => {
+      // remove succesfully mutated ids from offline queue
+      if (data?.id) {
+        removeFromQueue(data.id);
+      }
+    },
+    onError: (error) => {
+      let message: string | undefined;
+      if (station.name === "checkIn") {
+        message = "Failed to check in attendee. Please try again.";
+      } else if (station.name === "food") {
+        message = "Failed to claim food ticket. Please try again.";
+      } else if (station.name === "events") {
+        message = "Failed to register for event. Please try again.";
+      }
+      setScanState({
+        status: "error",
+        message,
+        error:
+          error instanceof Error
+            ? (error.stack ?? error.message)
+            : JSON.stringify(error, null, 2),
+      });
+    },
+  });
+
+  // Need acccess to stable mutation function
+  // @see https://github.com/TanStack/query/issues/1858
+  const { mutate: mutateScannedId } = scannerMutation;
+
+  useEffect(() => {
+    // On mount, re-mutate any queued items from previous sessions
+    if (!hasProcessedInitialQueue.current && queuedItems.length > 0) {
+      hasProcessedInitialQueue.current = true;
+      queuedItems.forEach((item) => {
+        mutateScannedId({ id: item.id, station: item.station });
+      });
+    }
+  }, [queuedItems, mutateScannedId]);
+
+  useEffect(() => {
+    if (scanState.status === "success") {
+      const timer = setTimeout(() => {
+        setScanState({ status: "idle" });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [scanState.status]);
 
   const handleScan = useCallback(
     (result: { rawValue: string }[]) => {
       const value = result[0]?.rawValue;
       // need to deduplicate scans since scanner keeps firing and would cause infinite re-scans
-      if (value && value !== lastScannedRef.current) {
-        lastScannedRef.current = value;
-        onScan(value);
+      if (!value || value === lastScannedRef.current) return;
+
+      lastScannedRef.current = value;
+      setScannedValue(value);
+
+      const isValidCuid = z.cuid().safeParse(value).success;
+      if (!isValidCuid) {
+        setScanState({
+          status: "error",
+          message: "Invalid QR code format. Please scan a valid attendee pass.",
+          error: "Zod validation error. This is not a valid CUID.",
+        });
+        return;
       }
+
+      setScanState({ status: "success" });
+      addToQueue({ id: value, station });
+      mutateScannedId({ id: value, station });
     },
-    [onScan],
+    [station, addToQueue, mutateScannedId],
   );
 
-  const handleError = useCallback(
-    (error: unknown) => {
-      console.error(error);
-      onError("Camera error. Please try again.");
-    },
-    [onError],
-  );
+  const handleError = useCallback((error: unknown) => {
+    console.error(error);
+    setScanState({
+      status: "error",
+      message: "Camera error. Please try again.",
+      error:
+        error instanceof Error ? (error.stack ?? error.message) : String(error),
+    });
+  }, []);
 
   return (
     <>
@@ -176,7 +247,7 @@ const ScannerUI: React.FC<{
             Station:
           </span>
           <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
-            {stationLabels[station]}
+            {stationLabels[station.name]}
           </span>
         </div>
         <button
@@ -239,6 +310,16 @@ const ScannerUI: React.FC<{
               Scanned: {scannedValue}
             </p>
           )}
+          {scanState.status === "error" && scanState.error && (
+            <details className="mt-4 w-full">
+              <summary className="text-red-600 dark:text-red-400 text-center font-medium cursor-pointer text-xs">
+                Error details (For Tech Team Use)
+              </summary>
+              <pre className="mt-2 p-3 max-h-40 overflow-auto text-left text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md whitespace-pre-wrap break-words">
+                {scanState.error}
+              </pre>
+            </details>
+          )}
         </div>
       </div>
     </>
@@ -255,83 +336,6 @@ interface ScannerPageProps {
 
 const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
   const [wizard, dispatch] = useReducer(wizardReducer, initialWizardState);
-
-  const [scannedValue, setScannedValue] = useState<string | null>(null);
-  const [scanState, setScanState] = useState<ScanState>({ status: "idle" });
-
-  const { queuedItems, addToQueue, removeFromQueue } =
-    useOfflineQueue<ScannerQueueItem>();
-  const hasProcessedInitialQueue = useRef(false);
-
-  // scanner persistence works by adding any scanned qr code to the offline queue and removing them
-  // only when the mutaiton is succesful. This is because tanstack already retries failed mutation until success.
-  // Saving in the local storage is only for persistence across page reloads.
-  const scannerMutation = trpc.scanner.scan.useMutation({
-    onSuccess: (data) => {
-      // setScanState({ status: "idle" });
-      // remove succesfully mutated ids from offline queue
-      if (data?.id) {
-        removeFromQueue(data.id);
-      }
-    },
-    onError: (error) => {
-      console.error(error);
-      // setScanState({ status: "idle" });
-      // setScanState({
-      //   status: "error",
-      //   message: error.message || "Failed to check in user. Please try again.",
-      // });
-    },
-  });
-
-  // Need acccess to stable mutation function
-  // @see https://github.com/TanStack/query/issues/1858
-  const { mutate: scan } = scannerMutation;
-
-  useEffect(() => {
-    // On page load, re-mutate any queued items
-    if (!hasProcessedInitialQueue.current && queuedItems.length > 0) {
-      hasProcessedInitialQueue.current = true;
-      queuedItems.forEach((item) => {
-        scan({ id: item.id, station: item.station });
-      });
-    }
-  }, [queuedItems, scan]);
-
-  const processScan = useCallback(
-    (value: string) => {
-      if (!wizard.station) return;
-
-      setScannedValue(value);
-
-      const isValidCuid = z.cuid().safeParse(value).success;
-      if (!isValidCuid) {
-        setScanState({
-          status: "error",
-          message: "Invalid QR code format. Please scan a valid attendee pass.",
-        });
-        return;
-      }
-
-      setScanState({ status: "success" });
-      addToQueue({ id: value, station: wizard.station });
-      scan({
-        id: value,
-        station: wizard.station,
-      });
-    },
-    [wizard.station, addToQueue, scan],
-  );
-
-  const handleReset = useCallback(() => {
-    dispatch({ type: "RESET" });
-    setScannedValue(null);
-    setScanState({ status: "idle" });
-  }, []);
-
-  const handleScanError = useCallback((message: string) => {
-    setScanState({ status: "error", message });
-  }, []);
 
   const renderWizardStep = () => {
     switch (wizard.step) {
@@ -358,12 +362,8 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
       case "ready":
         return wizard.station ? (
           <ScannerUI
-            station={wizard.station.name}
-            scanState={scanState}
-            onScan={processScan}
-            onError={handleScanError}
-            onReset={handleReset}
-            scannedValue={scannedValue}
+            station={wizard.station}
+            onReset={() => dispatch({ type: "RESET" })}
           />
         ) : null;
     }

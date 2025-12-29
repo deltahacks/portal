@@ -92,6 +92,7 @@ export type ScanStatus = z.infer<typeof scanStatusSchema>;
 export const scanStateSchema = z.object({
   status: scanStatusSchema,
   message: z.string().optional(),
+  error: z.string().optional(),
 });
 export type ScanState = z.infer<typeof scanStateSchema>;
 
