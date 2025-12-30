@@ -68,6 +68,8 @@ model User {
 
   DH11Review DH11Review[]
   DH12Review DH12Review[]
+
+  applicationResponses ApplicationResponse[]
 }
 
 model Review {
@@ -322,6 +324,85 @@ enum YesNoUnsure {
   YES
   NO
   UNSURE
+}
+
+model ApplicationSchema {
+  id          String           @id @default(cuid())
+  name        String
+  dhYear      String
+  description String?
+  isPublished Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  createdBy   String?
+  
+  fields     ApplicationField[]
+  responses  ApplicationResponse[]
+  
+  @@unique([name, dhYear])
+}
+
+model ApplicationField {
+  id          String           @id @default(cuid())
+  label       String
+  type        FieldType
+  required    Boolean          @default(false)
+  placeholder String?
+  helpText    String?
+  options     String[]         @default([])
+  validation  Json?
+  order       Int              @default(0)
+  
+  schema      ApplicationSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  schemaId    String
+  
+  responses   ApplicationFieldResponse[]
+  
+  @@index([schemaId])
+}
+
+model ApplicationResponse {
+  id          String           @id @default(cuid())
+  status      Status           @default(IN_REVIEW)
+  submittedAt DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  
+  user        User             @relation(fields: [userId], references: [id])
+  userId      String
+  
+  schema      ApplicationSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  schemaId    String
+  
+  answers     ApplicationFieldResponse[]
+  
+  @@unique([userId, schemaId])
+  @@index([schemaId])
+}
+
+model ApplicationFieldResponse {
+  id          String           @id @default(cuid())
+  value       String           @default("")
+  
+  response    ApplicationResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  responseId  String
+  
+  field       ApplicationField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  fieldId     String
+  
+  @@unique([responseId, fieldId])
+  @@index([responseId])
+}
+
+enum FieldType {
+  text
+  textarea
+  number
+  select
+  multiselect
+  checkbox
+  date
+  email
+  url
 }
 
 // Glossary:

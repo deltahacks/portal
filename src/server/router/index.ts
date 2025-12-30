@@ -1,4 +1,5 @@
 // src/server/router/index.ts
+import { applicationSchemaRouter } from "./applicationSchema";
 import { applicationRouter } from "./application";
 import { reviewerRouter } from "./reviewers";
 import { userRouter } from "./users";
@@ -14,6 +15,7 @@ import {
 } from "./judging";
 
 export const appRouter = router({
+  applicationSchema: applicationSchemaRouter,
   application: applicationRouter,
   reviewer: reviewerRouter,
   user: userRouter,
