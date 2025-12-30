@@ -83,6 +83,11 @@ const Admin: NextPage = () => {
               description="Access the application grading interface"
               href="/admin/grade"
             />
+            <AdminCard
+              title="Schema Editor"
+              description="Create and manage application form schemas"
+              href="/admin/schema-editor"
+            />
           </div>
 
           <div className="card bg-base-200 shadow-xl p-6">
