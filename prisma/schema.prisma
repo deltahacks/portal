@@ -415,3 +415,138 @@ model RubricResponse {
 
   @@unique([judgingResultId, questionId])
 }
+
+// ===============================
+// Dynamic Application Schema Models
+// ===============================
+
+// Field types enum for application form fields
+enum FieldType {
+  TEXT
+  TEXTAREA
+  SELECT
+  MULTI_SELECT
+  CHECKBOX
+  DATE
+  NUMBER
+  FILE
+}
+
+// Main schema for a hackathon year's application form
+model ApplicationSchema {
+  id          String   @id @default(cuid())
+  name        String   // e.g., "DeltaHacks 2025 Application"
+  description String?
+  dhYear      String   // e.g., "DH12" for DeltaHacks 12
+  published   Boolean  @default(false)
+  isActive    Boolean  @default(true) // Currently active schema for applications
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  fields      ApplicationField[]
+  responses   ApplicationResponse[]
+}
+
+// Individual fields/questions in the form
+model ApplicationField {
+  id          String     @id @default(cuid())
+  schemaId    String
+  schema      ApplicationSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  
+  label       String     // Display label for the field
+  key         String     // Unique key for data mapping (e.g., "firstName", "dietaryRestrictions")
+  type        FieldType  // Type of field
+  description String?    // Optional description/help text
+  placeholder String?    // Placeholder text
+  required    Boolean    @default(false)
+  order       Int        @default(0) // Field order in the form
+  validation  Json?      // Validation rules (min/max length, patterns, etc.)
+  options     Json?      // Options for SELECT/MULTI_SELECT fields
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  responses   ApplicationAnswer[]
+
+  @@unique([schemaId, key])
+}
+
+// An applicant's submission
+model ApplicationResponse {
+  id          String   @id @default(cuid())
+  schemaId    String
+  schema      ApplicationSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  
+  userId      String   // The applicant
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  status      ResponseStatus @default(DRAFT)
+  submittedAt DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  answers     ApplicationAnswer[]
+
+  @@unique([schemaId, userId])
+}
+
+// Individual answers linked to response and field
+model ApplicationAnswer {
+  id          String   @id @default(cuid())
+  responseId  String
+  response    ApplicationResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  
+  fieldId     String
+  field       ApplicationField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  
+  value       Json     // The answer value (flexible for different field types)
+  fileUrl     String?  // For file upload fields
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([responseId, fieldId])
+}
+
+enum ResponseStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+  WAITLISTED
+}
+
+// Grading rubric template
+model RubricTemplate {
+  id          String   @id @default(cuid())
+  name        String   // e.g., "General Hackathon Rubric"
+  description String?
+  dhYear      String   // e.g., "DH12"
+  published   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  criteria    RubricCriterion[]
+}
+
+// Individual criteria in a rubric
+model RubricCriterion {
+  id          String   @id @default(cuid())
+  templateId  String
+  template    RubricTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  title       String   // e.g., "Innovation", "Technical Complexity"
+  description String   // Description of what judges should look for
+  maxPoints   Int      @default(10) // Maximum points for this criterion
+  
+  order       Int      @default(0) // Order in the rubric
+  category    String?  // Optional category for grouping criteria
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
