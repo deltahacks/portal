@@ -1,12 +1,16 @@
-/*
-  Warnings:
+-- DropTable
+DROP TABLE IF EXISTS "EventLog";
 
-  - You are about to drop the column `event` on the `EventLog` table. All the data in the column will be lost.
-  - Added the required column `station` to the `EventLog` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `type` to the `EventLog` table without a default value. This is not possible if the table is not empty.
+-- CreateTable
+CREATE TABLE "EventLog" (
+    "id" STRING NOT NULL,
+    "userId" STRING NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "station" STRING NOT NULL,
+    "type" STRING NOT NULL,
 
-*/
--- AlterTable
-ALTER TABLE "EventLog" DROP COLUMN "event";
-ALTER TABLE "EventLog" ADD COLUMN     "station" STRING NOT NULL;
-ALTER TABLE "EventLog" ADD COLUMN     "type" STRING NOT NULL;
+    CONSTRAINT "EventLog_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "EventLog" ADD CONSTRAINT "EventLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
