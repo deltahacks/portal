@@ -14,6 +14,7 @@ import {
   judgingRouter,
   timeSlotRouter,
 } from "./judging";
+import { rubricRouter } from "./rubric";
 
 export const appRouter = router({
   applicationSchema: applicationSchemaRouter,
@@ -28,6 +29,7 @@ export const appRouter = router({
   project: projectRouter,
   judging: judgingRouter,
   timeSlot: timeSlotRouter,
+  rubric: rubricRouter,
 });
 
 // export type definition of API
