@@ -54,7 +54,7 @@ const getData = async (_: any, requestOptions: any) => {
   const GOOGLE_CALENDAR_URL =
     "https://www.googleapis.com/calendar/v3/calendars/";
   const CALENDAR_ID =
-    "c_54f72353fe8b6d9a474ba47ea768e372311c2365c69030509cd80b650ffb883b@group.calendar.google.com";
+    "c_4d8a2a89a6a70c398354eba93e7dd292e6cf96d3e628be3f65c38624a5244254@group.calendar.google.com";
   const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
 
   const dataUrl = [
@@ -99,10 +99,10 @@ const ScheduleComponent = ({
   defaultCurrentView: string;
 }) => {
   // If the user is out of range of the event default them to the start date
-  const curDate = new Date(2025, 0, 10);
+  const curDate = new Date(2026, 0, 10);
   const defaultCurrentDate = curDate;
   const [view, setView] = useState(
-    defaultCurrentView == "day" ? "Calendar View" : "List View",
+    defaultCurrentView == "day" ? "Calendar View" : "List View"
   );
 
   const renderEvent = ({
@@ -239,14 +239,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   let output: GetServerSidePropsResult<Record<string, unknown>> = {
     props: {},
   };
-
-  // Restrict access to admin users only
-  output = rbac(
-    await getServerAuthSession(ctx),
-    [Role.ADMIN],
-    "/dashboard", // redirect non-admin users to dashboard
-    output,
-  );
 
   ctx.res.setHeader("Netlify-Vary", "cookie=next-auth.session-token");
   ctx.res.setHeader("Cache-Control", "public, max-age=7200");
