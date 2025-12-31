@@ -332,6 +332,7 @@ model ApplicationSchema {
   dhYear      String
   description String?
   isPublished Boolean          @default(false)
+  isActive    Boolean          @default(true)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   createdBy   String?
