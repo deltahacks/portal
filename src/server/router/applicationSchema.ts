@@ -46,7 +46,7 @@ const schemaMetadataSchema = z.object({
   name: z.string().min(1, "Schema name is required"),
   dhYear: z.string().min(1, "DH Year is required"),
   description: z.string().optional(),
-  published: z.boolean().default(false),
+  isPublished: z.boolean().default(false),
 });
 
 // Full application schema
@@ -251,7 +251,7 @@ export const applicationSchemaRouter = router({
           name: `${original.name} (Copy)`,
           dhYear: original.dhYear,
           description: original.description,
-          published: false,
+          isPublished: false,
           fields: {
             create: original.fields.map((field) => ({
               label: field.label,
