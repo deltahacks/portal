@@ -26,7 +26,16 @@ const FIELD_TYPES = [
 ];
 
 // DH Years for selection
-const DH_YEARS = Array.from({ length: 5 }, (_, i) => `DH${12 + i}`);
+const DH_YEARS = [
+  "DH13",
+  "DH14",
+  "DH15",
+  "DH16",
+  "DH17",
+  "DH18",
+  "DH19",
+  "DH20",
+];
 
 interface Field {
   id: string;
@@ -598,21 +607,17 @@ const SchemaEditor: React.FC = () => {
             </div>
             <div>
               <label className="label">
-                <span className="label-text">DeltaHacks Year *</span>
+                <span className="label-text">Hackathon Year</span>
               </label>
-              <select
-                className="select select-bordered w-full"
+              <input
+                type="text"
+                className="input input-bordered w-full"
                 value={metadata.dhYear}
                 onChange={(e) =>
                   setMetadata({ ...metadata, dhYear: e.target.value })
                 }
-              >
-                {DH_YEARS.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+                placeholder="e.g., DH13, Hackathon 2025, etc."
+              />
             </div>
             <div className="md:col-span-2">
               <label className="label">
