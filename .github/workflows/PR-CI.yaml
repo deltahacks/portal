@@ -24,14 +24,16 @@ jobs:
     name: Run Prettier Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v2
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.6
         with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - run: pnpm install prettier
-      - run: pnpm run format:check
+          dry: true
+          prettier_options: --check .
+          github_token: ${{ secrets.GITHUB_TOKEN }}
