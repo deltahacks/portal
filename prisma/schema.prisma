@@ -85,7 +85,8 @@ model EventLog {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   timestamp DateTime @default(now())
-  event     String
+  station   String
+  type      String
 }
 
 model VerificationToken {
