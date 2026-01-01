@@ -19,15 +19,15 @@ const Schedule: NextPage = () => {
       <div className="flex-auto overflow-hidden">
         <div className="h-full px-4 pt-5 sm:hidden">
           <Scheduler
-            defaultCurrentView="agenda"
-            defaultCurrentDate={startDate}
+            defaultView="agenda"
+            startDate={startDate}
             intervalCount={3}
           />
         </div>
         <div className="hidden h-full p-8 sm:block">
           <Scheduler
-            defaultCurrentView="day"
-            defaultCurrentDate={startDate}
+            defaultView="day"
+            startDate={startDate}
             intervalCount={3}
           />
         </div>
@@ -39,7 +39,7 @@ const Schedule: NextPage = () => {
 export default Schedule;
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  let output: GetServerSidePropsResult<Record<string, unknown>> = {
+  const output: GetServerSidePropsResult<Record<string, unknown>> = {
     props: {},
   };
 
