@@ -280,22 +280,28 @@ const CalendarView: React.FC<{
                         return (
                           <div
                             key={event.id}
-                            className={cn(
-                              "absolute z-10 overflow-hidden rounded-md px-2 py-1.5",
-                              "border border-black/20 shadow-md shadow-black/30",
-                              "ring-1 ring-inset ring-white/10",
-                              color.bg,
-                              color.text
-                            )}
+                            className="absolute z-10 hover:z-20 origin-top-left"
                             style={style || undefined}
-                            title={`${event.summary}\n${startTime} - ${endTime}\n${event.location || ""}`}
                           >
-                            <div className="text-xs font-medium leading-snug break-words">
-                              {event.summary}
-                            </div>
-                            <div className="mt-0.5 text-xs leading-snug opacity-80 break-words">
-                              {startTime} - {endTime}
-                              {event.location && `, ${event.location}`}
+                            <div
+                              className={cn(
+                                "h-full overflow-hidden rounded-md px-2 py-1.5",
+                                "border border-black/20 shadow-md shadow-black/30",
+                                "ring-1 ring-inset ring-white/10",
+                                "transition-all duration-200 ease-out",
+                                "hover:h-auto hover:min-h-full hover:overflow-visible",
+                                "hover:scale-[1.03] hover:shadow-lg hover:shadow-black/40",
+                                color.bg,
+                                color.text
+                              )}
+                            >
+                              <div className="text-xs font-medium leading-snug break-words">
+                                {event.summary}
+                              </div>
+                              <div className="mt-0.5 text-xs leading-snug opacity-80 break-words">
+                                {startTime} - {endTime}
+                                {event.location && `, ${event.location}`}
+                              </div>
                             </div>
                           </div>
                         );
