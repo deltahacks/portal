@@ -60,7 +60,7 @@ const getEventColor = (eventType: string) => {
 
 const eventsOverlap = (
   event1: CalendarEvent,
-  event2: CalendarEvent
+  event2: CalendarEvent,
 ): boolean => {
   const start1 = new Date(event1.start.dateTime).getTime();
   const end1 = new Date(event1.end.dateTime).getTime();
@@ -71,7 +71,7 @@ const eventsOverlap = (
 
 const calculateEventPositions = (
   events: CalendarEvent[],
-  date: Date
+  date: Date,
 ): Map<string, { column: number; totalColumns: number }> => {
   const positions = new Map<string, { column: number; totalColumns: number }>();
 
@@ -271,10 +271,10 @@ const CalendarView: React.FC<{
                         const style = getEventStyle(event, hour);
                         const color = getEventColor(event.eventType);
                         const startTime = toMilitaryTime(
-                          new Date(event.start.dateTime)
+                          new Date(event.start.dateTime),
                         );
                         const endTime = toMilitaryTime(
-                          new Date(event.end.dateTime)
+                          new Date(event.end.dateTime),
                         );
 
                         return (
@@ -292,7 +292,7 @@ const CalendarView: React.FC<{
                                 "hover:h-auto hover:min-h-full hover:overflow-visible",
                                 "hover:scale-[1.03] hover:shadow-lg hover:shadow-black/40",
                                 color.bg,
-                                color.text
+                                color.text,
                               )}
                             >
                               <div className="text-xs font-medium leading-snug break-words">
@@ -325,7 +325,7 @@ const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
 const DEFAULT_START_DATE = new Date(2026, 0, 9);
 
 const fetchCalendarEvents = async (
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<CalendarEvent[]> => {
   const dataUrl = [
     GOOGLE_CALENDAR_URL,
@@ -415,7 +415,7 @@ const AgendaView: React.FC<{
                 dayEvents.map((event) => {
                   const color = getEventColor(event.eventType);
                   const startTime = toMilitaryTime(
-                    new Date(event.start.dateTime)
+                    new Date(event.start.dateTime),
                   );
                   const endTime = toMilitaryTime(new Date(event.end.dateTime));
 
@@ -487,7 +487,7 @@ const Scheduler: React.FC<SchedulerProps> = ({
               "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               view === "day"
                 ? "bg-gray-700 text-white"
-                : "text-gray-400 hover:text-gray-200"
+                : "text-gray-400 hover:text-gray-200",
             )}
           >
             Calendar View
@@ -498,7 +498,7 @@ const Scheduler: React.FC<SchedulerProps> = ({
               "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               view === "agenda"
                 ? "bg-gray-700 text-white"
-                : "text-gray-400 hover:text-gray-200"
+                : "text-gray-400 hover:text-gray-200",
             )}
           >
             List View
