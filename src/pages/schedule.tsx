@@ -8,7 +8,7 @@ import Drawer from "../components/Drawer";
 import Scheduler from "../components/Scheduler";
 
 const Schedule: NextPage = () => {
-  const startDate = new Date(2026, 0, 9);
+  const startDate = new Date(2026, 0, 10);
   return (
     <Drawer
       pageTabs={[
@@ -21,14 +21,14 @@ const Schedule: NextPage = () => {
           <Scheduler
             defaultView="agenda"
             startDate={startDate}
-            intervalCount={3}
+            intervalCount={2}
           />
         </div>
         <div className="hidden h-full p-8 sm:block">
           <Scheduler
             defaultView="day"
             startDate={startDate}
-            intervalCount={3}
+            intervalCount={2}
           />
         </div>
       </div>
