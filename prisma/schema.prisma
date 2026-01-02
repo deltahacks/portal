@@ -85,8 +85,17 @@ model EventLog {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   timestamp DateTime @default(now())
-  station   String
-  type      String
+  stationId String
+  station   Station  @relation(fields: [stationId], references: [id])
+}
+
+model Station {
+  id        String     @id @default(cuid())
+  name      String
+  option    String
+  eventLogs EventLog[]
+
+  @@unique([name, option])
 }
 
 model VerificationToken {
