@@ -7,7 +7,7 @@ import Head from "next/head";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import Drawer from "../components/Drawer";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { Role } from "@prisma/client";
+import { Role, Station } from "@prisma/client";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import clsx from "clsx";
 import { trpc } from "../utils/trpc";
@@ -15,12 +15,12 @@ import { useOfflineQueue } from "../hooks/useOfflineQueue";
 import { z } from "zod";
 import { Input } from "../components/Input";
 import {
-  type Station,
+  type StationName,
   type WizardState,
   type WizardAction,
   type ScannerQueueItem,
   type ScanState,
-  stationOptionsMap,
+  type SelectedStation,
   initialWizardState,
   stationLabels,
 } from "../schemas/scanner";
@@ -28,13 +28,22 @@ import {
 function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   switch (action.type) {
     case "SELECT_STATION": {
-      const options = stationOptionsMap[action.station];
-      const hasOptions = options.length > 0;
+      if (action.stationName === "checkIn") {
+        return {
+          step: "ready",
+          station: {
+            name: action.stationName,
+            stationId: "checkIn",
+            optionLabel: null,
+          },
+        };
+      }
       return {
-        step: hasOptions ? "selectingOption" : "ready",
+        step: "selectingOption",
         station: {
-          name: action.station,
-          type: hasOptions ? "" : action.station,
+          name: action.stationName,
+          stationId: null,
+          optionLabel: null,
         },
       };
     }
@@ -43,7 +52,11 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       return {
         ...state,
         step: "ready",
-        station: { name: state.station.name, type: action.option },
+        station: {
+          name: state.station.name,
+          stationId: action.stationId,
+          optionLabel: action.optionLabel,
+        },
       };
     case "RESET":
       return initialWizardState;
@@ -54,7 +67,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
 
 const StationSelection: React.FC<{
   stations: { checkIn: boolean; food: boolean; events: boolean };
-  changeStation: (station: Station) => void;
+  changeStation: (stationName: StationName) => void;
 }> = ({ stations, changeStation }) => {
   return (
     <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
@@ -95,14 +108,14 @@ const StationSelection: React.FC<{
 };
 
 const StationConfigSelection: React.FC<{
-  station: Station;
-  options: readonly string[];
-  changeStationOption: (option: string) => void;
+  stationName: StationName;
+  options: Station[];
+  changeStationOption: (stationId: string, optionLabel: string) => void;
   onBack: () => void;
-}> = ({ station, options, changeStationOption, onBack }) => {
+}> = ({ stationName, options, changeStationOption, onBack }) => {
   const [search, setSearch] = useState("");
-  const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(search.toLowerCase()),
+  const filteredOptions = options.filter((opt) =>
+    opt.option.toLowerCase().includes(search.toLowerCase()),
   );
   return (
     <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border flex flex-col gap-4">
@@ -115,8 +128,8 @@ const StationConfigSelection: React.FC<{
         </button>
       </div>
       <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
-        {station === "food" && "Which meal are you serving?"}
-        {station === "events" && "Which event are you scanning for?"}
+        {stationName === "food" && "Which meal are you serving?"}
+        {stationName === "events" && "Which event are you scanning for?"}
       </p>
       <Input
         placeholder="Search for an option"
@@ -124,15 +137,21 @@ const StationConfigSelection: React.FC<{
         onChange={(e) => setSearch(e.target.value)}
       />
       <div className="flex flex-col gap-3 ">
-        {filteredOptions.map((option) => (
-          <button
-            key={option}
-            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
-            onClick={() => changeStationOption(option)}
-          >
-            {option}
-          </button>
-        ))}
+        {filteredOptions.length === 0 ? (
+          <p className="text-center text-red-500 dark:text-red-400">
+            No options configured. Please add options in the admin panel.
+          </p>
+        ) : (
+          filteredOptions.map((opt) => (
+            <button
+              key={opt.id}
+              className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+              onClick={() => changeStationOption(opt.id, opt.option)}
+            >
+              {opt.option}
+            </button>
+          ))
+        )}
       </div>
     </div>
   );
@@ -147,7 +166,7 @@ const EXPECTED_ERROR_CODES = new Set([
 ]);
 
 const ScannerUI: React.FC<{
-  station: { name: Station; type: string };
+  station: SelectedStation;
   onReset: () => void;
 }> = ({ station, onReset }) => {
   const lastScannedRef = useRef<string | null>(null);
@@ -183,7 +202,7 @@ const ScannerUI: React.FC<{
   useEffect(() => {
     if (queuedItems.length > 0) {
       queuedItems.forEach((item) => {
-        mutateScannedId({ id: item.id, station: item.station });
+        mutateScannedId({ id: item.id, stationId: item.stationId });
       });
     }
     // we only want to run this once on mount
@@ -217,11 +236,12 @@ const ScannerUI: React.FC<{
         return;
       }
 
+      const stationId = station.stationId!;
       setScanState({ status: "success" });
-      addToQueue({ id: value, station });
-      mutateScannedId({ id: value, station });
+      addToQueue({ id: value, stationId });
+      mutateScannedId({ id: value, stationId });
     },
-    [station, addToQueue, mutateScannedId],
+    [station.stationId, addToQueue, mutateScannedId],
   );
 
   const handleError = useCallback((error: unknown) => {
@@ -354,6 +374,8 @@ interface ScannerPageProps {
 }
 
 const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
+  const { data: stationOptions } = trpc.scanner.listStations.useQuery();
+
   const [wizard, dispatch] = useReducer(wizardReducer, initialWizardState);
 
   const renderWizardStep = () => {
@@ -362,18 +384,18 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
         return (
           <StationSelection
             stations={availableStations}
-            changeStation={(station) =>
-              dispatch({ type: "SELECT_STATION", station })
+            changeStation={(stationName) =>
+              dispatch({ type: "SELECT_STATION", stationName })
             }
           />
         );
       case "selectingOption":
         return wizard.station ? (
           <StationConfigSelection
-            station={wizard.station.name}
-            options={stationOptionsMap[wizard.station.name]}
-            changeStationOption={(option) =>
-              dispatch({ type: "SELECT_OPTION", option })
+            stationName={wizard.station.name}
+            options={stationOptions?.[wizard.station.name] || []}
+            changeStationOption={(stationId, optionLabel) =>
+              dispatch({ type: "SELECT_OPTION", stationId, optionLabel })
             }
             onBack={() => dispatch({ type: "RESET" })}
           />
