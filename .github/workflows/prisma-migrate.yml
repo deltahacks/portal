@@ -1,0 +1,29 @@
+name: Prisma Migrations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "prisma/migrations/**"
+
+jobs:
+  migrate:
+    name: Run Prisma Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Prisma CLI
+        run: npm install -g prisma@6.11.1
+
+      - name: Run migrations
+        run: prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
