@@ -170,11 +170,17 @@ const CalendarView: React.FC<{
     return events.filter((event) => {
       const eventStart = new Date(event.start.dateTime);
       const eventEnd = new Date(event.end.dateTime);
+      const endHour = eventEnd.getHours();
+      const endMinutes = eventEnd.getMinutes();
+
+      // Event ends after the start of this hour slot
+      const endsAfterHourStart =
+        endHour > hour || (endHour === hour && endMinutes > 0);
 
       return (
         isSameDay(eventStart, date) &&
         eventStart.getHours() <= hour &&
-        eventEnd.getHours() > hour
+        endsAfterHourStart
       );
     });
   };
@@ -341,21 +347,49 @@ const fetchCalendarEvents = async (
     throw new Error(data.error.message);
   }
 
-  return (data.items || []).map((event: any) => {
-    const parts = event.summary?.split("|") || [];
-    const eventType = parts.at(-1)?.trim() || "";
-    const summaryWithoutTag =
-      parts.length > 1 ? parts.slice(0, -1).join("|").trim() : event.summary;
-    return {
-      id: event.id,
-      summary: summaryWithoutTag || "Untitled Event",
-      description: event.description,
-      location: event.location,
-      start: event.start,
-      end: event.end,
-      eventType,
-    };
-  });
+  console.log("Raw calendar data:", data.items);
+
+  return (data.items || [])
+    .filter((event: any) => event.start && event.end)
+    .map((event: any) => {
+      const parts = event.summary?.split("|") || [];
+      const eventType = parts.at(-1)?.trim() || "";
+      const summaryWithoutTag =
+        parts.length > 1 ? parts.slice(0, -1).join("|").trim() : event.summary;
+
+      // Handle all-day events (have date instead of dateTime)
+      const isAllDay = !event.start.dateTime;
+      const start = isAllDay
+        ? {
+            dateTime: `${event.start.date}T08:00:00`,
+            timeZone: event.start.timeZone,
+          }
+        : event.start;
+      const end = isAllDay
+        ? {
+            dateTime: `${event.start.date}T09:00:00`,
+            timeZone: event.end.timeZone,
+          }
+        : event.end;
+
+      const mapped = {
+        id: event.id,
+        summary: summaryWithoutTag || "Untitled Event",
+        description: event.description,
+        location: event.location,
+        start,
+        end,
+        eventType,
+      };
+      console.log("Mapped event:", {
+        raw: event.summary,
+        eventType,
+        isAllDay,
+        start,
+        end,
+      });
+      return mapped;
+    });
 };
 
 const AgendaView: React.FC<{
