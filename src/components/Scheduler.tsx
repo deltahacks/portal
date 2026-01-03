@@ -54,6 +54,27 @@ const isSameDay = (date1: Date, date2: Date): boolean => {
   );
 };
 
+// Check if an event is active on a given date (handles multi-day events)
+const isEventOnDate = (event: CalendarEvent, date: Date): boolean => {
+  const eventStart = new Date(event.start.dateTime);
+  const eventEnd = new Date(event.end.dateTime);
+
+  // Normalize dates to start of day for comparison
+  const dayStart = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+  const dayEnd = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + 1,
+  );
+
+  // Event overlaps with this day if it starts before day ends AND ends after day starts
+  return eventStart < dayEnd && eventEnd > dayStart;
+};
+
 const getEventColor = (eventType: string) => {
   return eventTypeColors.get(eventType) ?? defaultColor;
 };
@@ -76,7 +97,7 @@ const calculateEventPositions = (
   const positions = new Map<string, { column: number; totalColumns: number }>();
 
   const dayEvents = events
-    .filter((event) => isSameDay(new Date(event.start.dateTime), date))
+    .filter((event) => isEventOnDate(event, date))
     .sort((a, b) => {
       const startDiff =
         new Date(a.start.dateTime).getTime() -
@@ -152,7 +173,8 @@ const CalendarView: React.FC<{
   events: CalendarEvent[];
   dates: Date[];
 }> = ({ events, dates }) => {
-  const hours = Array.from({ length: 16 }, (_, i) => i + 8);
+  // Show all 24 hours (00:00 to 23:59)
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const eventPositions = useMemo(() => {
     const allPositions = new Map<
@@ -168,33 +190,62 @@ const CalendarView: React.FC<{
 
   const getEventsForDateAndHour = (date: Date, hour: number) => {
     return events.filter((event) => {
+      if (!isEventOnDate(event, date)) return false;
+
       const eventStart = new Date(event.start.dateTime);
       const eventEnd = new Date(event.end.dateTime);
-      const endHour = eventEnd.getHours();
-      const endMinutes = eventEnd.getMinutes();
+      const isFirstDay = isSameDay(eventStart, date);
+      const isLastDay = isSameDay(eventEnd, date);
 
-      // Event ends after the start of this hour slot
-      const endsAfterHourStart =
-        endHour > hour || (endHour === hour && endMinutes > 0);
+      // Determine the effective start hour for this day
+      const effectiveStartHour = isFirstDay ? eventStart.getHours() : 0;
 
-      return (
-        isSameDay(eventStart, date) &&
-        eventStart.getHours() <= hour &&
-        endsAfterHourStart
-      );
+      // Determine the effective end hour for this day
+      let effectiveEndHour: number;
+      let effectiveEndMinutes: number;
+      if (isLastDay) {
+        effectiveEndHour = eventEnd.getHours();
+        effectiveEndMinutes = eventEnd.getMinutes();
+      } else {
+        // Event continues past this day
+        effectiveEndHour = 24;
+        effectiveEndMinutes = 0;
+      }
+
+      // Check if this hour slot is within the event's range for this day
+      if (hour < effectiveStartHour) return false;
+      if (hour > effectiveEndHour) return false;
+      if (hour === effectiveEndHour && effectiveEndMinutes === 0) return false;
+
+      return true;
     });
   };
 
-  const getEventStyle = (event: CalendarEvent, hour: number) => {
+  const getEventStyle = (event: CalendarEvent, date: Date, hour: number) => {
     const eventStart = new Date(event.start.dateTime);
     const eventEnd = new Date(event.end.dateTime);
-    const startHour = eventStart.getHours();
-    const startMinutes = eventStart.getMinutes();
-    const endHour = eventEnd.getHours();
-    const endMinutes = eventEnd.getMinutes();
+    const isFirstDay = isSameDay(eventStart, date);
+    const isLastDay = isSameDay(eventEnd, date);
+
+    // Calculate effective start/end for this specific day
+    const effectiveStartHour = isFirstDay ? eventStart.getHours() : 0;
+    const effectiveStartMinutes = isFirstDay ? eventStart.getMinutes() : 0;
+
+    let effectiveEndHour: number;
+    let effectiveEndMinutes: number;
+    if (isLastDay) {
+      effectiveEndHour = eventEnd.getHours();
+      effectiveEndMinutes = eventEnd.getMinutes();
+    } else {
+      effectiveEndHour = 24;
+      effectiveEndMinutes = 0;
+    }
 
     const durationHours =
-      (endHour * 60 + endMinutes - (startHour * 60 + startMinutes)) / 60;
+      (effectiveEndHour * 60 +
+        effectiveEndMinutes -
+        (effectiveStartHour * 60 + effectiveStartMinutes)) /
+      60;
 
     const position = eventPositions.get(event.id) || {
       column: 0,
@@ -211,11 +262,11 @@ const CalendarView: React.FC<{
         ? `calc(${(column / totalColumns) * 100}% + 2px)`
         : "2px";
 
-    if (hour === startHour) {
+    if (hour === effectiveStartHour) {
       return {
         height: `calc(${Math.max(durationHours, 1) * 100}% + ${(Math.max(durationHours, 1) - 1) * 1}px)`,
         minHeight: "3.5rem",
-        top: `${(startMinutes / 60) * 100}%`,
+        top: `${(effectiveStartMinutes / 60) * 100}%`,
         width,
         left,
       };
@@ -272,16 +323,21 @@ const CalendarView: React.FC<{
                       className="relative h-16 border-b border-gray-700"
                     >
                       {eventsInSlot.map((event) => {
-                        if (new Date(event.start.dateTime).getHours() !== hour)
-                          return null;
-                        const style = getEventStyle(event, hour);
+                        const style = getEventStyle(event, date, hour);
+                        // Only render event once per day (when style is returned)
+                        if (!style) return null;
                         const color = getEventColor(event.eventType);
-                        const startTime = toMilitaryTime(
-                          new Date(event.start.dateTime),
-                        );
-                        const endTime = toMilitaryTime(
-                          new Date(event.end.dateTime),
-                        );
+                        const eventStart = new Date(event.start.dateTime);
+                        const eventEnd = new Date(event.end.dateTime);
+                        const isFirstDay = isSameDay(eventStart, date);
+                        const isLastDay = isSameDay(eventEnd, date);
+                        // Show actual times on first/last day, otherwise show continuation
+                        const startTime = isFirstDay
+                          ? toMilitaryTime(eventStart)
+                          : "00:00";
+                        const endTime = isLastDay
+                          ? toMilitaryTime(eventEnd)
+                          : "23:59";
 
                         return (
                           <div
