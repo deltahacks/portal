@@ -420,20 +420,20 @@ const RSVPed: React.FC = () => {
             FAQ
           </Link>
         </Button>
-        {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
             className="w-full md:w-48"
-            href="https://discord.gg/m3GNs5ZW6h"
+            href="https://discord.gg/Mnhp8HnXXr"
             target="_blank"
           >
             Discord
           </Link>
-        </Button> */}
-        {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
+        </Button>
+        <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link className="w-full md:w-48" href="/schedule">
             Schedule
           </Link>
-        </Button> */}
+        </Button>
 
         {/* <Button className="btn w-full md:w-48 border-none hover: hover:bg-zinc-700 text-base font-medium capitalize">
           <Link
@@ -458,11 +458,11 @@ const CheckedIn: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? `${session.user?.name}` : ""}, welcome to your dashboard!
       </h1>
-      {/* <Link href="/schedule">
+      <Link href="/schedule">
         <Button className="btn w-full border-none hover:bg-zinc-700 text-base font-medium capitalize">
           Schedule
         </Button>
-      </Link> */}
+      </Link>
       <Link href="/profile">
         <Button className="btn w-full border-none hover:bg-zinc-700 text-base font-medium capitalize">
           My Profile
