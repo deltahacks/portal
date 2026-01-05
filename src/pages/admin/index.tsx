@@ -83,6 +83,11 @@ const Admin: NextPage = () => {
               description="Access the application grading interface"
               href="/admin/grade"
             />
+            <AdminCard
+              title="Station Config"
+              description="Manage food and event scanner options"
+              href="/admin/station-config"
+            />
           </div>
 
           <div className="card bg-base-200 shadow-xl p-6">
