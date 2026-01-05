@@ -1,10 +1,10 @@
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, publicProcedure, router } from "./trpc";
+import { protectedProcedure, router } from "./trpc";
 import { Role, Status } from "@prisma/client";
 import { z } from "zod";
 
 export const scannerRouter = router({
-  listStations: publicProcedure.query(async ({ ctx }) => {
+  listStations: protectedProcedure.query(async ({ ctx }) => {
     const stations = await ctx.prisma.station.findMany({
       orderBy: [{ name: "asc" }, { option: "asc" }],
       include: { _count: { select: { eventLogs: true } } },
@@ -24,7 +24,7 @@ export const scannerRouter = router({
     return grouped;
   }),
 
-  getStationOptions: publicProcedure
+  getStationOptions: protectedProcedure
     .input(z.object({ name: z.string() }))
     .query(async ({ ctx, input }) => {
       const stations = await ctx.prisma.station.findMany({
