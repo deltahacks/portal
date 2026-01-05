@@ -9,7 +9,7 @@ import { getServerSession } from "next-auth";
 
 export const GET = async (
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   const id = (await params).id;
   const session = await getServerSession(authOptions);
@@ -75,7 +75,7 @@ export const GET = async (
       },
       {
         backgroundColor: cardColor,
-      }
+      },
     );
 
     // Adding some settings to be written inside pass.json
