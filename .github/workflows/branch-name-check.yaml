@@ -22,9 +22,9 @@ jobs:
           else
             branch_name="${{ github.ref_name }}"
           fi
-          
+
           echo "Checking branch name: $branch_name"
-          
+
           # Check if branch name matches pattern */*, 
           # Must contain exactly one slash with content before and after
           if [[ ! "$branch_name" =~ ^[^/]+/.+$ ]]; then
@@ -37,5 +37,5 @@ jobs:
             echo "Current branch '$branch_name' should be renamed to follow the pattern."
             exit 1
           fi
-          
+
           echo "✅ Branch name '$branch_name' follows naming convention"

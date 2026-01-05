@@ -1,13 +1,7 @@
 import { useRouter } from "next/router";
-import {
-  GetServerSidePropsContext,
-  NextApiRequest,
-  NextApiResponse,
-  NextPage,
-} from "next";
+import { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import Drawer from "../../components/Drawer";
-import SocialButtons from "../../components/SocialButtons";
 import { trpc } from "../../utils/trpc";
 import QRCode from "react-qr-code";
 import { env } from "../../env/client.mjs";
@@ -18,6 +12,13 @@ import { z } from "zod";
 import { useState } from "react";
 import Select from "react-select";
 import { useQuery } from "@tanstack/react-query";
+import { appRouter } from "../../server/router";
+import { createContextInner } from "../../server/router/context";
+import { Role } from "@prisma/client";
+import { Button } from "../../components/Button";
+import Link from "next/link";
+import { ArrowUpRightIcon } from "lucide-react";
+import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 
 interface ProfilePageProps {
   initialState: any; // FIX THIS
@@ -88,7 +89,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop",
+      event.eventType.toLowerCase() === "workshop"
   );
 };
 
@@ -141,11 +142,12 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
 
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
 
-  const logEventMutation = trpc.events.checkin.useMutation({
-    onSettled: () => {
-      utils.user.getProfile.invalidate();
-    },
-  });
+  // TODO: update logic for new qr code system
+  // const logEventMutation = trpc.events.checkin.useMutation({
+  //   onSettled: () => {
+  //     utils.user.getProfile.invalidate();
+  //   },
+  // });
 
   const { data: events } = useQuery({
     queryKey: ["events"],
@@ -277,7 +279,8 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                     singleValue: () => "dark:text-white text-black",
                   }}
                 />
-                <Button
+                {/* TODO: update logic for new qr code system */}
+                {/* <Button
                   className="w-full my-2"
                   onClick={() =>
                     selectedEvent &&
@@ -295,7 +298,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                   ) : (
                     "Check In"
                   )}
-                </Button>
+                </Button> */}
               </div>
 
               <div className="mt-4">
@@ -328,19 +331,6 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
 };
 
 export default ProfilePage;
-
-import { GetServerSideProps } from "next";
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import { appRouter } from "../../server/router";
-import { createContext, createContextInner } from "../../server/router/context";
-import { Role, User } from "@prisma/client";
-import { Button } from "../../components/Button";
-import Link from "next/link";
-import { ArrowUpLeftIcon, ArrowUpRightIcon } from "lucide-react";
-import { getServerAuthSession } from "../../server/common/get-server-auth-session";
-import clsx from "clsx";
-import { Controller } from "react-hook-form";
-import SuperJSON from "superjson";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(ctx);
