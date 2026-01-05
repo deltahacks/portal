@@ -89,7 +89,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop"
+      event.eventType.toLowerCase() === "workshop",
   );
 };
 
