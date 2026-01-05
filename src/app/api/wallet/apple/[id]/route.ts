@@ -2,28 +2,21 @@ import { PKPass } from "passkit-generator";
 import { promises as fs } from "fs";
 import { env } from "../../../../../env/server.mjs";
 import path from "path";
+import { authOptions } from "../../../../../pages/api/auth/[...nextauth]";
 
 import { prisma } from "../../../../../server/db/client";
-
-// // import { db } from "@/server/db";
-// import path from "path";
-// import { env } from "../../../../../env/server.mjs";
-// // async function readFileToBuffer(filePath: string): Promise<Buffer> {
-// //   try {
-// //     const buffer = await fs.readFile(filePath);
-// //     console.log("File buffer:", buffer);
-// //     return buffer;
-// //   } catch (err) {
-// //     console.error("Error reading file:", err);
-// //     throw err;
-// //   }
-// // }
+import { getServerSession } from "next-auth";
 
 export const GET = async (
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   const id = (await params).id;
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id || session.user.id !== id) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   const user = await prisma?.user.findFirst({
     where: {
@@ -82,7 +75,7 @@ export const GET = async (
       },
       {
         backgroundColor: cardColor,
-      },
+      }
     );
 
     // Adding some settings to be written inside pass.json
