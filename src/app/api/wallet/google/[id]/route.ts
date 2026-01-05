@@ -74,7 +74,15 @@ export async function GET(
     },
   };
 
-  assert(credentials.private_key, "Private key is required");
+  if (
+    credentials.private_key === undefined ||
+    credentials.private_key === null
+  ) {
+    return new Response("Private key not found in credentials", {
+      status: 500,
+    });
+  }
+
   const token = jwt.sign(jwtClaims, credentials.private_key, {
     algorithm: "RS256",
   });
@@ -241,10 +249,4 @@ function createObject(
       ? `${user.DH12Application.firstName} ${user.DH12Application.lastName}`.trim()
       : (user.name ?? user.email ?? "Attendee"),
   };
-}
-
-export function assert(condition: unknown, message: string): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
 }
