@@ -54,8 +54,6 @@ export async function GET(
 
   await syncClass(eventTicketClass);
 
-  // Updates occur only if the user attempts to download their wallet
-  // again
   const newObject = createObject(
     env.GOOGLE_WALLET_ISSUER_ID,
     env.GOOGLE_WALLET_CLASS_ID,
@@ -185,6 +183,8 @@ function createClass(
   };
 }
 
+// Updates occur only if the user attempts to download their wallet
+// again
 async function syncObject(
   walletObject: walletobjects_v1.Schema$EventTicketObject,
   userId: string
