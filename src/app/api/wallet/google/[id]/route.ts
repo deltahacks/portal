@@ -19,7 +19,7 @@ const client = google.walletobjects({
 
 export async function GET(
   _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const userId = (await params).id;
   const session = await getServerSession(authOptions);
@@ -49,7 +49,7 @@ export async function GET(
 
   const eventTicketClass = createClass(
     env.GOOGLE_WALLET_ISSUER_ID,
-    env.GOOGLE_WALLET_CLASS_ID
+    env.GOOGLE_WALLET_CLASS_ID,
   );
 
   await syncClass(eventTicketClass);
@@ -57,7 +57,7 @@ export async function GET(
   const newObject = createObject(
     env.GOOGLE_WALLET_ISSUER_ID,
     env.GOOGLE_WALLET_CLASS_ID,
-    user
+    user,
   );
 
   await syncObject(newObject, userId);
@@ -83,7 +83,7 @@ export async function GET(
 }
 
 async function syncClass(
-  walletClass: walletobjects_v1.Schema$EventTicketClass
+  walletClass: walletobjects_v1.Schema$EventTicketClass,
 ) {
   let classExists = false;
   try {
@@ -125,7 +125,7 @@ async function syncClass(
 
 function createClass(
   issuerId: string,
-  classId: string
+  classId: string,
 ): walletobjects_v1.Schema$EventTicketClass {
   return {
     id: `${issuerId}.${classId}`,
@@ -176,8 +176,8 @@ function createClass(
     },
     locations: [
       {
-        latitude: 43.2638001,
-        longitude: -79.9217917,
+        latitude: 43.2641147,
+        longitude: -79.9237059,
       },
     ],
   };
@@ -187,7 +187,7 @@ function createClass(
 // again
 async function syncObject(
   walletObject: walletobjects_v1.Schema$EventTicketObject,
-  userId: string
+  userId: string,
 ) {
   let objectExists = false;
   try {
@@ -227,7 +227,7 @@ async function syncObject(
 function createObject(
   issuerId: string,
   classId: string,
-  user: User & { DH12Application: DH12Application | null }
+  user: User & { DH12Application: DH12Application | null },
 ): walletobjects_v1.Schema$EventTicketObject {
   return {
     id: `${issuerId}.${user.id}`,
