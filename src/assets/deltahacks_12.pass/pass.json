@@ -1,7 +1,7 @@
 {
-  "passTypeIdentifier": "pass.com.mvzkitchen",
+  "passTypeIdentifier": "pass.com.deltahacks",
   "serialNumber": "8b3732cc-6bfb-371c-95ed-5cef0cbf774e",
-  "webServiceURL": "https://f95c-74-12-79-29.ngrok-free.app/api/wallet/apple/service/",
+  "webServiceURL": "https://portal.deltahacks.com/api/wallet/apple/service/",
   "authenticationToken": "abcdefghijklmnopqrstuvwxyz",
   "formatVersion": 1,
 
