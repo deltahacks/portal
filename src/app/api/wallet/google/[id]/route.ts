@@ -3,14 +3,30 @@ import { prisma } from "../../../../../server/db/client";
 import { google, walletobjects_v1 } from "googleapis";
 import jwt from "jsonwebtoken";
 
-import { assert } from "../../../../../utils/assert";
-import { DH11Application, User } from "@prisma/client";
+import { DH12Application, User } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../../../../pages/api/auth/[...nextauth]";
+
+const auth = new google.auth.GoogleAuth({
+  credentials: JSON.parse(env.GOOGLE_WALLET_SERVICE_KEY_JSON),
+  scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
+});
+
+const client = google.walletobjects({
+  version: "v1",
+  auth,
+});
 
 export async function GET(
   _: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const userId = (await params).id;
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id || session.user.id !== userId) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   // if (!env.GOOGLE_WALLET_ISSUER_ID || !env.GOOGLE_WALLET_CLASS_ID) {
   //   return new Response("Google wallet issuer ID or class ID is not set", {
@@ -23,7 +39,7 @@ export async function GET(
       id: userId,
     },
     include: {
-      DH11Application: true,
+      DH12Application: true,
     },
   });
 
@@ -31,88 +47,22 @@ export async function GET(
     return new Response("User not found", { status: 404 });
   }
 
-  let classExists = false;
-  try {
-    await client.eventticketclass.get({
-      resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${env.GOOGLE_WALLET_CLASS_ID}`,
-    });
-    classExists = true;
-  } catch (err: any) {
-    if (!err.response || err.response.status !== 404) {
-      console.error(err);
-      return new Response("Error checking event ticket class", { status: 500 });
-    }
-  }
-
   const eventTicketClass = createClass(
     env.GOOGLE_WALLET_ISSUER_ID,
-    env.GOOGLE_WALLET_CLASS_ID,
+    env.GOOGLE_WALLET_CLASS_ID
   );
-  if (classExists) {
-    try {
-      await client.eventticketclass.update({
-        resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${env.GOOGLE_WALLET_CLASS_ID}`,
-        requestBody: eventTicketClass,
-      });
-    } catch (err) {
-      console.log(err);
-      return new Response("Error updating event ticket class", {
-        status: 500,
-      });
-    }
-  } else {
-    try {
-      await client.eventticketclass.insert({
-        requestBody: eventTicketClass,
-      });
-    } catch (err) {
-      return new Response("Error creating event ticket class", {
-        status: 500,
-      });
-    }
-  }
 
-  let objectExists = false;
-  try {
-    await client.eventticketobject.get({
-      resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${userId}`,
-    });
-    objectExists = true;
-  } catch (err: any) {
-    if (!err.response || err.response.status !== 404) {
-      return new Response("Error checking event ticket object", {
-        status: 500,
-      });
-    }
-  }
+  await syncClass(eventTicketClass);
 
   // Updates occur only if the user attempts to download their wallet
   // again
   const newObject = createObject(
     env.GOOGLE_WALLET_ISSUER_ID,
     env.GOOGLE_WALLET_CLASS_ID,
-    user,
+    user
   );
-  if (objectExists) {
-    try {
-      await client.eventticketobject.update({
-        resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${userId}`,
-        requestBody: newObject,
-      });
-    } catch (err) {
-      return new Response("Error updating event ticket object", {
-        status: 500,
-      });
-    }
-  } else {
-    try {
-      await client.eventticketobject.insert({
-        requestBody: newObject,
-      });
-    } catch (err) {
-      return new Response("Error creating pass", { status: 500 });
-    }
-  }
+
+  await syncObject(newObject, userId);
 
   const credentials = await auth.getCredentials();
   const jwtClaims = {
@@ -134,19 +84,50 @@ export async function GET(
   return Response.redirect(`https://pay.google.com/gp/v/save/${token}`, 302);
 }
 
-const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(env.GOOGLE_WALLET_SERVICE_KEY_JSON),
-  scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"]
-});
+async function syncClass(
+  walletClass: walletobjects_v1.Schema$EventTicketClass
+) {
+  let classExists = false;
+  try {
+    await client.eventticketclass.get({
+      resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${env.GOOGLE_WALLET_CLASS_ID}`,
+    });
+    classExists = true;
+  } catch (err: any) {
+    if (!err.response || err.response.status !== 404) {
+      console.error(err);
+      return new Response("Error checking event ticket class", { status: 500 });
+    }
+  }
 
-const client = google.walletobjects({
-  version: "v1",
-  auth,
-});
+  if (classExists) {
+    try {
+      await client.eventticketclass.update({
+        resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${env.GOOGLE_WALLET_CLASS_ID}`,
+        requestBody: walletClass,
+      });
+    } catch (err) {
+      console.log(err);
+      return new Response("Error updating event ticket class", {
+        status: 500,
+      });
+    }
+  } else {
+    try {
+      await client.eventticketclass.insert({
+        requestBody: walletClass,
+      });
+    } catch (err) {
+      return new Response("Error creating event ticket class", {
+        status: 500,
+      });
+    }
+  }
+}
 
 function createClass(
   issuerId: string,
-  classId: string,
+  classId: string
 ): walletobjects_v1.Schema$EventTicketClass {
   return {
     id: `${issuerId}.${classId}`,
@@ -187,6 +168,9 @@ function createClass(
         },
       },
     },
+    // Datetimes are written in UTC but on an android emulator they are
+    // displayed as the UTC time in the local timezone.
+    // So Android Emulator in EST would be at doorsOpen: 8 AM
     dateTime: {
       doorsOpen: "2026-01-10T08:00:00.000Z",
       start: "2026-01-10T08:00:00.000Z",
@@ -201,10 +185,49 @@ function createClass(
   };
 }
 
+async function syncObject(
+  walletObject: walletobjects_v1.Schema$EventTicketObject,
+  userId: string
+) {
+  let objectExists = false;
+  try {
+    await client.eventticketobject.get({
+      resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${userId}`,
+    });
+    objectExists = true;
+  } catch (err: any) {
+    if (!err.response || err.response.status !== 404) {
+      return new Response("Error checking event ticket object", {
+        status: 500,
+      });
+    }
+  }
+  if (objectExists) {
+    try {
+      await client.eventticketobject.update({
+        resourceId: `${env.GOOGLE_WALLET_ISSUER_ID}.${userId}`,
+        requestBody: walletObject,
+      });
+    } catch (err) {
+      return new Response("Error updating event ticket object", {
+        status: 500,
+      });
+    }
+  } else {
+    try {
+      await client.eventticketobject.insert({
+        requestBody: walletObject,
+      });
+    } catch (err) {
+      return new Response("Error creating pass", { status: 500 });
+    }
+  }
+}
+
 function createObject(
   issuerId: string,
   classId: string,
-  user: User & { DH11Application: DH11Application | null },
+  user: User & { DH12Application: DH12Application | null }
 ): walletobjects_v1.Schema$EventTicketObject {
   return {
     id: `${issuerId}.${user.id}`,
@@ -214,8 +237,14 @@ function createObject(
       type: "QR_CODE",
       value: `${env.NEXT_PUBLIC_URL}/profile/${user.id}`,
     },
-    ticketHolderName: user.DH11Application
-      ? `${user.DH11Application.firstName} ${user.DH11Application.lastName}`.trim()
+    ticketHolderName: user.DH12Application
+      ? `${user.DH12Application.firstName} ${user.DH12Application.lastName}`.trim()
       : (user.name ?? user.email ?? "Attendee"),
   };
+}
+
+export function assert(condition: unknown, message: string): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
 }
