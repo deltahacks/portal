@@ -75,7 +75,7 @@ export async function GET(
   };
 
   assert(credentials.private_key, "Private key is required");
-  let token = jwt.sign(jwtClaims, credentials.private_key, {
+  const token = jwt.sign(jwtClaims, credentials.private_key, {
     algorithm: "RS256",
   });
 
