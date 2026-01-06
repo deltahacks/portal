@@ -32,7 +32,7 @@ export const GET = async (
   }
 
   if (user.DH12Application?.status !== "RSVP") {
-    return new Response("User was not accepted to the event", { status: 400 });
+    return new Response("User was not accepted to the event", { status: 403 });
   }
 
   const cardColor = "rgb(94, 51, 184)";
