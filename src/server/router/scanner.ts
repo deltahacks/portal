@@ -174,6 +174,25 @@ export const scannerRouter = router({
             message: "Station option not found",
           });
         }
+        const existing = await ctx.prisma.eventLog.findFirst({
+          where: {
+            userId: id,
+            stationId,
+          },
+        });
+
+        const messages: Record<string, string> = {
+          checkIn: "This user has already been checked in",
+          food: "This user has already claimed a meal",
+          events: "This user has already checked in for this event",
+        };
+
+        if (existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: messages[station.name],
+          });
+        }
 
         await ctx.prisma.eventLog.create({
           data: {
