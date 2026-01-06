@@ -226,20 +226,34 @@ const ScannerUI: React.FC<{
 
       lastScannedRef.current = value;
 
-      const isValidCuid = z.cuid().safeParse(value).success;
-      if (!isValidCuid) {
+      const urlPattern =
+        process.env.NODE_ENV === "development"
+          ? /^(https:\/\/portal\.deltahacks\.com|http:\/\/localhost:\d+)\/profile\/c[a-z0-9]{24}$/
+          : /^https:\/\/portal\.deltahacks\.com\/profile\/c[a-z0-9]{24}$/;
+
+      const urlSchema = z
+        .string()
+        .regex(urlPattern, "Must be a valid DeltaHacks profile URL with CUID");
+
+      const isValidId = z.cuid().or(urlSchema).safeParse(value);
+      if (isValidId.error) {
         setScanState({
           status: "error",
           message: "Invalid QR code format. Please scan a valid attendee pass.",
-          error: "Zod validation error. This is not a valid CUID.",
+          error: isValidId.error.message,
         });
         return;
       }
 
+      // Extract CUID from URL if scanned value is a URL, otherwise use raw value
+      const id = value.includes("/profile/")
+        ? value.split("/profile/")[1]!
+        : value;
+
       const stationId = station.stationId!;
       setScanState({ status: "success" });
-      addToQueue({ id: value, stationId });
-      mutateScannedId({ id: value, stationId });
+      addToQueue({ id, stationId });
+      mutateScannedId({ id, stationId });
     },
     [station.stationId, addToQueue, mutateScannedId],
   );
