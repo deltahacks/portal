@@ -87,6 +87,8 @@ model EventLog {
   timestamp DateTime @default(now())
   stationId String
   station   Station  @relation(fields: [stationId], references: [id])
+
+  @@unique([userId, stationId])
 }
 
 model Station {

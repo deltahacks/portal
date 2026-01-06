@@ -212,7 +212,7 @@ const ScannerUI: React.FC<{
   useEffect(() => {
     const timer = setTimeout(() => {
       setScanState({ status: "idle" });
-    }, 600);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [scanState.status]);
 
@@ -222,6 +222,7 @@ const ScannerUI: React.FC<{
       // need to deduplicate scans since scanner keeps firing and would cause infinite re-scans
       if (!value || value === lastScannedRef.current) return;
       lastScannedRef.current = value;
+      scannerMutation.reset();
 
       let userId: string | undefined;
 
@@ -250,7 +251,7 @@ const ScannerUI: React.FC<{
 
       const stationId = station.stationId!;
       setScanState({ status: "success" });
-      scannerMutation.reset();
+
       addToQueue({ id: userId, stationId });
       mutateScannedId({ id: userId, stationId });
     },
