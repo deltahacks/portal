@@ -89,7 +89,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop",
+      event.eventType.toLowerCase() === "workshop"
   );
 };
 
@@ -217,7 +217,10 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               <div>
                 <div className="flex  w-full gap-4  *:select-none ">
                   <div className="flex-1 relative">
-                    <Link className=" block aspect-[110/35] w-full" href="#">
+                    <Link
+                      className="block aspect-[110/35] w-full"
+                      href={`/api/wallet/google/${qrCodeId}`}
+                    >
                       <Image
                         src="/wallet/google-badge-en.svg"
                         alt="Add to Google Wallet"
@@ -234,17 +237,6 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                       <Image
                         src="/wallet/apple-badge-en.svg"
                         alt="Add to Apple Wallet"
-                        fill
-                        className="pointer-events-none"
-                      />
-                    </Link>
-                    <Link
-                      className="relative block aspect-[110/35] w-full"
-                      href={`/api/wallet/google/${qrCodeId}`}
-                    >
-                      <Image
-                        src="/wallet/google-badge-en.svg"
-                        alt="Add to Google Wallet"
                         fill
                         className="pointer-events-none"
                       />
