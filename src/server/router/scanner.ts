@@ -148,6 +148,7 @@ export const scannerRouter = router({
 
       const user = await ctx.prisma.user.findFirst({
         where: { id },
+        include: { DH12Application: true },
       });
       if (user === null || user === undefined) {
         throw new TRPCError({
@@ -156,9 +157,16 @@ export const scannerRouter = router({
         });
       }
 
+      if (user.DH12Application?.status !== "RSVP") {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User was not accepted to the event",
+        });
+      }
+
       // Handle checkIn station separately (no station record needed)
       if (stationId === "checkIn") {
-        await ctx.prisma.user.update({
+        await ctx.prisma.dH12Application.update({
           where: { id },
           data: { status: Status.CHECKED_IN },
         });
