@@ -47,6 +47,10 @@ export async function GET(
     return new Response("User not found", { status: 404 });
   }
 
+  if (user.DH12Application?.status !== "RSVP") {
+    return new Response("User was not accepted to the event", { status: 403 });
+  }
+
   const eventTicketClass = createClass(
     env.GOOGLE_WALLET_ISSUER_ID,
     env.GOOGLE_WALLET_CLASS_ID,
