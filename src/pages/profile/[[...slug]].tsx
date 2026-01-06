@@ -89,7 +89,7 @@ const getEvents = async () => {
   return eventsWithType.filter(
     (event) =>
       event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop",
+      event.eventType.toLowerCase() === "workshop"
   );
 };
 
@@ -110,9 +110,7 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
         : undefined;
 
   const session = useSession();
-  const canAct =
-    session.data?.user?.role.includes(Role.GENERAL_SCANNER) ||
-    session.data?.user?.role.includes(Role.ADMIN);
+
   const showCode = id === undefined || id === session.data?.user?.id;
 
   // fetch details about this user
@@ -243,84 +241,6 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               </div>
             </div>
           ) : null}
-
-          {canAct && (
-            <div className="my-4">
-              <div>
-                <label className="label">
-                  <span>Event Check in :</span>
-                </label>
-                <Select
-                  value={{
-                    value: selectedEvent ?? "",
-                    label: selectedEvent ?? "",
-                  }}
-                  options={
-                    events?.map((event) => ({
-                      value: event.summary,
-                      label:
-                        event.summary?.split("|")[0]?.trim() ?? event.summary,
-                    })) ?? []
-                  }
-                  onChange={(option) => setSelectedEvent(option?.value ?? null)}
-                  isLoading={false}
-                  unstyled={true}
-                  classNames={{
-                    control: (state) =>
-                      state.menuIsOpen
-                        ? "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border"
-                        : "rounded-md p-3 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border",
-                    menu: () =>
-                      "dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border -mt-1 rounded-b-lg overflow-hidden",
-                    option: () =>
-                      "p-2 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:hover:bg-neutral-900",
-                    valueContainer: () =>
-                      "dark:text-neutral-500 text-neutral-700 gap-2",
-                    singleValue: () => "dark:text-white text-black",
-                  }}
-                />
-                {/* TODO: update logic for new qr code system */}
-                {/* <Button
-                  className="w-full my-2"
-                  onClick={() =>
-                    selectedEvent &&
-                    logEventMutation.mutate({
-                      userId: qrCodeId,
-                      eventName: selectedEvent,
-                    })
-                  }
-                  disabled={!selectedEvent || logEventMutation.isSuccess}
-                >
-                  {logEventMutation.isPending ? (
-                    <span className="animate-spin">⌛</span>
-                  ) : logEventMutation.isSuccess ? (
-                    "Checked In ✅"
-                  ) : (
-                    "Check In"
-                  )}
-                </Button> */}
-              </div>
-
-              <div className="mt-4">
-                Hackathon Check In
-                <Button
-                  className="w-full my-2"
-                  onClick={() => {
-                    checkInMutation.mutate(qrCodeId);
-                  }}
-                  disabled={user?.DH12Application?.status === "CHECKED_IN"}
-                >
-                  {checkInMutation.isPending ? (
-                    <span className="animate-spin">⌛</span>
-                  ) : user?.DH12Application?.status === "CHECKED_IN" ? (
-                    "Already Checked In"
-                  ) : (
-                    "Check In"
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
         </main>
         <footer className="bottom-0 right-0 p-4 md:absolute md:bottom-0">
           {/* <SocialButtons /> */}
