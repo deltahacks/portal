@@ -165,8 +165,8 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
           { pageName: "Schedule", link: "/schedule" },
         ]}
       >
-        <main className="px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-8">
-          <section>
+        <main className="px-7 sm:px-14 md:max-w-2xl lg:max-w-3xl mx-auto 2xl:pt-8">
+          <section className="text-center">
             <h1 className="font-bold text-2xl dark:text-white mb-2">
               {user?.DH12Application?.firstName}{" "}
               {user?.DH12Application?.lastName}
@@ -177,14 +177,17 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               {user?.DH12Application?.studyMajor} <br />
               {user?.DH12Application?.studyLocation}
             </div>
-            {!showCode ? (
+            {!showCode &&
+            user?.DH12Application?.socialText?.filter((s) => s?.trim()).length >
+              0 ? (
               <>
                 <h2 className="font-bold text-lg dark:text-white mb-2">
                   Socials
                 </h2>
-                <ul className="flex flex-col gap-2 mb-4">
-                  {user?.DH12Application?.socialText.map((socialText, i) => {
-                    return (
+                <ul className="flex flex-col gap-2 mb-4 items-center">
+                  {user.DH12Application.socialText
+                    .filter((s) => s?.trim())
+                    .map((socialText, i) => (
                       <li
                         key={i}
                         className="dark:text-black/90 text-white/90 bg-black dark:bg-white underline p-2 rounded-md"
@@ -197,19 +200,19 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
                           <ArrowUpRightIcon />
                         </Link>
                       </li>
-                    );
-                  })}
+                    ))}
                 </ul>
               </>
             ) : null}
           </section>
 
           {showCode ? (
-            <div className="flex flex-col gap-2 w-full md:w-auto">
-              <div className="w-full flex justify-center items-center bg-white rounded-lg p-4 shadow-lg shadow-black/50">
+            <div className="flex flex-col gap-4 w-full mx-auto">
+              <div className="w-full flex justify-center items-center bg-white rounded-lg p-6 shadow-lg shadow-black/50">
                 <QRCode
                   value={`${env.NEXT_PUBLIC_URL}/profile/${qrCodeId}`}
-                  className="w-full aspect-square h-auto"
+                  size={400}
+                  className="w-full h-auto max-w-full"
                 />
               </div>
               <div>
