@@ -210,10 +210,12 @@ const ScannerUI: React.FC<{
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setScanState({ status: "idle" });
-    }, 1000);
-    return () => clearTimeout(timer);
+    if (scanState.status === "success" || scanState.status === "error") {
+      const timer = setTimeout(() => {
+        setScanState({ status: "idle" });
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
   }, [scanState.status]);
 
   const handleScan = useCallback(
