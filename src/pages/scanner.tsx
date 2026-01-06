@@ -210,12 +210,10 @@ const ScannerUI: React.FC<{
   }, []);
 
   useEffect(() => {
-    if (scanState.status === "success") {
-      const timer = setTimeout(() => {
-        setScanState({ status: "idle" });
-      }, 600);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      setScanState({ status: "idle" });
+    }, 600);
+    return () => clearTimeout(timer);
   }, [scanState.status]);
 
   const handleScan = useCallback(
@@ -223,8 +221,9 @@ const ScannerUI: React.FC<{
       const value = result[0]?.rawValue;
       // need to deduplicate scans since scanner keeps firing and would cause infinite re-scans
       if (!value || value === lastScannedRef.current) return;
-
       lastScannedRef.current = value;
+
+      let userId: string | undefined;
 
       const urlPattern =
         process.env.NODE_ENV === "development"
@@ -234,26 +233,26 @@ const ScannerUI: React.FC<{
       const urlSchema = z
         .string()
         .regex(urlPattern, "Must be a valid DeltaHacks profile URL with CUID");
-
-      const isValidId = z.cuid().or(urlSchema).safeParse(value);
-      if (isValidId.error) {
+      if (urlSchema.safeParse(value).success) {
+        // null assertion since zod validation ensures url is correct format
+        userId = value.split("/profile/")[1]!;
+      }
+      if (z.cuid().safeParse(value).success) {
+        userId = value;
+      }
+      if (!userId) {
         setScanState({
           status: "error",
           message: "Invalid QR code format. Please scan a valid attendee pass.",
-          error: isValidId.error.message,
         });
         return;
       }
 
-      // Extract CUID from URL if scanned value is a URL, otherwise use raw value
-      const id = value.includes("/profile/")
-        ? value.split("/profile/")[1]!
-        : value;
-
       const stationId = station.stationId!;
       setScanState({ status: "success" });
-      addToQueue({ id, stationId });
-      mutateScannedId({ id, stationId });
+      scannerMutation.reset();
+      addToQueue({ id: userId, stationId });
+      mutateScannedId({ id: userId, stationId });
     },
     [station.stationId, addToQueue, mutateScannedId],
   );
@@ -322,57 +321,56 @@ const ScannerUI: React.FC<{
             Position the QR code within the frame to scan
           </p>
 
-          {/* {scanState.status === "success" && (
-            <p className="mt-4 text-green-600 dark:text-green-400 text-center font-medium">
-              ✓ Scan successful!
-            </p>
-          )} */}
-
-          {scanState.status === "error" && scanState.message && (
-            <p className="mt-4 text-red-600 dark:text-red-400 text-center font-medium">
-              {scanState.message}
-            </p>
-          )}
-
-          {scannerMutation.isError && (
-            <p className="mt-4 text-red-600 dark:text-red-400 text-center font-medium">
-              {scannerMutation.error?.message}
-            </p>
-          )}
-
-          {scannerMutation.data && (
-            <div className="mt-4 w-full max-w-sm mx-auto p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-lg">
-                  {scannerMutation.data.name?.charAt(0).toUpperCase() ?? "?"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-green-900 dark:text-green-100 truncate">
-                    {scannerMutation.data.name ?? "Unknown"}
-                  </p>
-                  <p className="text-sm text-green-700 dark:text-green-300 truncate">
-                    {scannerMutation.data.email ?? "No email"}
-                  </p>
-                </div>
-                <span className="text-green-600 dark:text-green-400 text-xl">
-                  ✓
-                </span>
-              </div>
-              <p className="text-xs text-green-600 dark:text-green-400 text-center font-medium">
-                Successfully scanned
+          {/* Errors from scanning */}
+          <div className="mt-4 w-full min-h-[120px]">
+            {scanState.status === "error" && scanState.message && (
+              <p className="text-red-600 dark:text-red-400 text-center font-medium">
+                {scanState.message}
               </p>
-            </div>
-          )}
-          {scanState.status === "error" && scanState.error && (
-            <details className="mt-4 w-full">
-              <summary className="text-red-600 dark:text-red-400 text-center font-medium cursor-pointer text-xs">
-                Error details (For Tech Team Use)
-              </summary>
-              <pre className="mt-2 p-3 max-h-40 overflow-auto text-left text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md whitespace-pre-wrap break-words">
-                {scanState.error}
-              </pre>
-            </details>
-          )}
+            )}
+
+            {/* Errors from mutation */}
+            {scannerMutation.isError && (
+              <p className="text-red-600 dark:text-red-400 text-center font-medium">
+                {scannerMutation.error?.message}
+              </p>
+            )}
+
+            {scannerMutation.data && (
+              <div className="w-full max-w-sm mx-auto p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-lg">
+                    {scannerMutation.data.name?.charAt(0).toUpperCase() ?? "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-green-900 dark:text-green-100 truncate">
+                      {scannerMutation.data.name ?? "Unknown"}
+                    </p>
+                    <p className="text-sm text-green-700 dark:text-green-300 truncate">
+                      {scannerMutation.data.email ?? "No email"}
+                    </p>
+                  </div>
+                  <span className="text-green-600 dark:text-green-400 text-xl">
+                    ✓
+                  </span>
+                </div>
+                <p className="text-xs text-green-600 dark:text-green-400 text-center font-medium">
+                  Successfully scanned
+                </p>
+              </div>
+            )}
+
+            {scanState.status === "error" && scanState.error && (
+              <details className="w-full">
+                <summary className="text-red-600 dark:text-red-400 text-center font-medium cursor-pointer text-xs">
+                  Error details (For Tech Team Use)
+                </summary>
+                <pre className="mt-2 p-3 max-h-40 overflow-auto text-left text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md whitespace-pre-wrap break-words">
+                  {scanState.error}
+                </pre>
+              </details>
+            )}
+          </div>
         </div>
       </div>
     </>
