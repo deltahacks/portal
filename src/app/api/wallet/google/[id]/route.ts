@@ -142,7 +142,7 @@ function createClass(
     countryCode: "CA",
     logo: {
       sourceUri: {
-        uri: "https://i.imgur.com/OynK4zp_d.webp?maxwidth=760&fidelity=grand",
+        uri: "https://i.imgur.com/0ZxPynA.png",
       },
       contentDescription: {
         defaultValue: {
