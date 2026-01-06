@@ -31,6 +31,10 @@ export const GET = async (
     return new Response("User not found", { status: 404 });
   }
 
+  if (user.DH12Application?.status !== "RSVP") {
+    return new Response("User was not accepted to the event", { status: 400 });
+  }
+
   const cardColor = "rgb(94, 51, 184)";
 
   try {
