@@ -6,7 +6,7 @@ import { z } from "zod";
 export const scannerRouter = router({
   listStations: protectedProcedure.query(async ({ ctx }) => {
     const stations = await ctx.prisma.station.findMany({
-      orderBy: [{ name: "asc" }, { option: "asc" }],
+      orderBy: { id: "asc" },
       include: { _count: { select: { eventLogs: true } } },
     });
 
@@ -18,7 +18,7 @@ export const scannerRouter = router({
         acc[station.name]!.push(station);
         return acc;
       },
-      {} as Record<string, typeof stations>,
+      {} as Record<string, typeof stations>
     );
 
     return grouped;
@@ -39,7 +39,7 @@ export const scannerRouter = router({
       z.object({
         name: z.string().min(1),
         option: z.string().min(1),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -75,7 +75,7 @@ export const scannerRouter = router({
       z.object({
         id: z.string(),
         option: z.string().min(1),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -129,7 +129,7 @@ export const scannerRouter = router({
       z.object({
         id: z.cuid(),
         stationId: z.string(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { id, stationId } = input;
