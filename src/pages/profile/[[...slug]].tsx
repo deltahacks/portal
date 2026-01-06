@@ -165,93 +165,97 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
           { pageName: "Schedule", link: "/schedule" },
         ]}
       >
-        <main className="px-7 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-8">
-          <section>
-            <h1 className="font-bold text-2xl dark:text-white mb-2">
-              {user?.DH12Application?.firstName}{" "}
-              {user?.DH12Application?.lastName}
-            </h1>
-            <div className="mb-4">
-              {user?.DH12Application?.studyYearOfStudy}{" "}
-              {user?.DH12Application?.studyDegree} <br />
-              {user?.DH12Application?.studyMajor} <br />
-              {user?.DH12Application?.studyLocation}
-            </div>
-            {!showCode ? (
-              <>
-                <h2 className="font-bold text-lg dark:text-white mb-2">
-                  Socials
-                </h2>
-                <ul className="flex flex-col gap-2 mb-4">
-                  {user?.DH12Application?.socialText.map((socialText, i) => {
-                    return (
-                      <li
-                        key={i}
-                        className="dark:text-black/90 text-white/90 bg-black dark:bg-white underline p-2 rounded-md"
-                      >
-                        <Link
-                          href={socialText}
-                          className="flex items-start gap-1"
-                        >
-                          {socialText.replace("https://", "")}{" "}
-                          <ArrowUpRightIcon />
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
-            ) : null}
-          </section>
-
-          {showCode ? (
-            <div className="flex flex-col gap-2 w-full md:w-auto">
-              <div className="w-full flex justify-center items-center bg-white rounded-lg p-4 shadow-lg shadow-black/50">
-                <QRCode
-                  value={`${env.NEXT_PUBLIC_URL}/profile/${qrCodeId}`}
-                  className="w-full aspect-square h-auto"
-                />
+        <main className="px-7 sm:px-14 md:px-8 lg:px-12 xl:px-16 2xl:px-20 md:py-8 lg:py-12">
+          <div className="md:max-w-7xl md:mx-auto md:grid md:grid-cols-2 md:gap-8 lg:gap-12">
+            {/* User Information Section */}
+            <section className="md:pr-4 lg:pr-8">
+              <h1 className="font-bold text-2xl dark:text-white mb-2 md:text-3xl lg:text-4xl md:mb-4">
+                {user?.DH12Application?.firstName}{" "}
+                {user?.DH12Application?.lastName}
+              </h1>
+              <div className="mb-4 md:text-lg md:mb-6 md:leading-relaxed">
+                {user?.DH12Application?.studyYearOfStudy}{" "}
+                {user?.DH12Application?.studyDegree} <br />
+                {user?.DH12Application?.studyMajor} <br />
+                {user?.DH12Application?.studyLocation}
               </div>
-              <div>
-                <div className="flex  w-full gap-4  *:select-none ">
-                  <div className="flex-1 relative">
-                    <Link className=" block aspect-[110/35] w-full" href="#">
-                      <Image
-                        src="/wallet/google-badge-en.svg"
-                        alt="Add to Google Wallet"
-                        fill
-                        className="pointer-events-none"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex-1 relative">
-                    <Link
-                      className="relative block aspect-[110/35] w-full"
-                      href={`/api/wallet/apple/${qrCodeId}`}
-                    >
-                      <Image
-                        src="/wallet/apple-badge-en.svg"
-                        alt="Add to Apple Wallet"
-                        fill
-                        className="pointer-events-none"
-                      />
-                    </Link>
-                    <Link
-                      className="relative block aspect-[110/35] w-full"
-                      href={`/api/wallet/google/${qrCodeId}`}
-                    >
-                      <Image
-                        src="/wallet/google-badge-en.svg"
-                        alt="Add to Google Wallet"
-                        fill
-                        className="pointer-events-none"
-                      />
-                    </Link>
+              {!showCode ? (
+                <>
+                  <h2 className="font-bold text-lg dark:text-white mb-2 md:text-2xl md:mb-4">
+                    Socials
+                  </h2>
+                  <ul className="flex flex-col gap-2 mb-4 md:gap-3">
+                    {user?.DH12Application?.socialText.map((socialText, i) => {
+                      return (
+                        <li
+                          key={i}
+                          className="dark:text-black/90 text-white/90 bg-black dark:bg-white underline p-2 rounded-md md:p-3 md:text-lg hover:opacity-80 transition-opacity"
+                        >
+                          <Link
+                            href={socialText}
+                            className="flex items-start gap-1"
+                          >
+                            {socialText.replace("https://", "")}{" "}
+                            <ArrowUpRightIcon />
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              ) : null}
+            </section>
+
+            {/* QR Code Section */}
+            {showCode ? (
+              <div className="flex flex-col gap-2 w-full md:w-auto md:flex md:items-start md:justify-center">
+                <div className="w-full flex justify-center items-center bg-white rounded-lg p-4 shadow-lg shadow-black/50 md:max-w-sm md:p-6 lg:p-8">
+                  <QRCode
+                    value={`${env.NEXT_PUBLIC_URL}/profile/${qrCodeId}`}
+                    className="w-full aspect-square h-auto"
+                  />
+                </div>
+                <div className="md:max-w-sm md:w-full">
+                  <div className="flex  w-full gap-4  *:select-none ">
+                    <div className="flex-1 relative">
+                      <Link className=" block aspect-[110/35] w-full" href="#">
+                        <Image
+                          src="/wallet/google-badge-en.svg"
+                          alt="Add to Google Wallet"
+                          fill
+                          className="pointer-events-none"
+                        />
+                      </Link>
+                    </div>
+                    <div className="flex-1 relative">
+                      <Link
+                        className="relative block aspect-[110/35] w-full"
+                        href={`/api/wallet/apple/${qrCodeId}`}
+                      >
+                        <Image
+                          src="/wallet/apple-badge-en.svg"
+                          alt="Add to Apple Wallet"
+                          fill
+                          className="pointer-events-none"
+                        />
+                      </Link>
+                      <Link
+                        className="relative block aspect-[110/35] w-full"
+                        href={`/api/wallet/google/${qrCodeId}`}
+                      >
+                        <Image
+                          src="/wallet/google-badge-en.svg"
+                          alt="Add to Google Wallet"
+                          fill
+                          className="pointer-events-none"
+                        />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </main>
         <footer className="bottom-0 right-0 p-4 md:absolute md:bottom-0">
           {/* <SocialButtons /> */}
