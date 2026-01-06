@@ -178,14 +178,14 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
               {user?.DH12Application?.studyLocation}
             </div>
             {!showCode &&
-            user?.DH12Application?.socialText?.filter((s) => s?.trim()).length >
-              0 ? (
+            (user?.DH12Application?.socialText?.filter((s) => s?.trim())
+              .length ?? 0) > 0 ? (
               <>
                 <h2 className="font-bold text-lg dark:text-white mb-2">
                   Socials
                 </h2>
                 <ul className="flex flex-col gap-2 mb-4 items-center">
-                  {user.DH12Application.socialText
+                  {(user?.DH12Application?.socialText ?? [])
                     .filter((s) => s?.trim())
                     .map((socialText, i) => (
                       <li
