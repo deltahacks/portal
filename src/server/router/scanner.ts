@@ -18,7 +18,7 @@ export const scannerRouter = router({
         acc[station.name]!.push(station);
         return acc;
       },
-      {} as Record<string, typeof stations>
+      {} as Record<string, typeof stations>,
     );
 
     return grouped;
@@ -39,7 +39,7 @@ export const scannerRouter = router({
       z.object({
         name: z.string().min(1),
         option: z.string().min(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -75,7 +75,7 @@ export const scannerRouter = router({
       z.object({
         id: z.string(),
         option: z.string().min(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -129,7 +129,7 @@ export const scannerRouter = router({
       z.object({
         id: z.cuid(),
         stationId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, stationId } = input;
@@ -156,8 +156,14 @@ export const scannerRouter = router({
           message: "Attendee not found. This QR code is not registered.",
         });
       }
+      if (!user.DH12Application?.id) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User didn't apply to the event",
+        });
+      }
 
-      if (user.DH12Application?.status !== "RSVP") {
+      if (user.DH12Application.status !== Status.RSVP) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "User was not accepted to the event",
@@ -167,7 +173,7 @@ export const scannerRouter = router({
       // Handle checkIn station separately (no station record needed)
       if (stationId === "checkIn") {
         await ctx.prisma.dH12Application.update({
-          where: { id },
+          where: { id: user.DH12Application.id },
           data: { status: Status.CHECKED_IN },
         });
       } else {
