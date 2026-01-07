@@ -346,10 +346,6 @@ export const applicationRouter = router({
       await ctx.prisma.dH12Application.delete({
         where: { id: user.DH12ApplicationId },
       });
-      await ctx.prisma.user.update({
-        where: { id: ctx.session.user.id },
-        data: { DH12Application: { delete: true } },
-      });
       // create logsnag log
       await ctx.logsnag.track({
         channel: "applications",
