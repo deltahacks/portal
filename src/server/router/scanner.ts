@@ -163,21 +163,41 @@ export const scannerRouter = router({
         });
       }
 
-      if (user.DH12Application.status !== Status.RSVP) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "User was not accepted to the event",
-        });
-      }
-
-      // Handle checkIn station separately (no station record needed)
       if (stationId === "checkIn") {
-        await ctx.prisma.dH12Application.update({
-          where: { id: user.DH12Application.id },
-          data: { status: Status.CHECKED_IN },
-        });
+        // This code is intentionally explicit so it's easy to trace what happens to each status
+        switch (user.DH12Application.status) {
+          case Status.IN_REVIEW:
+          case Status.REJECTED:
+          case Status.WAITLISTED:
+          case Status.ACCEPTED: // This might look confusing but a user who didn't RSVP is also considered no accepted
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "User was not accepted to the event",
+            });
+          case Status.CHECKED_IN:
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "User is already checked in",
+            });
+          case Status.RSVP:
+            await ctx.prisma.dH12Application.update({
+              where: { id: user.DH12Application.id },
+              data: { status: Status.CHECKED_IN },
+            });
+            break;
+          default:
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Unknown status, unable to process check-in",
+            });
+        }
       } else {
-        // For food/events, get the station and create event log
+        if (user.DH12Application.status !== Status.CHECKED_IN) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User is not checked in",
+          });
+        }
         const station = await ctx.prisma.station.findUnique({
           where: { id: stationId },
         });
@@ -219,7 +239,10 @@ export const scannerRouter = router({
 
       const userInfo = {
         id: user.id,
-        name: user.name,
+        name:
+          user.DH12Application?.firstName +
+          " " +
+          user.DH12Application?.lastName,
         email: user.email,
       };
       return userInfo;
