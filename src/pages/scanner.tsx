@@ -191,6 +191,11 @@ const ScannerUI: React.FC<{
       if (code && EXPECTED_ERROR_CODES.has(code)) {
         removeFromQueue(variables.id);
       }
+      setScanState({
+        status: "error",
+        message: error.message,
+        error: JSON.stringify(error.data),
+      });
     },
   });
 
@@ -213,7 +218,7 @@ const ScannerUI: React.FC<{
     if (scanState.status === "success" || scanState.status === "error") {
       const timer = setTimeout(() => {
         setScanState({ status: "idle" });
-      }, 1000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [scanState.status]);
@@ -329,13 +334,6 @@ const ScannerUI: React.FC<{
             {scanState.status === "error" && scanState.message && (
               <p className="text-red-600 dark:text-red-400 text-center font-medium">
                 {scanState.message}
-              </p>
-            )}
-
-            {/* Errors from mutation */}
-            {scannerMutation.isError && (
-              <p className="text-red-600 dark:text-red-400 text-center font-medium">
-                {scannerMutation.error?.message}
               </p>
             )}
 
