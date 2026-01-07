@@ -163,20 +163,25 @@ export const scannerRouter = router({
         });
       }
 
-      if (user.DH12Application.status !== Status.RSVP) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "User was not accepted to the event",
-        });
-      }
-
       // Handle checkIn station separately (no station record needed)
       if (stationId === "checkIn") {
+        if (user.DH12Application.status !== Status.RSVP) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User was not accepted to the event",
+          });
+        }
         await ctx.prisma.dH12Application.update({
           where: { id: user.DH12Application.id },
           data: { status: Status.CHECKED_IN },
         });
       } else {
+        if (user.DH12Application.status !== Status.CHECKED_IN) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User is not checked in",
+          });
+        }
         // For food/events, get the station and create event log
         const station = await ctx.prisma.station.findUnique({
           where: { id: stationId },
@@ -219,7 +224,10 @@ export const scannerRouter = router({
 
       const userInfo = {
         id: user.id,
-        name: user.name,
+        name:
+          user.DH12Application?.firstName +
+          " " +
+          user.DH12Application?.lastName,
         email: user.email,
       };
       return userInfo;
