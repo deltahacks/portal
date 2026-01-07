@@ -165,30 +165,32 @@ export const scannerRouter = router({
 
       if (stationId === "checkIn") {
         // This code is intentionally explicit so it's easy to trace what happens to each status
-        if (
-          (
-            [
-              Status.IN_REVIEW,
-              Status.REJECTED,
-              Status.WAITLISTED,
-              Status.ACCEPTED, // This might look confusing but a user who didn't RSVP is also considered no accepted
-            ] as Status[]
-          ).includes(user.DH12Application.status)
-        ) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "User was not accepted to the event",
-          });
-        } else if (user.DH12Application.status === Status.CHECKED_IN) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "User is already checked in",
-          });
+        switch (user.DH12Application.status) {
+          case Status.IN_REVIEW:
+          case Status.REJECTED:
+          case Status.WAITLISTED:
+          case Status.ACCEPTED: // This might look confusing but a user who didn't RSVP is also considered no accepted
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "User was not accepted to the event",
+            });
+          case Status.CHECKED_IN:
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "User is already checked in",
+            });
+          case Status.RSVP:
+            await ctx.prisma.dH12Application.update({
+              where: { id: user.DH12Application.id },
+              data: { status: Status.CHECKED_IN },
+            });
+            break;
+          default:
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Unknown status, unable to process check-in",
+            });
         }
-        await ctx.prisma.dH12Application.update({
-          where: { id: user.DH12Application.id },
-          data: { status: Status.CHECKED_IN },
-        });
       } else {
         if (user.DH12Application.status !== Status.CHECKED_IN) {
           throw new TRPCError({
