@@ -166,12 +166,14 @@ export const scannerRouter = router({
       if (stationId === "checkIn") {
         // This code is intentionally explicit so it's easy to trace what happens to each status
         if (
-          [
-            Status.IN_REVIEW,
-            Status.REJECTED,
-            Status.WAITLISTED,
-            Status.ACCEPTED, // This might look confusing but a user who didn't RSVP is also considered no accepted
-          ].includes(user.DH12Application.status)
+          (
+            [
+              Status.IN_REVIEW,
+              Status.REJECTED,
+              Status.WAITLISTED,
+              Status.ACCEPTED, // This might look confusing but a user who didn't RSVP is also considered no accepted
+            ] as Status[]
+          ).includes(user.DH12Application.status)
         ) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
