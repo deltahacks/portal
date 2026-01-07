@@ -348,7 +348,7 @@ export const applicationRouter = router({
       });
       await ctx.prisma.user.update({
         where: { id: ctx.session.user.id },
-        data: { status: Status.IN_REVIEW }, // Replace with the correct status
+        data: { DH12Application: { delete: true } },
       });
       // create logsnag log
       await ctx.logsnag.track({
