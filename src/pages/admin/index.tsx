@@ -88,6 +88,11 @@ const Admin: NextPage = () => {
               description="Manage food and event scanner options"
               href="/admin/station-config"
             />
+            <AdminCard
+              title="Scanner Events Log"
+              description="View all food and event scan history"
+              href="/admin/scanner-events"
+            />
           </div>
 
           <div className="card bg-base-200 shadow-xl p-6">

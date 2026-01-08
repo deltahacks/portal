@@ -4,6 +4,120 @@ import { Role, Status } from "@prisma/client";
 import { z } from "zod";
 
 export const scannerRouter = router({
+  getEventLogs: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(50),
+        cursor: z.string().optional(),
+        stationType: z.enum(["food", "events"]).optional(),
+        stationId: z.string().optional(),
+        search: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const { limit, cursor, stationType, stationId, search } = input;
+
+      const where: Parameters<typeof ctx.prisma.eventLog.findMany>[0]["where"] =
+        {};
+
+      if (stationType) {
+        where.station = { name: stationType };
+      }
+
+      if (stationId) {
+        where.stationId = stationId;
+      }
+
+      if (search) {
+        where.user = {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+            {
+              DH12Application: {
+                OR: [
+                  { firstName: { contains: search, mode: "insensitive" } },
+                  { lastName: { contains: search, mode: "insensitive" } },
+                ],
+              },
+            },
+          ],
+        };
+      }
+
+      const eventLogs = await ctx.prisma.eventLog.findMany({
+        where,
+        take: limit + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: { timestamp: "desc" },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+              DH12Application: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+          station: {
+            select: {
+              id: true,
+              name: true,
+              option: true,
+            },
+          },
+        },
+      });
+
+      let nextCursor: string | undefined;
+      if (eventLogs.length > limit) {
+        const nextItem = eventLogs.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items: eventLogs,
+        nextCursor,
+      };
+    }),
+
+  getEventLogStats: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.session.user.role.includes(Role.ADMIN)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const [totalLogs, foodLogs, eventLogs, stationCounts] = await Promise.all([
+      ctx.prisma.eventLog.count(),
+      ctx.prisma.eventLog.count({
+        where: { station: { name: "food" } },
+      }),
+      ctx.prisma.eventLog.count({
+        where: { station: { name: "events" } },
+      }),
+      ctx.prisma.station.findMany({
+        include: { _count: { select: { eventLogs: true } } },
+        orderBy: { name: "asc" },
+      }),
+    ]);
+
+    return {
+      totalLogs,
+      foodLogs,
+      eventLogs,
+      stationCounts,
+    };
+  }),
+
   listStations: protectedProcedure.query(async ({ ctx }) => {
     const stations = await ctx.prisma.station.findMany({
       orderBy: { id: "asc" },
