@@ -29,6 +29,7 @@ import {
   TableHead,
   TableCell,
 } from "../../components/Table";
+import clsx from "clsx";
 
 type EventLogItem = {
   id: string;
@@ -64,8 +65,6 @@ const StatsCard: React.FC<{
         "text-primary": color === "primary",
         "text-success": color === "success",
         "text-info": color === "info",
-        "text-warning": color === "warning",
-        "text-error": color === "error",
       })}
     >
       {value}
