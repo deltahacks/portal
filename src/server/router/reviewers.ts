@@ -15,7 +15,6 @@ const ApplicationForReview = z.object({
     .string()
     .nullable()
     .transform((v) => (v === null ? "" : v)),
-  status: z.enum(Status),
   // DH11ApplicationId: z.cuid(),
   DH12ApplicationId: z.cuid(),
   reviewCount: z.number().prefault(0),
