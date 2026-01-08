@@ -29,7 +29,6 @@ import {
   TableHead,
   TableCell,
 } from "../../components/Table";
-import clsx from "clsx";
 
 type EventLogItem = {
   id: string;
