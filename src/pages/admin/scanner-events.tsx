@@ -20,6 +20,7 @@ import {
   flexRender,
   SortingState,
 } from "@tanstack/react-table";
+import clsx from "clsx";
 import {
   TableElement,
   TableHeader,
@@ -58,7 +59,17 @@ const StatsCard: React.FC<{
 }> = ({ title, value, color = "primary" }) => (
   <div className="stat bg-base-200 rounded-lg">
     <div className="stat-title">{title}</div>
-    <div className={`stat-value text-${color}`}>{value}</div>
+    <div
+      className={clsx("stat-value", {
+        "text-primary": color === "primary",
+        "text-success": color === "success",
+        "text-info": color === "info",
+        "text-warning": color === "warning",
+        "text-error": color === "error",
+      })}
+    >
+      {value}
+    </div>
   </div>
 );
 
