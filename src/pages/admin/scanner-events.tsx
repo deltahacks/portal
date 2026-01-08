@@ -124,10 +124,9 @@ const ScannerEvents: NextPage = () => {
         header: "User",
         cell: ({ row }) => {
           const user = row.original.user;
-          const displayName =
-            user.DH12Application
-              ? `${user.DH12Application.firstName} ${user.DH12Application.lastName}`
-              : user.name || "Unknown";
+          const displayName = user.DH12Application
+            ? `${user.DH12Application.firstName} ${user.DH12Application.lastName}`
+            : user.name || "Unknown";
           return (
             <div className="flex items-center gap-3">
               {user.image ? (
@@ -292,9 +291,7 @@ const ScannerEvents: NextPage = () => {
                     className="select select-bordered w-full sm:w-40"
                     value={stationType}
                     onChange={(e) => {
-                      setStationType(
-                        e.target.value as "food" | "events" | "",
-                      );
+                      setStationType(e.target.value as "food" | "events" | "");
                       setStationId("");
                     }}
                   >
