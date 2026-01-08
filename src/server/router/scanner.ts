@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
-import { Role, Status } from "@prisma/client";
+import { Role, Status, Prisma } from "@prisma/client";
 import { z } from "zod";
 
 export const scannerRouter = router({
@@ -21,8 +21,7 @@ export const scannerRouter = router({
 
       const { limit, cursor, stationType, stationId, search } = input;
 
-      const where: Parameters<typeof ctx.prisma.eventLog.findMany>[0]["where"] =
-        {};
+      const where: Prisma.EventLogWhereInput = {};
 
       if (stationType) {
         where.station = { name: stationType };
