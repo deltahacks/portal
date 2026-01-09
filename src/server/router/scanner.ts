@@ -246,8 +246,17 @@ export const scannerRouter = router({
   scan: protectedProcedure
     .input(
       z.object({
-        stationId: z.string(),
         id: z.string(),
+        stationId: z.string(),
+      }),
+    )
+    .output(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        email: z.string().nullable(),
+        image: z.string().nullable(),
+        metadata: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -282,6 +291,17 @@ export const scannerRouter = router({
         });
       }
 
+      const userInfo = {
+        id: user.id,
+        name:
+          user.DH12Application?.firstName +
+          " " +
+          user.DH12Application?.lastName,
+        email: user.email,
+        image: user.image,
+        metadata: "",
+      };
+
       if (stationId === "checkIn") {
         // This code is intentionally explicit so it's easy to trace what happens to each status
         switch (user.DH12Application.status) {
@@ -310,6 +330,7 @@ export const scannerRouter = router({
               message: "Unknown status, unable to process check-in",
             });
         }
+        userInfo.metadata = "T-Shirt Size: " + user.DH12Application?.tshirtSize;
       } else if (stationId.startsWith("sleepingBag")) {
         // Get all sleeping bag logs for this user
         const logs = await ctx.prisma.equipmentLog.findMany({
@@ -401,16 +422,13 @@ export const scannerRouter = router({
             timestamp: new Date(),
           },
         });
+        if (station.name === "food") {
+          userInfo.metadata =
+            "Dietary Restrictions: " +
+            (user.DH12Application?.dietaryRestrictions ?? "None");
+        }
       }
 
-      const userInfo = {
-        id: user.id,
-        name:
-          user.DH12Application?.firstName +
-          " " +
-          user.DH12Application?.lastName,
-        email: user.email,
-      };
       return userInfo;
     }),
 });

@@ -364,6 +364,11 @@ const ScannerUI: React.FC<{
                     <p className="text-sm text-green-700 dark:text-green-300 truncate">
                       {scannerMutation.data.email ?? "No email"}
                     </p>
+                    {scannerMutation.data.metadata && (
+                      <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                        {scannerMutation.data.metadata}
+                      </p>
+                    )}
                   </div>
                   <span className="text-green-600 dark:text-green-400 text-xl">
                     ✓
