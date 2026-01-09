@@ -1,6 +1,12 @@
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
-import { Role, Status, Prisma } from "@prisma/client";
+import {
+  Role,
+  Status,
+  Prisma,
+  EquipmentType,
+  EquipmentAction,
+} from "@prisma/client";
 import { z } from "zod";
 
 export const scannerRouter = router({
@@ -12,7 +18,7 @@ export const scannerRouter = router({
         stationType: z.enum(["food", "events"]).optional(),
         stationId: z.string().optional(),
         search: z.string().optional(),
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -131,7 +137,7 @@ export const scannerRouter = router({
         acc[station.name]!.push(station);
         return acc;
       },
-      {} as Record<string, typeof stations>,
+      {} as Record<string, typeof stations>
     );
 
     return grouped;
@@ -152,7 +158,7 @@ export const scannerRouter = router({
       z.object({
         name: z.string().min(1),
         option: z.string().min(1),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -188,7 +194,7 @@ export const scannerRouter = router({
       z.object({
         id: z.string(),
         option: z.string().min(1),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -240,9 +246,9 @@ export const scannerRouter = router({
   scan: protectedProcedure
     .input(
       z.object({
-        id: z.cuid(),
         stationId: z.string(),
-      }),
+        id: z.string(),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { id, stationId } = input;
@@ -304,6 +310,42 @@ export const scannerRouter = router({
               message: "Unknown status, unable to process check-in",
             });
         }
+      } else if (stationId.startsWith("sleepingBag")) {
+        // has the user already checked out a sleeping bag?
+        const existing = await ctx.prisma.equipmentLog.findFirst({
+          where: {
+            userId: id,
+            type: EquipmentType.SLEEPING_BAG,
+            action: EquipmentAction.CHECK_OUT,
+          },
+        });
+
+        // borrow or return
+        const action = stationId.endsWith("borrow")
+          ? EquipmentAction.CHECK_OUT
+          : EquipmentAction.RETURN;
+
+        if (action === EquipmentAction.CHECK_OUT && existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "User has already checked out a sleeping bag",
+          });
+        }
+        if (action === EquipmentAction.RETURN && !existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "User has not checked out a sleeping bag",
+          });
+        }
+
+        await ctx.prisma.equipmentLog.create({
+          data: {
+            action: action,
+            type: EquipmentType.SLEEPING_BAG,
+            userId: id,
+            adminId: ctx.session.user.id,
+          },
+        });
       } else {
         if (user.DH12Application.status !== Status.CHECKED_IN) {
           throw new TRPCError({
