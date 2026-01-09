@@ -93,6 +93,11 @@ const Admin: NextPage = () => {
               description="View all food and event scan history"
               href="/admin/scanner-events"
             />
+            <AdminCard
+              title="Sleeping Bags"
+              description="View sleeping bag checkout status and history"
+              href="/admin/sleeping-bags"
+            />
           </div>
 
           <div className="card bg-base-200 shadow-xl p-6">
