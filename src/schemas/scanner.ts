@@ -4,13 +4,19 @@ import { z } from "zod";
 // Station
 // =============================================================================
 
-export const stationNameSchema = z.enum(["checkIn", "food", "events"]);
+export const stationNameSchema = z.enum([
+  "checkIn",
+  "food",
+  "events",
+  "sleepingBag",
+]);
 export type StationName = z.infer<typeof stationNameSchema>;
 
 export const stationLabels: Record<StationName, string> = {
   checkIn: "Check In",
   food: "Food",
   events: "Events",
+  sleepingBag: "Sleeping Bag",
 };
 
 // =============================================================================
@@ -26,7 +32,7 @@ export type WizardStep = z.infer<typeof wizardStepSchema>;
 
 export const selectedStationSchema = z.object({
   name: stationNameSchema,
-  stationId: z.string().nullable(), // null for checkIn, station ID for food/events
+  stationId: z.string().nullable(), // null for checkIn or equipment, station ID for food/events
   optionLabel: z.string().nullable(), // display label for the selected option
 });
 export type SelectedStation = z.infer<typeof selectedStationSchema>;

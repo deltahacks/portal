@@ -66,7 +66,12 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
 }
 
 const StationSelection: React.FC<{
-  stations: { checkIn: boolean; food: boolean; events: boolean };
+  stations: {
+    checkIn: boolean;
+    food: boolean;
+    events: boolean;
+    sleepingBag: boolean;
+  };
   changeStation: (stationName: StationName) => void;
 }> = ({ stations, changeStation }) => {
   return (
@@ -102,6 +107,14 @@ const StationSelection: React.FC<{
             Events
           </button>
         )}
+        {stations.sleepingBag && (
+          <button
+            onClick={() => changeStation("sleepingBag")}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          >
+            Sleeping Bag
+          </button>
+        )}
       </div>
     </div>
   );
@@ -115,7 +128,7 @@ const StationConfigSelection: React.FC<{
 }> = ({ stationName, options, changeStationOption, onBack }) => {
   const [search, setSearch] = useState("");
   const filteredOptions = options.filter((opt) =>
-    opt.option.toLowerCase().includes(search.toLowerCase()),
+    opt.option.toLowerCase().includes(search.toLowerCase())
   );
   return (
     <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border flex flex-col gap-4">
@@ -130,6 +143,7 @@ const StationConfigSelection: React.FC<{
       <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
         {stationName === "food" && "Which meal are you serving?"}
         {stationName === "events" && "Which event are you scanning for?"}
+        {stationName === "sleepingBag" && "Is this a check out or return?"}
       </p>
       <Input
         placeholder="Search for an option"
@@ -218,7 +232,7 @@ const ScannerUI: React.FC<{
     if (scanState.status === "success" || scanState.status === "error") {
       const timer = setTimeout(() => {
         setScanState({ status: "idle" });
-      }, 3000);
+      }, 15000);
       return () => clearTimeout(timer);
     }
   }, [scanState.status]);
@@ -262,7 +276,7 @@ const ScannerUI: React.FC<{
       addToQueue({ id: userId, stationId });
       mutateScannedId({ id: userId, stationId });
     },
-    [station.stationId, addToQueue, mutateScannedId],
+    [station.stationId, addToQueue, mutateScannedId]
   );
 
   const handleError = useCallback((error: unknown) => {
@@ -303,7 +317,7 @@ const ScannerUI: React.FC<{
                 ? "border-green-500"
                 : scanState.status === "error"
                   ? "border-red-500"
-                  : "border-primary",
+                  : "border-primary"
             )}
           >
             <Scanner
@@ -383,6 +397,7 @@ interface ScannerPageProps {
     checkIn: boolean;
     food: boolean;
     events: boolean;
+    sleepingBag: boolean;
   };
 }
 
@@ -406,7 +421,22 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
         return wizard.station ? (
           <StationConfigSelection
             stationName={wizard.station.name}
-            options={stationOptions?.[wizard.station.name] || []}
+            options={
+              wizard.station.name === "sleepingBag"
+                ? [
+                    {
+                      id: "borrow",
+                      option: "Borrow",
+                      name: "sleepingBag",
+                    },
+                    {
+                      id: "return",
+                      option: "Return",
+                      name: "sleepingBag",
+                    },
+                  ]
+                : stationOptions?.[wizard.station.name] || []
+            }
             changeStationOption={(stationId, optionLabel) =>
               dispatch({ type: "SELECT_OPTION", stationId, optionLabel })
             }
@@ -449,7 +479,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
+  context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<ScannerPageProps>> => {
   const session = await getServerAuthSession(context);
 
@@ -478,6 +508,9 @@ export const getServerSideProps = async (
       userRoles.includes(Role.ADMIN) || userRoles.includes(Role.FOOD_MANAGER),
     events:
       userRoles.includes(Role.ADMIN) || userRoles.includes(Role.EVENT_MANAGER),
+    sleepingBag:
+      userRoles.includes(Role.ADMIN) ||
+      userRoles.includes(Role.GENERAL_SCANNER),
   };
 
   return {

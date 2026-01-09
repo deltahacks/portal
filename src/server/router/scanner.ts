@@ -12,7 +12,7 @@ export const scannerRouter = router({
         stationType: z.enum(["food", "events"]).optional(),
         stationId: z.string().optional(),
         search: z.string().optional(),
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -131,7 +131,7 @@ export const scannerRouter = router({
         acc[station.name]!.push(station);
         return acc;
       },
-      {} as Record<string, typeof stations>,
+      {} as Record<string, typeof stations>
     );
 
     return grouped;
@@ -152,7 +152,7 @@ export const scannerRouter = router({
       z.object({
         name: z.string().min(1),
         option: z.string().min(1),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -188,7 +188,7 @@ export const scannerRouter = router({
       z.object({
         id: z.string(),
         option: z.string().min(1),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -242,7 +242,7 @@ export const scannerRouter = router({
       z.object({
         id: z.cuid(),
         stationId: z.string(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { id, stationId } = input;
@@ -304,6 +304,8 @@ export const scannerRouter = router({
               message: "Unknown status, unable to process check-in",
             });
         }
+      } else if (stationId === "sleepingBag") {
+        // TODO: Implement sleeping bag check out/in logic
       } else {
         if (user.DH12Application.status !== Status.CHECKED_IN) {
           throw new TRPCError({
