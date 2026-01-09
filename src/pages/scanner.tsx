@@ -66,7 +66,12 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
 }
 
 const StationSelection: React.FC<{
-  stations: { checkIn: boolean; food: boolean; events: boolean };
+  stations: {
+    checkIn: boolean;
+    food: boolean;
+    events: boolean;
+    sleepingBag: boolean;
+  };
   changeStation: (stationName: StationName) => void;
 }> = ({ stations, changeStation }) => {
   return (
@@ -102,6 +107,14 @@ const StationSelection: React.FC<{
             Events
           </button>
         )}
+        {stations.sleepingBag && (
+          <button
+            onClick={() => changeStation("sleepingBag")}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          >
+            Sleeping Bag
+          </button>
+        )}
       </div>
     </div>
   );
@@ -130,6 +143,7 @@ const StationConfigSelection: React.FC<{
       <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
         {stationName === "food" && "Which meal are you serving?"}
         {stationName === "events" && "Which event are you scanning for?"}
+        {stationName === "sleepingBag" && "Is this a check out or return?"}
       </p>
       <Input
         placeholder="Search for an option"
@@ -218,7 +232,7 @@ const ScannerUI: React.FC<{
     if (scanState.status === "success" || scanState.status === "error") {
       const timer = setTimeout(() => {
         setScanState({ status: "idle" });
-      }, 3000);
+      }, 15000);
       return () => clearTimeout(timer);
     }
   }, [scanState.status]);
@@ -383,6 +397,7 @@ interface ScannerPageProps {
     checkIn: boolean;
     food: boolean;
     events: boolean;
+    sleepingBag: boolean;
   };
 }
 
@@ -406,7 +421,22 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
         return wizard.station ? (
           <StationConfigSelection
             stationName={wizard.station.name}
-            options={stationOptions?.[wizard.station.name] || []}
+            options={
+              wizard.station.name === "sleepingBag"
+                ? [
+                    {
+                      id: "sleepingBag:borrow",
+                      option: "Borrow",
+                      name: "sleepingBag",
+                    },
+                    {
+                      id: "sleepingBag:return",
+                      option: "Return",
+                      name: "sleepingBag",
+                    },
+                  ]
+                : stationOptions?.[wizard.station.name] || []
+            }
             changeStationOption={(stationId, optionLabel) =>
               dispatch({ type: "SELECT_OPTION", stationId, optionLabel })
             }
@@ -478,6 +508,9 @@ export const getServerSideProps = async (
       userRoles.includes(Role.ADMIN) || userRoles.includes(Role.FOOD_MANAGER),
     events:
       userRoles.includes(Role.ADMIN) || userRoles.includes(Role.EVENT_MANAGER),
+    sleepingBag:
+      userRoles.includes(Role.ADMIN) ||
+      userRoles.includes(Role.GENERAL_SCANNER),
   };
 
   return {
