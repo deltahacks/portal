@@ -55,6 +55,7 @@ model User {
   mealsTaken           Int             @default(0)
   lastMealTaken        DateTime?
   EventLog             EventLog[]
+  EquipmentLogs        EquipmentLog[]
 
   dh10application   DH10Application? @relation(fields: [dH10ApplicationId], references: [id])
   dH10ApplicationId String?          @unique
@@ -67,6 +68,8 @@ model User {
 
   DH11Review DH11Review[]
   DH12Review DH12Review[]
+
+  EquipmentLogsAsAdmin EquipmentLog[] @relation("EquipmentAdmin")
 }
 
 model Review {
@@ -333,6 +336,29 @@ enum YesNoUnsure {
   YES
   NO
   UNSURE
+}
+
+enum EquipmentType {
+  SLEEPING_BAG
+  HARDWARE
+}
+
+enum EquipmentAction {
+  CHECK_OUT
+  RETURN
+}
+
+model EquipmentLog {
+  id        String          @id @default(cuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timestamp DateTime        @default(now())
+  type      EquipmentType
+  action    EquipmentAction
+  adminId   String
+  admin     User            @relation("EquipmentAdmin", fields: [adminId], references: [id])
+  items     Json?
+  notes     String?
 }
 
 // Glossary:
