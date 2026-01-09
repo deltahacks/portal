@@ -18,7 +18,7 @@ export const scannerRouter = router({
         stationType: z.enum(["food", "events"]).optional(),
         stationId: z.string().optional(),
         search: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -137,7 +137,7 @@ export const scannerRouter = router({
         acc[station.name]!.push(station);
         return acc;
       },
-      {} as Record<string, typeof stations>
+      {} as Record<string, typeof stations>,
     );
 
     return grouped;
@@ -158,7 +158,7 @@ export const scannerRouter = router({
       z.object({
         name: z.string().min(1),
         option: z.string().min(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -194,7 +194,7 @@ export const scannerRouter = router({
       z.object({
         id: z.string(),
         option: z.string().min(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
@@ -248,7 +248,7 @@ export const scannerRouter = router({
       z.object({
         stationId: z.string(),
         id: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, stationId } = input;
@@ -324,10 +324,10 @@ export const scannerRouter = router({
 
         // Count checkouts and returns to determine if user currently has a sleeping bag
         const checkouts = logs.filter(
-          (log) => log.action === EquipmentAction.CHECK_OUT
+          (log) => log.action === EquipmentAction.CHECK_OUT,
         ).length;
         const returns = logs.filter(
-          (log) => log.action === EquipmentAction.RETURN
+          (log) => log.action === EquipmentAction.RETURN,
         ).length;
         const hasUnreturnedBag = checkouts > returns;
 

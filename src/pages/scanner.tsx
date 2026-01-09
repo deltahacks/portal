@@ -128,7 +128,7 @@ const StationConfigSelection: React.FC<{
 }> = ({ stationName, options, changeStationOption, onBack }) => {
   const [search, setSearch] = useState("");
   const filteredOptions = options.filter((opt) =>
-    opt.option.toLowerCase().includes(search.toLowerCase())
+    opt.option.toLowerCase().includes(search.toLowerCase()),
   );
   return (
     <div className="rounded-md p-8 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border flex flex-col gap-4">
@@ -276,7 +276,7 @@ const ScannerUI: React.FC<{
       addToQueue({ id: userId, stationId });
       mutateScannedId({ id: userId, stationId });
     },
-    [station.stationId, addToQueue, mutateScannedId]
+    [station.stationId, addToQueue, mutateScannedId],
   );
 
   const handleError = useCallback((error: unknown) => {
@@ -317,7 +317,7 @@ const ScannerUI: React.FC<{
                 ? "border-green-500"
                 : scanState.status === "error"
                   ? "border-red-500"
-                  : "border-primary"
+                  : "border-primary",
             )}
           >
             <Scanner
@@ -479,7 +479,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<ScannerPageProps>> => {
   const session = await getServerAuthSession(context);
 
