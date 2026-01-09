@@ -72,4 +72,23 @@ export const adminRouter = router({
 
     return dhYearConfig.value;
   }),
+
+  setWifiConfig: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        password: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      await ctx.prisma.config.upsert({
+        where: { name: "wifiConfig" },
+        update: { value: JSON.stringify(input) },
+        create: { name: "wifiConfig", value: JSON.stringify(input) },
+      });
+    }),
 });

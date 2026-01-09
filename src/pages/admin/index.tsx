@@ -38,14 +38,45 @@ const Admin: NextPage = () => {
       utils.admin.getDhYear.invalidate();
     },
   });
+  const { mutateAsync: setWifiConfig } = trpc.admin.setWifiConfig.useMutation({
+    onSuccess: () => {
+      utils.application.getWifiConfig.invalidate();
+    },
+  });
   const { data: currentDhYear } = trpc.admin.getDhYear.useQuery();
+  const { data: currentWifiConfig } = trpc.application.getWifiConfig.useQuery();
   const utils = trpc.useUtils();
+
+  const [wifiName, setWifiName] = useState("");
+  const [wifiPassword, setWifiPassword] = useState("");
+  const [wifiSaveStatus, setWifiSaveStatus] = useState<
+    "idle" | "saving" | "saved"
+  >("idle");
+
+  useEffect(() => {
+    if (currentWifiConfig) {
+      setWifiName(currentWifiConfig.name);
+      setWifiPassword(currentWifiConfig.password);
+    }
+  }, [currentWifiConfig]);
 
   const handleYearChange = async (newYear: string) => {
     try {
       await setDhYear(newYear);
     } catch (error) {
       console.error("Failed to update DH year:", error);
+    }
+  };
+
+  const handleWifiSave = async () => {
+    try {
+      setWifiSaveStatus("saving");
+      await setWifiConfig({ name: wifiName, password: wifiPassword });
+      setWifiSaveStatus("saved");
+      setTimeout(() => setWifiSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Failed to update WiFi config:", error);
+      setWifiSaveStatus("idle");
     }
   };
 
@@ -139,6 +170,46 @@ const Admin: NextPage = () => {
                   onClick={() => handleYearChange(currentDhYear ?? "DH12")}
                 >
                   Update Year
+                </button>
+              </div>
+
+              {/* WiFi Configuration */}
+              <div className="divider">WiFi Configuration</div>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="form-control flex-1">
+                    <label className="label">
+                      <span>WiFi Name (SSID)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={wifiName}
+                      onChange={(e) => setWifiName(e.target.value)}
+                      placeholder="Enter WiFi name"
+                      className="input input-bordered w-full"
+                    />
+                  </div>
+                  <div className="form-control flex-1">
+                    <label className="label">
+                      <span>WiFi Password</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={wifiPassword}
+                      onChange={(e) => setWifiPassword(e.target.value)}
+                      placeholder="Enter WiFi password"
+                      className="input input-bordered w-full"
+                    />
+                  </div>
+                </div>
+                <button
+                  className={`btn w-fit ${wifiSaveStatus === "saved" ? "btn-success" : "btn-primary"}`}
+                  onClick={handleWifiSave}
+                  disabled={wifiSaveStatus === "saving"}
+                >
+                  {wifiSaveStatus === "saving" && "Saving..."}
+                  {wifiSaveStatus === "saved" && "Saved!"}
+                  {wifiSaveStatus === "idle" && "Save WiFi Config"}
                 </button>
               </div>
             </div>
