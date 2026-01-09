@@ -311,27 +311,38 @@ export const scannerRouter = router({
             });
         }
       } else if (stationId.startsWith("sleepingBag")) {
-        // has the user already checked out a sleeping bag?
-        const existing = await ctx.prisma.equipmentLog.findFirst({
+        // Get all sleeping bag logs for this user
+        const logs = await ctx.prisma.equipmentLog.findMany({
           where: {
             userId: id,
             type: EquipmentType.SLEEPING_BAG,
-            action: EquipmentAction.CHECK_OUT,
+          },
+          orderBy: {
+            timestamp: "asc",
           },
         });
+
+        // Count checkouts and returns to determine if user currently has a sleeping bag
+        const checkouts = logs.filter(
+          (log) => log.action === EquipmentAction.CHECK_OUT
+        ).length;
+        const returns = logs.filter(
+          (log) => log.action === EquipmentAction.RETURN
+        ).length;
+        const hasUnreturnedBag = checkouts > returns;
 
         // borrow or return
         const action = stationId.endsWith("borrow")
           ? EquipmentAction.CHECK_OUT
           : EquipmentAction.RETURN;
 
-        if (action === EquipmentAction.CHECK_OUT && existing) {
+        if (action === EquipmentAction.CHECK_OUT && hasUnreturnedBag) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "User has already checked out a sleeping bag",
           });
         }
-        if (action === EquipmentAction.RETURN && !existing) {
+        if (action === EquipmentAction.RETURN && !hasUnreturnedBag) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "User has not checked out a sleeping bag",
