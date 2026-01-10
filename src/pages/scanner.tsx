@@ -61,12 +61,12 @@ function useOnlineStatus() {
 function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   switch (action.type) {
     case "SELECT_STATION": {
-      if (action.stationName === "checkIn") {
+      if (action.stationName === "checkIn" || action.stationName === "judges") {
         return {
           step: "ready",
           station: {
             name: action.stationName,
-            stationId: "checkIn",
+            stationId: action.stationName,
             optionLabel: null,
           },
         };
@@ -104,6 +104,7 @@ const StationSelection: React.FC<{
     food: boolean;
     events: boolean;
     sleepingBag: boolean;
+    judges: boolean;
   };
   changeStation: (stationName: StationName) => void;
 }> = ({ stations, changeStation }) => {
@@ -146,6 +147,14 @@ const StationSelection: React.FC<{
             className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
           >
             Sleeping Bag
+          </button>
+        )}
+        {stations.judges && (
+          <button
+            onClick={() => changeStation("judges")}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          >
+            Judges
           </button>
         )}
       </div>
@@ -581,6 +590,7 @@ interface ScannerPageProps {
     food: boolean;
     events: boolean;
     sleepingBag: boolean;
+    judges: boolean;
   };
 }
 
@@ -694,6 +704,7 @@ export const getServerSideProps = async (
     sleepingBag:
       userRoles.includes(Role.ADMIN) ||
       userRoles.includes(Role.GENERAL_SCANNER),
+    judges: userRoles.includes(Role.ADMIN),
   };
 
   return {
