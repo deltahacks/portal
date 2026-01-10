@@ -47,7 +47,7 @@ export async function GET(
     return new Response("User not found", { status: 404 });
   }
 
-  if (user.DH12Application?.status !== "RSVP") {
+  if (!["RSVP", "CHECKED_IN"].includes(user.DH12Application?.status ?? "")) {
     return new Response("User was not accepted to the event", { status: 403 });
   }
 
