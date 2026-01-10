@@ -9,6 +9,7 @@ export const stationNameSchema = z.enum([
   "food",
   "events",
   "sleepingBag",
+  "judges",
 ]);
 export type StationName = z.infer<typeof stationNameSchema>;
 
@@ -17,6 +18,7 @@ export const stationLabels: Record<StationName, string> = {
   food: "Food",
   events: "Events",
   sleepingBag: "Sleeping Bag",
+  judges: "Judges",
 };
 
 // =============================================================================
