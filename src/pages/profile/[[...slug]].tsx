@@ -8,14 +8,8 @@ import { env } from "../../env/client.mjs";
 import { useSession } from "next-auth/react";
 
 import Image from "next/image";
-import { z } from "zod";
-import { useState } from "react";
-import Select from "react-select";
-import { useQuery } from "@tanstack/react-query";
 import { appRouter } from "../../server/router";
 import { createContextInner } from "../../server/router/context";
-import { Role } from "@prisma/client";
-import { Button } from "../../components/Button";
 import Link from "next/link";
 import { ArrowUpRightIcon } from "lucide-react";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
@@ -25,83 +19,8 @@ interface ProfilePageProps {
   sesssionUserId: string;
 }
 
-const GoogleEventSchema = z.object({
-  kind: z.literal("calendar#event"),
-  id: z.string(),
-  status: z.string(),
-  htmlLink: z.string(),
-  created: z.string(),
-  updated: z.string(),
-  summary: z.string(),
-  location: z.string().optional(),
-  creator: z.object({
-    email: z.email(),
-  }),
-  organizer: z.object({
-    email: z.email(),
-    displayName: z.string(),
-    self: z.boolean(),
-  }),
-  start: z.object({
-    dateTime: z.string(),
-    timeZone: z.string(),
-  }),
-  end: z.object({
-    dateTime: z.string(),
-    timeZone: z.string(),
-  }),
-  iCalUID: z.string(),
-  sequence: z.number(),
-  eventType: z.string(),
-});
-
-const GoogleEventsResponseSchema = z.object({
-  items: z.array(GoogleEventSchema),
-});
-
-const getEvents = async () => {
-  const GOOGLE_CALENDAR_URL =
-    "https://www.googleapis.com/calendar/v3/calendars/";
-  const CALENDAR_ID =
-    "c_54f72353fe8b6d9a474ba47ea768e372311c2365c69030509cd80b650ffb883b@group.calendar.google.com";
-  const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
-
-  const dataUrl = [
-    GOOGLE_CALENDAR_URL,
-    CALENDAR_ID,
-    "/events?key=",
-    PUBLIC_KEY,
-  ].join("");
-
-  const response = await fetch(dataUrl);
-  const rawData = await response.json();
-
-  // Validate the response
-  const parsedData = GoogleEventsResponseSchema.parse(rawData);
-  const events = parsedData.items;
-
-  const eventsWithType = events.map((event) => ({
-    ...event,
-    eventType: event.summary.split("|").at(-1)?.trim() ?? event.summary,
-  }));
-
-  // Filter for only Event and Workshop types
-  return eventsWithType.filter(
-    (event) =>
-      event.eventType.toLowerCase() === "event" ||
-      event.eventType.toLowerCase() === "workshop",
-  );
-};
-
-// Export the schema if you need to use it elsewhere
-export type GoogleEvent = z.infer<typeof GoogleEventSchema>;
-
 const ProfilePage: NextPage<ProfilePageProps> = (props) => {
-  console.log("Props", props);
   const router = useRouter();
-
-  console.log(router.query);
-
   const id =
     typeof router.query.slug === "string"
       ? router.query.slug
@@ -110,49 +29,13 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
         : undefined;
 
   const session = useSession();
-
   const showCode = id === undefined || id === session.data?.user?.id;
-
-  // fetch details about this user
-
-  console.log(props.initialState, "INITIAL STATE");
-
-  const {
-    data: user,
-    isPending,
-    isError,
-    isSuccess,
-  } = trpc.user.getProfile.useQuery(id, {
+  const { data: user } = trpc.user.getProfile.useQuery(id, {
     enabled: id !== undefined,
 
     initialData: props?.initialState,
   });
-
-  const utils = trpc.useUtils();
-  const checkInMutation = trpc.user.checkIn.useMutation({
-    onSettled: () => {
-      utils.user.getProfile.invalidate();
-    },
-  });
-  const userStatus = trpc;
-
   const qrCodeId = id ?? session.data?.user?.id ?? props.sesssionUserId;
-
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
-
-  // TODO: update logic for new qr code system
-  // const logEventMutation = trpc.events.checkin.useMutation({
-  //   onSettled: () => {
-  //     utils.user.getProfile.invalidate();
-  //   },
-  // });
-
-  const { data: events } = useQuery({
-    queryKey: ["events"],
-    queryFn: () => getEvents(),
-  });
-
-  console.log(events, "EVENTS");
 
   return (
     <>
