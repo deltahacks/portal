@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { Button } from "../components/Button";
 import Drawer from "../components/Drawer";
 import { Checkbox } from "../components/Checkbox";
+import QRCode from "react-qr-code";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -449,15 +450,32 @@ const RSVPed: React.FC = () => {
 };
 
 const CheckedIn: React.FC = () => {
-  const { data: qrcode, isPending } = trpc.application.qr.useQuery();
   const { data: session } = useSession();
-  const hoursMinSecs = [1, 30, 20];
+  const { data: wifiConfig } = trpc.application.getWifiConfig.useQuery();
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey {session ? `${session.user?.name}` : ""}, welcome to your dashboard!
       </h1>
+
+      {wifiConfig && (
+        <div className="lg:hidden bg-white dark:bg-[#1F1F1F] rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-black dark:text-white mb-2">
+            WiFi
+          </h2>
+          <div className="space-y-1">
+            <p className="text-gray-700 dark:text-gray-300">
+              <span className="font-medium">Name:</span> {wifiConfig.name}
+            </p>
+            <p className="text-gray-700 dark:text-gray-300">
+              <span className="font-medium">Password:</span>{" "}
+              {wifiConfig.password}
+            </p>
+          </div>
+        </div>
+      )}
+
       <Link href="/schedule">
         <Button className="btn w-full border-none hover:bg-zinc-700 text-base font-medium capitalize">
           Schedule
@@ -515,8 +533,7 @@ const Dashboard: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = (props) => {
   const { data: status, isSuccess } = trpc.application.status.useQuery();
-
-  const { data: session } = useSession();
+  const { data: wifiConfig } = trpc.application.getWifiConfig.useQuery();
 
   const stateMap = {
     [Status.IN_REVIEW]: <InReview killed={props.killed || false} />,
@@ -543,6 +560,30 @@ const Dashboard: NextPage<
         <main className="px-7 py-16 sm:px-14 md:w-10/12 lg:pl-20 2xl:w-8/12 2xl:pt-20">
           {stateMap[statusToUse]}
         </main>
+
+        {statusToUse === Status.CHECKED_IN && wifiConfig && (
+          <div className="hidden lg:block fixed top-32 right-12 bg-white dark:bg-[#1F1F1F] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-2xl font-semibold text-black dark:text-white mb-4">
+              WiFi
+            </h2>
+            <div className="bg-white p-3 rounded-lg mb-4 flex items-center justify-center">
+              <QRCode
+                value={`WIFI:T:WPA;S:${wifiConfig.name};P:${wifiConfig.password};;`}
+                size={220}
+              />
+            </div>
+            <div className="space-y-2">
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                <span className="font-medium">Name:</span> {wifiConfig.name}
+              </p>
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                <span className="font-medium">Password:</span>{" "}
+                {wifiConfig.password}
+              </p>
+            </div>
+          </div>
+        )}
+
         <footer className=" bottom-0 right-0 p-5 md:absolute md:bottom-0">
           <SocialButtons />
         </footer>
