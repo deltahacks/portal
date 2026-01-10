@@ -187,7 +187,23 @@ const ScannerUI: React.FC<{
   const [scanState, setScanState] = useState<ScanState>({ status: "idle" });
   const [mode, setMode] = useState<"camera" | "manual">("camera");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  // Reset state when switching modes
+  useEffect(() => {
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
+    setScanState({ status: "idle" });
+    lastScannedRef.current = null;
+  }, [mode]);
+
+  // Debounce search input
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const { queuedItems, addToQueue, removeFromQueue } =
     useOfflineQueue<ScannerQueueItem>();
@@ -221,14 +237,12 @@ const ScannerUI: React.FC<{
   const { mutate: mutateScannedId } = scannerMutation;
 
   const searchUsersQuery = trpc.scanner.searchUsers.useQuery(
-    { query: searchQuery },
-    { enabled: searchQuery.length > 0 && mode === "manual" },
+    { query: debouncedSearchQuery },
+    { enabled: debouncedSearchQuery.length > 0 && mode === "manual" },
   );
 
   const handleSelectUser = (userId: string) => {
-    setSelectedUserId(userId);
     const stationId = station.stationId!;
-    setScanState({ status: "success" });
     addToQueue({ id: userId, stationId });
     mutateScannedId({ id: userId, stationId });
     setSearchQuery("");
@@ -308,39 +322,39 @@ const ScannerUI: React.FC<{
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-black dark:text-white">
-            Station:
-          </span>
-          <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
-            {stationLabels[station.name]}
-          </span>
+      <div className="mb-4 flex flex-col gap-3">
+        <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg p-1 w-fit mx-auto">
+          <button
+            onClick={() => setMode("camera")}
+            className={clsx(
+              "px-3 py-2 rounded text-sm font-medium transition-colors",
+              mode === "camera"
+                ? "bg-primary text-white"
+                : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
+            )}
+          >
+            Camera
+          </button>
+          <button
+            onClick={() => setMode("manual")}
+            className={clsx(
+              "px-3 py-2 rounded text-sm font-medium transition-colors",
+              mode === "manual"
+                ? "bg-primary text-white"
+                : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
+            )}
+          >
+            Manual
+          </button>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg p-1">
-            <button
-              onClick={() => setMode("camera")}
-              className={clsx(
-                "px-3 py-2 rounded text-sm font-medium transition-colors",
-                mode === "camera"
-                  ? "bg-primary text-white"
-                  : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
-              )}
-            >
-              Camera
-            </button>
-            <button
-              onClick={() => setMode("manual")}
-              className={clsx(
-                "px-3 py-2 rounded text-sm font-medium transition-colors",
-                mode === "manual"
-                  ? "bg-primary text-white"
-                  : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
-              )}
-            >
-              Manual
-            </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-black dark:text-white">
+              Station:
+            </span>
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
+              {stationLabels[station.name]}
+            </span>
           </div>
           <button
             onClick={onReset}
@@ -397,7 +411,18 @@ const ScannerUI: React.FC<{
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoFocus
                 />
-                {searchQuery &&
+                {searchUsersQuery.isLoading && (
+                  <p className="mt-4 text-center text-neutral-500 dark:text-neutral-400 text-sm">
+                    Searching...
+                  </p>
+                )}
+                {searchUsersQuery.isError && (
+                  <p className="mt-4 text-center text-red-600 dark:text-red-400 text-sm">
+                    Error loading search results:{" "}
+                    {searchUsersQuery.error.message}
+                  </p>
+                )}
+                {debouncedSearchQuery &&
                   searchUsersQuery.data &&
                   searchUsersQuery.data.length > 0 && (
                     <div className="mt-4 border border-neutral-300 dark:border-neutral-600 rounded-md overflow-hidden">
@@ -421,7 +446,7 @@ const ScannerUI: React.FC<{
                       </div>
                     </div>
                   )}
-                {searchQuery &&
+                {debouncedSearchQuery &&
                   searchUsersQuery.data &&
                   searchUsersQuery.data.length === 0 && (
                     <p className="mt-4 text-center text-neutral-500 dark:text-neutral-400 text-sm">
