@@ -562,21 +562,21 @@ const Dashboard: NextPage<
         </main>
 
         {statusToUse === Status.CHECKED_IN && wifiConfig && (
-          <div className="hidden lg:block fixed top-32 right-12 bg-white dark:bg-[#1F1F1F] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-semibold text-black dark:text-white mb-4">
+          <div className="hidden lg:block fixed top-32 right-12 bg-white dark:bg-[#1F1F1F] rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-black dark:text-white mb-3">
               WiFi
             </h2>
-            <div className="bg-white p-3 rounded-lg mb-4 flex items-center justify-center">
+            <div className="bg-white p-2 rounded-lg mb-3 flex items-center justify-center">
               <QRCode
                 value={`WIFI:T:WPA;S:${wifiConfig.name};P:${wifiConfig.password};;`}
-                size={220}
+                size={160}
               />
             </div>
-            <div className="space-y-2">
-              <p className="text-lg text-gray-700 dark:text-gray-300">
+            <div className="space-y-1.5">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Name:</span> {wifiConfig.name}
               </p>
-              <p className="text-lg text-gray-700 dark:text-gray-300">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Password:</span>{" "}
                 {wifiConfig.password}
               </p>
