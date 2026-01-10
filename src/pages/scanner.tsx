@@ -185,6 +185,25 @@ const ScannerUI: React.FC<{
 }> = ({ station, onReset }) => {
   const lastScannedRef = useRef<string | null>(null);
   const [scanState, setScanState] = useState<ScanState>({ status: "idle" });
+  const [mode, setMode] = useState<"camera" | "manual">("camera");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  // Reset state when switching modes
+  useEffect(() => {
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
+    setScanState({ status: "idle" });
+    lastScannedRef.current = null;
+  }, [mode]);
+
+  // Debounce search input
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const { queuedItems, addToQueue, removeFromQueue } =
     useOfflineQueue<ScannerQueueItem>();
@@ -216,6 +235,18 @@ const ScannerUI: React.FC<{
   // Need acccess to stable mutation function
   // @see https://github.com/TanStack/query/issues/1858
   const { mutate: mutateScannedId } = scannerMutation;
+
+  const searchUsersQuery = trpc.scanner.searchUsers.useQuery(
+    { query: debouncedSearchQuery },
+    { enabled: debouncedSearchQuery.length > 0 && mode === "manual" },
+  );
+
+  const handleSelectUser = (userId: string) => {
+    const stationId = station.stationId!;
+    addToQueue({ id: userId, stationId });
+    mutateScannedId({ id: userId, stationId });
+    setSearchQuery("");
+  };
 
   // On mount, re-mutate any queued items from previous sessions
   useEffect(() => {
@@ -291,57 +322,143 @@ const ScannerUI: React.FC<{
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-black dark:text-white">
-            Station:
-          </span>
-          <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
-            {stationLabels[station.name]}
-          </span>
+      <div className="mb-4 flex flex-col gap-3">
+        <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg p-1 w-fit mx-auto">
+          <button
+            onClick={() => setMode("camera")}
+            className={clsx(
+              "px-3 py-2 rounded text-sm font-medium transition-colors",
+              mode === "camera"
+                ? "bg-primary text-white"
+                : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
+            )}
+          >
+            Camera
+          </button>
+          <button
+            onClick={() => setMode("manual")}
+            className={clsx(
+              "px-3 py-2 rounded text-sm font-medium transition-colors",
+              mode === "manual"
+                ? "bg-primary text-white"
+                : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
+            )}
+          >
+            Manual
+          </button>
         </div>
-        <button
-          onClick={onReset}
-          className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
-        >
-          Change Station
-        </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-black dark:text-white">
+              Station:
+            </span>
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary text-white">
+              {stationLabels[station.name]}
+            </span>
+          </div>
+          <button
+            onClick={onReset}
+            className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+          >
+            Change Station
+          </button>
+        </div>
       </div>
 
       <div className="rounded-md p-6 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
         <div className="flex flex-col items-center justify-center">
-          <div
-            className={clsx(
-              "relative w-full max-w-[320px] border-4 border-dashed rounded-md p-1",
-              scanState.status === "success"
-                ? "border-green-500"
-                : scanState.status === "error"
-                  ? "border-red-500"
-                  : "border-primary",
-            )}
-          >
-            <Scanner
-              onScan={handleScan}
-              onError={handleError}
-              sound={false}
-              constraints={{
-                facingMode: "environment",
-                aspectRatio: 1,
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-              }}
-              components={{
-                finder: false,
-              }}
-              classNames={{
-                container: "w-full h-full",
-                video: "w-full h-full object-cover rounded",
-              }}
-            />
-          </div>
-          <p className="mt-4 text-neutral-500 dark:text-neutral-400 text-center">
-            Position the QR code within the frame to scan
-          </p>
+          {mode === "camera" ? (
+            <>
+              <div
+                className={clsx(
+                  "relative w-full max-w-[320px] border-4 border-dashed rounded-md p-1",
+                  scanState.status === "success"
+                    ? "border-green-500"
+                    : scanState.status === "error"
+                      ? "border-red-500"
+                      : "border-primary",
+                )}
+              >
+                <Scanner
+                  onScan={handleScan}
+                  onError={handleError}
+                  sound={false}
+                  constraints={{
+                    facingMode: "environment",
+                    aspectRatio: 1,
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                  }}
+                  components={{
+                    finder: false,
+                  }}
+                  classNames={{
+                    container: "w-full h-full",
+                    video: "w-full h-full object-cover rounded",
+                  }}
+                />
+              </div>
+              <p className="mt-4 text-neutral-500 dark:text-neutral-400 text-center">
+                Position the QR code within the frame to scan
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="w-full max-w-md">
+                <Input
+                  placeholder="Search by name, email, or first/last name"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                />
+                {searchUsersQuery.isLoading && (
+                  <p className="mt-4 text-center text-neutral-500 dark:text-neutral-400 text-sm">
+                    Searching...
+                  </p>
+                )}
+                {searchUsersQuery.isError && (
+                  <p className="mt-4 text-center text-red-600 dark:text-red-400 text-sm">
+                    Error loading search results:{" "}
+                    {searchUsersQuery.error.message}
+                  </p>
+                )}
+                {debouncedSearchQuery &&
+                  searchUsersQuery.data &&
+                  searchUsersQuery.data.length > 0 && (
+                    <div className="mt-4 border border-neutral-300 dark:border-neutral-600 rounded-md overflow-hidden">
+                      <div className="max-h-64 overflow-y-auto">
+                        {searchUsersQuery.data.map((user) => (
+                          <button
+                            key={user.id}
+                            onClick={() => handleSelectUser(user.id)}
+                            className="w-full px-4 py-3 text-left border-b border-neutral-200 dark:border-neutral-700 last:border-b-0 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors flex flex-col"
+                          >
+                            <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                              {user.firstName && user.lastName
+                                ? `${user.firstName} ${user.lastName}`
+                                : user.name}
+                            </span>
+                            <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                              {user.email}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                {debouncedSearchQuery &&
+                  searchUsersQuery.data &&
+                  searchUsersQuery.data.length === 0 && (
+                    <p className="mt-4 text-center text-neutral-500 dark:text-neutral-400 text-sm">
+                      No attendees found matching your search
+                    </p>
+                  )}
+              </div>
+              <p className="mt-4 text-neutral-500 dark:text-neutral-400 text-center text-sm">
+                Search for an attendee to scan them in manually
+              </p>
+            </>
+          )}
 
           {/* Errors from scanning */}
           <div className="mt-4 w-full min-h-[120px]">

@@ -243,6 +243,77 @@ export const scannerRouter = router({
       });
     }),
 
+  searchUsers: protectedProcedure
+    .input(
+      z.object({
+        query: z.string().min(1),
+      }),
+    )
+    .output(
+      z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          email: z.string().nullable(),
+          firstName: z.string().nullable(),
+          lastName: z.string().nullable(),
+        }),
+      ),
+    )
+    .query(async ({ ctx, input }) => {
+      const allowedRoles = [
+        Role.ADMIN,
+        Role.GENERAL_SCANNER,
+        Role.FOOD_MANAGER,
+        Role.EVENT_MANAGER,
+      ];
+      if (!allowedRoles.some((role) => ctx.session.user.role.includes(role))) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You don't have permission to perform this action",
+        });
+      }
+
+      const { query } = input;
+
+      const users = await ctx.prisma.user.findMany({
+        where: {
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+            {
+              DH12Application: {
+                OR: [
+                  { firstName: { contains: query, mode: "insensitive" } },
+                  { lastName: { contains: query, mode: "insensitive" } },
+                ],
+              },
+            },
+          ],
+          DH12Application: {
+            isNot: null,
+          },
+        },
+        include: {
+          DH12Application: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+        take: 20,
+      });
+
+      return users.map((user) => ({
+        id: user.id,
+        name: user.name ?? "Unknown",
+        email: user.email,
+        firstName: user.DH12Application?.firstName ?? null,
+        lastName: user.DH12Application?.lastName ?? null,
+      }));
+    }),
+
   scan: protectedProcedure
     .input(
       z.object({
