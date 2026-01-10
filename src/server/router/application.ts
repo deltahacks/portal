@@ -368,4 +368,16 @@ export const applicationRouter = router({
       });
     }
   }),
+
+  getWifiConfig: protectedProcedure.query(async ({ ctx }) => {
+    const config = await ctx.prisma.config.findUnique({
+      where: { name: "wifiConfig" },
+    });
+
+    if (!config) {
+      return null;
+    }
+
+    return JSON.parse(config.value) as { name: string; password: string };
+  }),
 });
