@@ -402,6 +402,27 @@ export const scannerRouter = router({
             });
         }
         userInfo.metadata = "T-Shirt Size: " + user.DH12Application?.tshirtSize;
+      } else if (stationId === "judges") {
+        if (!ctx.session.user.role.includes(Role.ADMIN)) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Only admins can assign judge roles",
+          });
+        }
+
+        if (user.role.includes(Role.JUDGE)) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "User already has the judge role",
+          });
+        }
+
+        await ctx.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            role: [...user.role, Role.JUDGE],
+          },
+        });
       } else if (stationId.startsWith("sleepingBag")) {
         // Get all sleeping bag logs for this user
         const logs = await ctx.prisma.equipmentLog.findMany({
