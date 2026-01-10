@@ -102,6 +102,7 @@ export const equipmentRouter = router({
               id: true,
               name: true,
               email: true,
+              image: true,
               DH12Application: {
                 select: {
                   firstName: true,
@@ -124,4 +125,102 @@ export const equipmentRouter = router({
         nextCursor,
       };
     }),
+
+  getUsersWithUnreturnedBags: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.session.user.role.includes(Role.ADMIN)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    // Get all sleeping bag logs grouped by user
+    const logs = await ctx.prisma.equipmentLog.findMany({
+      where: { type: EquipmentType.SLEEPING_BAG },
+      select: {
+        userId: true,
+        action: true,
+        timestamp: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            DH12Application: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        admin: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            DH12Application: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { timestamp: "desc" },
+    });
+
+    // Group logs by userId and calculate checkout/return counts
+    const userStats = new Map<
+      string,
+      {
+        user: (typeof logs)[0]["user"];
+        admin: (typeof logs)[0]["admin"];
+        checkouts: number;
+        returns: number;
+        lastCheckout: Date | null;
+      }
+    >();
+
+    for (const log of logs) {
+      const existing = userStats.get(log.userId);
+      if (!existing) {
+        userStats.set(log.userId, {
+          user: log.user,
+          admin: log.action === EquipmentAction.CHECK_OUT ? log.admin : null!,
+          checkouts: log.action === EquipmentAction.CHECK_OUT ? 1 : 0,
+          returns: log.action === EquipmentAction.RETURN ? 1 : 0,
+          lastCheckout:
+            log.action === EquipmentAction.CHECK_OUT ? log.timestamp : null,
+        });
+      } else {
+        if (log.action === EquipmentAction.CHECK_OUT) {
+          existing.checkouts++;
+          if (!existing.lastCheckout) {
+            existing.lastCheckout = log.timestamp;
+            existing.admin = log.admin;
+          }
+        } else {
+          existing.returns++;
+        }
+      }
+    }
+
+    // Filter to users who have unreturned bags (checkouts > returns)
+    const usersWithUnreturnedBags = Array.from(userStats.values())
+      .filter((stat) => stat.checkouts > stat.returns)
+      .map((stat) => ({
+        user: stat.user,
+        admin: stat.admin,
+        lastCheckout: stat.lastCheckout,
+      }))
+      .sort((a, b) => {
+        // Sort by lastCheckout date, most recent first
+        if (!a.lastCheckout) return 1;
+        if (!b.lastCheckout) return -1;
+        return b.lastCheckout.getTime() - a.lastCheckout.getTime();
+      });
+
+    return usersWithUnreturnedBags;
+  }),
 });
