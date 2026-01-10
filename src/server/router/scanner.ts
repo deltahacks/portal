@@ -355,7 +355,8 @@ export const scannerRouter = router({
           message: "Attendee not found. This QR code is not registered.",
         });
       }
-      if (!user.DH12Application?.id) {
+      // This exception is needed because judges don't have a DH12Application
+      if (!user.DH12Application?.id && stationId !== "judges") {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "User didn't apply to the event",
@@ -375,7 +376,7 @@ export const scannerRouter = router({
 
       if (stationId === "checkIn") {
         // This code is intentionally explicit so it's easy to trace what happens to each status
-        switch (user.DH12Application.status) {
+        switch (user.DH12Application?.status) {
           case Status.IN_REVIEW:
           case Status.REJECTED:
           case Status.WAITLISTED:
@@ -471,7 +472,7 @@ export const scannerRouter = router({
           },
         });
       } else {
-        if (user.DH12Application.status !== Status.CHECKED_IN) {
+        if (user.DH12Application?.status !== Status.CHECKED_IN) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "User is not checked in",
