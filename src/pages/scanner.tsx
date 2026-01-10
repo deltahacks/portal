@@ -8,9 +8,17 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import Drawer from "../components/Drawer";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { Role, Station } from "@prisma/client";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import clsx from "clsx";
 import { trpc } from "../utils/trpc";
+import { useIsMutating } from "@tanstack/react-query";
 import { useOfflineQueue } from "../hooks/useOfflineQueue";
 import { z } from "zod";
 import { Input } from "../components/Input";
@@ -24,6 +32,31 @@ import {
   initialWizardState,
   stationLabels,
 } from "../schemas/scanner";
+
+function subscribeToOnlineStatus(callback: () => void) {
+  window.addEventListener("online", callback);
+  window.addEventListener("offline", callback);
+  return () => {
+    window.removeEventListener("online", callback);
+    window.removeEventListener("offline", callback);
+  };
+}
+
+function getOnlineSnapshot() {
+  return navigator.onLine;
+}
+
+function getServerSnapshot() {
+  return true;
+}
+
+function useOnlineStatus() {
+  return useSyncExternalStore(
+    subscribeToOnlineStatus,
+    getOnlineSnapshot,
+    getServerSnapshot,
+  );
+}
 
 function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   switch (action.type) {
@@ -188,6 +221,8 @@ const ScannerUI: React.FC<{
   const [mode, setMode] = useState<"camera" | "manual">("camera");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const isOnline = useOnlineStatus();
+  const pendingMutations = useIsMutating();
 
   // Reset state when switching modes
   useEffect(() => {
@@ -323,29 +358,55 @@ const ScannerUI: React.FC<{
   return (
     <>
       <div className="mb-4 flex flex-col gap-3">
-        <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg p-1 w-fit mx-auto">
-          <button
-            onClick={() => setMode("camera")}
-            className={clsx(
-              "px-3 py-2 rounded text-sm font-medium transition-colors",
-              mode === "camera"
-                ? "bg-primary text-white"
-                : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg p-1">
+            <button
+              onClick={() => setMode("camera")}
+              className={clsx(
+                "px-3 py-2 rounded text-sm font-medium transition-colors",
+                mode === "camera"
+                  ? "bg-primary text-white"
+                  : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
+              )}
+            >
+              Camera
+            </button>
+            <button
+              onClick={() => setMode("manual")}
+              className={clsx(
+                "px-3 py-2 rounded text-sm font-medium transition-colors",
+                mode === "manual"
+                  ? "bg-primary text-white"
+                  : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
+              )}
+            >
+              Manual
+            </button>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {pendingMutations > 0 && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                {pendingMutations}
+              </div>
             )}
-          >
-            Camera
-          </button>
-          <button
-            onClick={() => setMode("manual")}
-            className={clsx(
-              "px-3 py-2 rounded text-sm font-medium transition-colors",
-              mode === "manual"
-                ? "bg-primary text-white"
-                : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100",
-            )}
-          >
-            Manual
-          </button>
+            <div
+              className={clsx(
+                "flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium",
+                isOnline
+                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                  : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+              )}
+            >
+              <span
+                className={clsx(
+                  "w-1.5 h-1.5 rounded-full",
+                  isOnline ? "bg-green-500" : "bg-red-500",
+                )}
+              />
+              {isOnline ? "Online" : "Offline"}
+            </div>
+          </div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
