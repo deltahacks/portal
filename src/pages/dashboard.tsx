@@ -10,7 +10,7 @@ import SocialButtons from "../components/SocialButtons";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import { prisma } from "../server/db/client";
-import { Status } from "@prisma/client";
+import { Status, Role } from "@prisma/client";
 import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "../components/Button";
@@ -599,6 +599,11 @@ export const getServerSideProps = async (
 
   if (!session || !session.user) {
     return { redirect: { destination: "/login", permanent: false } };
+  }
+
+  // Redirect judges to judging page
+  if (session.user.role.includes(Role.JUDGE)) {
+    return { redirect: { destination: "/judging", permanent: false } };
   }
 
   const userEntry = await prisma.user.findFirst({
