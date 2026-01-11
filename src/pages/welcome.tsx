@@ -6,6 +6,7 @@ import SocialButtons from "../components/SocialButtons";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { Button } from "../components/Button";
+import { Role } from "@prisma/client";
 
 const Content = () => {
   return (
@@ -83,12 +84,17 @@ const Welcome: NextPage = () => {
 };
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
+  context: GetServerSidePropsContext
 ) => {
   const session = await getServerAuthSession(context);
 
   if (!session || !session.user) {
     return { redirect: { destination: "/login", permanent: false } };
+  }
+
+  // Redirect judges to judging page
+  if (session.user.role.includes(Role.JUDGE)) {
+    return { redirect: { destination: "/judging", permanent: false } };
   }
 
   const userEntry = await prisma.user.findFirst({
