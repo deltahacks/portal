@@ -45,11 +45,11 @@ export const projectRouter = router({
           where: { dhYear: dhYearConfig.value },
         });
 
-        // Create or get the General track
+        // Create or get the General track for this year
         const generalTrack = await ctx.prisma.track.upsert({
-          where: { name: "General" },
+          where: { name_dhYear: { name: "General", dhYear: dhYearConfig.value } },
           update: {},
-          create: { name: "General" },
+          create: { name: "General", dhYear: dhYearConfig.value },
         });
 
         // Process and save projects to the database
@@ -88,9 +88,9 @@ export const projectRouter = router({
                 : trackName;
 
               const createdTrack = await ctx.prisma.track.upsert({
-                where: { name: normalizedTrackName },
+                where: { name_dhYear: { name: normalizedTrackName, dhYear: dhYearConfig.value } },
                 update: {},
-                create: { name: normalizedTrackName },
+                create: { name: normalizedTrackName, dhYear: dhYearConfig.value },
               });
               // use upsert to avoid duplicate entries
               await ctx.prisma.projectTrack.upsert({
@@ -129,11 +129,30 @@ export const projectRouter = router({
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      // First, clear existing tables and time slots
-      await ctx.prisma.timeSlot.deleteMany();
-      await ctx.prisma.table.deleteMany();
 
-      const tracks = await ctx.prisma.track.findMany();
+      // Get current dhYear from Config
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
+      // Clear existing tables and time slots for this year only
+      await ctx.prisma.timeSlot.deleteMany({
+        where: { dhYear: dhYearConfig.value },
+      });
+      await ctx.prisma.table.deleteMany({
+        where: { dhYear: dhYearConfig.value },
+      });
+
+      const tracks = await ctx.prisma.track.findMany({
+        where: { dhYear: dhYearConfig.value },
+      });
       let tableCounter = 1;
 
       // Create tables for each track
@@ -144,6 +163,7 @@ export const projectRouter = router({
             data: {
               number: tableCounter++,
               trackId: track.id,
+              dhYear: dhYearConfig.value,
             },
           });
           continue;
@@ -161,6 +181,7 @@ export const projectRouter = router({
             data: {
               number: tableCounter++,
               trackId: track.id,
+              dhYear: dhYearConfig.value,
             },
           });
         }
@@ -285,7 +306,12 @@ export const projectRouter = router({
 
 export const tableRouter = router({
   getTables: protectedProcedure.query(async ({ ctx }) => {
+    const dhYearConfig = await ctx.prisma.config.findUnique({
+      where: { name: "dhYear" },
+    });
+
     return ctx.prisma.table.findMany({
+      where: { dhYear: dhYearConfig?.value },
       include: {
         track: true,
       },
@@ -348,7 +374,13 @@ export const tableRouter = router({
 
 export const trackRouter = router({
   getTracks: protectedProcedure.query(async ({ ctx }) => {
-    const tracks = ctx.prisma.track.findMany();
+    const dhYearConfig = await ctx.prisma.config.findUnique({
+      where: { name: "dhYear" },
+    });
+
+    const tracks = ctx.prisma.track.findMany({
+      where: { dhYear: dhYearConfig?.value },
+    });
     return tracks;
   }),
   createTrack: protectedProcedure
@@ -357,9 +389,22 @@ export const trackRouter = router({
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
+
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
       const createdTrack = ctx.prisma.track.create({
         data: {
           name: input.name,
+          dhYear: dhYearConfig.value,
         },
       });
       return createdTrack;
@@ -664,15 +709,26 @@ export const judgingRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
       return ctx.prisma.$transaction(async (tx) => {
         const results = [];
 
         for (const [trackName, questions] of Object.entries(input.questions)) {
-          // Create or get track
+          // Create or get track for this year
           const track = await tx.track.upsert({
-            where: { name: trackName },
+            where: { name_dhYear: { name: trackName, dhYear: dhYearConfig.value } },
             update: {},
-            create: { name: trackName },
+            create: { name: trackName, dhYear: dhYearConfig.value },
           });
 
           // Delete existing questions for this track
@@ -768,8 +824,9 @@ export const timeSlotRouter = router({
         where: { dhYear: dhYearConfig.value },
       });
 
-      // 2) Fetch tables & projectTracks
+      // 2) Fetch tables & projectTracks for this year
       const tables = await ctx.prisma.table.findMany({
+        where: { dhYear: dhYearConfig.value },
         include: { track: true },
         orderBy: { number: "asc" },
       });
@@ -781,6 +838,9 @@ export const timeSlotRouter = router({
       }
 
       const allProjectTracks = await ctx.prisma.projectTrack.findMany({
+        where: {
+          project: { dhYear: dhYearConfig.value },
+        },
         include: {
           project: true,
           track: true,
