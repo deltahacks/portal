@@ -47,7 +47,9 @@ export const projectRouter = router({
 
         // Create or get the General track for this year
         const generalTrack = await ctx.prisma.track.upsert({
-          where: { name_dhYear: { name: "General", dhYear: dhYearConfig.value } },
+          where: {
+            name_dhYear: { name: "General", dhYear: dhYearConfig.value },
+          },
           update: {},
           create: { name: "General", dhYear: dhYearConfig.value },
         });
@@ -88,9 +90,17 @@ export const projectRouter = router({
                 : trackName;
 
               const createdTrack = await ctx.prisma.track.upsert({
-                where: { name_dhYear: { name: normalizedTrackName, dhYear: dhYearConfig.value } },
+                where: {
+                  name_dhYear: {
+                    name: normalizedTrackName,
+                    dhYear: dhYearConfig.value,
+                  },
+                },
                 update: {},
-                create: { name: normalizedTrackName, dhYear: dhYearConfig.value },
+                create: {
+                  name: normalizedTrackName,
+                  dhYear: dhYearConfig.value,
+                },
               });
               // use upsert to avoid duplicate entries
               await ctx.prisma.projectTrack.upsert({
@@ -726,7 +736,9 @@ export const judgingRouter = router({
         for (const [trackName, questions] of Object.entries(input.questions)) {
           // Create or get track for this year
           const track = await tx.track.upsert({
-            where: { name_dhYear: { name: trackName, dhYear: dhYearConfig.value } },
+            where: {
+              name_dhYear: { name: trackName, dhYear: dhYearConfig.value },
+            },
             update: {},
             create: { name: trackName, dhYear: dhYearConfig.value },
           });
