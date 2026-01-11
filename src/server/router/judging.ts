@@ -892,6 +892,15 @@ export const timeSlotRouter = router({
         };
       }
 
+      // MLH slot duration in minutes - must divide evenly into slotDurationMinutes
+      const MLH_SLOT_MINUTES = 2.5;
+      if (input.slotDurationMinutes % MLH_SLOT_MINUTES !== 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `slotDurationMinutes (${input.slotDurationMinutes}) must be divisible by MLH slot duration (${MLH_SLOT_MINUTES})`,
+        });
+      }
+
       // Separate MLH and non-MLH tracks
       const mlhProjectTracks = allProjectTracks.filter(
         (pt) => pt.track.name === "MLH",
@@ -973,7 +982,7 @@ export const timeSlotRouter = router({
         );
 
         // Schedule MLH judging slots
-        const mlhSlotsToSchedule = Math.floor(input.slotDurationMinutes / 5);
+        const mlhSlotsToSchedule = Math.floor(input.slotDurationMinutes / MLH_SLOT_MINUTES);
         let mlhStartTime = currentTimeChunk;
 
         for (
@@ -1002,9 +1011,7 @@ export const timeSlotRouter = router({
                 projectId: chosenProject.projectId,
                 startTime: mlhStartTime,
                 endTime: new Date(
-                  new Date(mlhStartTime).setMinutes(
-                    mlhStartTime.getMinutes() + 5,
-                  ),
+                  mlhStartTime.getTime() + MLH_SLOT_MINUTES * 60 * 1000,
                 ),
                 dhYear: dhYearConfig.value,
               },
@@ -1036,7 +1043,7 @@ export const timeSlotRouter = router({
           });
 
           mlhStartTime = new Date(
-            new Date(mlhStartTime).setMinutes(mlhStartTime.getMinutes() + 5),
+            mlhStartTime.getTime() + MLH_SLOT_MINUTES * 60 * 1000,
           );
         }
         currentTimeChunk = new Date(
@@ -1053,18 +1060,14 @@ export const timeSlotRouter = router({
             projectId: mlhProject.projectId,
             startTime: currentTimeChunk,
             endTime: new Date(
-              new Date(currentTimeChunk).setMinutes(
-                currentTimeChunk.getMinutes() + 5, // 5 minute slots for MLH
-              ),
+              currentTimeChunk.getTime() + MLH_SLOT_MINUTES * 60 * 1000,
             ),
             dhYear: dhYearConfig.value,
           },
         });
 
         currentTimeChunk = new Date(
-          new Date(currentTimeChunk).setMinutes(
-            currentTimeChunk.getMinutes() + 5,
-          ),
+          currentTimeChunk.getTime() + MLH_SLOT_MINUTES * 60 * 1000,
         );
       }
 
