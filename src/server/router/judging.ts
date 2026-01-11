@@ -982,7 +982,9 @@ export const timeSlotRouter = router({
         );
 
         // Schedule MLH judging slots
-        const mlhSlotsToSchedule = Math.floor(input.slotDurationMinutes / MLH_SLOT_MINUTES);
+        const mlhSlotsToSchedule = Math.floor(
+          input.slotDurationMinutes / MLH_SLOT_MINUTES,
+        );
         let mlhStartTime = currentTimeChunk;
 
         for (
