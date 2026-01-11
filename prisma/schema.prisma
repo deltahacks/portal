@@ -375,19 +375,25 @@ model ProjectTrack {
 
 model Track {
   id             String           @id @default(cuid())
-  name           String           @unique
+  name           String
+  dhYear         String
   ProjectTrack   ProjectTrack[]
   Table          Table[]
   RubricQuestion RubricQuestion[]
+
+  @@unique([name, dhYear])
 }
 
 model Table {
   id            String          @id @default(cuid())
-  number        Int             @unique
+  number        Int
   trackId       String
   track         Track           @relation(fields: [trackId], references: [id])
+  dhYear        String
   TimeSlot      TimeSlot[]
   JudgingResult JudgingResult[]
+
+  @@unique([number, dhYear])
 }
 
 model Project {
