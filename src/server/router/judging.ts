@@ -280,9 +280,16 @@ export const projectRouter = router({
       where: { name: "dhYear" },
     });
 
+    if (!dhYearConfig) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "dhYear not configured",
+      });
+    }
+
     return ctx.prisma.project.findMany({
       where: {
-        dhYear: dhYearConfig?.value,
+        dhYear: dhYearConfig.value,
       },
       select: {
         id: true,
@@ -320,8 +327,15 @@ export const tableRouter = router({
       where: { name: "dhYear" },
     });
 
+    if (!dhYearConfig) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "dhYear not configured",
+      });
+    }
+
     return ctx.prisma.table.findMany({
-      where: { dhYear: dhYearConfig?.value },
+      where: { dhYear: dhYearConfig.value },
       include: {
         track: true,
       },
@@ -334,10 +348,17 @@ export const tableRouter = router({
         where: { name: "dhYear" },
       });
 
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
       const judgedProjects = await ctx.prisma.judgingResult.findMany({
         where: {
           judgeId: ctx.session.user.id,
-          dhYear: dhYearConfig?.value,
+          dhYear: dhYearConfig.value,
         },
         select: {
           projectId: true,
@@ -388,8 +409,15 @@ export const trackRouter = router({
       where: { name: "dhYear" },
     });
 
+    if (!dhYearConfig) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "dhYear not configured",
+      });
+    }
+
     const tracks = ctx.prisma.track.findMany({
-      where: { dhYear: dhYearConfig?.value },
+      where: { dhYear: dhYearConfig.value },
     });
     return tracks;
   }),
@@ -1055,7 +1083,20 @@ export const timeSlotRouter = router({
     ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+
+    const dhYearConfig = await ctx.prisma.config.findUnique({
+      where: { name: "dhYear" },
+    });
+
+    if (!dhYearConfig) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "dhYear not configured",
+      });
+    }
+
     const timeSlots = await ctx.prisma.timeSlot.findMany({
+      where: { dhYear: dhYearConfig.value },
       select: {
         startTime: true,
         endTime: true,
@@ -1073,9 +1114,22 @@ export const timeSlotRouter = router({
       if (!ctx.session.user.role.includes(Role.ADMIN)) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
+
+      const dhYearConfig = await ctx.prisma.config.findUnique({
+        where: { name: "dhYear" },
+      });
+
+      if (!dhYearConfig) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "dhYear not configured",
+        });
+      }
+
       const assignments = await ctx.prisma.timeSlot.findMany({
         where: {
           startTime: new Date(input.time),
+          dhYear: dhYearConfig.value,
         },
         include: {
           project: true,
