@@ -30,7 +30,6 @@ export const serverSchema = z.object({
   AZURE_AD_TENANT_ID: z.string(),
 
   // External Services
-  TYPEFORM_API_KEY: z.string(),
   SENDGRID_API_KEY: z.string(),
   LOGSNAG_TOKEN: z.string(),
   POSTHOG_KEY: z.string(),
