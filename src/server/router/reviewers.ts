@@ -85,10 +85,16 @@ export const reviewerRouter = router({
       });
 
       const parsed = ApplicationForReview.array().parse(
-        users.map(({ DH12Application, ...user }) => ({
-          ...user,
-          status: DH12Application?.status,
-        })),
+        users.flatMap(({ DH12Application, ...user }) =>
+          DH12Application === null
+            ? []
+            : [
+                {
+                  ...user,
+                  status: DH12Application.status,
+                },
+              ],
+        ),
       );
 
       // add review counts
@@ -392,10 +398,16 @@ export const reviewerRouter = router({
       });
 
       const parsed = ApplicationForReview.array().parse(
-        users.map(({ DH12Application, ...user }) => ({
-          ...user,
-          status: DH12Application?.status,
-        })),
+        users.flatMap(({ DH12Application, ...user }) =>
+          DH12Application === null
+            ? []
+            : [
+                {
+                  ...user,
+                  status: DH12Application.status,
+                },
+              ],
+        ),
       );
 
       // add review counts
