@@ -17,7 +17,7 @@ const resume = async (req: NextApiRequest, res: NextApiResponse) => {
     const options = {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
+        // Authorization: `Bearer ${env.TYPEFORM_API_KEY}`,
       },
     };
     const resp = await fetch(
