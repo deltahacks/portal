@@ -55,12 +55,10 @@ export const reviewerRouter = router({
   getApplications: protectedProcedure
     .output(ApplicationForReview.array())
     .query(async ({ ctx }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -126,12 +124,10 @@ export const reviewerRouter = router({
       ),
     )
     .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -175,12 +171,10 @@ export const reviewerRouter = router({
     )
     .output(z.object({ status: z.enum(Status) }))
     .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -253,12 +247,10 @@ export const reviewerRouter = router({
     .input(ReviewScoreSchema)
     .mutation(async ({ ctx, input }) => {
       // Check authorization
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -325,12 +317,10 @@ export const reviewerRouter = router({
     .output(ReviewWithReviewerSchema.array())
     .query(async ({ ctx, input }) => {
       // Check authorization
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
