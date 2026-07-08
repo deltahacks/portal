@@ -17,6 +17,7 @@ const ApplicationForReview = z.object({
     .transform((v) => (v === null ? "" : v)),
   // DH11ApplicationId: z.cuid(),
   DH12ApplicationId: z.cuid(),
+  status: z.enum(Status),
   reviewCount: z.number().prefault(0),
   avgScore: z.number().prefault(-1),
 });
@@ -73,10 +74,26 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           DH12ApplicationId: true,
+          DH12Application: {
+            select: {
+              status: true,
+            },
+          },
         },
       });
 
-      const parsed = ApplicationForReview.array().parse(users);
+      const parsed = ApplicationForReview.array().parse(
+        users.flatMap(({ DH12Application, ...user }) =>
+          DH12Application === null
+            ? []
+            : [
+                {
+                  ...user,
+                  status: DH12Application.status,
+                },
+              ],
+        ),
+      );
 
       // add review counts
       const reviewStats = await ctx.prisma.dH12Review.groupBy({
@@ -362,10 +379,26 @@ export const reviewerRouter = router({
           name: true,
           email: true,
           DH12ApplicationId: true,
+          DH12Application: {
+            select: {
+              status: true,
+            },
+          },
         },
       });
 
-      const parsed = ApplicationForReview.array().parse(users);
+      const parsed = ApplicationForReview.array().parse(
+        users.flatMap(({ DH12Application, ...user }) =>
+          DH12Application === null
+            ? []
+            : [
+                {
+                  ...user,
+                  status: DH12Application.status,
+                },
+              ],
+        ),
+      );
 
       // add review counts
       const reviewStats = await ctx.prisma.dH12Review.groupBy({
