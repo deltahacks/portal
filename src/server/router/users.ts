@@ -15,7 +15,7 @@ export const userRouter = router({
       const userData = await ctx.prisma?.user.findFirst({
         where: { id },
         include: {
-          DH12Application: {
+          DH13Application: {
             select: {
               id: true,
               firstName: true,
@@ -41,13 +41,13 @@ export const userRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      // update the DH11Application status to checked in
+      // update the DH13Application status to checked in
 
       // get user
       const user = await ctx.prisma.user.findFirst({
         where: { id: input },
         include: {
-          DH12Application: true,
+          DH13Application: true,
         },
       });
 
@@ -55,9 +55,9 @@ export const userRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      // update the DH12Application status to checked in
-      await ctx.prisma.dH12Application.update({
-        where: { id: user.DH12Application?.id },
+      // update the DH13Application status to checked in
+      await ctx.prisma.dH13Application.update({
+        where: { id: user.DH13Application?.id },
         data: {
           status: "CHECKED_IN",
         },
