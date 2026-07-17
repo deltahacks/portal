@@ -42,11 +42,13 @@ export const userRouter = router({
       }
 
       // update the DH13Application status to checked in
+      // update the DH13Application status to checked in
 
       // get user
       const user = await ctx.prisma.user.findFirst({
         where: { id: input },
         include: {
+          DH13Application: true,
           DH13Application: true,
         },
       });
@@ -55,16 +57,9 @@ export const userRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      if (!user.DH13Application?.id) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "User didn't apply to the event",
-        });
-      }
-
       // update the DH13Application status to checked in
       await ctx.prisma.dH13Application.update({
-        where: { id: user.DH13Application.id },
+        where: { id: user.DH13Application?.id },
         data: {
           status: "CHECKED_IN",
         },
