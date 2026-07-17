@@ -3,7 +3,7 @@ import { prisma } from "../../../../../server/db/client";
 import { google, walletobjects_v1 } from "googleapis";
 import jwt from "jsonwebtoken";
 
-import { DH12Application, User } from "@prisma/client";
+import { DH13Application, User } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../../pages/api/auth/[...nextauth]";
 
@@ -39,7 +39,7 @@ export async function GET(
       id: userId,
     },
     include: {
-      DH12Application: true,
+      DH13Application: true,
     },
   });
 
@@ -47,7 +47,7 @@ export async function GET(
     return new Response("User not found", { status: 404 });
   }
 
-  if (!["RSVP", "CHECKED_IN"].includes(user.DH12Application?.status ?? "")) {
+  if (!["RSVP", "CHECKED_IN"].includes(user.DH13Application?.status ?? "")) {
     return new Response("User was not accepted to the event", { status: 403 });
   }
 
@@ -239,7 +239,7 @@ async function syncObject(
 function createObject(
   issuerId: string,
   classId: string,
-  user: User & { DH12Application: DH12Application | null },
+  user: User & { DH13Application: DH13Application | null },
 ): walletobjects_v1.Schema$EventTicketObject {
   return {
     id: `${issuerId}.${user.id}`,
@@ -249,8 +249,8 @@ function createObject(
       type: "QR_CODE",
       value: `${env.NEXT_PUBLIC_URL}/profile/${user.id}`,
     },
-    ticketHolderName: user.DH12Application
-      ? `${user.DH12Application.firstName} ${user.DH12Application.lastName}`.trim()
+    ticketHolderName: user.DH13Application
+      ? `${user.DH13Application.firstName} ${user.DH13Application.lastName}`.trim()
       : (user.name ?? user.email ?? "Attendee"),
   };
 }
