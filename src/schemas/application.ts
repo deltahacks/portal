@@ -256,4 +256,43 @@ export const dh12schema = dh11schema
       }),
   });
 
-export default dh12schema;
+export const dh13schema = dh12schema
+  .omit({
+    longAnswerHobby: true,
+    longAnswerWhy: true,
+    longAnswerTime: true,
+    longAnswerSkill: true,
+    longAnswerSocratica: true,
+  })
+  .extend({
+    previousHackathonsCount: z.preprocess(
+      (val) => (val === "6+" ? 6 : val),
+      z.coerce.number().int().min(0),
+    ),
+    longAnswerPerspective: z
+      .string()
+      .min(1, "An answer is required")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerUnexpectedSkill: z
+      .string()
+      .min(1, "An answer is required")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerFutureSelf: z
+      .string()
+      .min(1, "An answer is required")
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      }),
+    longAnswerDayWith: z
+      .string()
+      .refine((value) => value.split(/\s/g).length <= 150, {
+        error: "Must be less than 150 words",
+      })
+      .nullish(),
+  });
+
+export default dh13schema;
