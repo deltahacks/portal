@@ -151,7 +151,7 @@ function createClass(
       contentDescription: {
         defaultValue: {
           language: "en-US",
-          value: "DeltaHacks 12 Logo",
+          value: "DeltaHacks 13 Logo",
         },
       },
     },
@@ -160,10 +160,10 @@ function createClass(
     eventName: {
       defaultValue: {
         language: "en-US",
-        value: "DeltaHacks 12",
+        value: "DeltaHacks 13",
       },
     },
-    eventId: "deltahacks-12",
+    eventId: "deltahacks-13",
     venue: {
       name: {
         defaultValue: {

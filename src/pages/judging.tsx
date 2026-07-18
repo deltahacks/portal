@@ -235,7 +235,7 @@ const Judging: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Dashboard - Deltahacks 12</title>
+        <title>Dashboard - Deltahacks 13</title>
       </Head>
 
       <div className="drawer drawer-end relative min-h-screen w-full overflow-x-hidden font-montserrat">

@@ -70,11 +70,11 @@ const Accepted: React.FC = () => {
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Hey{" "}
         <span className="capitalize">{session ? session.user?.name : ""}</span>,
-        we can{"'"}t wait to see you at Deltahacks 12!
+        we can{"'"}t wait to see you at Deltahacks 13!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
-        Deltahacks 12! Come hack for change and build something incredible with
+        Deltahacks 13! Come hack for change and build something incredible with
         hundreds of other hackers on January 10 - 11, 2026! To confirm that you
         will be attending, please RSVP below.
       </h2>
@@ -212,7 +212,7 @@ const Rejected: React.FC = () => {
         <span className="capitalize">
           {session ? `${session.user?.name}` : ""}
         </span>
-        , thank you for submitting your application to Deltahacks 12.
+        , thank you for submitting your application to Deltahacks 13.
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We had a lot of amazing applicants this year and were happy to see so
@@ -549,7 +549,7 @@ const Dashboard: NextPage<
   return (
     <>
       <Head>
-        <title>Dashboard - Deltahacks 12</title>
+        <title>Dashboard - Deltahacks 13</title>
       </Head>
       <Drawer
         pageTabs={[
@@ -608,7 +608,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH12Application: true },
+    include: { DH13Application: true },
   });
   const killedStr = await prisma.config.findFirst({
     where: { name: "killApplications" },
@@ -623,10 +623,10 @@ export const getServerSideProps = async (
   }
 
   // If submitted then do nothing
-  if (userEntry && userEntry.DH12Application !== null) {
+  if (userEntry && userEntry.DH13Application !== null) {
     return {
       props: {
-        status: userEntry.DH12Application.status,
+        status: userEntry.DH13Application.status,
         killed: killed,
       },
     };
