@@ -283,13 +283,13 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
-  } = trpc.application.submitDh12.useMutation({
+  } = trpc.application.submitDh13.useMutation({
     onSuccess: async () => {
       await router.push("/dashboard");
     },
   });
 
-  useFormPersist(`dh12-applyForm:${persistId}`, {
+  useFormPersist(`dh13-applyForm:${persistId}`, {
     watch,
     setValue,
     storage: localStorage,
@@ -303,7 +303,7 @@ const ApplyForm = ({
     },
   });
 
-  const objectId = `${userId}-dh12.pdf`;
+  const objectId = `${userId}-dh13.pdf`;
   useEffect(() => {
     mutate({
       filename: objectId,
@@ -603,9 +603,6 @@ const ApplyForm = ({
             htmlFor="previousHackathonsCountInput"
           >
             Previous Hackathons Count{" "}
-            <span className="text-neutral-500 dark:text-neutral-400">
-              (Optional)
-            </span>
           </label>
           {errors.previousHackathonsCount && (
             <span className="text-error text-sm">
@@ -613,52 +610,55 @@ const ApplyForm = ({
             </span>
           )}
         </div>
-        <input
-          className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
-          type="number"
-          min="0"
+        <select
+          className="text-black rounded-lg input border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
           id="previousHackathonsCountInput"
           {...register("previousHackathonsCount")}
           onWheel={(e) => {
             e.preventDefault();
           }}
-        />
+        >
+          <option value="" disabled>
+            Select...
+          </option>
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6+">6+</option>
+        </select>
       </div>
       <FormDivider label="Long Answer" />
       <FormTextArea
-        id="longAnswerHobby"
-        label="If you could instantly master any hobby, what would it be and why?"
-        errors={errors.longAnswerHobby}
+        id="longAnswerPerspective"
+        label="What is one perspective you would bring to a team that others might not immediately expect?"
+        errors={errors.longAnswerPerspective}
         register={register}
-        value={watch("longAnswerHobby")}
+        value={watch("longAnswerPerspective")}
       />
       <FormTextArea
-        id="longAnswerWhy"
-        label="Why do you want to be a part of DeltaHacks 12?"
-        errors={errors.longAnswerWhy}
+        id="longAnswerUnexpectedSkill"
+        label="What is a skill you learned when building a project you never expected you would need?"
+        errors={errors.longAnswerUnexpectedSkill}
         register={register}
-        value={watch("longAnswerWhy")}
+        value={watch("longAnswerUnexpectedSkill")}
       />
       <FormTextArea
-        id="longAnswerTime"
-        label="Talk about a topic that can make you lose track of time, why does it captivate you?"
-        errors={errors.longAnswerTime}
+        id="longAnswerFutureSelf"
+        label="If your future self walked into the room right now, what’s the first thing they would judge you for?"
+        errors={errors.longAnswerFutureSelf}
         register={register}
-        value={watch("longAnswerTime")}
+        value={watch("longAnswerFutureSelf")}
       />
       <FormTextArea
-        id="longAnswerSkill"
-        label="Describe a situation where you had to quickly learn a new skill or technology to solve a problem. What was your approach and what did you learn from it?"
-        errors={errors.longAnswerSkill}
+        id="longAnswerDayWith"
+        label="If you could spend a day with anyone in the world, alive or not, who would it be? What would you do together and why do they inspire you?"
+        errors={errors.longAnswerDayWith}
         register={register}
-        value={watch("longAnswerSkill")}
-      />
-      <FormTextArea
-        id="longAnswerSocratica"
-        label="If you did not have to worry about school/money/time, what is the one thing you would work on?"
-        errors={errors.longAnswerSocratica}
-        register={register}
-        value={watch("longAnswerSocratica")}
+        value={watch("longAnswerDayWith") ?? ""}
+        optional
       />
       <FormDivider label="Survey" />
       <SocialLinksFormInput register={register} errors={errors} watch={watch} />
@@ -1011,13 +1011,13 @@ const Apply: NextPage<
   return (
     <>
       <Head>
-        <title>Welcome - DeltaHacks 12</title>
+        <title>Welcome - DeltaHacks 13</title>
       </Head>
       <Drawer>
         <div className="w-full">
           <div className="max-w-4xl p-4 mx-auto text-black dark:text-white md:w-1/2 md:p-0">
             <h1 className="py-8 text-3xl font-bold text-center text-black dark:text-white md:text-left">
-              Apply to Deltahacks 12
+              Apply to Deltahacks 13
             </h1>
 
             {!killed &&
@@ -1043,7 +1043,7 @@ const Apply: NextPage<
                     <span className="font-bold">hello@deltahacks.com</span>
                   </span>
                   {/* <span> */}
-                  {/* Applications are closed for Deltahacks 12. If you did not */}
+                  {/* Applications are closed for Deltahacks 13. If you did not */}
                   {/* get to apply, we hope to see you next year! */}
                   {/* </span> */}
                 </div>
@@ -1067,7 +1067,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH12Application: true },
+    include: { DH13Application: true },
   });
 
   const killedStr = await prisma.config.findFirst({
@@ -1083,7 +1083,7 @@ export const getServerSideProps = async (
   }
 
   // If submitted then go dashboard
-  if (userEntry && userEntry.DH12Application !== null) {
+  if (userEntry && userEntry.DH13Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 
