@@ -51,24 +51,24 @@ const ProfilePage: NextPage<ProfilePageProps> = (props) => {
         <main className="px-7 sm:px-14 md:max-w-2xl lg:max-w-3xl mx-auto 2xl:pt-8">
           <section className="text-center">
             <h1 className="font-bold text-2xl dark:text-white mb-2">
-              {user?.DH12Application?.firstName}{" "}
-              {user?.DH12Application?.lastName}
+              {user?.DH13Application?.firstName}{" "}
+              {user?.DH13Application?.lastName}
             </h1>
             <div className="mb-4">
-              {user?.DH12Application?.studyYearOfStudy}{" "}
-              {user?.DH12Application?.studyDegree} <br />
-              {user?.DH12Application?.studyMajor} <br />
-              {user?.DH12Application?.studyLocation}
+              {user?.DH13Application?.studyYearOfStudy}{" "}
+              {user?.DH13Application?.studyDegree} <br />
+              {user?.DH13Application?.studyMajor} <br />
+              {user?.DH13Application?.studyLocation}
             </div>
             {!showCode &&
-            (user?.DH12Application?.socialText?.filter((s) => s?.trim())
+            (user?.DH13Application?.socialText?.filter((s) => s?.trim())
               .length ?? 0) > 0 ? (
               <>
                 <h2 className="font-bold text-lg dark:text-white mb-2">
                   Socials
                 </h2>
                 <ul className="flex flex-col gap-2 mb-4 items-center">
-                  {(user?.DH12Application?.socialText ?? [])
+                  {(user?.DH13Application?.socialText ?? [])
                     .filter((s) => s?.trim())
                     .map((socialText, i) => (
                       <li

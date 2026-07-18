@@ -99,11 +99,11 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH12Application: true },
+    include: { DH13Application: true },
   });
 
   // If submitted then go to dashboard
-  if (userEntry && userEntry.DH12Application !== null) {
+  if (userEntry && userEntry.DH13Application !== null) {
     return { redirect: { destination: "/dashboard", permanent: false } };
   }
 

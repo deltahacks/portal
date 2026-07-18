@@ -159,7 +159,7 @@ const Admin: NextPage = () => {
                     <span>DeltaHacks Year</span>
                   </label>
                   <select
-                    value={currentDhYear ?? "DH12"}
+                    value={currentDhYear ?? "DH13"}
                     onChange={(e) => handleYearChange(e.target.value)}
                     className="select select-bordered w-full max-w-xs"
                   >
@@ -172,7 +172,7 @@ const Admin: NextPage = () => {
                 </div>
                 <button
                   className="btn btn-primary self-end"
-                  onClick={() => handleYearChange(currentDhYear ?? "DH12")}
+                  onClick={() => handleYearChange(currentDhYear ?? "DH13")}
                 >
                   Update Year
                 </button>

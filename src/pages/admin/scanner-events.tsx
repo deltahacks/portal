@@ -40,7 +40,7 @@ type EventLogItem = {
     name: string | null;
     email: string | null;
     image: string | null;
-    DH12Application: {
+    DH13Application: {
       firstName: string;
       lastName: string;
     } | null;
@@ -133,8 +133,8 @@ const ScannerEvents: NextPage = () => {
         header: "User",
         cell: ({ row }) => {
           const user = row.original.user;
-          const displayName = user.DH12Application
-            ? `${user.DH12Application.firstName} ${user.DH12Application.lastName}`
+          const displayName = user.DH13Application
+            ? `${user.DH13Application.firstName} ${user.DH13Application.lastName}`
             : user.name || "Unknown";
           return (
             <div className="flex items-center gap-3">

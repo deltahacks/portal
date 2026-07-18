@@ -608,7 +608,7 @@ export const getServerSideProps = async (
 
   const userEntry = await prisma.user.findFirst({
     where: { id: session.user.id },
-    include: { DH12Application: true },
+    include: { DH13Application: true },
   });
   const killedStr = await prisma.config.findFirst({
     where: { name: "killApplications" },
@@ -623,10 +623,10 @@ export const getServerSideProps = async (
   }
 
   // If submitted then do nothing
-  if (userEntry && userEntry.DH12Application !== null) {
+  if (userEntry && userEntry.DH13Application !== null) {
     return {
       props: {
-        status: userEntry.DH12Application.status,
+        status: userEntry.DH13Application.status,
         killed: killed,
       },
     };
