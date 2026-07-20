@@ -55,9 +55,16 @@ export const userRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
+      if (!user.DH13Application?.id) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User didn't apply to the event",
+        });
+      }
+
       // update the DH13Application status to checked in
       await ctx.prisma.dH13Application.update({
-        where: { id: user.DH13Application?.id },
+        where: { id: user.DH13Application.id },
         data: {
           status: "CHECKED_IN",
         },
