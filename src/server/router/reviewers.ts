@@ -17,6 +17,7 @@ const ApplicationForReview = z.object({
     .transform((v) => (v === null ? "" : v)),
   // DH12ApplicationId: z.cuid(),
   DH13ApplicationId: z.cuid(),
+  applicationNumber: z.number(),
   status: z.enum(Status),
   reviewCount: z.number().prefault(0),
   avgScore: z.number().prefault(-1),
@@ -77,6 +78,7 @@ export const reviewerRouter = router({
           DH13Application: {
             select: {
               status: true,
+              applicationNumber: true,
             },
           },
         },
@@ -90,6 +92,7 @@ export const reviewerRouter = router({
                 {
                   ...user,
                   status: DH13Application.status,
+                  applicationNumber: DH13Application.applicationNumber,
                 },
               ],
         ),
@@ -382,6 +385,7 @@ export const reviewerRouter = router({
           DH13Application: {
             select: {
               status: true,
+              applicationNumber: true,
             },
           },
         },
@@ -395,6 +399,7 @@ export const reviewerRouter = router({
                 {
                   ...user,
                   status: DH13Application.status,
+                  applicationNumber: DH13Application.applicationNumber,
                 },
               ],
         ),

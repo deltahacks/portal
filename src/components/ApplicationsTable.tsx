@@ -31,9 +31,9 @@ import { Status } from "@prisma/client";
 
 const columns: ColumnDef<ApplicationForReview>[] = [
   {
-    accessorKey: "index",
-    accessorFn: (_row, index) => index,
+    accessorKey: "applicationNumber",
     filterFn: (row, columnId, filterValue) => {
+      if (filterValue === "" || filterValue === undefined) return true;
       return row.getValue(columnId) === Number(filterValue);
     },
     header: ({ column }) => {
@@ -48,7 +48,9 @@ const columns: ColumnDef<ApplicationForReview>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="pl-4 py-2">{row.getValue("index")}</div>,
+    cell: ({ row }) => (
+      <div className="pl-4 py-2">{row.getValue("applicationNumber")}</div>
+    ),
     enableColumnFilter: true,
     enableSorting: true,
   },
@@ -254,7 +256,7 @@ const SearchBarFilter = <TData,>({
         <Filter />
       </div>
       <SelectionDropdown
-        className="w-40 rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
+        className="w-52 rounded-none rounded-l-lg bg-primary font-bold dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80"
         selections={Array.from(filterableColumnsMap.keys())}
         defaultSelection={capitalize(defaultColumnToFilter.id)}
         onChangedSelection={changeFilteredColumnToSelection}
@@ -319,7 +321,7 @@ export const ApplicationsTable = ({
         <div className="flex items-center justify-between py-4">
           <SearchBarFilter
             columns={table.getAllColumns()}
-            defaultColumnToFilter={table.getColumn("index")}
+            defaultColumnToFilter={table.getColumn("applicationNumber")}
             defaultFilterValue={""}
           />
           <ColumnFilterDropdown columns={table.getAllColumns()} />
