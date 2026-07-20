@@ -15,12 +15,10 @@ export const applicationRouter = router({
   getStatusCount: protectedProcedure
     .output(StatusCount)
     .query(async ({ ctx }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.REVIEWER)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const statusCount = (
