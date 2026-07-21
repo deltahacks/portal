@@ -26,7 +26,7 @@ const GradingPortal: NextPage = () => {
 
   const numberGrades =
     applications?.reduce((acc, application) => {
-      return acc + application.reviewCount;
+      return application.reviewCount > 0 ? acc + 1 : acc;
     }, 0) ?? 0;
 
   const numberDecisioned = statusCount?.reduce((acc, val) => {
