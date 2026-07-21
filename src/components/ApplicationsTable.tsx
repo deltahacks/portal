@@ -33,7 +33,6 @@ const columns: ColumnDef<ApplicationForReview>[] = [
   {
     accessorKey: "applicationNumber",
     filterFn: (row, columnId, filterValue) => {
-      if (filterValue === "" || filterValue === undefined) return true;
       return row.getValue(columnId) === Number(filterValue);
     },
     header: ({ column }) => {
