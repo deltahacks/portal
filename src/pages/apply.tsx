@@ -827,7 +827,7 @@ const ApplyForm = ({
           register={register}
         />
         <FormInput
-          label="What is your emergency contact&apos;s relation to you?"
+          label="What is your emergency contact's relation to you?"
           id="emergencyContactRelation"
           errors={errors.emergencyContactRelation}
           placeholder="Parent / Guardian / Friend / Spouse"
@@ -836,7 +836,7 @@ const ApplyForm = ({
       </div>
       <FormInput
         id="emergencyContactPhone"
-        label="What is your emergency contact&apos;s phone number?"
+        label="What is your emergency contact's phone number?"
         errors={errors.emergencyContactPhone}
         placeholder="000-000-0000"
         register={register}
