@@ -29,7 +29,6 @@ const workshops: SelectChoice[] = workshopData.map((workshop) => ({
 }));
 
 const tshirtSizes: SelectChoice[] = [
-  { value: "XS", label: "XS" },
   { value: "S", label: "S" },
   { value: "M", label: "M" },
   { value: "L", label: "L" },

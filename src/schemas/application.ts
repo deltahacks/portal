@@ -61,7 +61,7 @@ const dh10schema = z.object({
     })
     .transform((string) => (!!string ? string : null))
     .nullish(),
-  tshirtSize: z.enum(["XS", "S", "M", "L", "XL"]),
+  tshirtSize: z.enum(["S", "M", "L", "XL"]),
   hackerKind: z.enum([
     "Front-end",
     "Back-end",
@@ -189,7 +189,7 @@ const dh11schema = z.object({
     .transform((string) => (!!string ? string : null))
     .nullish(),
   linkToResume: z.string().nullish(),
-  tshirtSize: z.enum(["XS", "S", "M", "L", "XL"], {
+  tshirtSize: z.enum(["S", "M", "L", "XL"], {
     error: "T-shirt size is required",
   }),
   hackerKind: z
