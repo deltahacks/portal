@@ -75,7 +75,7 @@ const Accepted: React.FC = () => {
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We are pleased to announce that you have been invited to attend
         Deltahacks 13! Come hack for change and build something incredible with
-        hundreds of other hackers on January 10 - 11, 2026! To confirm that you
+        hundreds of other hackers on January 9 - 10, 2027! To confirm that you
         will be attending, please RSVP below.
       </h2>
       {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
