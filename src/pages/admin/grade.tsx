@@ -87,7 +87,7 @@ const GradingPortal: NextPage = () => {
                 {applications?.length} <br />
               </div>
               <div className="font-bold">
-                Total Grades Given: {numberGrades}
+                Applications Reviewed: {numberGrades}
                 <br />
               </div>
               {statusCount?.map(({ status, count }, i) => {
