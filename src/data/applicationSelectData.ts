@@ -226,12 +226,14 @@ const majors: SelectChoice[] = [
 ].map((v) => ({ value: v, label: v }));
 
 const studyYears: SelectChoice[] = [
-  "First Year",
-  "Second Year",
-  "Third Year",
-  "Fourth Year",
-  "Fifth Year",
-  "Sixth Year",
+  "1st Year",
+  "2nd Year",
+  "3rd Year",
+  "4th Year",
+  "5th Year",
+  "5+ Year",
+  "Graduate Student",
+  "PHD Student",
 ].map((v) => ({ value: v, label: v }));
 
 const ethnicities: SelectChoice[] = [
