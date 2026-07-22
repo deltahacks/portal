@@ -676,7 +676,7 @@ const ApplyForm = ({
             className="text-black dark:text-white"
             htmlFor="tshirtSizeInput"
           >
-            T-shirt Size
+            What size t-shirt do you wear?
           </label>
           {errors.tshirtSize && (
             <span className="text-error text-sm">
@@ -733,7 +733,7 @@ const ApplyForm = ({
             className="text-black dark:text-white"
             htmlFor="workshopChoicesInput"
           >
-            What workshops are you interested in?
+            What type of workshops would you like to see at DeltaHacks 13?
             <span className="text-neutral-500 dark:text-neutral-400">
               (Optional)
             </span>
@@ -767,7 +767,7 @@ const ApplyForm = ({
             className="text-black dark:text-white"
             htmlFor="discoverdFromInput"
           >
-            How did you hear about DeltaHacks?
+            How did you find out about DeltaHacks 13?
           </label>
           {errors.discoverdFrom && (
             <span className="text-error text-sm text-right text-balance">
@@ -802,17 +802,24 @@ const ApplyForm = ({
         errors={errors.considerCoffee}
         register={register}
       />
+      <FormInput
+        label="Do you have any dietary restrictions?"
+        id="dietaryRestrictions"
+        errors={errors.dietaryRestrictions}
+        placeholder="e.g. vegetarian, nut allergy, halal, none"
+        register={register}
+      />
       <FormDivider label="Emergency Contact" />
       <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput
-          label="Name"
+          label="Please put the name of an emergency contact"
           id="emergencyContactName"
           errors={errors.emergencyContactName}
-          placeholder="James Doe"
+          placeholder="John Smith"
           register={register}
         />
         <FormInput
-          label="Relation"
+          label="What is your emergency contact&apos;s relation to you?"
           id="emergencyContactRelation"
           errors={errors.emergencyContactRelation}
           placeholder="Parent / Guardian / Friend / Spouse"
@@ -821,7 +828,7 @@ const ApplyForm = ({
       </div>
       <FormInput
         id="emergencyContactPhone"
-        label="Phone Number"
+        label="What is your emergency contact&apos;s phone number?"
         errors={errors.emergencyContactPhone}
         placeholder="000-000-0000"
         register={register}
@@ -956,14 +963,14 @@ const ApplyForm = ({
         link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
       />
       <FormCheckbox
-        label="I authorize you to share my application/registration information with Major League Hacking for event administration, ranking, and MLH administration in-line with the MLH Privacy Policy (https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md). I further agree to the terms of both the MLH Contest Terms and Conditions (https://github.com/MLH/mlh-policies/blob/main/contest-terms.md) and the MLH Privacy Policy (https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md)"
+        label="I authorize you to share my application/registration information with Major League Hacking for event administration, ranking, and administration (including the creation of linked accounts on MLH and DEV (https://dev.to)) in line with the MLH Privacy Policy. I further agree to the terms of both the MLH Contest Terms and Conditions (https://github.com/MLH/mlh-policies/blob/main/contest-terms.md) and the MLH Privacy Policy (https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md)"
         id="agreeToMLHPrivacyPolicy"
         errors={errors.agreeToMLHPrivacyPolicy}
         register={register}
         link="https://mlh.io/privacy"
       />
       <FormCheckbox
-        label="I authorize MLH to send me occasional emails about relevant events, career opportunities, and community announcements."
+        label="I authorize MLH + DEV to send me occasional emails about relevant events, career opportunities, and community announcements."
         id="agreeToMLHCommunications"
         errors={errors.agreeToMLHCommunications}
         register={register}

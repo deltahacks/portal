@@ -203,7 +203,7 @@ const dh11schema = z.object({
     .min(1, "At least one selection is required")
     .prefault([]),
   considerCoffee: z.boolean(),
-  dietaryRestrictions: z.string().nullish(),
+  dietaryRestrictions: z.string().min(1, "This field is required"),
   underrepresented: YesNoUnsure.nullish(),
   gender: z.string().nullish(),
   race: z.string().nullish(),
