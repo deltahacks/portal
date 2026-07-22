@@ -69,7 +69,7 @@ export const GET = async (
          * Note: .pass extension is enforced when reading a
          * model from FS, even if not specified here below
          */
-        model: path.resolve("src/assets/deltahacks_12.pass"),
+        model: path.resolve("src/assets/deltahacks_13.pass"),
         certificates: {
           wwdr,
           signerCert,

@@ -182,9 +182,9 @@ function createClass(
     // displayed as the UTC time in the local timezone.
     // So Android Emulator in EST would be at doorsOpen: 8 AM
     dateTime: {
-      doorsOpen: "2026-01-10T08:00:00.000Z",
-      start: "2026-01-10T08:00:00.000Z",
-      end: "2026-01-11T18:00:00.000Z",
+      doorsOpen: "2027-01-09T08:00:00.000Z",
+      start: "2027-01-09T08:00:00.000Z",
+      end: "2027-01-10T18:00:00.000Z",
     },
     locations: [
       {
