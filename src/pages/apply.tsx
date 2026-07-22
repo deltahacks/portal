@@ -297,6 +297,14 @@ const ApplyForm = ({
 
   const [uploadUrl, setUploadUrl] = useState<string | null>(null);
 
+  // "Different identity" lets applicants type their own orientation, which is stored directly in the `orientation` string
+  // Start in write-in mode if the persisted value isn't one of the preset options
+  const [selfDescribeOrientation, setSelfDescribeOrientation] = useState(
+    () =>
+      !!autofillData.orientation &&
+      !orientations.some((o) => o.value === autofillData.orientation),
+  );
+
   const { mutate, data } = trpc.file.getUploadUrl.useMutation({
     onSuccess: (data) => {
       setUploadUrl(data?.url);
@@ -915,12 +923,37 @@ const ApplyForm = ({
           name="orientation"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <CustomSelect
-              options={orientations}
-              isMulti={false}
-              onChange={(val: SelectChoice | null) => onChange(val?.value)}
-              value={orientations.find((val) => val.value === value)}
-            />
+            <>
+              <CustomSelect
+                options={orientations}
+                isMulti={false}
+                onChange={(val: SelectChoice | null) => {
+                  if (val?.value === "Different identity") {
+                    setSelfDescribeOrientation(true);
+                    onChange("");
+                  } else {
+                    setSelfDescribeOrientation(false);
+                    onChange(val?.value);
+                  }
+                }}
+                value={
+                  selfDescribeOrientation
+                    ? orientations.find(
+                        (val) => val.value === "Different identity",
+                      )
+                    : orientations.find((val) => val.value === value)
+                }
+              />
+              {selfDescribeOrientation && (
+                <input
+                  className="mt-2 text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+                  type="text"
+                  placeholder="Please specify your identity"
+                  value={value ?? ""}
+                  onChange={(e) => onChange(e.target.value)}
+                />
+              )}
+            </>
           )}
         />
       </div>
