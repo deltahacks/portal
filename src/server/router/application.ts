@@ -24,6 +24,9 @@ export const applicationRouter = router({
       const statusCount = (
         await ctx.prisma.dH13Application.groupBy({
           by: ["status"],
+          where: {
+            User: { isNot: null },
+          },
           _count: {
             status: true,
           },
