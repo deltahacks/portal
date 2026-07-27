@@ -23,7 +23,7 @@ export const GET = async (
       id: id,
     },
     include: {
-      DH12Application: true,
+      DH13Application: true,
     },
   });
 
@@ -31,7 +31,7 @@ export const GET = async (
     return new Response("User not found", { status: 404 });
   }
 
-  if (!["RSVP", "CHECKED_IN"].includes(user.DH12Application?.status ?? "")) {
+  if (!["RSVP", "CHECKED_IN"].includes(user.DH13Application?.status ?? "")) {
     return new Response("User was not accepted to the event", { status: 403 });
   }
 
@@ -69,7 +69,7 @@ export const GET = async (
          * Note: .pass extension is enforced when reading a
          * model from FS, even if not specified here below
          */
-        model: path.resolve("src/assets/deltahacks_12.pass"),
+        model: path.resolve("src/assets/deltahacks_13.pass"),
         certificates: {
           wwdr,
           signerCert,
@@ -88,9 +88,9 @@ export const GET = async (
     // pass.primaryFields.push({ key: "header", value: "" });
 
     const firstName =
-      user.DH12Application?.firstName || user.name?.split(" ")[0] || "Attendee";
+      user.DH13Application?.firstName || user.name?.split(" ")[0] || "Attendee";
     const lastName =
-      user.DH12Application?.lastName ||
+      user.DH13Application?.lastName ||
       user.name?.split(" ").slice(1).join(" ") ||
       "";
 

@@ -43,7 +43,7 @@ export const scannerRouter = router({
             { name: { contains: search, mode: "insensitive" } },
             { email: { contains: search, mode: "insensitive" } },
             {
-              DH12Application: {
+              DH13Application: {
                 OR: [
                   { firstName: { contains: search, mode: "insensitive" } },
                   { lastName: { contains: search, mode: "insensitive" } },
@@ -66,7 +66,7 @@ export const scannerRouter = router({
               name: true,
               email: true,
               image: true,
-              DH12Application: {
+              DH13Application: {
                 select: {
                   firstName: true,
                   lastName: true,
@@ -282,7 +282,7 @@ export const scannerRouter = router({
             { name: { contains: query, mode: "insensitive" } },
             { email: { contains: query, mode: "insensitive" } },
             {
-              DH12Application: {
+              DH13Application: {
                 OR: [
                   { firstName: { contains: query, mode: "insensitive" } },
                   { lastName: { contains: query, mode: "insensitive" } },
@@ -290,12 +290,12 @@ export const scannerRouter = router({
               },
             },
           ],
-          DH12Application: {
+          DH13Application: {
             isNot: null,
           },
         },
         include: {
-          DH12Application: {
+          DH13Application: {
             select: {
               firstName: true,
               lastName: true,
@@ -309,8 +309,8 @@ export const scannerRouter = router({
         id: user.id,
         name: user.name ?? "Unknown",
         email: user.email,
-        firstName: user.DH12Application?.firstName ?? null,
-        lastName: user.DH12Application?.lastName ?? null,
+        firstName: user.DH13Application?.firstName ?? null,
+        lastName: user.DH13Application?.lastName ?? null,
       }));
     }),
 
@@ -347,7 +347,7 @@ export const scannerRouter = router({
 
       const user = await ctx.prisma.user.findFirst({
         where: { id },
-        include: { DH12Application: true },
+        include: { DH13Application: true },
       });
       if (user === null || user === undefined) {
         throw new TRPCError({
@@ -355,8 +355,8 @@ export const scannerRouter = router({
           message: "Attendee not found. This QR code is not registered.",
         });
       }
-      // This exception is needed because judges don't have a DH12Application
-      if (!user.DH12Application?.id && stationId !== "judges") {
+      // This exception is needed because judges don't have a DH13Application
+      if (!user.DH13Application?.id && stationId !== "judges") {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "User didn't apply to the event",
@@ -366,9 +366,9 @@ export const scannerRouter = router({
       const userInfo = {
         id: user.id,
         name:
-          user.DH12Application?.firstName +
+          user.DH13Application?.firstName +
           " " +
-          user.DH12Application?.lastName,
+          user.DH13Application?.lastName,
         email: user.email,
         image: user.image,
         metadata: "",
@@ -376,7 +376,7 @@ export const scannerRouter = router({
 
       if (stationId === "checkIn") {
         // This code is intentionally explicit so it's easy to trace what happens to each status
-        switch (user.DH12Application?.status) {
+        switch (user.DH13Application?.status) {
           case Status.IN_REVIEW:
           case Status.REJECTED:
           case Status.WAITLISTED:
@@ -391,8 +391,8 @@ export const scannerRouter = router({
               message: "User is already checked in",
             });
           case Status.RSVP:
-            await ctx.prisma.dH12Application.update({
-              where: { id: user.DH12Application.id },
+            await ctx.prisma.dH13Application.update({
+              where: { id: user.DH13Application.id },
               data: { status: Status.CHECKED_IN },
             });
             break;
@@ -402,7 +402,7 @@ export const scannerRouter = router({
               message: "Unknown status, unable to process check-in",
             });
         }
-        userInfo.metadata = "T-Shirt Size: " + user.DH12Application?.tshirtSize;
+        userInfo.metadata = "T-Shirt Size: " + user.DH13Application?.tshirtSize;
       } else if (stationId === "judges") {
         if (!ctx.session.user.role.includes(Role.ADMIN)) {
           throw new TRPCError({
@@ -472,7 +472,7 @@ export const scannerRouter = router({
           },
         });
       } else {
-        if (user.DH12Application?.status !== Status.CHECKED_IN) {
+        if (user.DH13Application?.status !== Status.CHECKED_IN) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "User is not checked in",
@@ -518,7 +518,7 @@ export const scannerRouter = router({
         if (station.name === "food") {
           userInfo.metadata =
             "Dietary Restrictions: " +
-            (user.DH12Application?.dietaryRestrictions ?? "None");
+            (user.DH13Application?.dietaryRestrictions ?? "None");
         }
       }
 

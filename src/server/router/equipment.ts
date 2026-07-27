@@ -61,14 +61,14 @@ export const equipmentRouter = router({
             },
             {
               user: {
-                DH12Application: {
+                DH13Application: {
                   firstName: { contains: search, mode: "insensitive" },
                 },
               },
             },
             {
               user: {
-                DH12Application: {
+                DH13Application: {
                   lastName: { contains: search, mode: "insensitive" },
                 },
               },
@@ -89,7 +89,7 @@ export const equipmentRouter = router({
               name: true,
               email: true,
               image: true,
-              DH12Application: {
+              DH13Application: {
                 select: {
                   firstName: true,
                   lastName: true,
@@ -103,7 +103,7 @@ export const equipmentRouter = router({
               name: true,
               email: true,
               image: true,
-              DH12Application: {
+              DH13Application: {
                 select: {
                   firstName: true,
                   lastName: true,
@@ -144,7 +144,7 @@ export const equipmentRouter = router({
             name: true,
             email: true,
             image: true,
-            DH12Application: {
+            DH13Application: {
               select: {
                 firstName: true,
                 lastName: true,
@@ -158,7 +158,7 @@ export const equipmentRouter = router({
             name: true,
             email: true,
             image: true,
-            DH12Application: {
+            DH13Application: {
               select: {
                 firstName: true,
                 lastName: true,

@@ -4,6 +4,7 @@ interface SelectChoice {
 }
 
 const workshopData = [
+  { value: "Node.js", label: "Node.js" },
   { value: "React/Vue.js", label: "React/Vue.js" },
   { value: "Blockchain", label: "Blockchain" },
   { value: "Machine Learning", label: "Machine Learning" },
@@ -29,7 +30,6 @@ const workshops: SelectChoice[] = workshopData.map((workshop) => ({
 }));
 
 const tshirtSizes: SelectChoice[] = [
-  { value: "XS", label: "XS" },
   { value: "S", label: "S" },
   { value: "M", label: "M" },
   { value: "L", label: "L" },
@@ -49,19 +49,15 @@ const hackerTypes: SelectChoice[] = [
   { value: "Game Development", label: "Game Development" },
   { value: "Writer", label: "Writer" },
   { value: "Product Manager", label: "Product Manager" },
-  {
-    value: "Experience Ventures (McMaster Only)",
-    label: "Experience Ventures (McMaster Only)",
-  },
   { value: "Other", label: "Other" },
 ];
 
 const genderTypes: SelectChoice[] = [
-  { value: "Man", label: "Man" },
-  { value: "Woman", label: "Woman" },
+  { value: "Male", label: "Male" },
+  { value: "Female", label: "Female" },
   { value: "Non-binary", label: "Non-binary" },
-  { value: "Transgender", label: "Transgender" },
-  { value: "Prefer not to say", label: "Prefer not to say" },
+  { value: "Prefer not to answer", label: "Prefer not to answer" },
+  { value: "Prefer to self-describe", label: "Prefer to self-describe" },
 ];
 
 const universities: SelectChoice[] = [
@@ -241,15 +237,24 @@ const studyYears: SelectChoice[] = [
 ].map((v) => ({ value: v, label: v }));
 
 const ethnicities: SelectChoice[] = [
-  "Black / African American",
-  "Hispanic",
-  "East Asian",
-  "South Asian",
+  "Asian Indian",
+  "Black or African",
+  "Chinese",
+  "Filipino",
+  "Guamanian or Chamorro",
+  "Hispanic / Latino / Spanish Origin",
+  "Japanese",
+  "Korean",
   "Middle Eastern",
-  "Native American",
-  "White / Caucasian",
-  "Multiple ethnicity / Other",
-  "Prefer not to say",
+  "Native American or Alaskan Native",
+  "Native Hawaiian",
+  "Samoan",
+  "Vietnamese",
+  "White",
+  "Other Asian (Thai, Cambodian, etc)",
+  "Other Pacific Islander",
+  "Other (Please Specify)",
+  "Prefer Not to Answer",
 ].map((v) => ({ value: v, label: v }));
 
 const degrees: SelectChoice[] = [
@@ -276,8 +281,8 @@ const orientations: SelectChoice[] = [
   "Heterosexual or straight",
   "Gay or lesbian",
   "Bisexual",
-  "Other",
-  "Prefer not to say",
+  "Different identity",
+  "Prefer Not to Answer",
 ].map((v) => ({ value: v, label: v }));
 
 const representation: SelectChoice[] = [
