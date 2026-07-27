@@ -15,8 +15,8 @@ const ApplicationForReview = z.object({
     .string()
     .nullable()
     .transform((v) => (v === null ? "" : v)),
-  // DH11ApplicationId: z.cuid(),
-  DH12ApplicationId: z.cuid(),
+  // DH12ApplicationId: z.cuid(),
+  DH13ApplicationId: z.cuid(),
   status: z.enum(Status),
   reviewCount: z.number().prefault(0),
   avgScore: z.number().prefault(-1),
@@ -65,7 +65,7 @@ export const reviewerRouter = router({
 
       const users = await ctx.prisma.user.findMany({
         where: {
-          DH12ApplicationId: {
+          DH13ApplicationId: {
             not: null,
           },
         },
@@ -73,8 +73,8 @@ export const reviewerRouter = router({
           id: true,
           name: true,
           email: true,
-          DH12ApplicationId: true,
-          DH12Application: {
+          DH13ApplicationId: true,
+          DH13Application: {
             select: {
               status: true,
             },
@@ -83,20 +83,20 @@ export const reviewerRouter = router({
       });
 
       const parsed = ApplicationForReview.array().parse(
-        users.flatMap(({ DH12Application, ...user }) =>
-          DH12Application === null
+        users.flatMap(({ DH13Application, ...user }) =>
+          DH13Application === null
             ? []
             : [
                 {
                   ...user,
-                  status: DH12Application.status,
+                  status: DH13Application.status,
                 },
               ],
         ),
       );
 
       // add review counts
-      const reviewStats = await ctx.prisma.dH12Review.groupBy({
+      const reviewStats = await ctx.prisma.dH13Review.groupBy({
         by: ["applicationId"],
         _count: {
           applicationId: true,
@@ -120,8 +120,8 @@ export const reviewerRouter = router({
       const applicationsWithReviewCount = parsed.map((application) => ({
         ...application,
         reviewCount:
-          reviewStatsMap[application.DH12ApplicationId]?.reviewCount || 0,
-        avgScore: reviewStatsMap[application.DH12ApplicationId]?.avgScore || 0,
+          reviewStatsMap[application.DH13ApplicationId]?.reviewCount || 0,
+        avgScore: reviewStatsMap[application.DH13ApplicationId]?.avgScore || 0,
       }));
 
       return applicationsWithReviewCount;
@@ -130,7 +130,7 @@ export const reviewerRouter = router({
   getApplication: protectedProcedure
     .input(
       z.object({
-        dh12ApplicationId: z.string().optional(),
+        dh13ApplicationId: z.string().optional(),
       }),
     )
     .output(
@@ -148,10 +148,10 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const application = await ctx.prisma.dH12Application.findFirst({
+      const application = await ctx.prisma.dH13Application.findFirst({
         where: {
           id: {
-            equals: input.dh12ApplicationId,
+            equals: input.dh13ApplicationId,
           },
         },
       });
@@ -164,9 +164,9 @@ export const reviewerRouter = router({
           .substring(0, 10),
       };
 
-      const review = await ctx.prisma.dH12Review.findFirst({
+      const review = await ctx.prisma.dH13Review.findFirst({
         where: {
-          applicationId: input.dh12ApplicationId,
+          applicationId: input.dh13ApplicationId,
           reviewerId: ctx.session.user.id,
         },
       });
@@ -183,7 +183,7 @@ export const reviewerRouter = router({
   getStatus: protectedProcedure
     .input(
       z.object({
-        dh12ApplicationId: z.cuid(),
+        dh13ApplicationId: z.cuid(),
       }),
     )
     .output(z.object({ status: z.enum(Status) }))
@@ -195,9 +195,9 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const application = await ctx.prisma.dH12Application.findFirst({
+      const application = await ctx.prisma.dH13Application.findFirst({
         where: {
-          id: input.dh12ApplicationId,
+          id: input.dh13ApplicationId,
         },
         include: {
           User: true,
@@ -217,7 +217,7 @@ export const reviewerRouter = router({
   updateStatus: protectedProcedure
     .input(
       z.object({
-        dh12ApplicationId: z.cuid(),
+        dh13ApplicationId: z.cuid(),
         status: z.enum(Status),
       }),
     )
@@ -226,8 +226,8 @@ export const reviewerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const application = await ctx.prisma.dH12Application.update({
-        where: { id: input.dh12ApplicationId },
+      const application = await ctx.prisma.dH13Application.update({
+        where: { id: input.dh13ApplicationId },
         data: {
           status: input.status,
         },
@@ -272,7 +272,7 @@ export const reviewerRouter = router({
       }
 
       // Get application
-      const application = await ctx.prisma.dH12Application.findFirst({
+      const application = await ctx.prisma.dH13Application.findFirst({
         where: {
           id: input.applicationId,
         },
@@ -287,7 +287,7 @@ export const reviewerRouter = router({
       }
 
       // Check if reviewer already scored this application
-      const existingReview = await ctx.prisma.dH12Review.findFirst({
+      const existingReview = await ctx.prisma.dH13Review.findFirst({
         where: {
           applicationId: input.applicationId,
           reviewerId: ctx.session.user.id,
@@ -301,7 +301,7 @@ export const reviewerRouter = router({
       }
 
       // Create new review
-      const review = await ctx.prisma.dH12Review.create({
+      const review = await ctx.prisma.dH13Review.create({
         data: {
           applicationId: input.applicationId,
           reviewerId: ctx.session.user.id,
@@ -342,7 +342,7 @@ export const reviewerRouter = router({
       }
 
       // Fetch reviews
-      const reviews = await ctx.prisma.dH12Review.findMany({
+      const reviews = await ctx.prisma.dH13Review.findMany({
         where: { applicationId: input.applicationId },
         include: { reviewer: true },
       });
@@ -370,7 +370,7 @@ export const reviewerRouter = router({
 
       const users = await ctx.prisma.user.findMany({
         where: {
-          DH12ApplicationId: {
+          DH13ApplicationId: {
             not: null,
           },
         },
@@ -378,8 +378,8 @@ export const reviewerRouter = router({
           id: true,
           name: true,
           email: true,
-          DH12ApplicationId: true,
-          DH12Application: {
+          DH13ApplicationId: true,
+          DH13Application: {
             select: {
               status: true,
             },
@@ -388,20 +388,20 @@ export const reviewerRouter = router({
       });
 
       const parsed = ApplicationForReview.array().parse(
-        users.flatMap(({ DH12Application, ...user }) =>
-          DH12Application === null
+        users.flatMap(({ DH13Application, ...user }) =>
+          DH13Application === null
             ? []
             : [
                 {
                   ...user,
-                  status: DH12Application.status,
+                  status: DH13Application.status,
                 },
               ],
         ),
       );
 
       // add review counts
-      const reviewStats = await ctx.prisma.dH12Review.groupBy({
+      const reviewStats = await ctx.prisma.dH13Review.groupBy({
         by: ["applicationId"],
         _count: {
           applicationId: true,
@@ -425,8 +425,8 @@ export const reviewerRouter = router({
       const applicationsWithReviewCount = parsed.map((application) => ({
         ...application,
         reviewCount:
-          reviewStatsMap[application.DH12ApplicationId]?.reviewCount || 0,
-        avgScore: reviewStatsMap[application.DH12ApplicationId]?.avgScore || 0,
+          reviewStatsMap[application.DH13ApplicationId]?.reviewCount || 0,
+        avgScore: reviewStatsMap[application.DH13ApplicationId]?.avgScore || 0,
       }));
 
       const applicationsToUpdate = applicationsWithReviewCount.filter(
@@ -436,10 +436,10 @@ export const reviewerRouter = router({
       );
 
       // use an updateMany query to update all application statuses
-      await ctx.prisma.dH12Application.updateMany({
+      await ctx.prisma.dH13Application.updateMany({
         where: {
           id: {
-            in: applicationsToUpdate.map((app) => app.DH12ApplicationId),
+            in: applicationsToUpdate.map((app) => app.DH13ApplicationId),
           },
         },
         data: {

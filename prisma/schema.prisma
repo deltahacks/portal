@@ -66,8 +66,12 @@ model User {
   DH12Application   DH12Application? @relation(fields: [DH12ApplicationId], references: [id])
   DH12ApplicationId String?          @unique
 
+  DH13Application   DH13Application? @relation(fields: [DH13ApplicationId], references: [id])
+  DH13ApplicationId String?          @unique
+
   DH11Review DH11Review[]
   DH12Review DH12Review[]
+  DH13Review DH13Review[]
 
   EquipmentLogsAsAdmin EquipmentLog[] @relation("EquipmentAdmin")
 }
@@ -329,6 +333,83 @@ model DH12Review {
   applicationId String
 
   application DH12Application @relation(fields: [applicationId], references: [id], onDelete: NoAction)
+  reviewer    User            @relation(fields: [reviewerId], references: [id])
+}
+
+model DH13Application {
+  id String @id @default(cuid())
+
+  // Stable 1-based index for the grading portal. Assigned by the database on
+  // insert and never updated, so it does not shift when reviewers sort or
+  // filter. Deleted applications leave gaps, which is expected.
+  applicationNumber Int @unique @default(sequence(minValue: 1, start: 1))
+
+  firstName String
+  lastName  String
+  phone     String?
+  country   String?
+  birthday  DateTime
+
+  // School
+  studyEnrolledPostSecondary Boolean
+  studyLocation              String?
+  studyDegree                String?
+  studyMajor                 String?
+  studyYearOfStudy           String?
+  studyExpectedGraduation    DateTime?
+
+  previousHackathonsCount Int
+
+  longAnswerPerspective     String
+  longAnswerUnexpectedSkill String
+  longAnswerFutureSelf      String
+  longAnswerDayWith         String?
+
+  socialText String[] @default([])
+  interests  String?
+
+  linkToResume String?
+
+  tshirtSize          String
+  hackerKind          String[] @default([])
+  alreadyHaveTeam     Boolean
+  workshopChoices     String[] @default([])
+  discoverdFrom       String[] @default([])
+  considerCoffee      Boolean
+  dietaryRestrictions String?
+
+  underrepresented YesNoUnsure?
+  gender           String?
+  race             String?
+  orientation      String?
+
+  emergencyContactName     String
+  emergencyContactPhone    String
+  emergencyContactRelation String
+
+  agreeToMLHCodeOfConduct  Boolean
+  agreeToMLHPrivacyPolicy  Boolean
+  agreeToMLHCommunications Boolean
+
+  rsvpCheck Boolean @default(false)
+
+  User User?
+
+  DH13Review DH13Review[]
+
+  status Status @default(IN_REVIEW)
+}
+
+model DH13Review {
+  id String @id @default(cuid())
+
+  score   Float
+  comment String
+
+  reviewerId    String
+  applicationId String
+
+  application DH13Application @relation(fields: [applicationId], references: [id], onDelete: NoAction)
   reviewer    User            @relation(fields: [reviewerId], references: [id])
 }
 

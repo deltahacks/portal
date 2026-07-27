@@ -8,6 +8,7 @@ import { Button } from "./Button";
 import FormDivider from "./FormDivider";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
+import formatHackathonsCount from "../utils/formatHackathonsCount";
 
 interface FormInputProps {
   label: string;
@@ -198,33 +199,29 @@ const ApplicationContent = ({
       )}
       <FormInput
         label="Previous Hackathons Count"
-        text={data?.previousHackathonsCount.toString()}
+        text={formatHackathonsCount(data?.previousHackathonsCount ?? 0)}
       />
       <FormDivider label="Long Answer" />
       <FormTextArea
-        id="longAnswerHobby"
-        label="If you could instantly master any hobby, what would it be and why?"
-        text={data?.longAnswerHobby}
+        id="longAnswerPerspective"
+        label="What is one perspective you would bring to a team that others might not immediately expect?"
+        text={data?.longAnswerPerspective}
       />
       <FormTextArea
-        id="longAnswerWhy"
-        label="Why do you want to be a part of DeltaHacks 12?"
-        text={data?.longAnswerWhy}
+        id="longAnswerUnexpectedSkill"
+        label="What is a skill you learned when building a project you never expected you would need?"
+        text={data?.longAnswerUnexpectedSkill}
       />
       <FormTextArea
-        id="longAnswerTime"
-        label="Talk about a topic that can make you lose track of time, why does it captivate you?"
-        text={data?.longAnswerTime}
+        id="longAnswerFutureSelf"
+        label="If your future self walked into the room right now, what’s the first thing they would judge you for?"
+        text={data?.longAnswerFutureSelf}
       />
       <FormTextArea
-        id="longAnswerSkill"
-        label="Describe a situation where you had to quickly learn a new skill or technology to solve a problem. What was your approach and what did you learn from it?"
-        text={data?.longAnswerSkill}
-      />
-      <FormTextArea
-        id="longAnswerSocratica"
-        label="If you did not have to worry about school/money/time, what is the one thing you would work on?"
-        text={data?.longAnswerSocratica}
+        id="longAnswerDayWith"
+        label="If you could spend a day with anyone in the world, alive or not, who would it be? What would you do together and why do they inspire you?"
+        text={data?.longAnswerDayWith}
+        optional
       />
       <FormDivider label="Survey" />
       {/* <FormInput
@@ -324,7 +321,7 @@ const ReviewForm = ({
 
     try {
       await submitScore.mutateAsync({
-        applicationId: applicationForReview.DH12ApplicationId,
+        applicationId: applicationForReview.DH13ApplicationId,
         score: scoreValue,
         comment: comments,
       });
@@ -417,7 +414,7 @@ const ApplicationPopupButton = ({
     isPending: applicationIsLoading,
     error: applicationError,
   } = trpc.reviewer.getApplication.useQuery({
-    dh12ApplicationId: applicationForReview.DH12ApplicationId,
+    dh13ApplicationId: applicationForReview.DH13ApplicationId,
   });
 
   return (
@@ -456,7 +453,7 @@ const ApplicationPopupButton = ({
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
                   {(isAdmin || applicationData?.hasReviewed) && (
                     <ReviewScores
-                      applicationId={applicationForReview.DH12ApplicationId}
+                      applicationId={applicationForReview.DH13ApplicationId}
                     />
                   )}
                   {isReviewer && !applicationData?.hasReviewed && (

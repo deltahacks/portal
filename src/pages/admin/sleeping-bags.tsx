@@ -40,7 +40,7 @@ type SleepingBagLogItem = {
     name: string | null;
     email: string | null;
     image: string | null;
-    DH12Application: {
+    DH13Application: {
       firstName: string;
       lastName: string;
     } | null;
@@ -50,7 +50,7 @@ type SleepingBagLogItem = {
     name: string | null;
     email: string | null;
     image: string | null;
-    DH12Application: {
+    DH13Application: {
       firstName: string;
       lastName: string;
     } | null;
@@ -78,10 +78,10 @@ const StatsCard: React.FC<{
 
 const getDisplayName = (user: {
   name: string | null;
-  DH12Application: { firstName: string; lastName: string } | null;
+  DH13Application: { firstName: string; lastName: string } | null;
 }) => {
-  if (user.DH12Application) {
-    return `${user.DH12Application.firstName} ${user.DH12Application.lastName}`;
+  if (user.DH13Application) {
+    return `${user.DH13Application.firstName} ${user.DH13Application.lastName}`;
   }
   return user.name || "Unknown";
 };

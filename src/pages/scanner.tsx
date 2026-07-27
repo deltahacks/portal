@@ -588,7 +588,7 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
   return (
     <>
       <Head>
-        <title>QR Scanner - Deltahacks 12</title>
+        <title>QR Scanner - Deltahacks 13</title>
       </Head>
 
       <Drawer
