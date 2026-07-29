@@ -8,7 +8,7 @@ import Drawer from "../components/Drawer";
 import Scheduler from "../components/Scheduler";
 
 const Schedule: NextPage = () => {
-  const startDate = new Date(2026, 0, 10);
+  const startDate = new Date(2027, 0, 9); // January 9, 2027
   return (
     <Drawer
       pageTabs={[

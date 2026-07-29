@@ -382,9 +382,9 @@ const CalendarView: React.FC<{
 
 const GOOGLE_CALENDAR_URL = "https://www.googleapis.com/calendar/v3/calendars/";
 const CALENDAR_ID =
-  "c_4d8a2a89a6a70c398354eba93e7dd292e6cf96d3e628be3f65c38624a5244254@group.calendar.google.com";
+  "c_b09e3e4a8468453986b3eb0e72a61dc9fd96926553065b047f55d5e4ba7adaae@group.calendar.google.com";
 const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
-const DEFAULT_START_DATE = new Date(2026, 0, 9);
+const DEFAULT_START_DATE = new Date(2027, 0, 9);
 
 const fetchCalendarEvents = async (
   signal?: AbortSignal,
