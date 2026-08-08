@@ -1,14 +1,14 @@
-import type {
-  GetServerSidePropsContext,
-  GetServerSidePropsResult,
-  NextPage,
-} from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
+
+// Schedule UI is temporarily disabled. To restore it, uncomment the imports and
+// component below, then replace the redirect in getServerSideProps with props.
+/*
 import React from "react";
 import Drawer from "../components/Drawer";
 import Scheduler from "../components/Scheduler";
 
 const Schedule: NextPage = () => {
-  const startDate = new Date(2027, 0, 9); // January 9, 2027
+  const startDate = new Date(2027, 0, 9);
   return (
     <Drawer
       pageTabs={[
@@ -35,9 +35,13 @@ const Schedule: NextPage = () => {
     </Drawer>
   );
 };
+*/
+
+const Schedule: NextPage = () => null;
 
 export default Schedule;
 
+/*
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const output: GetServerSidePropsResult<Record<string, unknown>> = {
     props: {},
@@ -47,4 +51,12 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   ctx.res.setHeader("Cache-Control", "public, max-age=7200");
 
   return output;
+}
+*/
+
+// Temporary schedule shutdown. Restore the handler above to re-enable it.
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  ctx.res.setHeader("Netlify-Vary", "cookie=next-auth.session-token");
+
+  return { redirect: { destination: "/dashboard", permanent: false } };
 }
