@@ -863,6 +863,7 @@ const ApplyForm = ({
           control={control}
           render={({ field: { onChange, value } }) => (
             <CustomSelect
+              inputId="photoVideoConsentInput"
               options={yesNo}
               onChange={(val: SelectChoice | null) =>
                 onChange(val ? val.value === "Yes" : undefined)

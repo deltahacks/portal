@@ -16,6 +16,7 @@ interface CustomSelectProps {
   value?: SelectChoice[] | SelectChoice;
   isMulti?: boolean;
   defaultInputValue?: string;
+  inputId?: string;
 }
 
 // '((newValue: MultiValue<SelectChoice> | SingleValue<SelectChoice>, actionMeta: ActionMeta<SelectChoice>) => void) | undefined'.
@@ -25,6 +26,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   onChange,
   value,
   isMulti,
+  inputId,
 }) => {
   return (
     <Select
@@ -33,6 +35,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       onChange={onChange}
       value={value}
       isMulti={isMulti}
+      inputId={inputId}
       // placeholder="Please select one"
       classNames={{
         control: (
