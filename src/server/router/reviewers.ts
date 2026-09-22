@@ -28,6 +28,9 @@ const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
   z.object({
     birthday: z.string(),
     studyExpectedGraduation: z.string().nullish(),
+    photoVideoConsent: z.boolean().nullish(),
+    signature: z.string().nullish(),
+    parentGuardianSignature: z.string().nullish(),
   }).shape,
 );
 export type ApplicationSchemaWithStringDates = z.infer<
@@ -159,12 +162,19 @@ export const reviewerRouter = router({
         },
       });
 
+      const isAdmin = ctx.session.user.role.includes(Role.ADMIN);
+
       const applicationWithStringDates = {
         ...application,
         birthday: application?.birthday.toISOString().substring(0, 10) ?? "",
         studyExpectedGraduation: application?.studyExpectedGraduation
           ?.toISOString()
           .substring(0, 10),
+        photoVideoConsent: isAdmin ? application?.photoVideoConsent : null,
+        signature: isAdmin ? application?.signature : null,
+        parentGuardianSignature: isAdmin
+          ? application?.parentGuardianSignature
+          : null,
       };
 
       const review = await ctx.prisma.dH13Review.findFirst({

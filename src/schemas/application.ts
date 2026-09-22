@@ -293,6 +293,15 @@ export const dh13schema = dh12schema
         error: "Must be less than 150 words",
       })
       .nullish(),
+    photoVideoConsent: z.boolean({
+      error: "Please select Yes or No",
+    }),
+    signature: z.string().trim().min(1, "This field is required"),
+    parentGuardianSignature: z
+      .string()
+      .trim()
+      .transform((string) => (!!string ? string : null))
+      .nullish(),
   });
 
 export default dh13schema;
