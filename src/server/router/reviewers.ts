@@ -28,6 +28,9 @@ const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
   z.object({
     birthday: z.string(),
     studyExpectedGraduation: z.string().nullish(),
+    photoVideoConsent: z.boolean().nullish(),
+    signature: z.string().nullish(),
+    parentGuardianSignature: z.string().nullish(),
   }).shape,
 );
 export type ApplicationSchemaWithStringDates = z.infer<

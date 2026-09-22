@@ -37,6 +37,7 @@ import {
   workshopType,
   orientations,
   representation,
+  yesNo,
 } from "../data/applicationSelectData";
 import { iso31661 } from "iso-3166";
 
@@ -840,6 +841,56 @@ const ApplyForm = ({
         errors={errors.emergencyContactPhone}
         placeholder="000-000-0000"
         register={register}
+      />
+      <FormDivider label="Photo & Video Consent" />
+      <div className="flex flex-col gap-2 pb-4">
+        <div className="flex justify-between items-center gap-4">
+          <label
+            className="text-black dark:text-white"
+            htmlFor="photoVideoConsentInput"
+          >
+            I consent to photographs and/or videos of me being taken during the
+            event and used for event-related promotional and social media
+          </label>
+          {errors.photoVideoConsent && (
+            <span className="text-error text-sm text-right text-balance">
+              {errors.photoVideoConsent.message}
+            </span>
+          )}
+        </div>
+        <Controller
+          name="photoVideoConsent"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={yesNo}
+              onChange={(val: SelectChoice | null) =>
+                onChange(val ? val.value === "Yes" : undefined)
+              }
+              value={yesNo.find(
+                (val) =>
+                  val.value ===
+                  (value === true ? "Yes" : value === false ? "No" : null),
+              )}
+              isMulti={false}
+            />
+          )}
+        />
+      </div>
+      <FormInput
+        label="Name/Signature"
+        id="signature"
+        errors={errors.signature}
+        placeholder="John Doe"
+        register={register}
+      />
+      <FormInput
+        label="If participant is under 18: A parent or legal guardian should enter their name in addition to the participant to provide consent on their behalf"
+        id="parentGuardianSignature"
+        errors={errors.parentGuardianSignature}
+        placeholder="Jane Doe"
+        register={register}
+        optional
       />
       <FormDivider label="MLH Survey and Consent" />
 

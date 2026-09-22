@@ -284,6 +284,29 @@ const ApplicationContent = ({
             placeholder="000-000-0000"
             text={data?.emergencyContactPhone}
           />
+          <FormDivider label="Photo & Video Consent" />
+          <FormInput
+            id="photoVideoConsent"
+            label="Consents to photos/videos"
+            text={
+              data?.photoVideoConsent === true
+                ? "Yes"
+                : data?.photoVideoConsent === false
+                  ? "No"
+                  : "Not answered"
+            }
+          />
+          <FormInput
+            id="signature"
+            label="Name/Signature"
+            text={data?.signature}
+          />
+          <FormInput
+            id="parentGuardianSignature"
+            label="Parent/Guardian Name"
+            text={data?.parentGuardianSignature}
+            optional
+          />
         </>
       )}
     </>

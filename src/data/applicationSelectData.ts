@@ -291,6 +291,11 @@ const representation: SelectChoice[] = [
   { value: "UNSURE", label: "Unsure" },
 ];
 
+const yesNo: SelectChoice[] = [
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+];
+
 export {
   workshops,
   tshirtSizes,
@@ -304,5 +309,6 @@ export {
   studyYears,
   orientations,
   representation,
+  yesNo,
 };
 export type { workshopType, SelectChoice };

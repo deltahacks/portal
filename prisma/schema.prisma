@@ -387,6 +387,10 @@ model DH13Application {
   emergencyContactPhone    String
   emergencyContactRelation String
 
+  photoVideoConsent       Boolean?
+  signature               String?
+  parentGuardianSignature String?
+
   agreeToMLHCodeOfConduct  Boolean
   agreeToMLHPrivacyPolicy  Boolean
   agreeToMLHCommunications Boolean
