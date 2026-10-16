@@ -174,12 +174,10 @@ export const getServerSideProps = async (
 ) => {
   const session = await getServerAuthSession(context);
   // If the user is not an ADMIN or REVIEWER, kick them back to the dashboard
-  if (
-    !(
-      session?.user?.role?.includes(Role.ADMIN) ||
-      session?.user?.role?.includes(Role.REVIEWER)
-    )
-  ) {
+  if (!(
+    session?.user?.role?.includes(Role.ADMIN) ||
+    session?.user?.role?.includes(Role.REVIEWER)
+  )) {
     return {
       redirect: { destination: "/dashboard", permanent: false },
     };
