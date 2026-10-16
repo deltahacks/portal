@@ -55,22 +55,60 @@ const TimeUntilStart: React.FC<TimeUntilStartInterface> = ({ hms }) => {
   );
 };
 
-const Accepted: React.FC = () => {
+type DietaryRestriction = (typeof dietaryRestrictionOptions)[number];
+
+const isDietaryRestriction = (
+  restriction: string,
+): restriction is DietaryRestriction =>
+  dietaryRestrictionOptions.includes(restriction as DietaryRestriction);
+
+interface AcceptedProps {
+  initialDietaryRestrictions: string[];
+  initialDietaryRestrictionOther: string | null;
+}
+
+const getRsvpErrorMessage = (error: { message?: string }) => {
+  if (!error.message) {
+    return "Unable to save your RSVP. Please try again.";
+  }
+
+  try {
+    const issues = JSON.parse(error.message) as Array<{ message?: string }>;
+    return issues[0]?.message ?? error.message;
+  } catch {
+    return error.message;
+  }
+};
+
+const Accepted: React.FC<AcceptedProps> = ({
+  initialDietaryRestrictions,
+  initialDietaryRestrictionOther,
+}) => {
   const { data: session } = useSession();
   const utils = trpc.useUtils();
+  const [rsvpError, setRsvpError] = React.useState<string | null>(null);
   const doRsvp = trpc.application.rsvp.useMutation({
     onSuccess: async () => {
       await utils.application.status.invalidate();
+    },
+    onError: (error) => {
+      setRsvpError(getRsvpErrorMessage(error));
     },
   });
 
   const [shareResume, setShareResume] = React.useState(false);
   const [dietaryRestrictions, setDietaryRestrictions] = React.useState<
-    (typeof dietaryRestrictionOptions)[number][] | undefined
-  >();
-  const [dietaryRestrictionOther, setDietaryRestrictionOther] =
-    React.useState("");
+    DietaryRestriction[]
+  >(() => initialDietaryRestrictions.filter(isDietaryRestriction));
+  const [dietaryRestrictionOther, setDietaryRestrictionOther] = React.useState(
+    initialDietaryRestrictionOther ?? "",
+  );
+  const [dietaryRestrictionsChanged, setDietaryRestrictionsChanged] =
+    React.useState(false);
   const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
+  const legacyDietaryRestrictions = initialDietaryRestrictions.filter(
+    (restriction) => !isDietaryRestriction(restriction),
+  );
 
   return (
     <div>
@@ -100,6 +138,7 @@ const Accepted: React.FC = () => {
         {/* When the user clicks this button, open the modal to ask about sharing resume */}
         <Button
           onClick={() => {
+            setRsvpError(null);
             rsvpDialogRef.current?.showModal();
           }}
           className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none text-base font-medium capitalize"
@@ -153,7 +192,7 @@ const Accepted: React.FC = () => {
               }))}
               value={dietaryRestrictionOptions
                 .filter((restriction) =>
-                  dietaryRestrictions?.includes(restriction),
+                  dietaryRestrictions.includes(restriction),
                 )
                 .map((restriction) => ({
                   value: restriction,
@@ -165,6 +204,8 @@ const Accepted: React.FC = () => {
                     restriction.value as (typeof dietaryRestrictionOptions)[number],
                 );
                 setDietaryRestrictions(restrictions);
+                setDietaryRestrictionsChanged(true);
+                setRsvpError(null);
 
                 if (!restrictions.includes("Other")) {
                   setDietaryRestrictionOther("");
@@ -173,7 +214,16 @@ const Accepted: React.FC = () => {
               isMulti={true}
               inputId="dietaryRestrictions"
             />
-            {dietaryRestrictions?.includes("Other") && (
+            {!dietaryRestrictionsChanged &&
+              legacyDietaryRestrictions.length > 0 && (
+                <p className="pt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                  Current saved dietary restriction
+                  {legacyDietaryRestrictions.length === 1 ? "" : "s"}:{" "}
+                  {legacyDietaryRestrictions.join(", ")}. Changing and saving
+                  this selection will replace this legacy response.
+                </p>
+              )}
+            {dietaryRestrictions.includes("Other") && (
               <div className="pt-4">
                 <label
                   htmlFor="dietaryRestrictionOther"
@@ -184,45 +234,61 @@ const Accepted: React.FC = () => {
                 <input
                   id="dietaryRestrictionOther"
                   value={dietaryRestrictionOther}
-                  onChange={(e) => setDietaryRestrictionOther(e.target.value)}
+                  onChange={(e) => {
+                    setDietaryRestrictionOther(e.target.value);
+                    setDietaryRestrictionsChanged(true);
+                    setRsvpError(null);
+                  }}
+                  maxLength={255}
                   className="w-full text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
                   placeholder="Please specify"
                 />
               </div>
             )}
+            {rsvpError && (
+              <p className="pt-2 text-sm text-error" role="alert">
+                {rsvpError}
+              </p>
+            )}
           </div>
           <div className="modal-action">
-            <form method="dialog">
-              <div className="flex gap-5">
-                <button
-                  className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
-                  disabled={
-                    dietaryRestrictions?.includes("Other") &&
-                    !dietaryRestrictionOther.trim()
-                  }
-                  onClick={async () => {
+            <div className="flex gap-5">
+              <button
+                type="button"
+                className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
+                disabled={
+                  doRsvp.isPending ||
+                  (dietaryRestrictions.includes("Other") &&
+                    !dietaryRestrictionOther.trim())
+                }
+                onClick={async () => {
+                  setRsvpError(null);
+                  try {
                     await doRsvp.mutateAsync({
                       rsvpCheck: shareResume,
-                      ...(dietaryRestrictions === undefined
-                        ? {}
-                        : {
+                      ...(dietaryRestrictionsChanged
+                        ? {
                             dietaryRestrictions,
                             dietaryRestrictionOther,
-                          }),
+                          }
+                        : {}),
                     });
                     rsvpDialogRef.current?.close();
-                  }}
-                >
-                  Confirm
-                </button>
-                <button
-                  className="btn bg-zinc-700 dark:text-white border-none text-base font-medium capitalize hover:bg-zinc-800"
-                  onClick={() => rsvpDialogRef.current?.close()}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+                  } catch {
+                    // The mutation's onError handler shows the error in the dialog.
+                  }
+                }}
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                className="btn bg-zinc-700 dark:text-white border-none text-base font-medium capitalize hover:bg-zinc-800"
+                onClick={() => rsvpDialogRef.current?.close()}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </dialog>
@@ -589,7 +655,12 @@ const Dashboard: NextPage<
 
   const stateMap = {
     [Status.IN_REVIEW]: <InReview killed={props.killed || false} />,
-    [Status.ACCEPTED]: <Accepted />,
+    [Status.ACCEPTED]: (
+      <Accepted
+        initialDietaryRestrictions={props.dietaryRestrictions}
+        initialDietaryRestrictionOther={props.dietaryRestrictionOther}
+      />
+    ),
     [Status.WAITLISTED]: <Waitlisted />,
     [Status.REJECTED]: <Rejected />,
     [Status.RSVP]: <RSVPed />,
@@ -680,6 +751,9 @@ export const getServerSideProps = async (
       props: {
         status: userEntry.DH13Application.status,
         killed: killed,
+        dietaryRestrictions: userEntry.DH13Application.dietaryRestrictions,
+        dietaryRestrictionOther:
+          userEntry.DH13Application.dietaryRestrictionOther,
       },
     };
   }
