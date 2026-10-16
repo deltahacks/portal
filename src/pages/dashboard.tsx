@@ -258,7 +258,8 @@ const Accepted: React.FC<AcceptedProps> = ({
                 className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
                 disabled={
                   doRsvp.isPending ||
-                  (dietaryRestrictions.includes("Other") &&
+                  (dietaryRestrictionsChanged &&
+                    dietaryRestrictions.includes("Other") &&
                     !dietaryRestrictionOther.trim())
                 }
                 onClick={async () => {
