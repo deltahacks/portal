@@ -16,6 +16,9 @@ import { useRouter } from "next/router";
 import { Button } from "../components/Button";
 import Drawer from "../components/Drawer";
 import { Checkbox } from "../components/Checkbox";
+import CustomSelect from "../components/CustomSelect";
+import { dietaryRestrictionOptions } from "../schemas/application";
+import type { SelectChoice } from "../data/applicationSelectData";
 import QRCode from "react-qr-code";
 
 interface TimeUntilStartInterface {
@@ -62,7 +65,11 @@ const Accepted: React.FC = () => {
   });
 
   const [shareResume, setShareResume] = React.useState(false);
-  const [dietaryRestrictions, setDietaryRestrictions] = React.useState("");
+  const [dietaryRestrictions, setDietaryRestrictions] = React.useState<
+    (typeof dietaryRestrictionOptions)[number][] | undefined
+  >();
+  const [dietaryRestrictionOther, setDietaryRestrictionOther] =
+    React.useState("");
   const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
 
   return (
@@ -137,26 +144,71 @@ const Accepted: React.FC = () => {
               htmlFor="dietaryRestrictions"
               className="block mb-2 font-normal dark:text-white"
             >
-              Please describe dietary restrictions if any
+              Dietary restrictions
             </label>
-            <textarea
-              id="dietaryRestrictions"
-              value={dietaryRestrictions}
-              onChange={(e) => setDietaryRestrictions(e.target.value)}
-              className="w-full px-3 py-2 text-black dark:text-white bg-white dark:bg-[#2A2A2A] border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              rows={3}
-              placeholder="e.g., vegetarian, vegan, gluten-free, nut allergy..."
+            <CustomSelect
+              options={dietaryRestrictionOptions.map((restriction) => ({
+                value: restriction,
+                label: restriction,
+              }))}
+              value={dietaryRestrictionOptions
+                .filter((restriction) =>
+                  dietaryRestrictions?.includes(restriction),
+                )
+                .map((restriction) => ({
+                  value: restriction,
+                  label: restriction,
+                }))}
+              onChange={(values: SelectChoice[] | null) => {
+                const restrictions = (values ?? []).map(
+                  (restriction) =>
+                    restriction.value as (typeof dietaryRestrictionOptions)[number],
+                );
+                setDietaryRestrictions(restrictions);
+
+                if (!restrictions.includes("Other")) {
+                  setDietaryRestrictionOther("");
+                }
+              }}
+              isMulti={true}
+              inputId="dietaryRestrictions"
             />
+            {dietaryRestrictions?.includes("Other") && (
+              <div className="pt-4">
+                <label
+                  htmlFor="dietaryRestrictionOther"
+                  className="block mb-2 font-normal dark:text-white"
+                >
+                  Please describe your dietary restriction
+                </label>
+                <input
+                  id="dietaryRestrictionOther"
+                  value={dietaryRestrictionOther}
+                  onChange={(e) => setDietaryRestrictionOther(e.target.value)}
+                  className="w-full text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
+                  placeholder="Please specify"
+                />
+              </div>
+            )}
           </div>
           <div className="modal-action">
             <form method="dialog">
               <div className="flex gap-5">
                 <button
                   className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
+                  disabled={
+                    dietaryRestrictions?.includes("Other") &&
+                    !dietaryRestrictionOther.trim()
+                  }
                   onClick={async () => {
                     await doRsvp.mutateAsync({
                       rsvpCheck: shareResume,
-                      dietaryRestrictions: dietaryRestrictions,
+                      ...(dietaryRestrictions === undefined
+                        ? {}
+                        : {
+                            dietaryRestrictions,
+                            dietaryRestrictionOther,
+                          }),
                     });
                     rsvpDialogRef.current?.close();
                   }}

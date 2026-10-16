@@ -121,6 +121,17 @@ const dh10schema = z.object({
 const Status = z.enum(["IN_REVIEW", "ACCEPTED", "REJECTED", "WAITLISTED"]);
 const YesNoUnsure = z.enum(["YES", "NO", "UNSURE"]);
 
+export const dietaryRestrictionOptions = [
+  "Halal",
+  "Nut allergy",
+  "Gluten free",
+  "Vegan",
+  "Vegetarian",
+  "Other",
+] as const;
+
+export const dietaryRestrictionSchema = z.enum(dietaryRestrictionOptions);
+
 const dh11schema = z.object({
   firstName: z.string().min(1, "First name is required").max(255),
   lastName: z.string().min(1, "Last name is required").max(255),
@@ -263,6 +274,7 @@ export const dh13schema = dh12schema
     longAnswerTime: true,
     longAnswerSkill: true,
     longAnswerSocratica: true,
+    dietaryRestrictions: true,
   })
   .extend({
     previousHackathonsCount: z.preprocess(
@@ -302,6 +314,16 @@ export const dh13schema = dh12schema
       .trim()
       .transform((string) => (!!string ? string : null))
       .nullish(),
+  })
+  .extend({
+    dietaryRestrictions: dietaryRestrictionSchema.array(),
+    dietaryRestrictionOther: z
+      .string()
+      .trim()
+      .max(255, "Please keep this under 255 characters")
+      .transform((value) => value || null)
+      .optional()
+      .nullable(),
   });
 
 export default dh13schema;

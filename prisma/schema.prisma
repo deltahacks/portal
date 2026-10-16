@@ -376,7 +376,8 @@ model DH13Application {
   workshopChoices     String[] @default([])
   discoverdFrom       String[] @default([])
   considerCoffee      Boolean
-  dietaryRestrictions String?
+  dietaryRestrictions     String[] @default([])
+  dietaryRestrictionOther String?
 
   underrepresented YesNoUnsure?
   gender           String?

@@ -516,9 +516,15 @@ export const scannerRouter = router({
           },
         });
         if (station.name === "food") {
+          const restrictions = user.DH13Application?.dietaryRestrictions ?? [];
+          const otherRestriction =
+            user.DH13Application?.dietaryRestrictionOther;
           userInfo.metadata =
             "Dietary Restrictions: " +
-            (user.DH13Application?.dietaryRestrictions ?? "None");
+            ([
+              ...restrictions,
+              ...(otherRestriction ? [otherRestriction] : []),
+            ].join(", ") || "None");
         }
       }
 
