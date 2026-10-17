@@ -19,7 +19,9 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import Drawer from "../components/Drawer";
-import applicationSchema from "../schemas/application";
+import applicationSchema, {
+  dietaryRestrictionOptions,
+} from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
 import FormDivider from "../components/FormDivider";
 import {
@@ -268,6 +270,7 @@ const ApplyForm = ({
     control,
     watch,
     setValue,
+    setError,
     formState: { errors },
   } = useForm<InputsType>({
     resolver: zodResolver(applicationSchema),
@@ -275,6 +278,8 @@ const ApplyForm = ({
       ...autofillData,
       studyEnrolledPostSecondary: true,
       studyExpectedGraduation: null,
+      dietaryRestrictions: [],
+      dietaryRestrictionOther: "",
     },
   });
 
@@ -321,6 +326,16 @@ const ApplyForm = ({
   }, []);
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
+    if (
+      data.dietaryRestrictions.includes("Other") &&
+      !data.dietaryRestrictionOther?.trim()
+    ) {
+      setError("dietaryRestrictionOther", {
+        message: "Please describe your dietary restriction",
+      });
+      return;
+    }
+
     const processed = applicationSchema.parse(data);
 
     await submitAppAsync(processed);
@@ -329,6 +344,7 @@ const ApplyForm = ({
   console.error("Errors", errors);
 
   const isSecondary = watch("studyEnrolledPostSecondary");
+  const selectedDietaryRestrictions = watch("dietaryRestrictions") ?? [];
 
   return (
     <form
@@ -811,13 +827,59 @@ const ApplyForm = ({
         errors={errors.considerCoffee}
         register={register}
       />
-      <FormInput
-        label="Do you have any dietary restrictions?"
-        id="dietaryRestrictions"
-        errors={errors.dietaryRestrictions}
-        placeholder="e.g. vegetarian, nut allergy, halal, none"
-        register={register}
-      />
+      <div className="flex flex-col gap-2 pb-4">
+        <label
+          className="flex justify-between items-center text-black dark:text-white"
+          htmlFor="dietaryRestrictions"
+        >
+          <span>Do you have any dietary restrictions?</span>
+          {errors.dietaryRestrictions && (
+            <span className="text-error text-sm">
+              {errors.dietaryRestrictions.message}
+            </span>
+          )}
+        </label>
+        <Controller
+          name="dietaryRestrictions"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CustomSelect
+              options={dietaryRestrictionOptions.map((restriction) => ({
+                value: restriction,
+                label: restriction,
+              }))}
+              onChange={(values: SelectChoice[] | null) => {
+                const restrictions = (values ?? []).map(
+                  (restriction) =>
+                    restriction.value as (typeof dietaryRestrictionOptions)[number],
+                );
+                onChange(restrictions);
+
+                if (!restrictions.includes("Other")) {
+                  setValue("dietaryRestrictionOther", "");
+                }
+              }}
+              value={dietaryRestrictionOptions
+                .filter((restriction) => value?.includes(restriction))
+                .map((restriction) => ({
+                  value: restriction,
+                  label: restriction,
+                }))}
+              isMulti={true}
+              inputId="dietaryRestrictions"
+            />
+          )}
+        />
+      </div>
+      {selectedDietaryRestrictions.includes("Other") && (
+        <FormInput
+          label="Please describe your dietary restriction"
+          id="dietaryRestrictionOther"
+          errors={errors.dietaryRestrictionOther}
+          placeholder="Please specify"
+          register={register}
+        />
+      )}
       <FormDivider label="Emergency Contact" />
       <div className="flex flex-col md:flex-row md:items-end md:gap-4">
         <FormInput

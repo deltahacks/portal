@@ -316,7 +316,7 @@ const ScannerUI: React.FC<{
       addToQueue({ id: userId, stationId });
       mutateScannedId({ id: userId, stationId });
     },
-    [station.stationId, addToQueue, mutateScannedId],
+    [station.stationId, addToQueue, mutateScannedId, scannerMutation],
   );
 
   const handleError = useCallback((error: unknown) => {
