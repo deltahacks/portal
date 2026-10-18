@@ -128,6 +128,7 @@ export const dietaryRestrictionOptions = [
   "Vegan",
   "Vegetarian",
   "Other",
+  "N/A",
 ] as const;
 
 export const dietaryRestrictionSchema = z.enum(dietaryRestrictionOptions);
@@ -322,9 +323,9 @@ const dh13BaseSchema = dh12schema
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
       }),
-    photoVideoConsent: z.boolean({
-      error: "Please select Yes or No",
-    }),
+    photoVideoConsent: z
+      .boolean({ error: "Please select Yes" })
+      .refine((value) => value, { error: "Consent is required" }),
     signature: z.string().trim().min(1, "This field is required"),
     parentGuardianSignature: z
       .string()
@@ -333,7 +334,14 @@ const dh13BaseSchema = dh12schema
       .nullish(),
   })
   .extend({
-    dietaryRestrictions: dietaryRestrictionSchema.array(),
+    dietaryRestrictions: dietaryRestrictionSchema
+      .array()
+      .min(1, "At least one selection is required")
+      .refine(
+        (restrictions) =>
+          !restrictions.includes("N/A") || restrictions.length === 1,
+        { error: "N/A cannot be combined with other dietary restrictions" },
+      ),
     dietaryRestrictionOther: z
       .string()
       .trim()
@@ -360,5 +368,21 @@ export const dh13schema = dh13BaseSchema.refine(
         .safeParse(payload.value).success,
   },
 );
+
+export const rsvpSchema = dh13BaseSchema
+  .pick({ dietaryRestrictions: true, dietaryRestrictionOther: true })
+  .extend({ rsvpCheck: z.boolean() })
+  .superRefine((data, ctx) => {
+    if (
+      data.dietaryRestrictions.includes("Other") &&
+      !data.dietaryRestrictionOther
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["dietaryRestrictionOther"],
+        message: "Please describe your dietary restriction",
+      });
+    }
+  });
 
 export default dh13schema;

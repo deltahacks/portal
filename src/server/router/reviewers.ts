@@ -31,6 +31,8 @@ const ApplicationSchemaWithStringDates = z
     z.object({
       birthday: z.string(),
       studyExpectedGraduation: z.string().nullish(),
+      // Keep historical empty and free-form dietary responses readable.
+      dietaryRestrictions: z.array(z.string()).nullish(),
       // Preserve unanswered responses submitted while this question was optional.
       longAnswerDayWith: z
         .string()
