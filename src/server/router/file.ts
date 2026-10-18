@@ -8,6 +8,10 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env/server.mjs";
+import {
+  MAX_RESUME_FILE_SIZE_BYTES,
+  MAX_RESUME_FILE_SIZE_LABEL,
+} from "../../data/fileUpload";
 
 const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_KEY_ID, R2_BUCKET_NAME } =
   env;
@@ -26,7 +30,15 @@ export const fileUploadRouter = router({
     .input(
       z.object({
         filename: z.string(),
-        contentType: z.string(),
+        contentType: z.literal("application/pdf"),
+        contentLength: z
+          .number()
+          .int()
+          .positive()
+          .max(
+            MAX_RESUME_FILE_SIZE_BYTES,
+            `Resume must be ${MAX_RESUME_FILE_SIZE_LABEL} or smaller`,
+          ),
       }),
     )
     .mutation(async ({ input }) => {
@@ -37,6 +49,7 @@ export const fileUploadRouter = router({
             Bucket: R2_BUCKET_NAME,
             Key: `${input.filename}`,
             ContentType: input.contentType,
+            ContentLength: input.contentLength,
           }),
           { expiresIn: 3600 },
         );

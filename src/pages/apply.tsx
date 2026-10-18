@@ -53,6 +53,10 @@ import "@uppy/dashboard/dist/style.min.css";
 import XHR from "@uppy/xhr-upload";
 import { useTheme } from "next-themes";
 import FormInput from "../components/CustomInput";
+import {
+  MAX_RESUME_FILE_SIZE_BYTES,
+  MAX_RESUME_FILE_SIZE_LABEL,
+} from "../data/fileUpload";
 
 export type InputsType = z.input<typeof applicationSchema>;
 type ApplyFormAutofill = z.infer<typeof dh13AutofillSchema>;
@@ -142,20 +146,19 @@ const FormTextArea: React.FC<
 };
 
 interface FormUploadProps {
-  uploadUrl: string;
   objectId: string;
+  getUploadUrl: (fileSize: number) => Promise<string>;
   setUploadValue: (value: string) => void;
   currentValue: string | null | undefined;
 }
 
 const FormUpload: React.FC<FormUploadProps> = ({
-  uploadUrl,
   objectId,
+  getUploadUrl,
   setUploadValue,
   currentValue,
 }) => {
   const { resolvedTheme } = useTheme();
-  const [showUpload, setShowUpload] = useState(!currentValue);
 
   const id = useId();
   const [uppy] = useState(() =>
@@ -165,22 +168,27 @@ const FormUpload: React.FC<FormUploadProps> = ({
       autoProceed: true,
       restrictions: {
         maxNumberOfFiles: 1,
-        maxFileSize: 1024 * 1024 * 5, // 5 MB
+        maxFileSize: MAX_RESUME_FILE_SIZE_BYTES,
         allowedFileTypes: [".pdf"],
       },
       locale: {
         strings: {
           done: "Reset",
+          exceedsSize: `%{file} must be ${MAX_RESUME_FILE_SIZE_LABEL} or smaller`,
         },
         pluralize: (n: number) => n,
       },
     }).use(XHR, {
-      endpoint: uploadUrl,
+      endpoint: (fileOrBundle) => {
+        const file = Array.isArray(fileOrBundle)
+          ? fileOrBundle[0]
+          : fileOrBundle;
+        return getUploadUrl(file?.size ?? 0);
+      },
       formData: false,
       method: "PUT",
       onAfterResponse: () => {
         setUploadValue(objectId);
-        setShowUpload(false);
       },
       getResponseData: () => {
         return { url: objectId };
@@ -191,26 +199,17 @@ const FormUpload: React.FC<FormUploadProps> = ({
   const handleReplace = () => {
     uppy.cancelAll();
     setUploadValue("");
-    setShowUpload(true);
   };
-
-  if (!uploadUrl) {
-    return (
-      <div className="flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col flex-1 gap-2 pb-4">
       <div className="text-black dark:text-white">
         Resume{" "}
         <span className="text-neutral-500 dark:text-neutral-400">
-          (Optional)
+          (Optional, PDF, max {MAX_RESUME_FILE_SIZE_LABEL})
         </span>
       </div>
-      {currentValue && !showUpload ? (
+      {currentValue ? (
         <div className="flex flex-col gap-2 p-4 border rounded-lg border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
           <div className="flex items-center gap-2">
             <svg
@@ -299,8 +298,6 @@ const ApplyForm = ({
     storage: localStorage,
   });
 
-  const [uploadUrl, setUploadUrl] = useState<string | null>(null);
-
   // "Different identity" lets applicants type their own orientation, which is stored directly in the `orientation` string
   // Start in write-in mode if the persisted value isn't one of the preset options
   const [selfDescribeOrientation, setSelfDescribeOrientation] = useState(
@@ -309,19 +306,9 @@ const ApplyForm = ({
       !orientations.some((o) => o.value === autofillData.orientation),
   );
 
-  const { mutate, data } = trpc.file.getUploadUrl.useMutation({
-    onSuccess: (data) => {
-      setUploadUrl(data?.url);
-    },
-  });
+  const { mutateAsync: getUploadUrl } = trpc.file.getUploadUrl.useMutation();
 
   const objectId = `${userId}-dh13.pdf`;
-  useEffect(() => {
-    mutate({
-      filename: objectId,
-      contentType: "application/pdf",
-    });
-  }, []);
 
   const onSubmit: SubmitHandler<InputsType> = async (data) => {
     if (
@@ -450,16 +437,19 @@ const ApplyForm = ({
           placeholder="YYYY-MM-DD"
         />
       </div>
-      {uploadUrl ? (
-        <FormUpload
-          uploadUrl={uploadUrl}
-          objectId={objectId}
-          setUploadValue={(v) => setValue("linkToResume", v)}
-          currentValue={watch("linkToResume")}
-        />
-      ) : (
-        <div></div>
-      )}
+      <FormUpload
+        objectId={objectId}
+        getUploadUrl={async (contentLength) => {
+          const { url } = await getUploadUrl({
+            filename: objectId,
+            contentType: "application/pdf",
+            contentLength,
+          });
+          return url;
+        }}
+        setUploadValue={(v) => setValue("linkToResume", v)}
+        currentValue={watch("linkToResume")}
+      />
       <FormDivider label="Education" />
       <FormCheckbox
         label="Are you currently enrolled in post-secondary education?"
