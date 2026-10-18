@@ -306,9 +306,9 @@ export const dh13schema = dh12schema
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
       }),
-    photoVideoConsent: z.boolean({
-      error: "Please select Yes or No",
-    }),
+    photoVideoConsent: z
+      .boolean({ error: "Please select Yes" })
+      .refine((value) => value, { error: "Consent is required" }),
     signature: z.string().trim().min(1, "This field is required"),
     parentGuardianSignature: z
       .string()
