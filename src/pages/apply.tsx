@@ -66,7 +66,7 @@ interface FormInputProps {
 }
 
 const FormCheckbox: React.FC<
-  FormInputProps & React.HTMLProps<HTMLInputElement>
+  FormInputProps & Omit<React.HTMLProps<HTMLInputElement>, "label">
 > = ({ label, id, errors, optional, register, ...props }) => {
   return (
     <>
