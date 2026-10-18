@@ -301,13 +301,14 @@ export const dh13schema = dh12schema
       }),
     longAnswerDayWith: z
       .string()
+      .trim()
+      .min(1, "An answer is required")
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
-      })
-      .nullish(),
-    photoVideoConsent: z.boolean({
-      error: "Please select Yes or No",
-    }),
+      }),
+    photoVideoConsent: z
+      .boolean({ error: "Please select Yes" })
+      .refine((value) => value, { error: "Consent is required" }),
     signature: z.string().trim().min(1, "This field is required"),
     parentGuardianSignature: z
       .string()
