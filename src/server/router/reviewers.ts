@@ -24,7 +24,8 @@ const ApplicationForReview = z.object({
 });
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
-const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
+// Review responses can hide signatures, so omit submission-only refinements.
+const ApplicationSchemaWithStringDates = z.object(ApplicationSchema.shape).extend(
   z.object({
     birthday: z.string(),
     studyExpectedGraduation: z.string().nullish(),

@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
 import {
   dietaryRestrictionSchema,
+  dh13AutofillSchema,
   dh13schema,
 } from "../../schemas/application";
 
@@ -160,7 +161,7 @@ export const applicationRouter = router({
     }),
 
   getPrevAutofill: protectedProcedure
-    .output(dh13schema.partial())
+    .output(dh13AutofillSchema)
     .query(async ({ ctx }) => {
       // Get the current user's previous-year application (DH12, falling back to DH11)
       const user = await ctx.prisma.user.findUnique({
@@ -179,8 +180,7 @@ export const applicationRouter = router({
       const dh11App = user.DH11Application;
 
       // Create the autofill object from the previous year's application
-      const pt = dh13schema.partial();
-      type AutofillType = z.infer<typeof pt>;
+      type AutofillType = z.infer<typeof dh13AutofillSchema>;
       const autofill: AutofillType = {
         firstName: dh12App?.firstName ?? dh11App?.firstName ?? undefined,
         lastName: dh12App?.lastName ?? dh11App?.lastName ?? undefined,

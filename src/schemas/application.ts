@@ -267,7 +267,23 @@ export const dh12schema = dh11schema
       }),
   });
 
-export const dh13schema = dh12schema
+export const requiresParentGuardianSignature = (birthday: unknown): boolean => {
+  const result = z.coerce.date().safeParse(birthday);
+  if (!result.success) return false;
+
+  const date = result.data;
+  let age = 2027 - date.getUTCFullYear();
+  // Age on January 9, 2027, using UTC to match YYYY-MM-DD date inputs.
+  if (
+    date.getUTCMonth() > 0 ||
+    (date.getUTCMonth() === 0 && date.getUTCDate() > 9)
+  ) {
+    age--;
+  }
+  return age <= 18;
+};
+
+const dh13BaseSchema = dh12schema
   .omit({
     longAnswerHobby: true,
     longAnswerWhy: true,
@@ -325,5 +341,23 @@ export const dh13schema = dh12schema
       .optional()
       .nullable(),
   });
+
+// Previous applications can autofill fields without satisfying submission rules.
+export const dh13AutofillSchema = dh13BaseSchema.partial();
+
+export const dh13schema = dh13BaseSchema.refine(
+  (data) =>
+    !requiresParentGuardianSignature(data.birthday) ||
+    !!data.parentGuardianSignature,
+  {
+    path: ["parentGuardianSignature"],
+    error: "This field is required",
+    // Unrelated incomplete fields must not suppress this field's error.
+    when: (payload) =>
+      dh13BaseSchema
+        .pick({ birthday: true, parentGuardianSignature: true })
+        .safeParse(payload.value).success,
+  },
+);
 
 export default dh13schema;
