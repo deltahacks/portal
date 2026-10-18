@@ -270,10 +270,9 @@ const heardFrom: SelectChoice[] = [
   "A Friend",
   "MLH",
   "Facebook",
-  "Twitter",
   "Posters",
   "Instagram",
-  "Snapchat",
+  "LinkedIn",
   "Other",
 ].map((v) => ({ value: v, label: v }));
 
