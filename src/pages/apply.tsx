@@ -828,7 +828,12 @@ const ApplyForm = ({
           className="flex justify-between items-center text-black dark:text-white"
           htmlFor="dietaryRestrictions"
         >
-          <span>Do you have any dietary restrictions?</span>
+          <span>
+            Do you have any dietary restrictions?{" "}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Required)
+            </span>
+          </span>
           {errors.dietaryRestrictions && (
             <span className="text-error text-sm">
               {errors.dietaryRestrictions.message}
@@ -845,10 +850,17 @@ const ApplyForm = ({
                 label: restriction,
               }))}
               onChange={(values: SelectChoice[] | null) => {
-                const restrictions = (values ?? []).map(
+                let restrictions = (values ?? []).map(
                   (restriction) =>
                     restriction.value as (typeof dietaryRestrictionOptions)[number],
                 );
+                if (restrictions.includes("N/A") && restrictions.length > 1) {
+                  restrictions = value?.includes("N/A")
+                    ? restrictions.filter(
+                        (restriction) => restriction !== "N/A",
+                      )
+                    : ["N/A"];
+                }
                 onChange(restrictions);
 
                 if (!restrictions.includes("Other")) {

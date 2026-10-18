@@ -2,10 +2,7 @@ import { Prisma, Status, Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
-import {
-  dietaryRestrictionSchema,
-  dh13schema,
-} from "../../schemas/application";
+import { dh13schema, rsvpSchema } from "../../schemas/application";
 
 const StatusCount = z
   .object({
@@ -78,32 +75,7 @@ export const applicationRouter = router({
     return qr;
   }),
   rsvp: protectedProcedure
-    .input(
-      z
-        .object({
-          rsvpCheck: z.boolean(),
-          dietaryRestrictions: dietaryRestrictionSchema.array().optional(),
-          dietaryRestrictionOther: z
-            .string()
-            .trim()
-            .max(255, "Please keep this under 255 characters")
-            .transform((value) => value || null)
-            .optional()
-            .nullable(),
-        })
-        .superRefine((data, ctx) => {
-          if (
-            data.dietaryRestrictions?.includes("Other") &&
-            !data.dietaryRestrictionOther
-          ) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["dietaryRestrictionOther"],
-              message: "Please describe your dietary restriction",
-            });
-          }
-        }),
-    )
+    .input(rsvpSchema)
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
@@ -123,16 +95,10 @@ export const applicationRouter = router({
         data: {
           status: Status.RSVP,
           rsvpCheck: input.rsvpCheck,
-          ...(input.dietaryRestrictions === undefined
-            ? {}
-            : {
-                dietaryRestrictions: input.dietaryRestrictions,
-                dietaryRestrictionOther: input.dietaryRestrictions.includes(
-                  "Other",
-                )
-                  ? (input.dietaryRestrictionOther ?? null)
-                  : null,
-              }),
+          dietaryRestrictions: input.dietaryRestrictions,
+          dietaryRestrictionOther: input.dietaryRestrictions.includes("Other")
+            ? (input.dietaryRestrictionOther ?? null)
+            : null,
         },
       });
 
