@@ -1134,7 +1134,7 @@ const ApplyForm = ({
       </button>
       {isError && (
         <div className="mb-4 text-center alert alert-error justify-normal">
-          {error.message === "You have already submitted an application."
+          {error.data?.code === "FORBIDDEN"
             ? error.message
             : "There was an error submitting your application. Please try again. If this error persists, please contact us at tech@deltahacks.com"}
         </div>
