@@ -821,12 +821,14 @@ const ApplyForm = ({
         id="alreadyHaveTeam"
         errors={errors.alreadyHaveTeam}
         register={register}
+        optional
       />
       <FormCheckbox
         label="Would you like to be considered for a coffee chat with a sponsor?"
         id="considerCoffee"
         errors={errors.considerCoffee}
         register={register}
+        optional
       />
       <div className="flex flex-col gap-2 pb-4">
         <label
