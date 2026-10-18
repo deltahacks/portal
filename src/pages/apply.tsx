@@ -1098,9 +1098,8 @@ const ApplyForm = ({
         />
       </div>
       <p className="opacity-50 py-8">
-        We are currently in the process of partnering with MLH. The following 3
-        checkboxes are for this partnership. If we do not end up partnering with
-        MLH, your information will not be shared
+        DeltaHacks 13 is partnered with MLH. The following 3 checkboxes are for
+        this partnership.
       </p>
       <FormCheckbox
         label="I have read and agree to the MLH Code of Conduct. (https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md)"
