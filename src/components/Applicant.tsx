@@ -221,7 +221,6 @@ const ApplicationContent = ({
         id="longAnswerDayWith"
         label="If you could spend a day with anyone in the world, alive or not, who would it be? What would you do together and why do they inspire you?"
         text={data?.longAnswerDayWith}
-        optional
       />
       <FormDivider label="Survey" />
       {/* <FormInput

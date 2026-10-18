@@ -301,10 +301,11 @@ export const dh13schema = dh12schema
       }),
     longAnswerDayWith: z
       .string()
+      .trim()
+      .min(1, "An answer is required")
       .refine((value) => value.split(/\s/g).length <= 150, {
         error: "Must be less than 150 words",
-      })
-      .nullish(),
+      }),
     photoVideoConsent: z.boolean({
       error: "Please select Yes or No",
     }),
