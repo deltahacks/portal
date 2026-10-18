@@ -39,7 +39,6 @@ import {
   workshopType,
   orientations,
   representation,
-  yesNo,
 } from "../data/applicationSelectData";
 import { iso31661 } from "iso-3166";
 
@@ -56,6 +55,7 @@ import FormInput from "../components/CustomInput";
 export type InputsType = z.input<typeof applicationSchema>;
 const pt = applicationSchema.partial();
 type ApplyFormAutofill = z.infer<typeof pt>;
+const affirmativeConsent: SelectChoice[] = [{ value: "Yes", label: "Yes" }];
 
 interface FormInputProps {
   label: React.ReactNode;
@@ -920,15 +920,11 @@ const ApplyForm = ({
           render={({ field: { onChange, value } }) => (
             <CustomSelect
               inputId="photoVideoConsentInput"
-              options={yesNo}
+              options={affirmativeConsent}
               onChange={(val: SelectChoice | null) =>
-                onChange(val ? val.value === "Yes" : undefined)
+                onChange(val ? true : undefined)
               }
-              value={yesNo.find(
-                (val) =>
-                  val.value ===
-                  (value === true ? "Yes" : value === false ? "No" : null),
-              )}
+              value={value === true ? affirmativeConsent[0] : undefined}
               isMulti={false}
             />
           )}
