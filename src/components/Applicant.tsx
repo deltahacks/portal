@@ -9,6 +9,7 @@ import FormDivider from "./FormDivider";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 import formatHackathonsCount from "../utils/formatHackathonsCount";
+import countWords from "../utils/countWords";
 
 interface FormInputProps {
   label: string;
@@ -71,7 +72,7 @@ const FormCheckbox: React.FC<
 const FormTextArea: React.FC<
   FormInputProps & React.HTMLProps<HTMLTextAreaElement>
 > = ({ label, text, optional }) => {
-  const currentLength = text?.split(/\s/g).length ?? 0;
+  const currentLength = countWords(text ?? "");
   return (
     <div className="flex flex-1 flex-col gap-2 pb-4">
       <label className="text-black dark:text-white">

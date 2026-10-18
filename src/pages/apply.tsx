@@ -51,6 +51,7 @@ import "@uppy/dashboard/dist/style.min.css";
 import XHR from "@uppy/xhr-upload";
 import { useTheme } from "next-themes";
 import FormInput from "../components/CustomInput";
+import countWords from "../utils/countWords";
 
 export type InputsType = z.input<typeof applicationSchema>;
 const pt = applicationSchema.partial();
@@ -104,8 +105,7 @@ const FormTextArea: React.FC<
       value: string;
     }
 > = ({ label, id, errors, optional, value, register, ...props }) => {
-  const wordLength = value?.trim()?.split(/\s/g).length ?? 0;
-  const currentLength = value?.trim()?.length ?? 0;
+  const wordLength = countWords(value ?? "");
   return (
     <div className="flex flex-col flex-1 gap-2 pb-4">
       <label className="text-black dark:text-white" htmlFor={id}>
@@ -123,7 +123,7 @@ const FormTextArea: React.FC<
               : "text-neutral-500 dark:text-neutral-400")
           }
         >
-          {151 - wordLength - (currentLength > 0 ? 1 : 0)} words left
+          {150 - wordLength} words left
           {errors && (
             <span className="text-error text-sm">{errors.message}</span>
           )}

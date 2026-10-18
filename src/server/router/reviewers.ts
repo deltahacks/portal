@@ -3,6 +3,7 @@ import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import { Role, Status } from "@prisma/client";
 import ApplicationSchema from "../../schemas/application";
+import countWords from "../../utils/countWords";
 
 // NOTE: Prefaults
 // In Zod, setting a default value will short-circuit the parsing process. If the input is undefined, the default value is eagerly returned. As such, the default value must be assignable to the output type of the schema.
@@ -31,7 +32,7 @@ const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
     // Preserve unanswered responses submitted while this question was optional.
     longAnswerDayWith: z
       .string()
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       })
       .nullish(),

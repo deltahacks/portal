@@ -1,5 +1,6 @@
 import z from "zod";
 import isMobilePhone from "validator/lib/isMobilePhone";
+import countWords from "../utils/countWords";
 
 const dh10schema = z.object({
   firstName: z.string().min(1).max(255),
@@ -28,26 +29,26 @@ const dh10schema = z.object({
   longAnswerChange: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   longAnswerExperience: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   longAnswerTech: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
 
   longAnswerMagic: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.trim().split(/\s/).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   socialText: z
@@ -56,7 +57,7 @@ const dh10schema = z.object({
     .nullish(),
   interests: z
     .string()
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     })
     .transform((string) => (!!string ? string : null))
@@ -164,37 +165,37 @@ const dh11schema = z.object({
   longAnswerIncident: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   longAnswerGoals: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   longAnswerFood: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   longAnswerTravel: z
     .string()
     .min(1, "An answer is required for this question")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   longAnswerSocratica: z
     .string()
     .min(1, "An answer is required")
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     }),
   socialText: z.array(z.string()),
   interests: z
     .string()
-    .refine((value) => value.split(/\s/g).length <= 150, {
+    .refine((value) => countWords(value) <= 150, {
       error: "Must be less than 150 words",
     })
     .transform((string) => (!!string ? string : null))
@@ -244,25 +245,25 @@ export const dh12schema = dh11schema
     longAnswerHobby: z
       .string()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerWhy: z
       .string()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerTime: z
       .string()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerSkill: z
       .string()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
   });
@@ -284,26 +285,26 @@ export const dh13schema = dh12schema
     longAnswerPerspective: z
       .string()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerUnexpectedSkill: z
       .string()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerFutureSelf: z
       .string()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
     longAnswerDayWith: z
       .string()
       .trim()
       .min(1, "An answer is required")
-      .refine((value) => value.split(/\s/g).length <= 150, {
+      .refine((value) => countWords(value) <= 150, {
         error: "Must be less than 150 words",
       }),
     photoVideoConsent: z
