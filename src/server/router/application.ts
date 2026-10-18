@@ -3,8 +3,9 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
 import {
-  dietaryRestrictionSchema,
+  dh13AutofillSchema,
   dh13schema,
+  rsvpSchema,
 } from "../../schemas/application";
 
 const StatusCount = z
@@ -13,6 +14,12 @@ const StatusCount = z
     count: z.number(),
   })
   .array();
+
+const duplicateApplicationError = () =>
+  new TRPCError({
+    code: "FORBIDDEN",
+    message: "You have already submitted an application.",
+  });
 
 export const applicationRouter = router({
   getStatusCount: protectedProcedure
@@ -78,32 +85,7 @@ export const applicationRouter = router({
     return qr;
   }),
   rsvp: protectedProcedure
-    .input(
-      z
-        .object({
-          rsvpCheck: z.boolean(),
-          dietaryRestrictions: dietaryRestrictionSchema.array().optional(),
-          dietaryRestrictionOther: z
-            .string()
-            .trim()
-            .max(255, "Please keep this under 255 characters")
-            .transform((value) => value || null)
-            .optional()
-            .nullable(),
-        })
-        .superRefine((data, ctx) => {
-          if (
-            data.dietaryRestrictions?.includes("Other") &&
-            !data.dietaryRestrictionOther
-          ) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["dietaryRestrictionOther"],
-              message: "Please describe your dietary restriction",
-            });
-          }
-        }),
-    )
+    .input(rsvpSchema)
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.prisma?.user.findFirst({
         where: { id: ctx.session.user.id },
@@ -123,16 +105,10 @@ export const applicationRouter = router({
         data: {
           status: Status.RSVP,
           rsvpCheck: input.rsvpCheck,
-          ...(input.dietaryRestrictions === undefined
-            ? {}
-            : {
-                dietaryRestrictions: input.dietaryRestrictions,
-                dietaryRestrictionOther: input.dietaryRestrictions.includes(
-                  "Other",
-                )
-                  ? (input.dietaryRestrictionOther ?? null)
-                  : null,
-              }),
+          dietaryRestrictions: input.dietaryRestrictions,
+          dietaryRestrictionOther: input.dietaryRestrictions.includes("Other")
+            ? (input.dietaryRestrictionOther ?? null)
+            : null,
         },
       });
 
@@ -160,7 +136,7 @@ export const applicationRouter = router({
     }),
 
   getPrevAutofill: protectedProcedure
-    .output(dh13schema.partial())
+    .output(dh13AutofillSchema)
     .query(async ({ ctx }) => {
       // Get the current user's previous-year application (DH12, falling back to DH11)
       const user = await ctx.prisma.user.findUnique({
@@ -179,8 +155,7 @@ export const applicationRouter = router({
       const dh11App = user.DH11Application;
 
       // Create the autofill object from the previous year's application
-      const pt = dh13schema.partial();
-      type AutofillType = z.infer<typeof pt>;
+      type AutofillType = z.infer<typeof dh13AutofillSchema>;
       const autofill: AutofillType = {
         firstName: dh12App?.firstName ?? dh11App?.firstName ?? undefined,
         lastName: dh12App?.lastName ?? dh11App?.lastName ?? undefined,
@@ -363,12 +338,6 @@ export const applicationRouter = router({
   submitDh13: protectedProcedure
     .input(dh13schema)
     .mutation(async ({ input, ctx }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: { id: ctx.session.user.id },
-      });
-      if (!user) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
       if (
         input.dietaryRestrictions.includes("Other") &&
         !input.dietaryRestrictionOther
@@ -386,14 +355,57 @@ export const applicationRouter = router({
             gradDate = possible;
           }
         }
-        await ctx.prisma.dH13Application.create({
-          data: {
-            ...input,
-            birthday: new Date(input.birthday),
-            studyExpectedGraduation: gradDate,
 
-            User: { connect: { id: ctx.session.user.id } },
-          },
+        const user = await ctx.prisma.$transaction(async (tx) => {
+          const [existingUser, applicationsSetting] = await Promise.all([
+            tx.user.findUnique({
+              where: { id: ctx.session.user.id },
+              select: {
+                id: true,
+                DH13ApplicationId: true,
+                name: true,
+                email: true,
+              },
+            }),
+            tx.config.findUnique({
+              where: { name: "killApplications" },
+              select: { value: true },
+            }),
+          ]);
+
+          if (!existingUser) {
+            throw new TRPCError({ code: "NOT_FOUND" });
+          }
+
+          if (applicationsSetting?.value !== "false") {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "Applications are currently closed.",
+            });
+          }
+
+          if (existingUser.DH13ApplicationId) {
+            throw duplicateApplicationError();
+          }
+
+          const application = await tx.dH13Application.create({
+            data: {
+              ...input,
+              birthday: new Date(input.birthday),
+              studyExpectedGraduation: gradDate,
+            },
+          });
+
+          const linkedUser = await tx.user.updateMany({
+            where: { id: existingUser.id, DH13ApplicationId: null },
+            data: { DH13ApplicationId: application.id },
+          });
+
+          if (linkedUser.count !== 1) {
+            throw duplicateApplicationError();
+          }
+
+          return existingUser;
         });
 
         await ctx.logsnag.track({
@@ -409,12 +421,14 @@ export const applicationRouter = router({
           event: "user submitted application",
         });
       } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002")
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "You have already submitted an application.",
-            });
+        if (e instanceof TRPCError) {
+          throw e;
+        }
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          ["P2002", "P2034"].includes(e.code)
+        ) {
+          throw duplicateApplicationError();
         }
         throw e;
       }

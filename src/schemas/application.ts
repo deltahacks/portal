@@ -129,6 +129,7 @@ export const dietaryRestrictionOptions = [
   "Vegan",
   "Vegetarian",
   "Other",
+  "N/A",
 ] as const;
 
 export const dietaryRestrictionSchema = z.enum(dietaryRestrictionOptions);
@@ -268,7 +269,23 @@ export const dh12schema = dh11schema
       }),
   });
 
-export const dh13schema = dh12schema
+export const requiresParentGuardianSignature = (birthday: unknown): boolean => {
+  const result = z.coerce.date().safeParse(birthday);
+  if (!result.success) return false;
+
+  const date = result.data;
+  let age = 2027 - date.getUTCFullYear();
+  // Age on January 9, 2027, using UTC to match YYYY-MM-DD date inputs.
+  if (
+    date.getUTCMonth() > 0 ||
+    (date.getUTCMonth() === 0 && date.getUTCDate() > 9)
+  ) {
+    age--;
+  }
+  return age <= 18;
+};
+
+const dh13BaseSchema = dh12schema
   .omit({
     longAnswerHobby: true,
     longAnswerWhy: true,
@@ -318,7 +335,14 @@ export const dh13schema = dh12schema
       .nullish(),
   })
   .extend({
-    dietaryRestrictions: dietaryRestrictionSchema.array(),
+    dietaryRestrictions: dietaryRestrictionSchema
+      .array()
+      .min(1, "At least one selection is required")
+      .refine(
+        (restrictions) =>
+          !restrictions.includes("N/A") || restrictions.length === 1,
+        { error: "N/A cannot be combined with other dietary restrictions" },
+      ),
     dietaryRestrictionOther: z
       .string()
       .trim()
@@ -326,6 +350,40 @@ export const dh13schema = dh12schema
       .transform((value) => value || null)
       .optional()
       .nullable(),
+  });
+
+// Previous applications can autofill fields without satisfying submission rules.
+export const dh13AutofillSchema = dh13BaseSchema.partial();
+
+export const dh13schema = dh13BaseSchema.refine(
+  (data) =>
+    !requiresParentGuardianSignature(data.birthday) ||
+    !!data.parentGuardianSignature,
+  {
+    path: ["parentGuardianSignature"],
+    error: "This field is required",
+    // Unrelated incomplete fields must not suppress this field's error.
+    when: (payload) =>
+      dh13BaseSchema
+        .pick({ birthday: true, parentGuardianSignature: true })
+        .safeParse(payload.value).success,
+  },
+);
+
+export const rsvpSchema = dh13BaseSchema
+  .pick({ dietaryRestrictions: true, dietaryRestrictionOther: true })
+  .extend({ rsvpCheck: z.boolean() })
+  .superRefine((data, ctx) => {
+    if (
+      data.dietaryRestrictions.includes("Other") &&
+      !data.dietaryRestrictionOther
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["dietaryRestrictionOther"],
+        message: "Please describe your dietary restriction",
+      });
+    }
   });
 
 export default dh13schema;
