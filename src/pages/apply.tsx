@@ -20,7 +20,9 @@ import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import Drawer from "../components/Drawer";
 import applicationSchema, {
+  dh13AutofillSchema,
   dietaryRestrictionOptions,
+  requiresParentGuardianSignature,
 } from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
 import FormDivider from "../components/FormDivider";
@@ -53,8 +55,7 @@ import { useTheme } from "next-themes";
 import FormInput from "../components/CustomInput";
 
 export type InputsType = z.input<typeof applicationSchema>;
-const pt = applicationSchema.partial();
-type ApplyFormAutofill = z.infer<typeof pt>;
+type ApplyFormAutofill = z.infer<typeof dh13AutofillSchema>;
 const affirmativeConsent: SelectChoice[] = [{ value: "Yes", label: "Yes" }];
 
 interface FormInputProps {
@@ -342,6 +343,9 @@ const ApplyForm = ({
 
   const isSecondary = watch("studyEnrolledPostSecondary");
   const selectedDietaryRestrictions = watch("dietaryRestrictions") ?? [];
+  const parentGuardianSignatureRequired = requiresParentGuardianSignature(
+    watch("birthday"),
+  );
 
   return (
     <form
@@ -442,7 +446,7 @@ const ApplyForm = ({
           className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
           id="birthdayInput"
-          {...register("birthday", {})}
+          {...register("birthday", { deps: ["parentGuardianSignature"] })}
           placeholder="YYYY-MM-DD"
         />
       </div>
@@ -954,12 +958,13 @@ const ApplyForm = ({
         register={register}
       />
       <FormInput
-        label="If participant is under 18: A parent or legal guardian should enter their name in addition to the participant to provide consent on their behalf"
+        label="If participant is 18 or younger on January 9, 2027: A parent or legal guardian must enter their name in addition to the participant to provide consent on their behalf"
         id="parentGuardianSignature"
         errors={errors.parentGuardianSignature}
         placeholder="Jane Doe"
         register={register}
-        optional
+        optional={!parentGuardianSignatureRequired}
+        aria-required={parentGuardianSignatureRequired}
       />
       <FormDivider label="MLH Survey and Consent" />
 
