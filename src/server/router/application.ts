@@ -14,6 +14,12 @@ const StatusCount = z
   })
   .array();
 
+const duplicateApplicationError = () =>
+  new TRPCError({
+    code: "FORBIDDEN",
+    message: "You have already submitted an application.",
+  });
+
 export const applicationRouter = router({
   getStatusCount: protectedProcedure
     .output(StatusCount)
@@ -363,12 +369,6 @@ export const applicationRouter = router({
   submitDh13: protectedProcedure
     .input(dh13schema)
     .mutation(async ({ input, ctx }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: { id: ctx.session.user.id },
-      });
-      if (!user) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
       if (
         input.dietaryRestrictions.includes("Other") &&
         !input.dietaryRestrictionOther
@@ -386,14 +386,57 @@ export const applicationRouter = router({
             gradDate = possible;
           }
         }
-        await ctx.prisma.dH13Application.create({
-          data: {
-            ...input,
-            birthday: new Date(input.birthday),
-            studyExpectedGraduation: gradDate,
 
-            User: { connect: { id: ctx.session.user.id } },
-          },
+        const user = await ctx.prisma.$transaction(async (tx) => {
+          const [existingUser, applicationsSetting] = await Promise.all([
+            tx.user.findUnique({
+              where: { id: ctx.session.user.id },
+              select: {
+                id: true,
+                DH13ApplicationId: true,
+                name: true,
+                email: true,
+              },
+            }),
+            tx.config.findUnique({
+              where: { name: "killApplications" },
+              select: { value: true },
+            }),
+          ]);
+
+          if (!existingUser) {
+            throw new TRPCError({ code: "NOT_FOUND" });
+          }
+
+          if (applicationsSetting?.value !== "false") {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "Applications are currently closed.",
+            });
+          }
+
+          if (existingUser.DH13ApplicationId) {
+            throw duplicateApplicationError();
+          }
+
+          const application = await tx.dH13Application.create({
+            data: {
+              ...input,
+              birthday: new Date(input.birthday),
+              studyExpectedGraduation: gradDate,
+            },
+          });
+
+          const linkedUser = await tx.user.updateMany({
+            where: { id: existingUser.id, DH13ApplicationId: null },
+            data: { DH13ApplicationId: application.id },
+          });
+
+          if (linkedUser.count !== 1) {
+            throw duplicateApplicationError();
+          }
+
+          return existingUser;
         });
 
         await ctx.logsnag.track({
@@ -409,12 +452,14 @@ export const applicationRouter = router({
           event: "user submitted application",
         });
       } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002")
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "You have already submitted an application.",
-            });
+        if (e instanceof TRPCError) {
+          throw e;
+        }
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          ["P2002", "P2034"].includes(e.code)
+        ) {
+          throw duplicateApplicationError();
         }
         throw e;
       }
