@@ -683,7 +683,6 @@ const ApplyForm = ({
         errors={errors.longAnswerDayWith}
         register={register}
         value={watch("longAnswerDayWith") ?? ""}
-        optional
       />
       <FormDivider label="Survey" />
       <SocialLinksFormInput register={register} errors={errors} watch={watch} />
