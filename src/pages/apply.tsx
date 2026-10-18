@@ -285,6 +285,8 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
+    isPending,
+    error,
   } = trpc.application.submitDh13.useMutation({
     onSuccess: async () => {
       await router.push("/dashboard");
@@ -1187,13 +1189,15 @@ const ApplyForm = ({
       <button
         type="submit"
         className="mt-4 mb-4 btn btn-primary dark:text-white"
+        disabled={isPending}
       >
-        Submit
+        {isPending ? "Submitting..." : "Submit"}
       </button>
       {isError && (
         <div className="mb-4 text-center alert alert-error justify-normal">
-          There was an error submitting your application. Please try again. If
-          this error persists, please contact us at tech@deltahacks.com
+          {error.data?.code === "FORBIDDEN"
+            ? error.message
+            : "There was an error submitting your application. Please try again. If this error persists, please contact us at tech@deltahacks.com"}
         </div>
       )}
     </form>
