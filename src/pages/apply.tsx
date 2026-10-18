@@ -72,7 +72,7 @@ const FormCheckbox: React.FC<
 > = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
     <>
-      <div className="flex items-center justify-between w-full gap-2 pt-4 md:flex-row-reverse md:justify-end">
+      <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
         <div className="flex flex-col gap-1">
           <label className="text-black dark:text-white" htmlFor={id}>
             {link ? (
@@ -88,9 +88,11 @@ const FormCheckbox: React.FC<
               </span>
             )}
           </label>
-          <span className="text-error text-sm h-6 block pt-2">
-            {errors?.message ?? ""}
-          </span>
+          {errors && (
+            <span className="block h-6 pt-2 text-sm text-error">
+              {errors.message}
+            </span>
+          )}
         </div>
         <input
           className="p-2 bg-white rounded-sm checkbox-primary checkbox checkbox-lg dark:bg-neutral-800"
@@ -687,7 +689,6 @@ const ApplyForm = ({
         errors={errors.longAnswerDayWith}
         register={register}
         value={watch("longAnswerDayWith") ?? ""}
-        optional
       />
       <FormDivider label="Survey" />
       <SocialLinksFormInput register={register} errors={errors} watch={watch} />
@@ -1103,9 +1104,8 @@ const ApplyForm = ({
         />
       </div>
       <p className="opacity-50 py-8">
-        We are currently in the process of partnering with MLH. The following 3
-        checkboxes are for this partnership. If we do not end up partnering with
-        MLH, your information will not be shared
+        DeltaHacks 13 is partnered with MLH. The following 3 checkboxes are for
+        this partnership.
       </p>
       <FormCheckbox
         label="I have read and agree to the MLH Code of Conduct. (https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md)"

@@ -31,6 +31,13 @@ const ApplicationSchemaWithStringDates = z
     z.object({
       birthday: z.string(),
       studyExpectedGraduation: z.string().nullish(),
+      // Preserve unanswered responses submitted while this question was optional.
+      longAnswerDayWith: z
+        .string()
+        .refine((value) => value.split(/\s/g).length <= 150, {
+          error: "Must be less than 150 words",
+        })
+        .nullish(),
       photoVideoConsent: z.boolean().nullish(),
       signature: z.string().nullish(),
       parentGuardianSignature: z.string().nullish(),
