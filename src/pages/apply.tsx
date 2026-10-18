@@ -58,38 +58,33 @@ type ApplyFormAutofill = z.infer<typeof pt>;
 const affirmativeConsent: SelectChoice[] = [{ value: "Yes", label: "Yes" }];
 
 interface FormInputProps {
-  label: string;
+  label: React.ReactNode;
   id: keyof InputsType;
   errors: FieldError | undefined;
   optional?: boolean;
   register: UseFormRegister<InputsType>;
-  link?: string | undefined;
 }
 
 const FormCheckbox: React.FC<
-  FormInputProps & React.HTMLProps<HTMLInputElement>
-> = ({ label, id, errors, optional, register, link, ...props }) => {
+  FormInputProps & Omit<React.HTMLProps<HTMLInputElement>, "label">
+> = ({ label, id, errors, optional, register, ...props }) => {
   return (
     <>
-      <div className="flex items-center justify-between w-full gap-2 pt-4 md:flex-row-reverse md:justify-end">
+      <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
         <div className="flex flex-col gap-1">
           <label className="text-black dark:text-white" htmlFor={id}>
-            {link ? (
-              <a className="underline" href={link} target="_blank">
-                {label}
-              </a>
-            ) : (
-              label
-            )}{" "}
+            {label}{" "}
             {optional && (
               <span className="text-neutral-500 dark:text-neutral-400">
                 (Optional)
               </span>
             )}
           </label>
-          <span className="text-error text-sm h-6 block pt-2">
-            {errors?.message ?? ""}
-          </span>
+          {errors && (
+            <span className="block h-6 pt-2 text-sm text-error">
+              {errors.message}
+            </span>
+          )}
         </div>
         <input
           className="p-2 bg-white rounded-sm checkbox-primary checkbox checkbox-lg dark:bg-neutral-800"
@@ -1097,18 +1092,71 @@ const ApplyForm = ({
         this partnership.
       </p>
       <FormCheckbox
-        label="I have read and agree to the MLH Code of Conduct. (https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md)"
+        label={
+          <>
+            I have read and agree to the{" "}
+            <a
+              className="underline"
+              href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              MLH Code of Conduct
+            </a>
+            .
+          </>
+        }
         id="agreeToMLHCodeOfConduct"
         errors={errors.agreeToMLHCodeOfConduct}
         register={register}
-        link="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
       />
       <FormCheckbox
-        label="I authorize you to share my application/registration information with Major League Hacking for event administration, ranking, and administration (including the creation of linked accounts on MLH and DEV (https://dev.to)) in line with the MLH Privacy Policy. I further agree to the terms of both the MLH Contest Terms and Conditions (https://github.com/MLH/mlh-policies/blob/main/contest-terms.md) and the MLH Privacy Policy (https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md)"
+        label={
+          <>
+            I authorize you to share my application/registration information
+            with Major League Hacking for event administration, ranking, and
+            administration (including the creation of linked accounts on MLH and{" "}
+            <a
+              className="underline"
+              href="https://dev.to"
+              target="_blank"
+              rel="noreferrer"
+            >
+              DEV
+            </a>
+            ) in line with the{" "}
+            <a
+              className="underline"
+              href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              MLH Privacy Policy
+            </a>
+            . I further agree to the terms of both the{" "}
+            <a
+              className="underline"
+              href="https://github.com/MLH/mlh-policies/blob/main/contest-terms.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              MLH Contest Terms and Conditions
+            </a>{" "}
+            and the{" "}
+            <a
+              className="underline"
+              href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              MLH Privacy Policy
+            </a>
+            .
+          </>
+        }
         id="agreeToMLHPrivacyPolicy"
         errors={errors.agreeToMLHPrivacyPolicy}
         register={register}
-        link="https://mlh.io/privacy"
       />
       <FormCheckbox
         label="I authorize MLH + DEV to send me occasional emails about relevant events, career opportunities, and community announcements."
