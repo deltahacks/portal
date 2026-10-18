@@ -71,7 +71,7 @@ const FormCheckbox: React.FC<
 > = ({ label, id, errors, optional, register, link, ...props }) => {
   return (
     <>
-      <div className="flex items-center justify-between w-full gap-2 pt-4 md:flex-row-reverse md:justify-end">
+      <div className="flex w-full items-center justify-between gap-2 pb-4 pt-4 md:flex-row-reverse md:justify-end">
         <div className="flex flex-col gap-1">
           <label className="text-black dark:text-white" htmlFor={id}>
             {link ? (
@@ -87,9 +87,11 @@ const FormCheckbox: React.FC<
               </span>
             )}
           </label>
-          <span className="text-error text-sm h-6 block pt-2">
-            {errors?.message ?? ""}
-          </span>
+          {errors && (
+            <span className="block h-6 pt-2 text-sm text-error">
+              {errors.message}
+            </span>
+          )}
         </div>
         <input
           className="p-2 bg-white rounded-sm checkbox-primary checkbox checkbox-lg dark:bg-neutral-800"
