@@ -165,7 +165,6 @@ const FormUpload: React.FC<FormUploadProps> = ({
   currentValue,
 }) => {
   const { resolvedTheme } = useTheme();
-  const [showUpload, setShowUpload] = useState(!currentValue);
 
   const id = useId();
   const [uppy] = useState(() =>
@@ -196,7 +195,6 @@ const FormUpload: React.FC<FormUploadProps> = ({
       method: "PUT",
       onAfterResponse: () => {
         setUploadValue(objectId);
-        setShowUpload(false);
       },
       getResponseData: () => {
         return { url: objectId };
@@ -207,7 +205,6 @@ const FormUpload: React.FC<FormUploadProps> = ({
   const handleReplace = () => {
     uppy.cancelAll();
     setUploadValue("");
-    setShowUpload(true);
   };
 
   return (
@@ -218,7 +215,7 @@ const FormUpload: React.FC<FormUploadProps> = ({
           (Optional, PDF, max {MAX_RESUME_FILE_SIZE_LABEL})
         </span>
       </div>
-      {currentValue && !showUpload ? (
+      {currentValue ? (
         <div className="flex flex-col gap-2 p-4 border rounded-lg border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
           <div className="flex items-center gap-2">
             <svg
