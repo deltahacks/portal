@@ -199,10 +199,17 @@ const Accepted: React.FC<AcceptedProps> = ({
                   label: restriction,
                 }))}
               onChange={(values: SelectChoice[] | null) => {
-                const restrictions = (values ?? []).map(
+                let restrictions = (values ?? []).map(
                   (restriction) =>
                     restriction.value as (typeof dietaryRestrictionOptions)[number],
                 );
+                if (restrictions.includes("N/A") && restrictions.length > 1) {
+                  restrictions = dietaryRestrictions.includes("N/A")
+                    ? restrictions.filter(
+                        (restriction) => restriction !== "N/A",
+                      )
+                    : ["N/A"];
+                }
                 setDietaryRestrictions(restrictions);
                 setDietaryRestrictionsChanged(true);
                 setRsvpError(null);
@@ -259,8 +266,9 @@ const Accepted: React.FC<AcceptedProps> = ({
                 disabled={
                   doRsvp.isPending ||
                   (dietaryRestrictionsChanged &&
-                    dietaryRestrictions.includes("Other") &&
-                    !dietaryRestrictionOther.trim())
+                    (dietaryRestrictions.length === 0 ||
+                      (dietaryRestrictions.includes("Other") &&
+                        !dietaryRestrictionOther.trim())))
                 }
                 onClick={async () => {
                   setRsvpError(null);
@@ -752,7 +760,8 @@ export const getServerSideProps = async (
       props: {
         status: userEntry.DH13Application.status,
         killed: killed,
-        dietaryRestrictions: userEntry.DH13Application.dietaryRestrictions,
+        dietaryRestrictions:
+          userEntry.DH13Application.dietaryRestrictions ?? [],
         dietaryRestrictionOther:
           userEntry.DH13Application.dietaryRestrictionOther,
       },

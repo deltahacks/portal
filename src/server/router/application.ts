@@ -2,10 +2,7 @@ import { Prisma, Status, Role } from "@prisma/client";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./trpc";
-import {
-  dietaryRestrictionSchema,
-  dh13schema,
-} from "../../schemas/application";
+import { dh13schema } from "../../schemas/application";
 
 const StatusCount = z
   .object({
@@ -82,7 +79,7 @@ export const applicationRouter = router({
       z
         .object({
           rsvpCheck: z.boolean(),
-          dietaryRestrictions: dietaryRestrictionSchema.array().optional(),
+          dietaryRestrictions: dh13schema.shape.dietaryRestrictions.optional(),
           dietaryRestrictionOther: z
             .string()
             .trim()

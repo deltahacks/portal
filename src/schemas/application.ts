@@ -128,6 +128,7 @@ export const dietaryRestrictionOptions = [
   "Vegan",
   "Vegetarian",
   "Other",
+  "N/A",
 ] as const;
 
 export const dietaryRestrictionSchema = z.enum(dietaryRestrictionOptions);
@@ -317,7 +318,14 @@ export const dh13schema = dh12schema
       .nullish(),
   })
   .extend({
-    dietaryRestrictions: dietaryRestrictionSchema.array(),
+    dietaryRestrictions: dietaryRestrictionSchema
+      .array()
+      .min(1, "At least one selection is required")
+      .refine(
+        (restrictions) =>
+          !restrictions.includes("N/A") || restrictions.length === 1,
+        { error: "N/A cannot be combined with other dietary restrictions" },
+      ),
     dietaryRestrictionOther: z
       .string()
       .trim()
