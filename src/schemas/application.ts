@@ -335,4 +335,20 @@ export const dh13schema = dh12schema
       .nullable(),
   });
 
+export const rsvpSchema = dh13schema
+  .pick({ dietaryRestrictions: true, dietaryRestrictionOther: true })
+  .extend({ rsvpCheck: z.boolean() })
+  .superRefine((data, ctx) => {
+    if (
+      data.dietaryRestrictions.includes("Other") &&
+      !data.dietaryRestrictionOther
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["dietaryRestrictionOther"],
+        message: "Please describe your dietary restriction",
+      });
+    }
+  });
+
 export default dh13schema;
