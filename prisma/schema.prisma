@@ -339,6 +339,8 @@ model DH12Review {
 model DH13Application {
   id String @id @default(cuid())
 
+  createdAt DateTime? @default(now())
+
   // Stable 1-based index for the grading portal. Assigned by the database on
   // insert and never updated, so it does not shift when reviewers sort or
   // filter. Deleted applications leave gaps, which is expected.

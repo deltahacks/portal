@@ -20,7 +20,9 @@ import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import Drawer from "../components/Drawer";
 import applicationSchema, {
+  dh13AutofillSchema,
   dietaryRestrictionOptions,
+  requiresParentGuardianSignature,
 } from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
 import FormDivider from "../components/FormDivider";
@@ -57,8 +59,7 @@ import {
 } from "../data/fileUpload";
 
 export type InputsType = z.input<typeof applicationSchema>;
-const pt = applicationSchema.partial();
-type ApplyFormAutofill = z.infer<typeof pt>;
+type ApplyFormAutofill = z.infer<typeof dh13AutofillSchema>;
 const affirmativeConsent: SelectChoice[] = [{ value: "Yes", label: "Yes" }];
 
 interface FormInputProps {
@@ -283,6 +284,8 @@ const ApplyForm = ({
     mutateAsync: submitAppAsync,
     isSuccess,
     isError,
+    isPending,
+    error,
   } = trpc.application.submitDh13.useMutation({
     onSuccess: async () => {
       await router.push("/dashboard");
@@ -327,6 +330,9 @@ const ApplyForm = ({
 
   const isSecondary = watch("studyEnrolledPostSecondary");
   const selectedDietaryRestrictions = watch("dietaryRestrictions") ?? [];
+  const parentGuardianSignatureRequired = requiresParentGuardianSignature(
+    watch("birthday"),
+  );
 
   return (
     <form
@@ -427,7 +433,7 @@ const ApplyForm = ({
           className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
           id="birthdayInput"
-          {...register("birthday", {})}
+          {...register("birthday", { deps: ["parentGuardianSignature"] })}
           placeholder="YYYY-MM-DD"
         />
       </div>
@@ -818,7 +824,12 @@ const ApplyForm = ({
           className="flex justify-between items-center text-black dark:text-white"
           htmlFor="dietaryRestrictions"
         >
-          <span>Do you have any dietary restrictions?</span>
+          <span>
+            Do you have any dietary restrictions?{" "}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              (Required)
+            </span>
+          </span>
           {errors.dietaryRestrictions && (
             <span className="text-error text-sm">
               {errors.dietaryRestrictions.message}
@@ -835,10 +846,17 @@ const ApplyForm = ({
                 label: restriction,
               }))}
               onChange={(values: SelectChoice[] | null) => {
-                const restrictions = (values ?? []).map(
+                let restrictions = (values ?? []).map(
                   (restriction) =>
                     restriction.value as (typeof dietaryRestrictionOptions)[number],
                 );
+                if (restrictions.includes("N/A") && restrictions.length > 1) {
+                  restrictions = value?.includes("N/A")
+                    ? restrictions.filter(
+                        (restriction) => restriction !== "N/A",
+                      )
+                    : ["N/A"];
+                }
                 onChange(restrictions);
 
                 if (!restrictions.includes("Other")) {
@@ -930,12 +948,13 @@ const ApplyForm = ({
         register={register}
       />
       <FormInput
-        label="If participant is under 18: A parent or legal guardian should enter their name in addition to the participant to provide consent on their behalf"
+        label="If participant is 18 or younger on January 9, 2027: A parent or legal guardian must enter their name in addition to the participant to provide consent on their behalf"
         id="parentGuardianSignature"
         errors={errors.parentGuardianSignature}
         placeholder="Jane Doe"
         register={register}
-        optional
+        optional={!parentGuardianSignatureRequired}
+        aria-required={parentGuardianSignatureRequired}
       />
       <FormDivider label="MLH Survey and Consent" />
 
@@ -1160,13 +1179,15 @@ const ApplyForm = ({
       <button
         type="submit"
         className="mt-4 mb-4 btn btn-primary dark:text-white"
+        disabled={isPending}
       >
-        Submit
+        {isPending ? "Submitting..." : "Submit"}
       </button>
       {isError && (
         <div className="mb-4 text-center alert alert-error justify-normal">
-          There was an error submitting your application. Please try again. If
-          this error persists, please contact us at tech@deltahacks.com
+          {error.data?.code === "FORBIDDEN"
+            ? error.message
+            : "There was an error submitting your application. Please try again. If this error persists, please contact us at tech@deltahacks.com"}
         </div>
       )}
     </form>

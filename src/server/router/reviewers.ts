@@ -24,22 +24,27 @@ const ApplicationForReview = z.object({
 });
 export type ApplicationForReview = z.infer<typeof ApplicationForReview>;
 
-const ApplicationSchemaWithStringDates = ApplicationSchema.extend(
-  z.object({
-    birthday: z.string(),
-    studyExpectedGraduation: z.string().nullish(),
-    // Preserve unanswered responses submitted while this question was optional.
-    longAnswerDayWith: z
-      .string()
-      .refine((value) => value.split(/\s/g).length <= 150, {
-        error: "Must be less than 150 words",
-      })
-      .nullish(),
-    photoVideoConsent: z.boolean().nullish(),
-    signature: z.string().nullish(),
-    parentGuardianSignature: z.string().nullish(),
-  }).shape,
-);
+// Review responses can hide signatures, so omit submission-only refinements.
+const ApplicationSchemaWithStringDates = z
+  .object(ApplicationSchema.shape)
+  .extend(
+    z.object({
+      birthday: z.string(),
+      studyExpectedGraduation: z.string().nullish(),
+      // Keep historical empty and free-form dietary responses readable.
+      dietaryRestrictions: z.array(z.string()).nullish(),
+      // Preserve unanswered responses submitted while this question was optional.
+      longAnswerDayWith: z
+        .string()
+        .refine((value) => value.split(/\s/g).length <= 150, {
+          error: "Must be less than 150 words",
+        })
+        .nullish(),
+      photoVideoConsent: z.boolean().nullish(),
+      signature: z.string().nullish(),
+      parentGuardianSignature: z.string().nullish(),
+    }).shape,
+  );
 export type ApplicationSchemaWithStringDates = z.infer<
   typeof ApplicationSchemaWithStringDates
 >;
