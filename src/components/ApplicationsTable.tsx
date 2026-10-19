@@ -67,9 +67,7 @@ const columns: ColumnDef<ApplicationForReview>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="pl-4 py-2 capitalize">{row.getValue("name")}</div>
-    ),
+    cell: ({ row }) => <div className="pl-4 py-2">{row.getValue("name")}</div>,
     enableColumnFilter: true,
   },
   {
