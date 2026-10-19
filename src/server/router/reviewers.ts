@@ -88,11 +88,12 @@ export const reviewerRouter = router({
         },
         select: {
           id: true,
-          name: true,
           email: true,
           DH13ApplicationId: true,
           DH13Application: {
             select: {
+              firstName: true,
+              lastName: true,
               status: true,
               applicationNumber: true,
             },
@@ -107,6 +108,7 @@ export const reviewerRouter = router({
             : [
                 {
                   ...user,
+                  name: `${DH13Application.firstName} ${DH13Application.lastName}`,
                   status: DH13Application.status,
                   applicationNumber: DH13Application.applicationNumber,
                 },
@@ -402,11 +404,12 @@ export const reviewerRouter = router({
         },
         select: {
           id: true,
-          name: true,
           email: true,
           DH13ApplicationId: true,
           DH13Application: {
             select: {
+              firstName: true,
+              lastName: true,
               status: true,
               applicationNumber: true,
             },
@@ -421,6 +424,7 @@ export const reviewerRouter = router({
             : [
                 {
                   ...user,
+                  name: `${DH13Application.firstName} ${DH13Application.lastName}`,
                   status: DH13Application.status,
                   applicationNumber: DH13Application.applicationNumber,
                 },

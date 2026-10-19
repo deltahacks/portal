@@ -406,10 +406,10 @@ const Waitlisted: React.FC = () => {
 
 type InReviewProps = {
   killed: boolean;
+  applicantName: string;
 };
 
-const InReview: React.FC<InReviewProps> = ({ killed }) => {
-  const { data: session } = useSession();
+const InReview: React.FC<InReviewProps> = ({ killed, applicantName }) => {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
   const router = useRouter();
@@ -423,12 +423,7 @@ const InReview: React.FC<InReviewProps> = ({ killed }) => {
     <div>
       <h1 className="text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl">
         Thanks for applying
-        {session ? (
-          <span className="capitalize">, {session.user?.name}</span>
-        ) : (
-          ""
-        )}
-        !
+        <span>, {applicantName}</span>!
       </h1>
       <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         We have received your application. You will hear back from us on your
@@ -665,7 +660,12 @@ const Dashboard: NextPage<
   const { data: wifiConfig } = trpc.application.getWifiConfig.useQuery();
 
   const stateMap = {
-    [Status.IN_REVIEW]: <InReview killed={props.killed || false} />,
+    [Status.IN_REVIEW]: (
+      <InReview
+        killed={props.killed || false}
+        applicantName={props.applicantName}
+      />
+    ),
     [Status.ACCEPTED]: (
       <Accepted
         initialDietaryRestrictions={props.dietaryRestrictions}
@@ -761,6 +761,7 @@ export const getServerSideProps = async (
     return {
       props: {
         status: userEntry.DH13Application.status,
+        applicantName: `${userEntry.DH13Application.firstName} ${userEntry.DH13Application.lastName}`,
         killed: killed,
         dietaryRestrictions:
           userEntry.DH13Application.dietaryRestrictions ?? [],
