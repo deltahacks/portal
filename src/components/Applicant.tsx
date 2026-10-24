@@ -381,7 +381,7 @@ const ReviewForm = ({
       </div>
       <button
         onClick={handleSubmitReview}
-        className={`rounded-lg px-7 py-2.5 text-sm font-bold whitespace-nowrap dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80 ${
+        className={`rounded-lg px-7 py-2.5 text-sm font-bold whitespace-nowrap bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80 ${
           score === "" ? "opacity-50 cursor-not-allowed" : ""
         }`}
         disabled={score === ""}
