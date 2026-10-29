@@ -333,6 +333,7 @@ const ReviewForm = ({
     onSettled() {
       utils.application.getStatusCount.invalidate();
       utils.reviewer.getApplication.invalidate();
+      utils.reviewer.getApplications.invalidate();
       utils.reviewer.getReviewsForApplication.invalidate();
     },
   };
@@ -412,7 +413,11 @@ const ReviewForm = ({
         {existingReview ? "Update Review" : "Submit Review"}
       </button>
       {existingReview && (
-        <Button variant="outline" onClick={onDone}>
+        <Button
+          variant="outline"
+          onClick={onDone}
+          disabled={updateScore.isPending}
+        >
           Cancel
         </Button>
       )}
