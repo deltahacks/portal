@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { trpc } from "../utils/trpc";
 import {
   ApplicationForReview,
@@ -315,22 +315,34 @@ const ApplicationContent = ({
 
 const ReviewForm = ({
   applicationForReview,
+  existingReview,
+  onDone,
 }: {
   applicationForReview: ApplicationForReview;
+  existingReview?: { id: string; score: number; comment: string };
+  onDone?: () => void;
 }) => {
-  const [score, setScore] = useState("");
-  const [comments, setComments] = useState("");
+  const [score, setScore] = useState(
+    existingReview ? String(existingReview.score) : "",
+  );
+  const [comments, setComments] = useState(existingReview?.comment ?? "");
   const [error, setError] = useState<string | null>(null);
 
   const utils = trpc.useUtils();
-  const submitScore = trpc.reviewer.submitScore.useMutation({
+  const mutationOptions = {
     onSettled() {
       utils.application.getStatusCount.invalidate();
       utils.reviewer.getApplication.invalidate();
+      utils.reviewer.getReviewsForApplication.invalidate();
     },
-  });
+  };
+  const submitScore = trpc.reviewer.submitScore.useMutation(mutationOptions);
+  const updateScore = trpc.reviewer.updateScore.useMutation(mutationOptions);
+  // isPending only updates after a re-render, so block rapid repeat clicks synchronously
+  const isSavingRef = useRef(false);
 
   const handleSubmitReview = async () => {
+    if (isSavingRef.current) return;
     const scoreValue = Number(score);
     if (
       score === "" ||
@@ -342,16 +354,27 @@ const ReviewForm = ({
       return;
     }
 
+    isSavingRef.current = true;
     try {
-      await submitScore.mutateAsync({
-        applicationId: applicationForReview.DH13ApplicationId,
-        score: scoreValue,
-        comment: comments,
-      });
+      const review = { score: scoreValue, comment: comments };
+      if (existingReview) {
+        await updateScore.mutateAsync({
+          reviewId: existingReview.id,
+          ...review,
+        });
+      } else {
+        await submitScore.mutateAsync({
+          applicationId: applicationForReview.DH13ApplicationId,
+          ...review,
+        });
+      }
       setError(null);
+      onDone?.();
     } catch (error) {
       console.error("Failed to submit review", error);
       setError("Failed to submit review. Please try again later.");
+    } finally {
+      isSavingRef.current = false;
     }
   };
 
@@ -386,16 +409,28 @@ const ReviewForm = ({
         }`}
         disabled={score === ""}
       >
-        Submit Review
+        {existingReview ? "Update Review" : "Submit Review"}
       </button>
+      {existingReview && (
+        <Button variant="outline" onClick={onDone}>
+          Cancel
+        </Button>
+      )}
     </>
   );
 };
 
-const ReviewScores = ({ applicationId }: { applicationId: string }) => {
+const ReviewScores = ({
+  applicationForReview,
+  currentUserId,
+}: {
+  applicationForReview: ApplicationForReview;
+  currentUserId?: string;
+}) => {
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const { data: reviewsData } = trpc.reviewer.getReviewsForApplication.useQuery(
     {
-      applicationId: applicationId,
+      applicationId: applicationForReview.DH13ApplicationId,
     },
   );
 
@@ -409,14 +444,34 @@ const ReviewScores = ({ applicationId }: { applicationId: string }) => {
           /17
         </div>
       </div>
-      {reviewsData?.map((review, idx) => (
-        <div key={idx} className="flex flex-col">
-          <div className="">
-            <b>{review.reviewer.name}</b>: {review.score}/17
+      {reviewsData?.map((review) =>
+        editingReviewId === review.id ? (
+          <div key={review.id} className="flex flex-col gap-4">
+            <ReviewForm
+              applicationForReview={applicationForReview}
+              existingReview={review}
+              onDone={() => setEditingReviewId(null)}
+            />
           </div>
-          <div>{review.comment}</div>
-        </div>
-      ))}
+        ) : (
+          <div key={review.id} className="flex flex-col">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <b>{review.reviewer.name}</b>: {review.score}/17
+              </div>
+              {review.reviewerId === currentUserId && (
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingReviewId(review.id)}
+                >
+                  Edit
+                </Button>
+              )}
+            </div>
+            <div>{review.comment}</div>
+          </div>
+        ),
+      )}
     </>
   );
 };
@@ -476,7 +531,8 @@ const ApplicationPopupButton = ({
                 <div className="m-4 flex flex-col justify-end w-96 gap-4">
                   {(isAdmin || applicationData?.hasReviewed) && (
                     <ReviewScores
-                      applicationId={applicationForReview.DH13ApplicationId}
+                      applicationForReview={applicationForReview}
+                      currentUserId={session?.user?.id}
                     />
                   )}
                   {isReviewer && !applicationData?.hasReviewed && (
