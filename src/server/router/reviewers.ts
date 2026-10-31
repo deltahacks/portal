@@ -56,6 +56,12 @@ const ReviewScoreSchema = z.object({
   comment: z.string(),
 });
 
+const UpdateReviewScoreSchema = ReviewScoreSchema.omit({
+  applicationId: true,
+}).extend({
+  reviewId: z.cuid(),
+});
+
 const ReviewWithReviewerSchema = z.object({
   id: z.cuid(),
   score: z.number(),
@@ -352,6 +358,64 @@ export const reviewerRouter = router({
           feedback: input.comment ?? "No feedback provided",
         },
         icon: "📝",
+      });
+
+      return review;
+    }),
+
+  updateScore: protectedProcedure
+    .input(UpdateReviewScoreSchema)
+    .mutation(async ({ ctx, input }) => {
+      // Check authorization
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.REVIEWER)
+      )) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const existingReview = await ctx.prisma.dH13Review.findUnique({
+        where: { id: input.reviewId },
+        include: { application: { include: { User: true } } },
+      });
+      if (!existingReview) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Review not found",
+        });
+      }
+
+      // Reviewers can only edit their own review
+      if (existingReview.reviewerId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only edit your own review",
+        });
+      }
+
+      const review = await ctx.prisma.dH13Review.update({
+        where: { id: existingReview.id },
+        data: {
+          score: input.score,
+          comment: input.comment,
+        },
+      });
+
+      // Log review update
+      const applicant = existingReview.application.User;
+      await ctx.logsnag.track({
+        channel: "reviews",
+        event: "Application Score Updated",
+        user_id: `${applicant?.name ?? "Unknown"} - ${
+          applicant?.email ?? "No email"
+        }`,
+        description: `${ctx.session.user.name} updated score from ${existingReview.score}/17 to ${input.score}/17`,
+        tags: {
+          score: input.score.toString(),
+          reviewer: ctx.session.user.email ?? ctx.session.user.id,
+          feedback: input.comment ?? "No feedback provided",
+        },
+        icon: "✏️",
       });
 
       return review;

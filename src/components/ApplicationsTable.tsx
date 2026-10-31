@@ -283,6 +283,7 @@ export const ApplicationsTable = ({
   const table = useReactTable<ApplicationForReview>({
     data: applications,
     columns,
+    getRowId: (row) => row.DH13ApplicationId,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
