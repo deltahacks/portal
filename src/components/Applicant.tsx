@@ -330,11 +330,12 @@ const ReviewForm = ({
 
   const utils = trpc.useUtils();
   const mutationOptions = {
-    onSettled() {
+    async onSettled() {
       utils.application.getStatusCount.invalidate();
       utils.reviewer.getApplication.invalidate();
       utils.reviewer.getApplications.invalidate();
-      utils.reviewer.getReviewsForApplication.invalidate();
+      // Wait so a reopened edit form isn't prefilled with the old review
+      await utils.reviewer.getReviewsForApplication.invalidate();
     },
   };
   const submitScore = trpc.reviewer.submitScore.useMutation(mutationOptions);
