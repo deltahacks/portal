@@ -313,6 +313,15 @@ const ApplicationContent = ({
   );
 };
 
+const GRADED_PARTS: { label: string; max: number }[] = [
+  { label: "Q1", max: 4 },
+  { label: "Q2", max: 4 },
+  { label: "Q3", max: 4 },
+  { label: "Q4", max: 4 },
+  { label: "Resume / socials", max: 1 },
+];
+const MAX_SCORE = GRADED_PARTS.reduce((sum, part) => sum + part.max, 0);
+
 const ReviewForm = ({
   applicationForReview,
   existingReview,
@@ -322,11 +331,36 @@ const ReviewForm = ({
   existingReview?: { id: string; score: number; comment: string };
   onDone?: () => void;
 }) => {
-  const [score, setScore] = useState(
+  const [scores, setScores] = useState<string[]>(() =>
+    GRADED_PARTS.map(() => ""),
+  );
+  const [total, setTotal] = useState(
     existingReview ? String(existingReview.score) : "",
   );
   const [comments, setComments] = useState(existingReview?.comment ?? "");
   const [error, setError] = useState<string | null>(null);
+
+  const setPart = (i: number, value: string) => {
+    const next = scores.map((v, idx) => (idx === i ? value : v));
+    setScores(next);
+    const sum = next.reduce((acc, v) => acc + (Number(v) || 0), 0);
+    setTotal(String(Math.round(sum * 100) / 100));
+  };
+
+  const partOutOfRange = (i: number, max: number) => {
+    const v = scores[i];
+    if (!v) return false;
+    const n = Number(v);
+    return isNaN(n) || n < 0 || n > max;
+  };
+
+  const totalValue = Number(total);
+  const valid =
+    total !== "" &&
+    !isNaN(totalValue) &&
+    totalValue >= 0 &&
+    totalValue <= MAX_SCORE &&
+    !GRADED_PARTS.some((part, i) => partOutOfRange(i, part.max));
 
   const utils = trpc.useUtils();
   const mutationOptions = {
@@ -345,20 +379,14 @@ const ReviewForm = ({
 
   const handleSubmitReview = async () => {
     if (isSavingRef.current) return;
-    const scoreValue = Number(score);
-    if (
-      score === "" ||
-      isNaN(scoreValue) ||
-      scoreValue < 0 ||
-      scoreValue > 17
-    ) {
-      setError("Please enter a valid score between 0 and 17");
+    if (!valid) {
+      setError(`Please enter a valid score between 0 and ${MAX_SCORE}`);
       return;
     }
 
     isSavingRef.current = true;
     try {
-      const review = { score: scoreValue, comment: comments };
+      const review = { score: totalValue, comment: comments };
       if (existingReview) {
         await updateScore.mutateAsync({
           reviewId: existingReview.id,
@@ -384,16 +412,49 @@ const ReviewForm = ({
     <>
       {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
       <div>
-        <label className="text-black dark:text-white font-bold">Score</label>
-        <input
-          type="number"
-          min="0"
-          max="17"
-          value={score}
-          onChange={(e) => setScore(e.target.value)}
-          className="w-full h-12 mt-2 p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-          placeholder="Enter score (0-17)"
-        />
+        <label className="text-black dark:text-white font-bold">Scores</label>
+        <div className="mt-2 flex flex-col gap-2">
+          {GRADED_PARTS.map((part, i) => (
+            <div
+              key={part.label}
+              className="flex items-center justify-between gap-3"
+            >
+              <label className="text-sm text-black dark:text-white">
+                {part.label}
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  max={part.max}
+                  step="any"
+                  placeholder={`0-${part.max}`}
+                  value={scores[i]}
+                  onChange={(e) => setPart(i, e.target.value)}
+                  className={`w-24 h-10 p-2 border rounded-lg bg-white text-black placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white ${partOutOfRange(i, part.max) ? "border-red-400" : "border-neutral-300 dark:border-neutral-700"}`}
+                />
+                <span className="text-sm text-neutral-500 w-6">
+                  /{part.max}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 pt-3 border-t border-neutral-300 dark:border-neutral-700 flex items-center justify-between font-bold text-black dark:text-white">
+          <span>Total</span>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min="0"
+              max={MAX_SCORE}
+              step="any"
+              value={total}
+              onChange={(e) => setTotal(e.target.value)}
+              className="w-24 h-10 p-2 border rounded-lg bg-white border-neutral-300 text-black font-normal placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+            />
+            <span className="text-sm text-neutral-500 w-10">/{MAX_SCORE}</span>
+          </div>
+        </div>
       </div>
       <div>
         <label className="text-black dark:text-white font-bold">Comments</label>
@@ -407,9 +468,9 @@ const ReviewForm = ({
       <button
         onClick={handleSubmitReview}
         className={`rounded-lg px-7 py-2.5 text-sm font-bold whitespace-nowrap dark:bg-primary text-white hover:text-white dark:text-white hover:bg-primary/60 hover:dark:bg-primary/80 ${
-          score === "" ? "opacity-50 cursor-not-allowed" : ""
+          !valid ? "opacity-50 cursor-not-allowed" : ""
         }`}
-        disabled={score === ""}
+        disabled={!valid}
       >
         {existingReview ? "Update Review" : "Submit Review"}
       </button>
@@ -447,7 +508,7 @@ const ReviewScores = ({
           Average Score:{" "}
           {(reviewsData || []).reduce((acc, review) => acc + review.score, 0) /
             (reviewsData?.length || 1)}
-          /17
+          /{MAX_SCORE}
         </div>
       </div>
       {reviewsData?.map((review) =>
@@ -463,7 +524,7 @@ const ReviewScores = ({
           <div key={review.id} className="flex flex-col">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <b>{review.reviewer.name}</b>: {review.score}/17
+                <b>{review.reviewer.name}</b>: {review.score}/{MAX_SCORE}
               </div>
               {review.reviewerId === currentUserId && (
                 <Button
