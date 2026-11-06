@@ -509,8 +509,8 @@ const RSVPed: React.FC = () => {
         , looking forward to seeing you at the hackathon!
       </h1>
 
-      {/* <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
-        We are pleased to inform you that your registration for Deltahacks 12
+      <h2 className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
+        We are pleased to inform you that your registration for Deltahacks 13
         has been confirmed. Please look for an Attendee Package in your email
         with important information about the event in the coming days.
         Registration will take place at{" "}
@@ -527,7 +527,7 @@ const RSVPed: React.FC = () => {
         </span>{" "}
         Please regularly check your email for updates and more information. We
         look forward to seeing you there!
-      </h2> */}
+      </h2>
       <div className="pt-6 text-xl font-normal dark:text-[#c1c1c1] sm:text-2xl lg:pt-8 lg:text-3xl lg:leading-tight 2xl:pt-10 2xl:text-4xl">
         If you have any questions, you can reach us at{" "}
         <a href="mailto: hello@deltahacks.com" className="text-sky-400">
@@ -607,7 +607,7 @@ const CheckedIn: React.FC = () => {
       </Link>
       <Link href="/profile">
         <Button className="btn w-full border-none hover:bg-zinc-700 text-base font-medium capitalize">
-          My Profile
+          QR Code
         </Button>
       </Link>
       <Link
