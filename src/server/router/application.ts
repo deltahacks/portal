@@ -7,6 +7,7 @@ import {
   dh13schema,
   rsvpSchema,
 } from "../../schemas/application";
+import { universities } from "../../data/applicationSelectData";
 
 const StatusCount = z
   .object({
@@ -154,6 +155,9 @@ export const applicationRouter = router({
       const dh12App = user.DH12Application;
       const dh11App = user.DH11Application;
 
+      const prevStudyLocation =
+        dh12App?.studyLocation ?? dh11App?.studyLocation;
+
       // Create the autofill object from the previous year's application
       type AutofillType = z.infer<typeof dh13AutofillSchema>;
       const autofill: AutofillType = {
@@ -163,7 +167,10 @@ export const applicationRouter = router({
         studyEnrolledPostSecondary:
           dh12App?.studyEnrolledPostSecondary ??
           dh11App?.studyEnrolledPostSecondary,
-        studyLocation: dh12App?.studyLocation ?? dh11App?.studyLocation,
+        // Only prefill schools that are still options in the form
+        studyLocation: universities.some((u) => u.value === prevStudyLocation)
+          ? prevStudyLocation
+          : undefined,
         studyDegree: dh12App?.studyDegree ?? dh11App?.studyDegree,
         studyMajor: dh12App?.studyMajor ?? dh11App?.studyMajor,
         studyExpectedGraduation:
