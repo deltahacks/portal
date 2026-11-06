@@ -65,7 +65,7 @@ const universities: SelectChoice[] = [
   "University of Waterloo",
   "University of Toronto",
   "University of Western Ontario",
-  "Ryerson University",
+  "Toronto Metropolitan University",
   "Queen's University",
   "University of Guelph",
   "University of Ottawa",
