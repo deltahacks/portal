@@ -161,7 +161,12 @@ const dh11schema = z.object({
   studyDegree: z.string().min(1).max(255).nullish(),
   studyMajor: z.string().min(1).max(255).nullish(),
   studyYearOfStudy: z.string().nullish(),
-  studyExpectedGraduation: z.coerce.date().nullish(),
+  studyExpectedGraduation: z
+    .preprocess(
+      (value) => (value === "" ? null : value),
+      z.coerce.date().nullable(),
+    )
+    .optional(),
   previousHackathonsCount: z.coerce.number().int().min(0),
   longAnswerIncident: z
     .string()
