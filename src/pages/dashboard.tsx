@@ -97,6 +97,7 @@ const Accepted: React.FC<AcceptedProps> = ({
   });
 
   const [shareResume, setShareResume] = React.useState(false);
+  const [acceptedWaiver, setAcceptedWaiver] = React.useState(false);
   const [dietaryRestrictions, setDietaryRestrictions] = React.useState<
     DietaryRestriction[]
   >(() => initialDietaryRestrictions.filter(isDietaryRestriction));
@@ -108,6 +109,27 @@ const Accepted: React.FC<AcceptedProps> = ({
   const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
   const legacyDietaryRestrictions = initialDietaryRestrictions.filter(
     (restriction) => !isDietaryRestriction(restriction),
+  );
+  const rsvpValidation = rsvpSchema.safeParse({
+    rsvpCheck: shareResume,
+    dietaryRestrictions: dietaryRestrictionsChanged
+      ? dietaryRestrictions
+      : initialDietaryRestrictions,
+    dietaryRestrictionOther,
+  });
+  const canConfirmRsvp = acceptedWaiver && rsvpValidation.success;
+  // Only surface field errors once the hacker has edited their dietary
+  // restrictions, so the modal doesn't open with errors already showing.
+  const getDietaryFieldError = (
+    field: "dietaryRestrictions" | "dietaryRestrictionOther",
+  ) =>
+    dietaryRestrictionsChanged && !rsvpValidation.success
+      ? rsvpValidation.error.issues.find((issue) => issue.path[0] === field)
+          ?.message
+      : undefined;
+  const dietaryRestrictionsError = getDietaryFieldError("dietaryRestrictions");
+  const dietaryRestrictionOtherError = getDietaryFieldError(
+    "dietaryRestrictionOther",
   );
 
   return (
@@ -224,6 +246,11 @@ const Accepted: React.FC<AcceptedProps> = ({
               isMulti={true}
               inputId="dietaryRestrictions"
             />
+            {dietaryRestrictionsError && (
+              <p className="pt-2 text-sm text-error">
+                {dietaryRestrictionsError}
+              </p>
+            )}
             {!dietaryRestrictionsChanged &&
               legacyDietaryRestrictions.length > 0 && (
                 <p className="pt-2 text-sm text-neutral-600 dark:text-neutral-300">
@@ -254,6 +281,11 @@ const Accepted: React.FC<AcceptedProps> = ({
                   className="w-full text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
                   placeholder="Please specify"
                 />
+                {dietaryRestrictionOtherError && (
+                  <p className="pt-2 text-sm text-error">
+                    {dietaryRestrictionOtherError}
+                  </p>
+                )}
               </div>
             )}
             {rsvpError && (
@@ -262,28 +294,35 @@ const Accepted: React.FC<AcceptedProps> = ({
               </p>
             )}
           </div>
+          <div className="flex items-center gap-4 py-4">
+            <Checkbox
+              id="acceptWaiver"
+              checked={acceptedWaiver}
+              onCheckedChange={(checked) => setAcceptedWaiver(!!checked)}
+              className="w-6 h-6"
+            />
+            <label
+              htmlFor="acceptWaiver"
+              className="font-normal dark:text-white lg:leading-tight"
+            >
+              Accept the waiver{" "}
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Required)
+              </span>
+            </label>
+          </div>
           <div className="modal-action">
             <div className="flex gap-5">
               <button
                 type="button"
-                className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
-                disabled={doRsvp.isPending}
+                className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-600 dark:disabled:text-zinc-400"
+                disabled={!canConfirmRsvp || doRsvp.isPending}
                 onClick={async () => {
+                  if (!acceptedWaiver || !rsvpValidation.success) return;
                   setRsvpError(null);
-                  const result = rsvpSchema.safeParse({
-                    rsvpCheck: shareResume,
-                    dietaryRestrictions: dietaryRestrictionsChanged
-                      ? dietaryRestrictions
-                      : initialDietaryRestrictions,
-                    dietaryRestrictionOther,
-                  });
-                  if (!result.success) {
-                    setRsvpError(getRsvpErrorMessage(result.error));
-                    return;
-                  }
 
                   try {
-                    await doRsvp.mutateAsync(result.data);
+                    await doRsvp.mutateAsync(rsvpValidation.data);
                     rsvpDialogRef.current?.close();
                   } catch {
                     // The mutation's onError handler shows the error in the dialog.
