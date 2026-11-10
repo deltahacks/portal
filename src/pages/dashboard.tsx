@@ -110,6 +110,14 @@ const Accepted: React.FC<AcceptedProps> = ({
   const legacyDietaryRestrictions = initialDietaryRestrictions.filter(
     (restriction) => !isDietaryRestriction(restriction),
   );
+  const rsvpValidation = rsvpSchema.safeParse({
+    rsvpCheck: shareResume,
+    dietaryRestrictions: dietaryRestrictionsChanged
+      ? dietaryRestrictions
+      : initialDietaryRestrictions,
+    dietaryRestrictionOther,
+  });
+  const canConfirmRsvp = acceptedWaiver && rsvpValidation.success;
 
   return (
     <div>
@@ -285,24 +293,13 @@ const Accepted: React.FC<AcceptedProps> = ({
               <button
                 type="button"
                 className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-600 dark:disabled:text-zinc-400"
-                disabled={!acceptedWaiver || doRsvp.isPending}
+                disabled={!canConfirmRsvp || doRsvp.isPending}
                 onClick={async () => {
-                  if (!acceptedWaiver) return;
+                  if (!acceptedWaiver || !rsvpValidation.success) return;
                   setRsvpError(null);
-                  const result = rsvpSchema.safeParse({
-                    rsvpCheck: shareResume,
-                    dietaryRestrictions: dietaryRestrictionsChanged
-                      ? dietaryRestrictions
-                      : initialDietaryRestrictions,
-                    dietaryRestrictionOther,
-                  });
-                  if (!result.success) {
-                    setRsvpError(getRsvpErrorMessage(result.error));
-                    return;
-                  }
 
                   try {
-                    await doRsvp.mutateAsync(result.data);
+                    await doRsvp.mutateAsync(rsvpValidation.data);
                     rsvpDialogRef.current?.close();
                   } catch {
                     // The mutation's onError handler shows the error in the dialog.
