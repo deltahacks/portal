@@ -97,6 +97,7 @@ const Accepted: React.FC<AcceptedProps> = ({
   });
 
   const [shareResume, setShareResume] = React.useState(false);
+  const [acceptedWaiver, setAcceptedWaiver] = React.useState(false);
   const [dietaryRestrictions, setDietaryRestrictions] = React.useState<
     DietaryRestriction[]
   >(() => initialDietaryRestrictions.filter(isDietaryRestriction));
@@ -262,13 +263,31 @@ const Accepted: React.FC<AcceptedProps> = ({
               </p>
             )}
           </div>
+          <div className="flex items-center gap-4 py-4">
+            <Checkbox
+              id="acceptWaiver"
+              checked={acceptedWaiver}
+              onCheckedChange={(checked) => setAcceptedWaiver(!!checked)}
+              className="w-6 h-6"
+            />
+            <label
+              htmlFor="acceptWaiver"
+              className="font-normal dark:text-white lg:leading-tight"
+            >
+              Accept the waiver{" "}
+              <span className="text-neutral-500 dark:text-neutral-400">
+                (Required)
+              </span>
+            </label>
+          </div>
           <div className="modal-action">
             <div className="flex gap-5">
               <button
                 type="button"
                 className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
-                disabled={doRsvp.isPending}
+                disabled={!acceptedWaiver || doRsvp.isPending}
                 onClick={async () => {
+                  if (!acceptedWaiver) return;
                   setRsvpError(null);
                   const result = rsvpSchema.safeParse({
                     rsvpCheck: shareResume,
