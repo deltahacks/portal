@@ -284,7 +284,7 @@ const Accepted: React.FC<AcceptedProps> = ({
             <div className="flex gap-5">
               <button
                 type="button"
-                className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
+                className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-600 dark:disabled:text-zinc-400"
                 disabled={!acceptedWaiver || doRsvp.isPending}
                 onClick={async () => {
                   if (!acceptedWaiver) return;
