@@ -391,6 +391,7 @@ const ReviewForm = ({
           max="17"
           value={score}
           onChange={(e) => setScore(e.target.value)}
+          onWheel={(e) => e.currentTarget.blur()}
           className="w-full h-12 mt-2 p-3 border rounded-lg bg-white border-neutral-300 text-black placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
           placeholder="Enter score (0-17)"
         />
