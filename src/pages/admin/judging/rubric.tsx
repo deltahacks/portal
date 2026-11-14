@@ -219,6 +219,7 @@ const RubricPage: NextPage = () => {
                       </label>
                       <input
                         type="number"
+                        onWheel={(e) => e.currentTarget.blur()}
                         {...register("points", {
                           required: true,
                           min: 0,
