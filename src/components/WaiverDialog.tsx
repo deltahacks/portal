@@ -5,15 +5,18 @@ import type { Waiver } from "../data/rsvpWaivers";
 // for sub-pixel rounding and zoom levels.
 const SCROLL_END_TOLERANCE = 8;
 
+// Width (in CSS px) pages are rendered at. The canvases are scaled down to
+// fit the popup, so this only needs to be at least as wide as the popup.
+const PAGE_RENDER_WIDTH = 720;
+
 type PdfState = "loading" | "ready" | "error";
 
-// Renders every page of a PDF as a canvas inside `container`. pdf.js is
-// loaded on demand so it isn't part of the dashboard bundle.
-const renderPdf = async (
-  url: string,
-  container: HTMLDivElement,
-  isCancelled: () => boolean,
-) => {
+// Rendered pages for each PDF URL. Waivers are rendered once, in the
+// background, so opening the popup shows them straight away.
+const renderedPages = new Map<string, HTMLCanvasElement[]>();
+const pendingRenders = new Map<string, Promise<HTMLCanvasElement[]>>();
+
+const renderPdfPages = async (url: string) => {
   // Importing the worker module registers it on globalThis, so pdf.js parses
   // on the main thread. The waivers are a few pages, so this is fast enough
   // and avoids having to serve a separate worker file.
@@ -26,13 +29,11 @@ const renderPdf = async (
   try {
     const pdf = await loadingTask.promise;
     const pixelRatio = window.devicePixelRatio || 1;
+    const canvases: HTMLCanvasElement[] = [];
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-      if (isCancelled()) return;
       const page = await pdf.getPage(pageNumber);
-      // Scale the page to the container width, rendering at device
-      // resolution so the text stays sharp.
-      const cssScale =
-        container.clientWidth / page.getViewport({ scale: 1 }).width;
+      // Render at device resolution so the text stays sharp.
+      const cssScale = PAGE_RENDER_WIDTH / page.getViewport({ scale: 1 }).width;
       const viewport = page.getViewport({ scale: cssScale * pixelRatio });
 
       const canvas = document.createElement("canvas");
@@ -44,36 +45,71 @@ const renderPdf = async (
         `Page ${pageNumber} of ${pdf.numPages}`,
       );
       await page.render({ canvas, viewport }).promise;
-      if (isCancelled()) return;
-      container.appendChild(canvas);
+      canvases.push(canvas);
     }
+    return canvases;
   } finally {
     await loadingTask.destroy();
   }
 };
 
+const loadWaiverPages = (url: string) => {
+  let pending = pendingRenders.get(url);
+  if (!pending) {
+    pending = renderPdfPages(url).then(
+      (canvases) => {
+        renderedPages.set(url, canvases);
+        return canvases;
+      },
+      (error: unknown) => {
+        // Let a later attempt try again.
+        pendingRenders.delete(url);
+        throw error;
+      },
+    );
+    pendingRenders.set(url, pending);
+  }
+  return pending;
+};
+
 type WaiverDialogProps = {
-  waiver: Waiver | null;
+  waivers: Waiver[];
+  openWaiverId: string | null;
   onAccept: (waiverId: string) => void;
   onClose: () => void;
 };
 
 // Shows a waiver PDF in a modal. Accept stays disabled until the hacker has
 // scrolled to the bottom of the document.
-const WaiverDialog = ({ waiver, onAccept, onClose }: WaiverDialogProps) => {
+const WaiverDialog = ({
+  waivers,
+  openWaiverId,
+  onAccept,
+  onClose,
+}: WaiverDialogProps) => {
   const dialogRef = React.useRef<HTMLDialogElement | null>(null);
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const pagesRef = React.useRef<HTMLDivElement | null>(null);
   const [pdfState, setPdfState] = React.useState<PdfState>("loading");
   const [reachedEnd, setReachedEnd] = React.useState(false);
-  // Tracks whether the current PDF has finished rendering. A ref rather than
-  // state, so a scroll event that fires while the previous waiver is being
-  // cleared can't read a stale "ready" value and count an empty box as read.
-  const pdfRenderedRef = React.useRef(false);
+  // Tracks whether the current PDF is showing. A ref rather than state, so a
+  // scroll event that fires while the previous waiver is being cleared can't
+  // read a stale "ready" value and count an empty box as read.
+  const pdfShownRef = React.useRef(false);
+  const waiver = waivers.find(({ id }) => id === openWaiverId) ?? null;
+
+  // Render every waiver in the background as soon as the dialog mounts.
+  React.useEffect(() => {
+    for (const { pdfUrl } of waivers) {
+      loadWaiverPages(pdfUrl).catch(() => {
+        // Shown as an error if the hacker opens this waiver.
+      });
+    }
+  }, [waivers]);
 
   const checkReachedEnd = React.useCallback(() => {
     const scroller = scrollRef.current;
-    if (!scroller || !pdfRenderedRef.current) return;
+    if (!scroller || !pdfShownRef.current) return;
     if (
       scroller.scrollTop + scroller.clientHeight >=
       scroller.scrollHeight - SCROLL_END_TOLERANCE
@@ -93,24 +129,33 @@ const WaiverDialog = ({ waiver, onAccept, onClose }: WaiverDialogProps) => {
     }
 
     let cancelled = false;
-    pdfRenderedRef.current = false;
+    const showPages = (canvases: HTMLCanvasElement[]) => {
+      pages.replaceChildren(...canvases);
+      if (scrollRef.current) scrollRef.current.scrollTop = 0;
+      pdfShownRef.current = true;
+      setPdfState("ready");
+      // A document short enough to fit without scrolling has been seen.
+      requestAnimationFrame(checkReachedEnd);
+    };
+
+    pdfShownRef.current = false;
     setReachedEnd(false);
-    setPdfState("loading");
     pages.replaceChildren();
     if (!dialog.open) dialog.showModal();
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
 
-    renderPdf(waiver.pdfUrl, pages, () => cancelled)
-      .then(() => {
-        if (cancelled) return;
-        pdfRenderedRef.current = true;
-        setPdfState("ready");
-        // A document short enough to fit without scrolling has been seen.
-        requestAnimationFrame(checkReachedEnd);
-      })
-      .catch(() => {
-        if (!cancelled) setPdfState("error");
-      });
+    const rendered = renderedPages.get(waiver.pdfUrl);
+    if (rendered) {
+      showPages(rendered);
+    } else {
+      setPdfState("loading");
+      loadWaiverPages(waiver.pdfUrl)
+        .then((canvases) => {
+          if (!cancelled) showPages(canvases);
+        })
+        .catch(() => {
+          if (!cancelled) setPdfState("error");
+        });
+    }
 
     return () => {
       cancelled = true;
@@ -144,42 +189,22 @@ const WaiverDialog = ({ waiver, onAccept, onClose }: WaiverDialogProps) => {
               Loading waiver...
             </p>
           )}
-          {pdfState === "error" && waiver && (
+          {pdfState === "error" && (
             <p className="p-4 text-sm text-error" role="alert">
-              We couldn{"'"}t display this waiver.{" "}
-              <a
-                href={waiver.pdfUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="underline"
-              >
-                Open the PDF
-              </a>{" "}
-              and try again later.
+              We couldn{"'"}t load this waiver. Please refresh the page and try
+              again.
             </p>
           )}
           <div ref={pagesRef} className="flex flex-col gap-2" />
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 text-sm">
-          <p
-            className="text-neutral-500 dark:text-neutral-400"
-            aria-live="polite"
-          >
-            {canAccept
-              ? "Thanks for reading. You can now accept this waiver."
-              : "Scroll to the bottom of the waiver to accept it."}
-          </p>
-          {waiver && (
-            <a
-              href={waiver.pdfUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sky-400 underline"
-            >
-              Open PDF in new tab
-            </a>
-          )}
-        </div>
+        <p
+          className="pt-3 text-sm text-neutral-500 dark:text-neutral-400"
+          aria-live="polite"
+        >
+          {canAccept
+            ? "Thanks for reading. You can now accept this waiver."
+            : "Scroll to the bottom of the waiver to accept it."}
+        </p>
         <div className="modal-action">
           <div className="flex gap-5">
             <button

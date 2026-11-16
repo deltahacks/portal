@@ -21,11 +21,7 @@ import { dietaryRestrictionOptions, rsvpSchema } from "../schemas/application";
 import type { SelectChoice } from "../data/applicationSelectData";
 import QRCode from "react-qr-code";
 import WaiverDialog from "../components/WaiverDialog";
-import {
-  rsvpConsentClosing,
-  rsvpConsentIntro,
-  rsvpWaivers,
-} from "../data/rsvpWaivers";
+import { rsvpWaivers } from "../data/rsvpWaivers";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -112,8 +108,6 @@ const Accepted: React.FC<AcceptedProps> = ({
     () => new Set(),
   );
   const [openWaiverId, setOpenWaiverId] = React.useState<string | null>(null);
-  const openWaiver =
-    rsvpWaivers.find((waiver) => waiver.id === openWaiverId) ?? null;
   const acceptedAllWaivers = rsvpWaivers.every((waiver) =>
     acceptedWaivers.has(waiver.id),
   );
@@ -321,24 +315,7 @@ const Accepted: React.FC<AcceptedProps> = ({
             )}
           </div>
           <div className="py-4">
-            <p className="font-normal dark:text-white">
-              Waivers{" "}
-              <span className="text-neutral-500 dark:text-neutral-400">
-                (Required)
-              </span>
-            </p>
-            <div className="mt-2 flex max-h-48 flex-col gap-2 overflow-y-auto rounded-lg border border-neutral-300 p-3 text-sm text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
-              {rsvpConsentIntro.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-              <ul className="list-disc pl-5">
-                {rsvpWaivers.map((waiver) => (
-                  <li key={waiver.id}>{waiver.eventName}</li>
-                ))}
-              </ul>
-              <p>{rsvpConsentClosing}</p>
-            </div>
-            <p className="pt-3 text-sm text-neutral-600 dark:text-neutral-300">
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">
               Click Read to open each waiver. You can accept it once you
               {"'"}ve scrolled to the end.
             </p>
@@ -408,7 +385,8 @@ const Accepted: React.FC<AcceptedProps> = ({
       </dialog>
 
       <WaiverDialog
-        waiver={openWaiver}
+        waivers={rsvpWaivers}
+        openWaiverId={openWaiverId}
         onAccept={(waiverId) => {
           setReadWaivers((current) => new Set(current).add(waiverId));
           setWaiverAccepted(waiverId, true);
