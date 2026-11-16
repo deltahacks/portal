@@ -20,7 +20,7 @@ import CustomSelect from "../components/CustomSelect";
 import { dietaryRestrictionOptions, rsvpSchema } from "../schemas/application";
 import type { SelectChoice } from "../data/applicationSelectData";
 import QRCode from "react-qr-code";
-import WaiverDialog from "../components/WaiverDialog";
+import WaiverDialog, { preloadWaivers } from "../components/WaiverDialog";
 import { rsvpWaivers } from "../data/rsvpWaivers";
 
 interface TimeUntilStartInterface {
@@ -181,6 +181,7 @@ const Accepted: React.FC<AcceptedProps> = ({
         <Button
           onClick={() => {
             setRsvpError(null);
+            preloadWaivers(rsvpWaivers);
             rsvpDialogRef.current?.showModal();
           }}
           className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none text-base font-medium capitalize"

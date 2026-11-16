@@ -17,18 +17,21 @@ const renderedPages = new Map<string, HTMLElement[]>();
 const pendingRenders = new Map<string, Promise<HTMLElement[]>>();
 
 const renderPdfPages = async (url: string) => {
-  // Importing the worker module registers it on globalThis, so pdf.js parses
-  // on the main thread. The waivers are a few pages, so this is fast enough
-  // and avoids having to serve a separate worker file.
+  // The legacy build supports older browsers (e.g. Safari before 18.2); the
+  // modern build relies on Promise.try and fails there, which would block the
+  // RSVP. Importing the worker module registers it on globalThis, so pdf.js
+  // parses on the main thread. The waivers are a few pages, so this is fast
+  // enough and avoids having to serve a separate worker file.
   const [pdfjs] = await Promise.all([
-    import("pdfjs-dist"),
-    import("pdfjs-dist/build/pdf.worker.min.mjs"),
+    import("pdfjs-dist/legacy/build/pdf.mjs"),
+    import("pdfjs-dist/legacy/build/pdf.worker.min.mjs"),
   ]);
 
   const loadingTask = pdfjs.getDocument({ url });
   try {
     const pdf = await loadingTask.promise;
-    const pixelRatio = window.devicePixelRatio || 1;
+    // Capped at 2x to keep the cached canvases' memory reasonable on phones.
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
     const pages: HTMLElement[] = [];
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
       const page = await pdf.getPage(pageNumber);
@@ -91,6 +94,16 @@ const loadWaiverPages = (url: string) => {
   return pending;
 };
 
+// Starts rendering the waivers in the background (call when the RSVP modal
+// opens), so each waiver shows as soon as its popup opens.
+export const preloadWaivers = (waivers: Waiver[]) => {
+  for (const { pdfUrl } of waivers) {
+    loadWaiverPages(pdfUrl).catch(() => {
+      // Shown as an error if the hacker opens this waiver.
+    });
+  }
+};
+
 type WaiverDialogProps = {
   waivers: Waiver[];
   openWaiverId: string | null;
@@ -115,16 +128,9 @@ const WaiverDialog = ({
   // scroll event that fires while the previous waiver is being cleared can't
   // read a stale "ready" value and count an empty box as read.
   const pdfShownRef = React.useRef(false);
+  // Bumped by the Retry button to load the open waiver again.
+  const [loadAttempt, setLoadAttempt] = React.useState(0);
   const waiver = waivers.find(({ id }) => id === openWaiverId) ?? null;
-
-  // Render every waiver in the background as soon as the dialog mounts.
-  React.useEffect(() => {
-    for (const { pdfUrl } of waivers) {
-      loadWaiverPages(pdfUrl).catch(() => {
-        // Shown as an error if the hacker opens this waiver.
-      });
-    }
-  }, [waivers]);
 
   const checkReachedEnd = React.useCallback(() => {
     const scroller = scrollRef.current;
@@ -179,7 +185,19 @@ const WaiverDialog = ({
     return () => {
       cancelled = true;
     };
-  }, [waiver, checkReachedEnd]);
+  }, [waiver, loadAttempt, checkReachedEnd]);
+
+  // Resizing or zooming can make the waiver fit without scrolling, which
+  // fires no scroll event, so check again whenever the box changes size.
+  React.useEffect(() => {
+    const scroller = scrollRef.current;
+    const pages = pagesRef.current;
+    if (!scroller || !pages || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(checkReachedEnd);
+    observer.observe(scroller);
+    observer.observe(pages);
+    return () => observer.disconnect();
+  }, [checkReachedEnd]);
 
   const canAccept = pdfState === "ready" && reachedEnd;
 
@@ -210,8 +228,14 @@ const WaiverDialog = ({
           )}
           {pdfState === "error" && (
             <p className="p-4 text-sm text-error" role="alert">
-              We couldn{"'"}t load this waiver. Please refresh the page and try
-              again.
+              We couldn{"'"}t load this waiver.{" "}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+              >
+                Try again
+              </button>
             </p>
           )}
           <div ref={pagesRef} className="flex flex-col gap-2" />
