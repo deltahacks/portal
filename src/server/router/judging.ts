@@ -207,12 +207,10 @@ export const projectRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.JUDGE)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.JUDGE)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -464,12 +462,10 @@ export const judgingRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.JUDGE)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.JUDGE)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       // Get current dhYear from Config
@@ -538,12 +534,10 @@ export const judgingRouter = router({
   getProjectScores: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.JUDGE)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.JUDGE)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       const result = await ctx.prisma.judgingResult.findUnique({
@@ -592,12 +586,10 @@ export const judgingRouter = router({
   getRubricQuestions: protectedProcedure
     .input(z.object({ trackId: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.JUDGE)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.JUDGE)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.prisma.rubricQuestion.findMany({
@@ -802,12 +794,10 @@ export const timeSlotRouter = router({
   getTableTimeSlots: protectedProcedure
     .input(z.object({ tableId: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (
-        !(
-          ctx.session.user.role.includes(Role.ADMIN) ||
-          ctx.session.user.role.includes(Role.JUDGE)
-        )
-      ) {
+      if (!(
+        ctx.session.user.role.includes(Role.ADMIN) ||
+        ctx.session.user.role.includes(Role.JUDGE)
+      )) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
@@ -1080,12 +1070,10 @@ export const timeSlotRouter = router({
       };
     }),
   getAllTimeSlots: protectedProcedure.query(async ({ ctx }) => {
-    if (
-      !(
-        ctx.session.user.role.includes(Role.ADMIN) ||
-        ctx.session.user.role.includes(Role.JUDGE)
-      )
-    ) {
+    if (!(
+      ctx.session.user.role.includes(Role.ADMIN) ||
+      ctx.session.user.role.includes(Role.JUDGE)
+    )) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
