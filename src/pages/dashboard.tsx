@@ -20,6 +20,12 @@ import CustomSelect from "../components/CustomSelect";
 import { dietaryRestrictionOptions, rsvpSchema } from "../schemas/application";
 import type { SelectChoice } from "../data/applicationSelectData";
 import QRCode from "react-qr-code";
+import WaiverDialog from "../components/WaiverDialog";
+import {
+  rsvpConsentClosing,
+  rsvpConsentIntro,
+  rsvpWaivers,
+} from "../data/rsvpWaivers";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -97,7 +103,27 @@ const Accepted: React.FC<AcceptedProps> = ({
   });
 
   const [shareResume, setShareResume] = React.useState(false);
-  const [acceptedWaiver, setAcceptedWaiver] = React.useState(false);
+  // Waivers the hacker has scrolled through in the popup (can now be checked)
+  // and waivers they currently have checked.
+  const [readWaivers, setReadWaivers] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const [acceptedWaivers, setAcceptedWaivers] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const [openWaiverId, setOpenWaiverId] = React.useState<string | null>(null);
+  const openWaiver =
+    rsvpWaivers.find((waiver) => waiver.id === openWaiverId) ?? null;
+  const acceptedAllWaivers = rsvpWaivers.every((waiver) =>
+    acceptedWaivers.has(waiver.id),
+  );
+  const setWaiverAccepted = (waiverId: string, accepted: boolean) =>
+    setAcceptedWaivers((current) => {
+      const next = new Set(current);
+      if (accepted) next.add(waiverId);
+      else next.delete(waiverId);
+      return next;
+    });
   const [dietaryRestrictions, setDietaryRestrictions] = React.useState<
     DietaryRestriction[]
   >(() => initialDietaryRestrictions.filter(isDietaryRestriction));
@@ -117,7 +143,7 @@ const Accepted: React.FC<AcceptedProps> = ({
       : initialDietaryRestrictions,
     dietaryRestrictionOther,
   });
-  const canConfirmRsvp = acceptedWaiver && rsvpValidation.success;
+  const canConfirmRsvp = acceptedAllWaivers && rsvpValidation.success;
   // Only surface field errors once the hacker has edited their dietary
   // restrictions, so the modal doesn't open with errors already showing.
   const getDietaryFieldError = (
@@ -294,22 +320,60 @@ const Accepted: React.FC<AcceptedProps> = ({
               </p>
             )}
           </div>
-          <div className="flex items-center gap-4 py-4">
-            <Checkbox
-              id="acceptWaiver"
-              checked={acceptedWaiver}
-              onCheckedChange={(checked) => setAcceptedWaiver(!!checked)}
-              className="w-6 h-6"
-            />
-            <label
-              htmlFor="acceptWaiver"
-              className="font-normal dark:text-white lg:leading-tight"
-            >
-              Accept the waiver{" "}
+          <div className="py-4">
+            <p className="font-normal dark:text-white">
+              Waivers{" "}
               <span className="text-neutral-500 dark:text-neutral-400">
                 (Required)
               </span>
-            </label>
+            </p>
+            <div className="mt-2 flex max-h-48 flex-col gap-2 overflow-y-auto rounded-lg border border-neutral-300 p-3 text-sm text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+              {rsvpConsentIntro.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+              <ul className="list-disc pl-5">
+                {rsvpWaivers.map((waiver) => (
+                  <li key={waiver.id}>{waiver.eventName}</li>
+                ))}
+              </ul>
+              <p>{rsvpConsentClosing}</p>
+            </div>
+            <p className="pt-3 text-sm text-neutral-600 dark:text-neutral-300">
+              Click Read to open each waiver. You can accept it once you
+              {"'"}ve scrolled to the end.
+            </p>
+            <ul className="flex flex-col gap-3 pt-3">
+              {rsvpWaivers.map((waiver) => {
+                const checkboxId = `acceptWaiver-${waiver.id}`;
+                const hasRead = readWaivers.has(waiver.id);
+                return (
+                  <li key={waiver.id} className="flex items-center gap-4">
+                    <Checkbox
+                      id={checkboxId}
+                      checked={acceptedWaivers.has(waiver.id)}
+                      disabled={!hasRead}
+                      onCheckedChange={(checked) =>
+                        setWaiverAccepted(waiver.id, !!checked)
+                      }
+                      className="w-6 h-6"
+                    />
+                    <label
+                      htmlFor={checkboxId}
+                      className="flex-1 font-normal dark:text-white lg:leading-tight"
+                    >
+                      I have read and accept the {waiver.title}
+                    </label>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline normal-case dark:text-white"
+                      onClick={() => setOpenWaiverId(waiver.id)}
+                    >
+                      {hasRead ? "View" : "Read"}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           <div className="modal-action">
             <div className="flex gap-5">
@@ -318,7 +382,7 @@ const Accepted: React.FC<AcceptedProps> = ({
                 className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-600 dark:disabled:text-zinc-400"
                 disabled={!canConfirmRsvp || doRsvp.isPending}
                 onClick={async () => {
-                  if (!acceptedWaiver || !rsvpValidation.success) return;
+                  if (!acceptedAllWaivers || !rsvpValidation.success) return;
                   setRsvpError(null);
 
                   try {
@@ -342,6 +406,15 @@ const Accepted: React.FC<AcceptedProps> = ({
           </div>
         </div>
       </dialog>
+
+      <WaiverDialog
+        waiver={openWaiver}
+        onAccept={(waiverId) => {
+          setReadWaivers((current) => new Set(current).add(waiverId));
+          setWaiverAccepted(waiverId, true);
+        }}
+        onClose={() => setOpenWaiverId(null)}
+      />
 
       {/* <Button>
           <Link className="w-full md:w-48" href="/schedule">
