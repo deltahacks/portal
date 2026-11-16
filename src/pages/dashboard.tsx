@@ -20,6 +20,8 @@ import CustomSelect from "../components/CustomSelect";
 import { dietaryRestrictionOptions, rsvpSchema } from "../schemas/application";
 import type { SelectChoice } from "../data/applicationSelectData";
 import QRCode from "react-qr-code";
+import WaiverDialog, { preloadWaivers } from "../components/WaiverDialog";
+import { rsvpWaivers } from "../data/rsvpWaivers";
 
 interface TimeUntilStartInterface {
   hms: [h: number, m: number, s: number];
@@ -97,6 +99,25 @@ const Accepted: React.FC<AcceptedProps> = ({
   });
 
   const [shareResume, setShareResume] = React.useState(false);
+  // Waivers the hacker has scrolled through in the popup (can now be checked)
+  // and waivers they currently have checked.
+  const [readWaivers, setReadWaivers] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const [acceptedWaivers, setAcceptedWaivers] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const [openWaiverId, setOpenWaiverId] = React.useState<string | null>(null);
+  const acceptedAllWaivers = rsvpWaivers.every((waiver) =>
+    acceptedWaivers.has(waiver.id),
+  );
+  const setWaiverAccepted = (waiverId: string, accepted: boolean) =>
+    setAcceptedWaivers((current) => {
+      const next = new Set(current);
+      if (accepted) next.add(waiverId);
+      else next.delete(waiverId);
+      return next;
+    });
   const [dietaryRestrictions, setDietaryRestrictions] = React.useState<
     DietaryRestriction[]
   >(() => initialDietaryRestrictions.filter(isDietaryRestriction));
@@ -108,6 +129,27 @@ const Accepted: React.FC<AcceptedProps> = ({
   const rsvpDialogRef = useRef<HTMLDialogElement | null>(null);
   const legacyDietaryRestrictions = initialDietaryRestrictions.filter(
     (restriction) => !isDietaryRestriction(restriction),
+  );
+  const rsvpValidation = rsvpSchema.safeParse({
+    rsvpCheck: shareResume,
+    dietaryRestrictions: dietaryRestrictionsChanged
+      ? dietaryRestrictions
+      : initialDietaryRestrictions,
+    dietaryRestrictionOther,
+  });
+  const canConfirmRsvp = acceptedAllWaivers && rsvpValidation.success;
+  // Only surface field errors once the hacker has edited their dietary
+  // restrictions, so the modal doesn't open with errors already showing.
+  const getDietaryFieldError = (
+    field: "dietaryRestrictions" | "dietaryRestrictionOther",
+  ) =>
+    dietaryRestrictionsChanged && !rsvpValidation.success
+      ? rsvpValidation.error.issues.find((issue) => issue.path[0] === field)
+          ?.message
+      : undefined;
+  const dietaryRestrictionsError = getDietaryFieldError("dietaryRestrictions");
+  const dietaryRestrictionOtherError = getDietaryFieldError(
+    "dietaryRestrictionOther",
   );
 
   return (
@@ -139,6 +181,7 @@ const Accepted: React.FC<AcceptedProps> = ({
         <Button
           onClick={() => {
             setRsvpError(null);
+            preloadWaivers(rsvpWaivers);
             rsvpDialogRef.current?.showModal();
           }}
           className="btn btn-primary bg-primary dark:bg-primary hover:hover:bg-[#7380ff] dark:hover:bg-[#646EE5] dark:text-white w-48 border-none text-base font-medium capitalize"
@@ -224,6 +267,11 @@ const Accepted: React.FC<AcceptedProps> = ({
               isMulti={true}
               inputId="dietaryRestrictions"
             />
+            {dietaryRestrictionsError && (
+              <p className="pt-2 text-sm text-error">
+                {dietaryRestrictionsError}
+              </p>
+            )}
             {!dietaryRestrictionsChanged &&
               legacyDietaryRestrictions.length > 0 && (
                 <p className="pt-2 text-sm text-neutral-600 dark:text-neutral-300">
@@ -254,6 +302,11 @@ const Accepted: React.FC<AcceptedProps> = ({
                   className="w-full text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
                   placeholder="Please specify"
                 />
+                {dietaryRestrictionOtherError && (
+                  <p className="pt-2 text-sm text-error">
+                    {dietaryRestrictionOtherError}
+                  </p>
+                )}
               </div>
             )}
             {rsvpError && (
@@ -262,28 +315,56 @@ const Accepted: React.FC<AcceptedProps> = ({
               </p>
             )}
           </div>
+          <div className="py-4">
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">
+              Click Read to open each waiver. You can accept it once you
+              {"'"}ve scrolled to the end.
+            </p>
+            <ul className="flex flex-col gap-3 pt-3">
+              {rsvpWaivers.map((waiver) => {
+                const checkboxId = `acceptWaiver-${waiver.id}`;
+                const hasRead = readWaivers.has(waiver.id);
+                return (
+                  <li key={waiver.id} className="flex items-center gap-4">
+                    <Checkbox
+                      id={checkboxId}
+                      checked={acceptedWaivers.has(waiver.id)}
+                      disabled={!hasRead}
+                      onCheckedChange={(checked) =>
+                        setWaiverAccepted(waiver.id, !!checked)
+                      }
+                      className="w-6 h-6"
+                    />
+                    <label
+                      htmlFor={checkboxId}
+                      className="flex-1 font-normal dark:text-white lg:leading-tight"
+                    >
+                      I have read and accept the {waiver.title}
+                    </label>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline normal-case dark:text-white"
+                      onClick={() => setOpenWaiverId(waiver.id)}
+                    >
+                      {hasRead ? "View" : "Read"}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <div className="modal-action">
             <div className="flex gap-5">
               <button
                 type="button"
-                className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize"
-                disabled={doRsvp.isPending}
+                className="btn btn-primary dark:bg-primary dark:text-white border-none text-base font-medium capitalize disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-600 dark:disabled:text-zinc-400"
+                disabled={!canConfirmRsvp || doRsvp.isPending}
                 onClick={async () => {
+                  if (!acceptedAllWaivers || !rsvpValidation.success) return;
                   setRsvpError(null);
-                  const result = rsvpSchema.safeParse({
-                    rsvpCheck: shareResume,
-                    dietaryRestrictions: dietaryRestrictionsChanged
-                      ? dietaryRestrictions
-                      : initialDietaryRestrictions,
-                    dietaryRestrictionOther,
-                  });
-                  if (!result.success) {
-                    setRsvpError(getRsvpErrorMessage(result.error));
-                    return;
-                  }
 
                   try {
-                    await doRsvp.mutateAsync(result.data);
+                    await doRsvp.mutateAsync(rsvpValidation.data);
                     rsvpDialogRef.current?.close();
                   } catch {
                     // The mutation's onError handler shows the error in the dialog.
@@ -303,6 +384,16 @@ const Accepted: React.FC<AcceptedProps> = ({
           </div>
         </div>
       </dialog>
+
+      <WaiverDialog
+        waivers={rsvpWaivers}
+        openWaiverId={openWaiverId}
+        onAccept={(waiverId) => {
+          setReadWaivers((current) => new Set(current).add(waiverId));
+          setWaiverAccepted(waiverId, true);
+        }}
+        onClose={() => setOpenWaiverId(null)}
+      />
 
       {/* <Button>
           <Link className="w-full md:w-48" href="/schedule">
