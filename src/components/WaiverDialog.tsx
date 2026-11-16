@@ -13,8 +13,8 @@ type PdfState = "loading" | "ready" | "error";
 
 // Rendered pages for each PDF URL. Waivers are rendered once, in the
 // background, so opening the popup shows them straight away.
-const renderedPages = new Map<string, HTMLCanvasElement[]>();
-const pendingRenders = new Map<string, Promise<HTMLCanvasElement[]>>();
+const renderedPages = new Map<string, HTMLElement[]>();
+const pendingRenders = new Map<string, Promise<HTMLElement[]>>();
 
 const renderPdfPages = async (url: string) => {
   // Importing the worker module registers it on globalThis, so pdf.js parses
@@ -29,7 +29,7 @@ const renderPdfPages = async (url: string) => {
   try {
     const pdf = await loadingTask.promise;
     const pixelRatio = window.devicePixelRatio || 1;
-    const canvases: HTMLCanvasElement[] = [];
+    const pages: HTMLElement[] = [];
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
       const page = await pdf.getPage(pageNumber);
       // Render at device resolution so the text stays sharp.
@@ -40,14 +40,33 @@ const renderPdfPages = async (url: string) => {
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       canvas.className = "block w-full h-auto bg-white";
-      canvas.setAttribute(
+      // The canvas is only a picture of the page, so screen readers get the
+      // page's text from the PDF instead (visually hidden, below).
+      canvas.setAttribute("aria-hidden", "true");
+
+      const [, textContent] = await Promise.all([
+        page.render({ canvas, viewport }).promise,
+        page.getTextContent(),
+      ]);
+      const pageText = document.createElement("div");
+      pageText.className = "sr-only";
+      pageText.textContent = textContent.items
+        .map((item) =>
+          "str" in item ? item.str + (item.hasEOL ? "\n" : "") : "",
+        )
+        .join("");
+
+      const pageWrapper = document.createElement("div");
+      pageWrapper.className = "relative";
+      pageWrapper.setAttribute("role", "group");
+      pageWrapper.setAttribute(
         "aria-label",
         `Page ${pageNumber} of ${pdf.numPages}`,
       );
-      await page.render({ canvas, viewport }).promise;
-      canvases.push(canvas);
+      pageWrapper.append(canvas, pageText);
+      pages.push(pageWrapper);
     }
-    return canvases;
+    return pages;
   } finally {
     await loadingTask.destroy();
   }
@@ -57,9 +76,9 @@ const loadWaiverPages = (url: string) => {
   let pending = pendingRenders.get(url);
   if (!pending) {
     pending = renderPdfPages(url).then(
-      (canvases) => {
-        renderedPages.set(url, canvases);
-        return canvases;
+      (pages) => {
+        renderedPages.set(url, pages);
+        return pages;
       },
       (error: unknown) => {
         // Let a later attempt try again.
@@ -129,8 +148,8 @@ const WaiverDialog = ({
     }
 
     let cancelled = false;
-    const showPages = (canvases: HTMLCanvasElement[]) => {
-      pages.replaceChildren(...canvases);
+    const showPages = (renderedPdfPages: HTMLElement[]) => {
+      pages.replaceChildren(...renderedPdfPages);
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
       pdfShownRef.current = true;
       setPdfState("ready");
@@ -149,8 +168,8 @@ const WaiverDialog = ({
     } else {
       setPdfState("loading");
       loadWaiverPages(waiver.pdfUrl)
-        .then((canvases) => {
-          if (!cancelled) showPages(canvases);
+        .then((renderedPdfPages) => {
+          if (!cancelled) showPages(renderedPdfPages);
         })
         .catch(() => {
           if (!cancelled) setPdfState("error");
