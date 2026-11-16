@@ -43,31 +43,12 @@ const renderPdfPages = async (url: string) => {
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       canvas.className = "block w-full h-auto bg-white";
-      // The canvas is only a picture of the page, so screen readers get the
-      // page's text from the PDF instead (visually hidden, below).
-      canvas.setAttribute("aria-hidden", "true");
-
-      const [, textContent] = await Promise.all([
-        page.render({ canvas, viewport }).promise,
-        page.getTextContent(),
-      ]);
-      const pageText = document.createElement("div");
-      pageText.className = "sr-only";
-      pageText.textContent = textContent.items
-        .map((item) =>
-          "str" in item ? item.str + (item.hasEOL ? "\n" : "") : "",
-        )
-        .join("");
-
-      const pageWrapper = document.createElement("div");
-      pageWrapper.className = "relative";
-      pageWrapper.setAttribute("role", "group");
-      pageWrapper.setAttribute(
+      canvas.setAttribute(
         "aria-label",
         `Page ${pageNumber} of ${pdf.numPages}`,
       );
-      pageWrapper.append(canvas, pageText);
-      pages.push(pageWrapper);
+      await page.render({ canvas, viewport }).promise;
+      pages.push(canvas);
     }
     return pages;
   } finally {
@@ -240,14 +221,28 @@ const WaiverDialog = ({
           )}
           <div ref={pagesRef} className="flex flex-col gap-2" />
         </div>
-        <p
-          className="pt-3 text-sm text-neutral-500 dark:text-neutral-400"
-          aria-live="polite"
-        >
-          {canAccept
-            ? "Thanks for reading. You can now accept this waiver."
-            : "Scroll to the bottom of the waiver to accept it."}
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 text-sm">
+          <p
+            className="text-neutral-500 dark:text-neutral-400"
+            aria-live="polite"
+          >
+            {canAccept
+              ? "Thanks for reading. You can now accept this waiver."
+              : "Scroll to the bottom of the waiver to accept it."}
+          </p>
+          {/* The pages are drawn on canvases, so this link is the readable
+              version of the waiver for screen readers. */}
+          {waiver && (
+            <a
+              href={waiver.pdfUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sky-400 underline"
+            >
+              Open PDF in new tab
+            </a>
+          )}
+        </div>
         <div className="modal-action">
           <div className="flex gap-5">
             <button
