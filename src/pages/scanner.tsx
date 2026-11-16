@@ -560,11 +560,13 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
                       id: "sleepingBag:borrow",
                       option: "Borrow",
                       name: "sleepingBag",
+                      dhYear: "",
                     },
                     {
                       id: "sleepingBag:return",
                       option: "Return",
                       name: "sleepingBag",
+                      dhYear: "",
                     },
                   ]
                 : stationOptions?.[wizard.station.name] || []

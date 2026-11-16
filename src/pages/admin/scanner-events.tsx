@@ -72,6 +72,9 @@ const StatsCard: React.FC<{
 );
 
 const ScannerEvents: NextPage = () => {
+  const { data: scanYears } = trpc.admin.getScanYears.useQuery();
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const dhYear = selectedYear ?? scanYears?.current;
   const [stationType, setStationType] = useState<"food" | "events" | "">("");
   const [stationId, setStationId] = useState("");
   const [search, setSearch] = useState("");
@@ -89,10 +92,13 @@ const ScannerEvents: NextPage = () => {
 
   // Fetch stats
   const { data: stats, isPending: statsLoading } =
-    trpc.scanner.getEventLogStats.useQuery();
+    trpc.scanner.getEventLogStats.useQuery({ dhYear }, { enabled: !!dhYear });
 
   // Fetch stations for filter dropdown
-  const { data: stations } = trpc.scanner.listStations.useQuery();
+  const { data: stations } = trpc.scanner.listStations.useQuery(
+    { dhYear },
+    { enabled: !!dhYear },
+  );
 
   // Fetch event logs with infinite scroll
   const {
@@ -104,12 +110,14 @@ const ScannerEvents: NextPage = () => {
   } = trpc.scanner.getEventLogs.useInfiniteQuery(
     {
       limit: 50,
+      dhYear,
       stationType: stationType || undefined,
       stationId: stationId || undefined,
       search: debouncedSearch || undefined,
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !!dhYear,
     },
   );
 
@@ -286,6 +294,26 @@ const ScannerEvents: NextPage = () => {
               </div>
             </div>
           )}
+
+          <div className="form-control mb-6 max-w-xs">
+            <label className="label">
+              <span className="label-text">DeltaHacks year</span>
+            </label>
+            <select
+              className="select select-bordered"
+              value={dhYear ?? ""}
+              onChange={(e) => {
+                setSelectedYear(e.target.value);
+                setStationId("");
+              }}
+            >
+              {(scanYears?.years ?? []).map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Filters Section */}
           <div className="card bg-base-200 shadow-xl mb-6">

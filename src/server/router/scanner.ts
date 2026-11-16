@@ -8,6 +8,7 @@ import {
   EquipmentAction,
 } from "@prisma/client";
 import { z } from "zod";
+import { getCurrentScanYear } from "../scan-year";
 
 export const scannerRouter = router({
   getEventLogs: protectedProcedure
@@ -18,6 +19,10 @@ export const scannerRouter = router({
         stationType: z.enum(["food", "events"]).optional(),
         stationId: z.string().optional(),
         search: z.string().optional(),
+        dhYear: z
+          .string()
+          .regex(/^DH\d{1,2}$/)
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -26,15 +31,16 @@ export const scannerRouter = router({
       }
 
       const { limit, cursor, stationType, stationId, search } = input;
+      const dhYear = input.dhYear ?? (await getCurrentScanYear(ctx.prisma));
 
-      const where: Prisma.EventLogWhereInput = {};
+      const where: Prisma.EventLogWhereInput = { station: { dhYear } };
 
       if (stationType) {
-        where.station = { name: stationType };
+        where.station = { dhYear, name: stationType };
       }
 
       if (stationId) {
-        where.stationId = stationId;
+        where.station = { dhYear, id: stationId };
       }
 
       if (search) {
@@ -96,58 +102,87 @@ export const scannerRouter = router({
       };
     }),
 
-  getEventLogStats: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.session.user.role.includes(Role.ADMIN)) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
+  getEventLogStats: protectedProcedure
+    .input(
+      z
+        .object({
+          dhYear: z
+            .string()
+            .regex(/^DH\d{1,2}$/)
+            .optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.role.includes(Role.ADMIN)) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
 
-    const [totalLogs, foodLogs, eventLogs, stationCounts] = await Promise.all([
-      ctx.prisma.eventLog.count(),
-      ctx.prisma.eventLog.count({
-        where: { station: { name: "food" } },
-      }),
-      ctx.prisma.eventLog.count({
-        where: { station: { name: "events" } },
-      }),
-      ctx.prisma.station.findMany({
+      const dhYear = input?.dhYear ?? (await getCurrentScanYear(ctx.prisma));
+      const [totalLogs, foodLogs, eventLogs, stationCounts] = await Promise.all(
+        [
+          ctx.prisma.eventLog.count({ where: { station: { dhYear } } }),
+          ctx.prisma.eventLog.count({
+            where: { station: { dhYear, name: "food" } },
+          }),
+          ctx.prisma.eventLog.count({
+            where: { station: { dhYear, name: "events" } },
+          }),
+          ctx.prisma.station.findMany({
+            where: { dhYear },
+            include: { _count: { select: { eventLogs: true } } },
+            orderBy: { name: "asc" },
+          }),
+        ],
+      );
+
+      return {
+        totalLogs,
+        foodLogs,
+        eventLogs,
+        stationCounts,
+      };
+    }),
+
+  listStations: protectedProcedure
+    .input(
+      z
+        .object({
+          dhYear: z
+            .string()
+            .regex(/^DH\d{1,2}$/)
+            .optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const dhYear = input?.dhYear ?? (await getCurrentScanYear(ctx.prisma));
+      const stations = await ctx.prisma.station.findMany({
+        where: { dhYear },
+        orderBy: { id: "asc" },
         include: { _count: { select: { eventLogs: true } } },
-        orderBy: { name: "asc" },
-      }),
-    ]);
+      });
 
-    return {
-      totalLogs,
-      foodLogs,
-      eventLogs,
-      stationCounts,
-    };
-  }),
+      const grouped = stations.reduce(
+        (acc, station) => {
+          if (!acc[station.name]) {
+            acc[station.name] = [];
+          }
+          acc[station.name]!.push(station);
+          return acc;
+        },
+        {} as Record<string, typeof stations>,
+      );
 
-  listStations: protectedProcedure.query(async ({ ctx }) => {
-    const stations = await ctx.prisma.station.findMany({
-      orderBy: { id: "asc" },
-      include: { _count: { select: { eventLogs: true } } },
-    });
-
-    const grouped = stations.reduce(
-      (acc, station) => {
-        if (!acc[station.name]) {
-          acc[station.name] = [];
-        }
-        acc[station.name]!.push(station);
-        return acc;
-      },
-      {} as Record<string, typeof stations>,
-    );
-
-    return grouped;
-  }),
+      return grouped;
+    }),
 
   getStationOptions: protectedProcedure
     .input(z.object({ name: z.string() }))
     .query(async ({ ctx, input }) => {
+      const dhYear = await getCurrentScanYear(ctx.prisma);
       const stations = await ctx.prisma.station.findMany({
-        where: { name: input.name },
+        where: { name: input.name, dhYear },
         orderBy: { option: "asc" },
       });
       return stations;
@@ -165,11 +200,13 @@ export const scannerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
+      const dhYear = await getCurrentScanYear(ctx.prisma);
       const existing = await ctx.prisma.station.findUnique({
         where: {
-          name_option: {
+          name_option_dhYear: {
             name: input.name,
             option: input.option,
+            dhYear,
           },
         },
       });
@@ -185,6 +222,7 @@ export const scannerRouter = router({
         data: {
           name: input.name,
           option: input.option,
+          dhYear,
         },
       });
     }),
@@ -201,8 +239,9 @@ export const scannerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      const station = await ctx.prisma.station.findUnique({
-        where: { id: input.id },
+      const dhYear = await getCurrentScanYear(ctx.prisma);
+      const station = await ctx.prisma.station.findFirst({
+        where: { id: input.id, dhYear },
       });
 
       if (!station) {
@@ -211,9 +250,10 @@ export const scannerRouter = router({
 
       const existing = await ctx.prisma.station.findUnique({
         where: {
-          name_option: {
+          name_option_dhYear: {
             name: station.name,
             option: input.option,
+            dhYear,
           },
         },
       });
@@ -238,8 +278,9 @@ export const scannerRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
+      const dhYear = await getCurrentScanYear(ctx.prisma);
       return await ctx.prisma.station.delete({
-        where: { id: input.id },
+        where: { id: input.id, dhYear },
       });
     }),
 
@@ -426,8 +467,10 @@ export const scannerRouter = router({
         });
       } else if (stationId.startsWith("sleepingBag")) {
         // Get all sleeping bag logs for this user
+        const dhYear = await getCurrentScanYear(ctx.prisma);
         const logs = await ctx.prisma.equipmentLog.findMany({
           where: {
+            dhYear,
             userId: id,
             type: EquipmentType.SLEEPING_BAG,
           },
@@ -467,6 +510,7 @@ export const scannerRouter = router({
           data: {
             action: action,
             type: EquipmentType.SLEEPING_BAG,
+            dhYear,
             userId: id,
             adminId: ctx.session.user.id,
           },
@@ -478,8 +522,9 @@ export const scannerRouter = router({
             message: "User is not checked in",
           });
         }
-        const station = await ctx.prisma.station.findUnique({
-          where: { id: stationId },
+        const dhYear = await getCurrentScanYear(ctx.prisma);
+        const station = await ctx.prisma.station.findFirst({
+          where: { id: stationId, dhYear },
         });
 
         if (!station) {
