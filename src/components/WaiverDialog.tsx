@@ -43,6 +43,9 @@ const renderPdfPages = async (url: string) => {
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       canvas.className = "block w-full h-auto bg-white";
+      // A canvas has no role by default, so without role="img" screen readers
+      // would ignore its label.
+      canvas.setAttribute("role", "img");
       canvas.setAttribute(
         "aria-label",
         `Page ${pageNumber} of ${pdf.numPages}`,
@@ -200,6 +203,8 @@ const WaiverDialog = ({
           ref={scrollRef}
           onScroll={checkReachedEnd}
           tabIndex={0}
+          role="region"
+          aria-label="Waiver. Scroll to the end, for example with the End key, to enable Accept."
           className="mt-4 h-[55vh] overflow-y-auto rounded-lg border border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900"
         >
           {pdfState === "loading" && (
@@ -213,7 +218,12 @@ const WaiverDialog = ({
               <button
                 type="button"
                 className="underline"
-                onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+                onClick={() => {
+                  setLoadAttempt((attempt) => attempt + 1);
+                  // This button disappears while retrying, so keep keyboard
+                  // focus in the popup instead of losing it.
+                  scrollRef.current?.focus();
+                }}
               >
                 Try again
               </button>
@@ -237,7 +247,7 @@ const WaiverDialog = ({
               href={waiver.pdfUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-sky-400 underline"
+              className="text-sky-700 underline dark:text-sky-400"
             >
               Open PDF in new tab
             </a>
