@@ -332,6 +332,12 @@ const ApplyForm = ({
   console.error("Errors", errors);
 
   const isSecondary = watch("studyEnrolledPostSecondary");
+
+  // The graduation input is hidden when not enrolled, so clear it to avoid a hidden validation error
+  useEffect(() => {
+    if (!isSecondary) setValue("studyExpectedGraduation", null);
+  }, [isSecondary, setValue]);
+
   const selectedDietaryRestrictions = watch("dietaryRestrictions") ?? [];
   const parentGuardianSignatureRequired = requiresParentGuardianSignature(
     watch("birthday"),
