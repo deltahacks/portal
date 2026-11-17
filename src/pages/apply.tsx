@@ -20,8 +20,11 @@ import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import Drawer from "../components/Drawer";
 import applicationSchema, {
+  birthdayMinDate,
   dh13AutofillSchema,
   dietaryRestrictionOptions,
+  graduationMaxDate,
+  graduationMinDate,
   requiresParentGuardianSignature,
 } from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
@@ -423,9 +426,7 @@ const ApplyForm = ({
           </label>
           {errors.birthday && (
             <span className="text-error text-sm">
-              {errors.birthday.message?.includes("years")
-                ? errors.birthday.message
-                : "This field is required"}
+              {errors.birthday.message}
             </span>
           )}
         </div>
@@ -433,6 +434,9 @@ const ApplyForm = ({
           className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
           type="date"
           id="birthdayInput"
+          min={birthdayMinDate}
+          // Today as YYYY-MM-DD
+          max={new Date().toISOString().slice(0, 10)}
           {...register("birthday", { deps: ["parentGuardianSignature"] })}
           placeholder="YYYY-MM-DD"
         />
@@ -607,6 +611,8 @@ const ApplyForm = ({
               className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
               type="date"
               id="studyExpectedGraduationInput"
+              min={graduationMinDate}
+              max={graduationMaxDate}
               {...register("studyExpectedGraduation")}
             />
           </div>
