@@ -101,9 +101,10 @@ model Station {
   id        String     @id @default(cuid())
   name      String
   option    String
+  dhYear    String
   eventLogs EventLog[]
 
-  @@unique([name, option])
+  @@unique([name, option, dhYear])
 }
 
 model VerificationToken {
@@ -438,6 +439,7 @@ enum EquipmentAction {
 
 model EquipmentLog {
   id        String          @id @default(cuid())
+  dhYear    String
   userId    String
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   timestamp DateTime        @default(now())
