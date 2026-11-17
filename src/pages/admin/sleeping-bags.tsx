@@ -11,6 +11,7 @@ import { trpc } from "../../utils/trpc";
 import { FiSearch, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import Head from "next/head";
 import Drawer from "../../components/Drawer";
+import ScanYearsStatus from "../../components/ScanYearsStatus";
 import {
   useReactTable,
   getCoreRowModel,
@@ -103,7 +104,12 @@ const SleepingBags: NextPage = () => {
     return () => clearTimeout(timeoutId);
   };
 
-  const { data: scanYears } = trpc.admin.getScanYears.useQuery();
+  const {
+    data: scanYears,
+    isError: scanYearsError,
+    isFetching: scanYearsFetching,
+    refetch: refetchScanYears,
+  } = trpc.admin.getScanYears.useQuery();
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const dhYear = selectedYear ?? scanYears?.current;
 
@@ -280,6 +286,28 @@ const SleepingBags: NextPage = () => {
 
   const hasActiveFilters = actionFilter || debouncedSearch;
 
+  if (scanYearsError || !scanYears) {
+    return (
+      <>
+        <Head>
+          <title>Sleeping Bags - DeltaHacks</title>
+        </Head>
+        <Drawer>
+          <main className="px-4 py-8 sm:px-7 sm:py-16 lg:px-14 lg:pl-20 mx-auto max-w-6xl">
+            <h1 className="mb-6 sm:mb-8 text-xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl text-center">
+              Sleeping Bag Dashboard
+            </h1>
+            <ScanYearsStatus
+              isError={scanYearsError}
+              isFetching={scanYearsFetching}
+              onRetry={() => void refetchScanYears()}
+            />
+          </main>
+        </Drawer>
+      </>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -292,10 +320,11 @@ const SleepingBags: NextPage = () => {
           </h1>
 
           <div className="form-control mb-6 max-w-xs">
-            <label className="label">
+            <label className="label" htmlFor="sleeping-bags-year">
               <span className="label-text">DeltaHacks year</span>
             </label>
             <select
+              id="sleeping-bags-year"
               className="select select-bordered"
               value={dhYear ?? ""}
               onChange={(e) => setSelectedYear(e.target.value)}

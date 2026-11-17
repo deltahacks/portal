@@ -40,7 +40,7 @@ export const scannerRouter = router({
       }
 
       if (stationId) {
-        where.station = { dhYear, id: stationId };
+        where.stationId = stationId;
       }
 
       if (search) {
