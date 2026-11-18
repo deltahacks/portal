@@ -23,8 +23,7 @@ import applicationSchema, {
   birthdayMinDate,
   dh13AutofillSchema,
   dietaryRestrictionOptions,
-  graduationMaxDate,
-  graduationMinDate,
+  getGraduationRange,
   requiresParentGuardianSignature,
 } from "../schemas/application";
 import CustomSelect from "../components/CustomSelect";
@@ -338,6 +337,7 @@ const ApplyForm = ({
     if (!isSecondary) setValue("studyExpectedGraduation", null);
   }, [isSecondary, setValue]);
 
+  const graduationRange = getGraduationRange();
   const selectedDietaryRestrictions = watch("dietaryRestrictions") ?? [];
   const parentGuardianSignatureRequired = requiresParentGuardianSignature(
     watch("birthday"),
@@ -617,8 +617,8 @@ const ApplyForm = ({
               className="text-black rounded-lg input border-neutral-300 placeholder:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500"
               type="date"
               id="studyExpectedGraduationInput"
-              min={graduationMinDate}
-              max={graduationMaxDate}
+              min={graduationRange.min}
+              max={graduationRange.max}
               {...register("studyExpectedGraduation")}
             />
           </div>

@@ -292,13 +292,17 @@ export const requiresParentGuardianSignature = (birthday: unknown): boolean => {
 
 // Date limits as YYYY-MM-DD strings, shared by the form's date inputs and the schema.
 // Setting min/max on a date input also caps its year segment at 4 digits.
-const today = new Date();
-const currentYear = today.getFullYear();
-const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
 export const birthdayMinDate = "1900-01-01";
+
+// Calculated on every check (UTC, matching YYYY-MM-DD date inputs) so the browser and
+// server agree and the range never goes stale on a long-running server.
 // Applicants enrolled in post-secondary haven't graduated yet, so no past months
-export const graduationMinDate = `${currentYear}-${currentMonth}-01`;
-export const graduationMaxDate = `${currentYear + 10}-12-31`;
+export const getGraduationRange = () => {
+  const today = new Date();
+  const year = today.getUTCFullYear();
+  const month = String(today.getUTCMonth() + 1).padStart(2, "0");
+  return { min: `${year}-${month}-01`, max: `${year + 10}-12-31` };
+};
 
 const dh13BaseSchema = dh12schema
   .omit({
@@ -330,12 +334,16 @@ const dh13BaseSchema = dh12schema
         (value) => (value === "" ? null : value),
         z.coerce
           .date()
-          .min(new Date(graduationMinDate), {
-            error: "Graduation date can't be before this month",
-          })
-          .max(new Date(graduationMaxDate), {
-            error: `Graduation date must be ${currentYear + 10} or earlier`,
-          })
+          .refine(
+            (date) => {
+              const { min, max } = getGraduationRange();
+              return date >= new Date(min) && date <= new Date(max);
+            },
+            {
+              error:
+                "Graduation date must be between this month and 10 years from now",
+            },
+          )
           .nullable(),
       )
       .optional(),
