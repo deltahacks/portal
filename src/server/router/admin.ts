@@ -2,8 +2,38 @@ import { z } from "zod";
 import { Role } from "@prisma/client";
 import { protectedProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
+import { getCurrentScanYear } from "../scan-year";
 
 export const adminRouter = router({
+  getScanYears: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.session.user.role.includes(Role.ADMIN)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+    const [current, stations, equipment] = await Promise.all([
+      getCurrentScanYear(ctx.prisma),
+      ctx.prisma.station.findMany({
+        distinct: ["dhYear"],
+        select: { dhYear: true },
+      }),
+      ctx.prisma.equipmentLog.findMany({
+        distinct: ["dhYear"],
+        select: { dhYear: true },
+      }),
+    ]);
+    return {
+      current,
+      years: Array.from(
+        new Set([
+          current,
+          "DH12",
+          ...stations.map((s) => s.dhYear),
+          ...equipment.map((e) => e.dhYear),
+        ]),
+      )
+        .sort()
+        .reverse(),
+    };
+  }),
   setKillSwitch: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ ctx, input }) => {

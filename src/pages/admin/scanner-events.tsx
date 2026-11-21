@@ -11,6 +11,7 @@ import { trpc } from "../../utils/trpc";
 import { FiSearch, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import Head from "next/head";
 import Drawer from "../../components/Drawer";
+import ScanYearsStatus from "../../components/ScanYearsStatus";
 import {
   useReactTable,
   getCoreRowModel,
@@ -72,6 +73,14 @@ const StatsCard: React.FC<{
 );
 
 const ScannerEvents: NextPage = () => {
+  const {
+    data: scanYears,
+    isError: scanYearsError,
+    isFetching: scanYearsFetching,
+    refetch: refetchScanYears,
+  } = trpc.admin.getScanYears.useQuery();
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const dhYear = selectedYear ?? scanYears?.current;
   const [stationType, setStationType] = useState<"food" | "events" | "">("");
   const [stationId, setStationId] = useState("");
   const [search, setSearch] = useState("");
@@ -89,10 +98,13 @@ const ScannerEvents: NextPage = () => {
 
   // Fetch stats
   const { data: stats, isPending: statsLoading } =
-    trpc.scanner.getEventLogStats.useQuery();
+    trpc.scanner.getEventLogStats.useQuery({ dhYear }, { enabled: !!dhYear });
 
   // Fetch stations for filter dropdown
-  const { data: stations } = trpc.scanner.listStations.useQuery();
+  const { data: stations } = trpc.scanner.listStations.useQuery(
+    { dhYear },
+    { enabled: !!dhYear },
+  );
 
   // Fetch event logs with infinite scroll
   const {
@@ -104,12 +116,14 @@ const ScannerEvents: NextPage = () => {
   } = trpc.scanner.getEventLogs.useInfiniteQuery(
     {
       limit: 50,
+      dhYear,
       stationType: stationType || undefined,
       stationId: stationId || undefined,
       search: debouncedSearch || undefined,
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !!dhYear,
     },
   );
 
@@ -230,6 +244,28 @@ const ScannerEvents: NextPage = () => {
 
   const hasActiveFilters = stationType || stationId || debouncedSearch;
 
+  if (scanYearsError || !scanYears) {
+    return (
+      <>
+        <Head>
+          <title>Scanner Events Log - DeltaHacks</title>
+        </Head>
+        <Drawer>
+          <main className="px-7 py-16 sm:px-14 lg:pl-20 mx-auto max-w-6xl">
+            <h1 className="mb-8 text-2xl font-semibold leading-tight text-black dark:text-white sm:text-3xl lg:text-5xl 2xl:text-6xl text-center">
+              Scanner Events Log
+            </h1>
+            <ScanYearsStatus
+              isError={scanYearsError}
+              isFetching={scanYearsFetching}
+              onRetry={() => void refetchScanYears()}
+            />
+          </main>
+        </Drawer>
+      </>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -286,6 +322,27 @@ const ScannerEvents: NextPage = () => {
               </div>
             </div>
           )}
+
+          <div className="form-control mb-6 max-w-xs">
+            <label className="label" htmlFor="scanner-events-year">
+              <span className="label-text">DeltaHacks year</span>
+            </label>
+            <select
+              id="scanner-events-year"
+              className="select select-bordered"
+              value={dhYear ?? ""}
+              onChange={(e) => {
+                setSelectedYear(e.target.value);
+                setStationId("");
+              }}
+            >
+              {(scanYears?.years ?? []).map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Filters Section */}
           <div className="card bg-base-200 shadow-xl mb-6">
