@@ -290,6 +290,20 @@ export const requiresParentGuardianSignature = (birthday: unknown): boolean => {
   return age <= 18;
 };
 
+// Date limits as YYYY-MM-DD strings, shared by the form's date inputs and the schema.
+// Setting min/max on a date input also caps its year segment at 4 digits.
+export const birthdayMinDate = "1900-01-01";
+
+// Calculated on every check (UTC, matching YYYY-MM-DD date inputs) so the browser and
+// server agree and the range never goes stale on a long-running server.
+// Applicants enrolled in post-secondary haven't graduated yet, so no past months
+export const getGraduationRange = () => {
+  const today = new Date();
+  const year = today.getUTCFullYear();
+  const month = String(today.getUTCMonth() + 1).padStart(2, "0");
+  return { min: `${year}-${month}-01`, max: `${year + 10}-12-31` };
+};
+
 const dh13BaseSchema = dh12schema
   .omit({
     longAnswerHobby: true,
@@ -300,6 +314,39 @@ const dh13BaseSchema = dh12schema
     dietaryRestrictions: true,
   })
   .extend({
+    birthday: z.coerce
+      .date({ error: "This field is required" })
+      .min(new Date(birthdayMinDate), {
+        error: "Please enter a valid birthday",
+      })
+      .refine(
+        (date) => {
+          const now = new Date();
+          const diff = now.getTime() - date.getTime();
+          const age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+          return age >= 13;
+        },
+        { error: "You must be at least 13 years old" },
+      ),
+    studyExpectedGraduation: z
+      .preprocess(
+        // An empty date input submits "", which should count as no answer
+        (value) => (value === "" ? null : value),
+        z.coerce
+          .date()
+          .refine(
+            (date) => {
+              const { min, max } = getGraduationRange();
+              return date >= new Date(min) && date <= new Date(max);
+            },
+            {
+              error:
+                "Graduation date must be between this month and 10 years from now",
+            },
+          )
+          .nullable(),
+      )
+      .optional(),
     previousHackathonsCount: z.preprocess(
       (val) => (val === "6+" ? 6 : val),
       z.coerce.number().int().min(0),
@@ -358,7 +405,11 @@ const dh13BaseSchema = dh12schema
   });
 
 // Previous applications can autofill fields without satisfying submission rules.
-export const dh13AutofillSchema = dh13BaseSchema.partial();
+// Date ranges are skipped so an old out-of-range date doesn't break the whole autofill.
+export const dh13AutofillSchema = dh13BaseSchema.partial().extend({
+  birthday: z.coerce.date().optional(),
+  studyExpectedGraduation: z.coerce.date().nullish(),
+});
 
 export const dh13schema = dh13BaseSchema.refine(
   (data) =>
