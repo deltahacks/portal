@@ -254,6 +254,17 @@ const StationConfig: NextPage = () => {
                 isEditing={updateStation.isPending}
                 isDeleting={deleteStation.isPending}
               />
+              <StationOptionsCard
+                title="Hardware"
+                stationName="hardware"
+                options={stations?.hardware || []}
+                onAdd={handleAdd}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                isAdding={createStation.isPending}
+                isEditing={updateStation.isPending}
+                isDeleting={deleteStation.isPending}
+              />
             </div>
           )}
         </main>

@@ -14,6 +14,7 @@ import { trpc } from "../utils/trpc";
 import { useOfflineQueue } from "../hooks/useOfflineQueue";
 import { z } from "zod";
 import { Input } from "../components/Input";
+import { Checkbox } from "../components/Checkbox";
 import {
   type StationName,
   type WizardState,
@@ -71,6 +72,7 @@ const StationSelection: React.FC<{
     food: boolean;
     events: boolean;
     sleepingBag: boolean;
+    hardware: boolean;
     judges: boolean;
   };
   changeStation: (stationName: StationName) => void;
@@ -116,6 +118,14 @@ const StationSelection: React.FC<{
             Sleeping Bag
           </button>
         )}
+        {stations.hardware && (
+          <button
+            onClick={() => changeStation("hardware")}
+            className="px-6 py-4 rounded-lg font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          >
+            Hardware
+          </button>
+        )}
         {stations.judges && (
           <button
             onClick={() => changeStation("judges")}
@@ -153,6 +163,7 @@ const StationConfigSelection: React.FC<{
         {stationName === "food" && "Which meal are you serving?"}
         {stationName === "events" && "Which event are you scanning for?"}
         {stationName === "sleepingBag" && "Is this a check out or return?"}
+        {stationName === "hardware" && "Is this a sign out or return?"}
       </p>
       <Input
         placeholder="Search for an option"
@@ -180,6 +191,366 @@ const StationConfigSelection: React.FC<{
   );
 };
 
+const HardwareSignOutForm: React.FC<{
+  userId: string;
+  onDone: (message: string) => void;
+  onCancel: () => void;
+}> = ({ userId, onDone, onCancel }) => {
+  const utils = trpc.useUtils();
+  const [items, setItems] = useState<{ name: string; quantity: number }[]>([]);
+  const [newItem, setNewItem] = useState("");
+  const [idCollected, setIdCollected] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const { data: hardwareList } = trpc.scanner.getStationOptions.useQuery({
+    name: "hardware",
+  });
+  const listedNames = new Set(hardwareList?.map((s) => s.option));
+
+  const signOut = trpc.equipment.signOutHardware.useMutation({
+    onSuccess: () => {
+      utils.equipment.getHardwareStatus.invalidate({ userId });
+      onDone("Hardware signed out");
+    },
+  });
+
+  const handleAddItem = () => {
+    const name = newItem.trim();
+    if (!name) return;
+    if (items.some((item) => item.name === name)) {
+      setFormError(`${name} is already added, change its quantity instead`);
+      return;
+    }
+    setItems([...items, { name, quantity: 1 }]);
+    setNewItem("");
+    setFormError(null);
+  };
+
+  const quantitiesValid = items.every(
+    (item) => Number.isInteger(item.quantity) && item.quantity >= 1,
+  );
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Pick from the list or type an item"
+          list="hardware-list"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAddItem();
+          }}
+        />
+        <datalist id="hardware-list">
+          {hardwareList?.map((s) => (
+            <option key={s.id} value={s.option} />
+          ))}
+        </datalist>
+        <button
+          onClick={handleAddItem}
+          disabled={!newItem.trim()}
+          className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:opacity-50"
+        >
+          Add
+        </button>
+      </div>
+
+      {items.length > 0 && (
+        <ul className="flex flex-col gap-2">
+          {items.map((item, index) => (
+            <li key={item.name} className="flex items-center gap-2">
+              <span className="flex-1 text-sm text-neutral-900 dark:text-neutral-100">
+                {item.name}
+                {!listedNames.has(item.name) && (
+                  <span className="ml-2 text-xs italic text-neutral-500 dark:text-neutral-400">
+                    free text
+                  </span>
+                )}
+              </span>
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                className="w-20"
+                aria-label={`${item.name} quantity`}
+                value={item.quantity || ""}
+                onChange={(e) =>
+                  setItems(
+                    items.map((it, i) =>
+                      i === index
+                        ? { ...it, quantity: Number(e.target.value) }
+                        : it,
+                    ),
+                  )
+                }
+              />
+              <button
+                onClick={() => setItems(items.filter((_, i) => i !== index))}
+                className="text-sm text-red-600 dark:text-red-400 hover:underline"
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <label className="flex items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
+        <Checkbox
+          checked={idCollected}
+          onCheckedChange={(checked) => setIdCollected(checked === true)}
+        />
+        ID collected
+      </label>
+
+      <Input
+        placeholder="Notes (optional)"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+
+      {(formError || signOut.error) && (
+        <p className="text-sm text-red-600 dark:text-red-400 text-center">
+          {formError ?? signOut.error?.message}
+        </p>
+      )}
+
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => signOut.mutate({ userId, items, idCollected, notes })}
+          disabled={items.length === 0 || !quantitiesValid || signOut.isPending}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white disabled:opacity-50"
+        >
+          {signOut.isPending ? "Saving..." : "Save"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const HardwareReturnForm: React.FC<{
+  userId: string;
+  outstanding: { name: string; quantity: number }[];
+  idHeld: boolean;
+  onDone: (message: string) => void;
+  onCancel: () => void;
+}> = ({ userId, outstanding, idHeld, onDone, onCancel }) => {
+  const utils = trpc.useUtils();
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [notes, setNotes] = useState("");
+
+  const returnHardware = trpc.equipment.returnHardware.useMutation({
+    onSuccess: ({ allReturned }) => {
+      utils.equipment.getHardwareStatus.invalidate({ userId });
+      onDone(
+        !allReturned
+          ? "Return saved. Remaining hardware is still signed out."
+          : idHeld
+            ? "All hardware returned. The hacker's ID can be given back."
+            : "All hardware returned.",
+      );
+    },
+  });
+
+  const returned = outstanding
+    .map((item) => ({ name: item.name, quantity: quantities[item.name] ?? 0 }))
+    .filter((item) => item.quantity > 0);
+  const quantitiesValid = outstanding.every((item) => {
+    const quantity = quantities[item.name] ?? 0;
+    return (
+      Number.isInteger(quantity) && quantity >= 0 && quantity <= item.quantity
+    );
+  });
+
+  if (outstanding.length === 0) {
+    return (
+      <button
+        onClick={onCancel}
+        className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+      >
+        Back
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+          Returning
+        </span>
+        <button
+          onClick={() =>
+            setQuantities(
+              Object.fromEntries(
+                outstanding.map((item) => [item.name, item.quantity]),
+              ),
+            )
+          }
+          className="text-sm text-primary hover:underline"
+        >
+          Return all
+        </button>
+      </div>
+      <ul className="flex flex-col gap-2">
+        {outstanding.map((item) => (
+          <li key={item.name} className="flex items-center gap-2">
+            <span className="flex-1 text-sm text-neutral-900 dark:text-neutral-100">
+              {item.name}
+            </span>
+            <Input
+              type="number"
+              min={0}
+              max={item.quantity}
+              step={1}
+              className="w-20"
+              aria-label={`${item.name} quantity returned`}
+              value={quantities[item.name] ?? 0}
+              onChange={(e) =>
+                setQuantities({
+                  ...quantities,
+                  [item.name]: Number(e.target.value),
+                })
+              }
+            />
+            <span className="text-sm text-neutral-500 dark:text-neutral-400">
+              / {item.quantity}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <Input
+        placeholder="Notes (optional)"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+
+      {returnHardware.error && (
+        <p className="text-sm text-red-600 dark:text-red-400 text-center">
+          {returnHardware.error.message}
+        </p>
+      )}
+
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() =>
+            returnHardware.mutate({ userId, items: returned, notes })
+          }
+          disabled={
+            returned.length === 0 ||
+            !quantitiesValid ||
+            returnHardware.isPending
+          }
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white disabled:opacity-50"
+        >
+          {returnHardware.isPending ? "Saving..." : "Save"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const HardwarePanel: React.FC<{
+  userId: string;
+  action: "signOut" | "return";
+  onDone: (message: string) => void;
+  onCancel: () => void;
+}> = ({ userId, action, onDone, onCancel }) => {
+  const statusQuery = trpc.equipment.getHardwareStatus.useQuery({ userId });
+
+  if (statusQuery.isPending) {
+    return (
+      <p className="text-center text-neutral-500 dark:text-neutral-400 text-sm">
+        Loading...
+      </p>
+    );
+  }
+
+  if (statusQuery.isError) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-red-600 dark:text-red-400 text-center font-medium">
+          {statusQuery.error.message}
+        </p>
+        <button
+          onClick={onCancel}
+          className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+        >
+          Back
+        </button>
+      </div>
+    );
+  }
+
+  const status = statusQuery.data;
+
+  return (
+    <div className="w-full max-w-md flex flex-col gap-4">
+      <div className="p-4 rounded-lg border border-neutral-300 dark:border-neutral-600">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="min-w-0">
+            <p className="font-medium text-neutral-900 dark:text-neutral-100 truncate">
+              {status.name}
+            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 truncate">
+              {status.email ?? "No email"}
+            </p>
+          </div>
+          {status.idHeld && (
+            <span className="shrink-0 px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+              ID held
+            </span>
+          )}
+        </div>
+        {status.items.length === 0 ? (
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            No hardware signed out
+          </p>
+        ) : (
+          <ul className="text-sm text-neutral-700 dark:text-neutral-300">
+            {status.items.map((item) => (
+              <li key={item.name}>
+                {item.quantity} x {item.name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {action === "signOut" ? (
+        <HardwareSignOutForm
+          userId={userId}
+          onDone={onDone}
+          onCancel={onCancel}
+        />
+      ) : (
+        <HardwareReturnForm
+          userId={userId}
+          outstanding={status.items}
+          idHeld={status.idHeld}
+          onDone={onDone}
+          onCancel={onCancel}
+        />
+      )}
+    </div>
+  );
+};
+
 // Expected error codes from the backend that should not be retried, only network errors should be retried.
 const EXPECTED_ERROR_CODES = new Set([
   "NOT_FOUND",
@@ -197,9 +568,13 @@ const ScannerUI: React.FC<{
   const [mode, setMode] = useState<"camera" | "manual">("camera");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  // Hardware is form-based, so identifying a hacker opens a form instead of scanning immediately
+  const [hardwareUserId, setHardwareUserId] = useState<string | null>(null);
+  const isHardware = station.name === "hardware";
 
   // Reset state when switching modes
   useEffect(() => {
+    setHardwareUserId(null);
     setSearchQuery("");
     setDebouncedSearchQuery("");
     setScanState({ status: "idle" });
@@ -251,6 +626,12 @@ const ScannerUI: React.FC<{
   );
 
   const handleSelectUser = (userId: string) => {
+    if (isHardware) {
+      setScanState({ status: "idle" });
+      setHardwareUserId(userId);
+      setSearchQuery("");
+      return;
+    }
     const stationId = station.stationId!;
     addToQueue({ id: userId, stationId });
     mutateScannedId({ id: userId, stationId });
@@ -310,13 +691,25 @@ const ScannerUI: React.FC<{
         return;
       }
 
+      if (isHardware) {
+        setScanState({ status: "idle" });
+        setHardwareUserId(userId);
+        return;
+      }
+
       const stationId = station.stationId!;
       setScanState({ status: "success" });
 
       addToQueue({ id: userId, stationId });
       mutateScannedId({ id: userId, stationId });
     },
-    [station.stationId, addToQueue, mutateScannedId, scannerMutation],
+    [
+      station.stationId,
+      isHardware,
+      addToQueue,
+      mutateScannedId,
+      scannerMutation,
+    ],
   );
 
   const handleError = useCallback((error: unknown) => {
@@ -328,6 +721,11 @@ const ScannerUI: React.FC<{
         error instanceof Error ? (error.stack ?? error.message) : String(error),
     });
   }, []);
+
+  const closeHardwarePanel = () => {
+    setHardwareUserId(null);
+    lastScannedRef.current = null;
+  };
 
   return (
     <>
@@ -376,7 +774,19 @@ const ScannerUI: React.FC<{
 
       <div className="rounded-md p-6 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 bg-white border">
         <div className="flex flex-col items-center justify-center">
-          {mode === "camera" ? (
+          {hardwareUserId ? (
+            <HardwarePanel
+              userId={hardwareUserId}
+              action={
+                station.stationId === "hardware:return" ? "return" : "signOut"
+              }
+              onDone={(message) => {
+                closeHardwarePanel();
+                setScanState({ status: "success", message });
+              }}
+              onCancel={closeHardwarePanel}
+            />
+          ) : mode === "camera" ? (
             <>
               <div
                 className={clsx(
@@ -477,6 +887,12 @@ const ScannerUI: React.FC<{
               </p>
             )}
 
+            {scanState.status === "success" && scanState.message && (
+              <p className="text-green-600 dark:text-green-400 text-center font-medium">
+                {scanState.message}
+              </p>
+            )}
+
             {scannerMutation.data && (
               <div className="w-full max-w-sm mx-auto p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
                 <div className="flex items-center gap-3 mb-3">
@@ -529,6 +945,7 @@ interface ScannerPageProps {
     food: boolean;
     events: boolean;
     sleepingBag: boolean;
+    hardware: boolean;
     judges: boolean;
   };
 }
@@ -554,20 +971,33 @@ const ScannerPage: NextPage<ScannerPageProps> = ({ availableStations }) => {
           <StationConfigSelection
             stationName={wizard.station.name}
             options={
-              wizard.station.name === "sleepingBag"
+              wizard.station.name === "hardware"
                 ? [
                     {
-                      id: "sleepingBag:borrow",
-                      option: "Borrow",
-                      name: "sleepingBag",
+                      id: "hardware:signOut",
+                      option: "Sign out",
+                      name: "hardware",
                     },
                     {
-                      id: "sleepingBag:return",
+                      id: "hardware:return",
                       option: "Return",
-                      name: "sleepingBag",
+                      name: "hardware",
                     },
                   ]
-                : stationOptions?.[wizard.station.name] || []
+                : wizard.station.name === "sleepingBag"
+                  ? [
+                      {
+                        id: "sleepingBag:borrow",
+                        option: "Borrow",
+                        name: "sleepingBag",
+                      },
+                      {
+                        id: "sleepingBag:return",
+                        option: "Return",
+                        name: "sleepingBag",
+                      },
+                    ]
+                  : stationOptions?.[wizard.station.name] || []
             }
             changeStationOption={(stationId, optionLabel) =>
               dispatch({ type: "SELECT_OPTION", stationId, optionLabel })
@@ -641,6 +1071,9 @@ export const getServerSideProps = async (
     events:
       userRoles.includes(Role.ADMIN) || userRoles.includes(Role.EVENT_MANAGER),
     sleepingBag:
+      userRoles.includes(Role.ADMIN) ||
+      userRoles.includes(Role.GENERAL_SCANNER),
+    hardware:
       userRoles.includes(Role.ADMIN) ||
       userRoles.includes(Role.GENERAL_SCANNER),
     judges: userRoles.includes(Role.ADMIN),

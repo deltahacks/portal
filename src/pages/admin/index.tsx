@@ -129,6 +129,11 @@ const Admin: NextPage = () => {
               description="View sleeping bag checkout status and history"
               href="/admin/sleeping-bags"
             />
+            <AdminCard
+              title="Hardware"
+              description="View hardware sign-out status and history"
+              href="/admin/hardware"
+            />
           </div>
 
           <div className="card bg-base-200 shadow-xl p-6">
