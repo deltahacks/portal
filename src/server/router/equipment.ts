@@ -12,6 +12,7 @@ import { Session } from "next-auth";
 import {
   getOutstandingHardware,
   hardwareItemSchema,
+  parseHardwareLogItems,
 } from "../../utils/hardware";
 
 const assertHardwareAccess = (session: Session) => {
@@ -46,6 +47,44 @@ const getHardwareLogsForUser = (prisma: PrismaClient, userId: string) =>
     select: { action: true, items: true },
     orderBy: { timestamp: "asc" },
   });
+
+const getOutstandingHardwareByUser = async (prisma: PrismaClient) => {
+  const logs = await prisma.equipmentLog.findMany({
+    where: { type: EquipmentType.HARDWARE },
+    select: {
+      userId: true,
+      action: true,
+      items: true,
+      timestamp: true,
+      user: { select: hardwareUserSelect },
+      admin: { select: hardwareUserSelect },
+    },
+    orderBy: { timestamp: "asc" },
+  });
+
+  const logsByUser = new Map<string, typeof logs>();
+  for (const log of logs) {
+    logsByUser.set(log.userId, [...(logsByUser.get(log.userId) ?? []), log]);
+  }
+
+  return Array.from(logsByUser.values())
+    .map((userLogs) => {
+      const lastCheckout = userLogs.findLast(
+        (log) => log.action === EquipmentAction.CHECK_OUT,
+      );
+      return {
+        user: userLogs[0]!.user,
+        ...getOutstandingHardware(userLogs),
+        lastCheckout: lastCheckout?.timestamp ?? null,
+        admin: lastCheckout?.admin ?? null,
+      };
+    })
+    .filter((row) => row.items.length > 0)
+    .sort(
+      (a, b) =>
+        (b.lastCheckout?.getTime() ?? 0) - (a.lastCheckout?.getTime() ?? 0),
+    );
+};
 
 export const equipmentRouter = router({
   getSleepingBagStats: protectedProcedure.query(async ({ ctx }) => {
@@ -383,6 +422,101 @@ export const equipmentRouter = router({
 
       return {
         allReturned: getOutstandingHardware([...logs, log]).items.length === 0,
+      };
+    }),
+
+  getHardwareStats: protectedProcedure.query(async ({ ctx }) => {
+    assertHardwareAccess(ctx.session);
+
+    const [totalSignOuts, totalReturns, outstanding] = await Promise.all([
+      ctx.prisma.equipmentLog.count({
+        where: {
+          type: EquipmentType.HARDWARE,
+          action: EquipmentAction.CHECK_OUT,
+        },
+      }),
+      ctx.prisma.equipmentLog.count({
+        where: {
+          type: EquipmentType.HARDWARE,
+          action: EquipmentAction.RETURN,
+        },
+      }),
+      getOutstandingHardwareByUser(ctx.prisma),
+    ]);
+
+    return {
+      hackersWithOutstanding: outstanding.length,
+      unitsOutstanding: outstanding
+        .flatMap((row) => row.items)
+        .reduce((sum, item) => sum + item.quantity, 0),
+      totalSignOuts,
+      totalReturns,
+    };
+  }),
+
+  getUsersWithOutstandingHardware: protectedProcedure.query(async ({ ctx }) => {
+    assertHardwareAccess(ctx.session);
+    return await getOutstandingHardwareByUser(ctx.prisma);
+  }),
+
+  getHardwareLogs: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(50),
+        cursor: z.string().nullish(),
+        search: z.string().optional(),
+        action: z.nativeEnum(EquipmentAction).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      assertHardwareAccess(ctx.session);
+
+      const { limit, cursor, search, action } = input;
+
+      const where: Prisma.EquipmentLogWhereInput = {
+        type: EquipmentType.HARDWARE,
+        ...(action && { action }),
+        ...(search && {
+          user: {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
+              {
+                DH13Application: {
+                  OR: [
+                    { firstName: { contains: search, mode: "insensitive" } },
+                    { lastName: { contains: search, mode: "insensitive" } },
+                  ],
+                },
+              },
+            ],
+          },
+        }),
+      };
+
+      const logs = await ctx.prisma.equipmentLog.findMany({
+        where,
+        take: limit + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: { timestamp: "desc" },
+        include: {
+          user: { select: hardwareUserSelect },
+          admin: { select: hardwareUserSelect },
+        },
+      });
+
+      let nextCursor: string | undefined = undefined;
+      if (logs.length > limit) {
+        const nextItem = logs.pop();
+        nextCursor = nextItem!.id;
+      }
+
+      return {
+        items: logs.map((log) => {
+          const { items, idCollected } = parseHardwareLogItems(log.items);
+          return { ...log, items, idCollected: idCollected ?? false };
+        }),
+        nextCursor,
       };
     }),
 });
